@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend:check": "deno task --config supabase/functions/deno.json check",
+    "backend:lint": "deno task --config supabase/functions/deno.json lint",
+    "backend:test": "deno task --config supabase/functions/deno.json test",
+    "check": "npm run lint && npm run build && npm run backend:check && npm run backend:lint && npm run backend:test"
   },
   "dependencies": {
     "react": "^19.3.1",
@@ -19,6 +23,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "deno": "2.9.6",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",

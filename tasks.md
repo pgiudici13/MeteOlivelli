@@ -1,0 +1,381 @@
+# Attività operative — MeteOlivelli
+
+> **Versione:** checklist operativa, aggiornata il 21 ottobre 2026 dopo esecuzione del setup generale.
+> **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
+> **Richiesta attuale:** eseguire il setup generale SET-01–SET-04 e rendere ogni task specifico e autoesplicativo. I task backend applicativi restano successivi; una voce spuntata riporta ciò che è stato realmente verificato.
+
+## 1. Come usare la checklist
+
+- `[x]` significa completato con evidenza; `[ ]` significa non completato. Gli stati aggiuntivi indicano `pronto`, `dipendenza`, `CSV necessario`, `decisione necessaria`, `richiesta remota necessaria`.
+- Ogni attività contiene dipendenze, istruzioni, risultato, verifica e riferimento al piano. Aggiornare stato ed esito nello stesso intervento che completa il lavoro; non spuntare task solo perché esiste un file.
+- Seguire `AGENTS.md`, controllare Git prima delle modifiche e preservare i file locali. Alla creazione di questa checklist risultano non tracciati `plan.md`, `AGENTS.md` e `CORRECTIONS.md`; nessuna modifica ai file tracciati.
+- Le scelte tecniche indicate come **proposte** non sono risorse già configurate. I percorsi indicati come futuri sono candidati: crearli solo nel task pertinente, leggendo prima ciò che eventualmente esiste. I file realizzati nel setup sono elencati con esito nei task SET.
+- Distinguere sempre fatti verificati, dichiarazioni dell'utente, ipotesi e decisioni. Se una risposta cambia un requisito, aggiornare prima `plan.md`, poi questa checklist.
+- I controlli in sola lettura non richiedono una nuova autorizzazione per ogni consultazione. Modifiche a GitHub/Vercel/Supabase, applicazione di migrazioni, installazione sul PC reale e pubblicazione vanno eseguite soltanto entro una richiesta esplicita che ne copra target e ambito; non richiedere nuovamente permessi già concessi per la stessa operazione.
+- Prima di una richiesta necessaria per modifiche remote, preparare il risultato revisionabile: file, schema/policy, test, progetto e ambiente interessati, impatto e recupero. Non chiedere approvazione su una proposta ancora vaga.
+- Non leggere o stampare valori di `.env`, chiavi o token per compilare documentazione. Eventuali file di esempio contengono solo segnaposto; nessun segreto browser, log o Git.
+- Nessun commit, push, merge o riscrittura della storia senza richiesta. Il progetto resta React, TypeScript, Vite, ESLint e npm.
+
+### Termini usati nei task
+
+- **Backend:** il codice server che riceve, controlla e salva i dati; non è eseguito nel browser.
+- **Endpoint:** un indirizzo HTTP che riceve una richiesta e restituisce un esito; ingestione significa ricevere nuove misure.
+- **Contratto/payload:** formato e significato dei campi inviati, più le regole per conferme ed errori.
+- **Idempotenza:** ritentare lo stesso evento non crea una seconda misura; due eventi diversi possono avere gli stessi valori.
+- **Outbox:** coda salvata sul disco del PC prima dell'invio, per ripartire dopo un guasto o l'assenza di rete.
+- **RLS e privilegi:** regole DB sulle righe accessibili e sulle operazioni ammesse; una chiave pubblica non sostituisce questi controlli.
+- **Migrazione:** file SQL versionato che descrive una modifica al database. Prepararlo e applicarlo sono attività diverse.
+- **Fixture:** input usato nei test, dichiarato sintetico o depurato; non è una misurazione reale da mostrare al pubblico.
+- **Typecheck, lint, test:** rispettivamente controllo dei tipi, qualità statica e prova di un comportamento.
+- **Cache:** copia temporanea per ridurre richieste; non sostituisce il backup.
+- **Restore, RPO/RTO:** prova di recupero, perdita massima accettabile e tempo massimo per ripristinare.
+
+## 2. Perimetro e percorso critico
+
+**Deciso dall'utente:** sito pubblico in italiano per scuola/open day; ultimi valori reali di temperatura °C, umidità % e pressione hPa; grafici 24h/7g/30g; nessun account, profilazione o download. CSV e misure da conservare, anomalie da segnalare. Previsioni esterne distinte per +30 minuti, +1 ora e giornata. Budget 0 €.
+
+**Tempi:** consegna richiesta per settimana prossima, interpretata nel piano come 26 ottobre–1 novembre 2026; nessun giorno preciso o promessa di completamento. Possibile chiusura a dicembre, ancora incerta e senza autorizzazione a cancellare dati.
+
+**Flusso da realizzare:** sensori → Arduino GIGA R1 → writer Windows/CSV → nuove righe complete → uploader con outbox → endpoint autenticato → DB → sito aggiornato senza reload. Il provider previsionale è una sorgente separata; non riceve automaticamente il CSV.
+
+**Due tempi distinti:** `measured_at` è l'ora della misura, eventualmente nulla; `received_at` è assegnata dal backend alla prima accettazione e non cambia nei retry. L'eventuale `captured_at` del PC è un'altra informazione. Il contatore Arduino non è Unix time.
+
+**Stato stazione:** ritardo oltre 20 minuti dalla prossima misura attesa. Con cadenza esatta di un'ora, esempio illustrativo: misura 10:00 → attesa 11:00 → ritardo oltre 11:20. La regola definitiva richiede cadenza e ancoraggio verificati; ricevere un batch storico non dimostra freschezza.
+
+**Limiti ancora aperti:** CSV non disponibile; append e cadenza circa oraria probabili; writer, firmware, clock, buffering, sentinelle, accessi effettivi Windows non verificati e schema applicativo da progettare; `public` remoto risulta senza tabelle nell’inventario SET-04. Per previsioni mancano località precisa e verifica del provider; per backup destinazione indipendente e obiettivi di recupero.
+
+Percorso critico:
+
+```text
+Setup → CSV/writer + semantica tempo → contratto → schema/accessi
+      → ingestione + DB verificati → uploader reale → aggiornamento UI
+      → prova completa + backup/restore → rilascio richiesto
+
+In parallelo, dopo avvio dell'implementazione:
+  UI con stati vuoti; località/provider → previsioni → integrazione UI
+```
+
+La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche provvisorie; impedisce di dichiarare definitivi parser, schema dipendente dal dato e flusso reale. Nessun formato fittizio diventa quello della stazione.
+
+## 3. Primo blocco — Mini setup generale
+
+### SET-00 — Confermare lo stato iniziale prima di modificare
+
+- [x] **Stato: completato e ricontrollato il 21 ottobre 2026.**
+- **Scopo:** sapere quali file esistono e quali modifiche appartengono già all'utente, per non sovrascriverle.
+- **Input/file:** Git, `AGENTS.md`, `plan.md`, `tasks.md`, `CORRECTIONS.md`, package/lockfile e configurazioni TypeScript/Vite/ESLint.
+- **Passaggi eseguiti:** controllato `git status --short --branch`; riletti i file pertinenti; registrate impronte dei file iniziali; verificati strumenti e struttura tramite nomi, senza aprire `.env` o credenziali.
+- **Risultato:** prima del setup nessun file tracciato modificato; quattro documenti locali non tracciati preservati. React/TypeScript/Vite/ESLint/npm conservati; `src/` rimane il template. Node 26.12.0 e npm 11.20.0 disponibili; Deno inizialmente assente.
+- **Verifica:** le modifiche finali devono limitarsi ai file del setup e documenti aggiornati. La build precedente isolata non era un test del backend: i nuovi esiti vanno distinti nel registro esecuzioni.
+- **Riferimento:** [plan.md §4](plan.md#4-stato-attuale-evidenze-e-limiti).
+
+### SET-01 — Rendere versionabili gli esempi, mantenendo esclusi i segreti
+
+- [x] **Stato: completato il 21 ottobre 2026.** Dipende da SET-00.
+- **Scopo:** permettere ai collaboratori di ricevere nomi e istruzioni delle variabili senza inserire segreti in Git.
+- **File modificato:** `.gitignore`; prova e risoluzione registrate in COR-001 di `CORRECTIONS.md`.
+- **Passaggi eseguiti:** rimossa la regola che ignorava il nome `.gitignore`; semplificate le regole generali in `.env*`; collocata l'eccezione `!.env.example` dopo la regola generale; preservata l'esclusione di `.vercel/`, dipendenze e build. L'eccezione vale anche per l'esempio dentro `supabase/functions/`.
+- **Risultato:** gli esempi sono versionabili e contengono soltanto commenti/valori vuoti. `.env.local` esistente non è stato letto o modificato.
+- **Verifica ripetibile:** `git check-ignore --no-index --quiet .env.example` deve terminare con 1 (non ignorato); lo stesso comando per `.env.local` con 0 (ignorato). Ripetere per l'esempio server e un nome server di prova `.env.local`; non serve creare file con segreti. Con `-v` si può vedere anche una regola negativa: non interpretarla come conferma che il file sia ignorato.
+- **Completamento:** esempi non ignorati, tutti i nomi ambiente reali provati ignorati; COR-001 risolto solo dopo questa verifica. Nessun `git add` necessario.
+- **Riferimento:** `CORRECTIONS.md`, COR-001; [plan.md §9](plan.md#9-sicurezza-e-privacy).
+
+### SET-02 — Spiegare avvio locale e configurazione pubblica/server
+
+- [x] **Stato: completato il 21 ottobre 2026.** Dipende da SET-01; usa il modulo base di SET-03.
+- **Scopo:** consentire di avviare il progetto e sapere quali informazioni potranno finire nel browser, senza chiedere credenziali per vedere il template.
+- **File:** `README.md`, `.env.example`, `supabase/functions/.env.example`, `docs/backend.md`.
+- **Passaggi eseguiti:** documentati requisiti e `npm ci`/`npm run dev`; definiti esempi vuoti per il futuro client (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) e server (`SUPABASE_URL`, `STATION_INGEST_TOKEN`). Separati i segreti dalla configurazione esponibile e spiegato che la scelta della credenziale DB è ancora BE-03.
+- **Risultato:** il template funziona senza queste variabili; gli esempi definiscono nuove convenzioni, non certificano cosa sia già configurato. Nessun file locale esistente viene copiato o sovrascritto. Il modulo base segnala una configurazione richiesta ma vuota senza mostrare valori.
+- **Verifica:** controllare che tutti i valori degli esempi siano vuoti e che i link README esistano; testare il modulo con input sintetici. Non servono connessioni ai servizi, login visitatore o lettura di `.env.local`.
+- **Completamento:** istruzioni e comandi corrispondono ai file reali; avvio frontend e controlli sono distinti da DB/endpoint non ancora implementati.
+- **Riferimento:** [plan.md §3](plan.md#3-vincoli-non-negoziabili), §9 e §14; [README.md](README.md).
+
+### SET-03 — Installare il runtime e separare i controlli del backend
+
+- [x] **Stato: completato il 21 ottobre 2026.** Dipende da SET-00.
+- **Scopo:** poter iniziare il backend TypeScript con controlli ripetibili, evitando che il lint browser ignori errori server o che Deno venga incluso nel bundle React.
+- **File:** `package.json`, `package-lock.json`, `eslint.config.js`, `supabase/functions/deno.json`, `_shared/config.ts` e `_shared/config_test.ts` sotto la cartella delle funzioni, `docs/backend.md`.
+- **Passaggi eseguiti:** consultata documentazione ufficiale; installato `deno@2.9.6` come devDependency esatta tramite npm, senza installazione globale; esclusi i moduli Deno dal lint browser; aggiunti `backend:check`, `backend:lint`, `backend:test` e comando aggregato `check`. Introdotto un lettore esplicito di configurazione obbligatoria con tre test sintetici.
+- **Risultato:** `npm run backend:check` controlla i tipi; `npm run backend:lint` controlla lint/formato; `npm run backend:test` prova assenza/vuoto, conservazione esatta del valore e lettura della sola variabile richiesta. I test non leggono ambiente, rete o file applicativi. Nessun parser CSV, endpoint, tabella, Docker o servizio locale avviato.
+- **Verifica ripetibile:** eseguire i tre comandi backend dalla root; tutti devono finire con exit code 0, con 3 test superati. `npm run check` aggiunge lint e build frontend; in questa attività viene eseguito su copia senza `.env`, così Vite non carica configurazioni locali.
+- **Completamento:** controlli realmente eseguibili e dipendenza fissata nel lockfile. All'aggiunta di endpoint/sottocartelle aggiornare i percorsi dei controlli Deno: oggi coprono i moduli direttamente in `_shared/`, non un handler ancora assente.
+- **Riferimento:** [plan.md §5](plan.md#5-architettura-candidata), §7 fase 0 e §13; [docs/backend.md](docs/backend.md).
+
+### SET-04 — Registrare cosa esiste sui servizi, senza modificarli
+
+- [x] **Stato: inventario iniziale completato il 21 ottobre 2026, nei limiti espliciti sotto.**
+- **Scopo:** partire dal progetto corretto e non progettare backend e deploy presumendo tabelle, policy, quote o collegamenti inesistenti.
+- **Input/output:** metadati GitHub/Supabase, mapping Vercel locale e CLI; risultato in [docs/services.md](docs/services.md). Nessun valore di credenziali o risposta integrale del progetto Vercel pubblicato.
+- **Passaggi eseguiti:** GitHub verificato via connettore; Supabase interrogato con `list_projects`, `list_tables` limitato a `public`, `list_edge_functions`, `list_migrations`; Vercel ispezionato con progetto/scope espliciti dopo fallimento della risoluzione implicita. Consultati pricing/condizioni ufficiali Supabase, Vercel e Open-Meteo.
+- **Risultato verificato:** GitHub pubblico su `main`; Supabase `MeteOlivelli` attivo, nessuna tabella restituita in `public`, nessuna funzione o migrazione registrata; Vercel `meteolivelli`, framework Vite e Node 24.x. Il Node locale è 26.12.0: nessuna impostazione remota cambiata per uniformarli.
+- **Verifica e limiti:** nessuna modifica remota, migrazione o secret recuperato. Non verificati piano billing effettivo degli account, tutti gli schemi DB, integrazione Git effettiva Vercel, deploy corrente o funzionamento RLS applicativo. Offerta gratuita consultata distinta dal piano dell'account. Questi limiti restano elencati e saranno verificati nei task pertinenti.
+- **Ambiente di prova scelto ora:** test locali isolati. Un ambiente DB separato andrà scelto prima di BE-07; il progetto vuoto non è automaticamente sacrificabile. Nessun costo attivato.
+- **Riferimento:** [plan.md §4](plan.md#4-stato-attuale-evidenze-e-limiti), §9, D4/D9/D23; [docs/services.md](docs/services.md).
+
+**Uscita del blocco setup:** configurazione spiegata, COR-001 verificato, struttura locale proporzionata e comandi di verifica chiari; nessuna modifica ai servizi necessaria per dichiarare il solo setup locale pronto.
+
+## 4. Contratto dati e prima logica backend
+
+### DATA-01 — Acquisire il campione reale e osservare il writer
+
+- [ ] **Stato: CSV necessario, quando l'utente potrà recuperarlo.**
+- **Scopo in pratica:** Conoscere il file realmente scritto dal PC prima di decidere come leggerlo.
+- **Input e file coinvolti:** CSV depurato fornito dall’utente quando disponibile; `docs/backend.md`; eventuali fixture depurate in `uploader/tests/fixtures/` (percorsi futuri).
+- **Come:** esaminare intestazione e righe originali depurate, scrittura parziale, append, encoding, separatori e decimali. Osservare cosa succede a riavvio, file sostituito/troncato e reset Arduino. Identificare programma, percorso effettivo e accessibilità senza salvare dati sensibili nel repository.
+- **Risultato:** contratto CSV in `docs/backend.md`, con campione verificato o fixture depurate e provenienza; dimensioni/cadenza osservate, sentinelle conosciute e aspetti ancora ignoti.
+- **Verifica:** nessuna assunzione derivata da un esempio inventato; controllare che due righe identiche possano comunque essere due eventi validi. Nessuna richiesta ripetuta del file finché l'utente non lo ha disponibile.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 2, D1 e D5.
+
+### DATA-02 — Fissare timestamp, sessioni e trattamento dello storico
+
+- [ ] **Stato: disegno pronto; conclusione dipendente da DATA-01.**
+- **Scopo in pratica:** Stabilire che ora mostriamo e quali dati restano senza data, senza trasformare il contatore Arduino in un calendario.
+- **Input e file coinvolti:** Writer/seriale e clock del PC da osservare; regole temporali in `docs/backend.md` e decisioni D2/D12/D13 del piano.
+- **Come:** scegliere dove registrare l'ora sul PC il più vicino possibile al seriale/writer; verificare sincronizzazione, ritardi e buffering. Definire semantica/nullabilità di `measured_at`, `captured_at`, `received_at` e qualità temporale; UTC per gli istanti, UI Europe/Rome.
+- **Risultato:** regola temporale documentata. Storico privo di data conservato con `measured_at` nullo e fuori dai grafici per data; contatore grezzo conservato. Reset/overflow/riordino distinti quando dimostrabili; nessun `boot_id` affidabile inventato da un semplice calo del contatore.
+- **Verifica:** casi di reset Arduino, solo restart uploader, invio tardivo, record senza ora e DST. Un retry non cambia l'istante originario di ricezione backend; nessun Unix time ricavato dall'uptime.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), D2, D12 e D13.
+
+### DATA-03 — Definire payload, identità degli eventi e risposte API
+
+- [ ] **Stato: bozza possibile; contratto definitivo dopo DATA-01 e DATA-02.**
+- **Scopo in pratica:** Dire esattamente cosa invia il PC e quando il server può confermare che la misura è salvata una volta sola.
+- **Input e file coinvolti:** Specifica JSON e risposte in `docs/backend.md`; campi concettuali del piano, da chiudere su DATA-01/DATA-02.
+- **Come:** definire versione del payload, sorgente, ID stabile assegnato una sola volta, valori/unità e metadati temporali. Proposta minima: singolo evento per richiesta, proporzionato alla cadenza; batch solo se motivato dall'importazione. Documentare autenticazione, limiti, codici errore e conferma dopo commit.
+- **Risultato:** contratto in `docs/backend.md`; stesso ID/stesso contenuto → conferma del risultato precedente, stesso ID/contenuto diverso → conflitto senza sovrascrittura. Versioni/campi sconosciuti hanno comportamento esplicito.
+- **Verifica:** nessuna chiave basata solo sui tre valori o sull'uptime; se si usano batch, scegliere atomicità o esito per riga. Separare mancata risposta da mancato inserimento e definire la riconciliazione dopo perdita dello stato locale.
+- **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF3–RF4, D3 e D14.
+
+### BE-01 — Implementare validazione pura e test del contratto
+
+- [ ] **Stato: primo codice backend locale preparabile; dipende da SET-03 e bozza DATA-03.**
+- **Scopo in pratica:** Rifiutare richieste strutturalmente errate e classificare i dati sospetti prima di tentare una scrittura.
+- **Input e file coinvolti:** Futuri `supabase/functions/_shared/measurement.ts` e `measurement_test.ts`; aggiornare entry point check/lint/test in `deno.json`. Il lettore di configurazione SET-03 non completa questo task.
+- **Come:** scrivere piccole funzioni senza rete per parsing del payload JSON, controlli strutturali, normalizzazione esplicita e classificazione degli errori. Usare fixture sintetiche etichettate, senza attribuirle alla stazione. Non implementare un parser CSV definitivo prima di DATA-01.
+- **Risultato:** validazione separata dall'handler HTTP, con errori stabili e campi non finiti/null/stringhe gestiti. Le soglie fisiche non note restano configurabili o da chiudere, senza scarti arbitrari.
+- **Verifica:** payload valido/incompleto, valori non numerici e non finiti, timestamp non valido, ora mancante ammessa, versione sconosciuta e anomalie conservate/segnalate. Adeguare i test al contratto reale prima di dichiarare il task definitivo.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §13, RNF1 e D16.
+
+## 5. Database, sicurezza e ingestione
+
+### BE-02 — Disegnare lo schema minimo e gli indici
+
+- [ ] **Stato: schema concettuale possibile; definitivo dipende da DATA-01–DATA-03.**
+- **Scopo in pratica:** Progettare come ogni evento e la sua provenienza vengono conservati e interrogati nel database.
+- **Input e file coinvolti:** Disegno schema e query in `docs/backend.md`; inventario reale in `docs/services.md`. Nomi di tabelle e tipi definitivi ancora da scegliere.
+- **Come:** progettare archivio misure, provenienza, qualità e chiave di unicità; aggiungere strutture sorgenti/sessioni solo se servono. Definire tipi, precisione, nullabilità e vincoli senza presumere tabelle esistenti. Ordinamento deterministico per ultima misura e storico.
+- **Risultato:** schema revisionabile in `docs/backend.md`, indici motivati dalle query e comportamento per record senza data/anomali. Nessun SQL applicato o nome di tabella dichiarato come già presente.
+- **Verifica:** dati ripetuti legittimi ammessi; eventi ripetuti non duplicati; `received_at` server-side immutato nei retry; coerenza di unità e trattamento dei null. Riesaminare capacità per retention permanente sul volume osservato.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 3, RF1–RF4 e D10.
+
+### BE-03 — Progettare ruoli, RLS, lettura pubblica e credenziali
+
+- [ ] **Stato: dipendenza BE-02 e inventario SET-04.**
+- **Scopo in pratica:** Consentire ai visitatori soltanto le letture approvate, tenendo la scrittura al server autenticato.
+- **Input e file coinvolti:** Matrice ruoli/policy e modalità custodia in `docs/backend.md`; esempi ambiente aggiornati solo quando necessari, sempre vuoti.
+- **Come:** fissare superficie pubblica e scegliere lettura diretta limitata o endpoint. Progettare privilegi SQL e RLS separatamente, verificando anche viste/funzioni; pubblico solo SELECT necessario, nessuna scrittura. Uploader autenticato verso endpoint, senza chiave DB privilegiata sul PC.
+- **Risultato:** matrice accessi e policy revisionabili; credenziale d'ingestione separata dalla configurazione browser, custodia e revoca documentate per il responsabile. Nessun account visitatore introdotto.
+- **Verifica:** individuare come provare rifiuto di insert/update/delete e letture interne non autorizzate, anche tramite funzioni/viste. Nessun uso di privilegi elevati per aggirare errori di permesso senza motivazione.
+- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), RF5, RNF2, D4 e D7.
+
+### BE-04 — Preparare migrazione e prove database revisionabili
+
+- [ ] **Stato: dipendenza schema/contratto revisionati BE-02–BE-03.**
+- **Scopo in pratica:** Trasformare lo schema revisionato in modifiche SQL verificabili prima di eseguirle.
+- **Input e file coinvolti:** Futuri file in `supabase/migrations/` e prove accessi/vincoli; percorso e comandi definiti dalla CLI supportata dopo revisione, non file SQL applicati a sorpresa.
+- **Come:** dopo revisione dello schema creare i file versionati con gli strumenti supportati, verificando prima i comandi disponibili. Preparare prove per vincoli, idempotenza concorrente e accessi; indicare effetto, prerequisiti e recupero. Non applicare la migrazione come effetto collaterale della sua preparazione.
+- **Risultato:** diff SQL, test e note di applicazione comprensibili a un collaboratore, senza segreti o risorse remote create.
+- **Verifica:** distinguere controllo statico del file da esecuzione SQL reale. Per applicarla anche in ambiente locale chiedere/eseguire solo nell'ambito di una richiesta esplicita; provare prima in ambiente separato autorizzato, senza reset del database operativo.
+- **Riferimento:** [plan.md §3](plan.md#3-vincoli-non-negoziabili), §7 fase 3 e §13.
+
+### BE-05 — Implementare l'endpoint di ingestione
+
+- [ ] **Stato: dipendenza DATA-03, BE-01, BE-02–BE-03; integrazione DB dopo BE-07.**
+- **Scopo in pratica:** Costruire l’indirizzo HTTP a cui l’uploader invierà ogni nuova misura e riceverà una conferma affidabile.
+- **Input e file coinvolti:** Futuro `supabase/functions/ingest-measurement/index.ts`, test dell’handler e moduli condivisi; configurazione funzione e controlli Deno da estendere.
+- **Come:** proposta percorso `supabase/functions/ingest-measurement/`, se confermata la scelta Edge Function. Handler minimale: autenticazione, limite corpo/metodo, validazione, inserimento idempotente atomico e risposta dopo commit. Assegnare `received_at` sul server; prevenire concorrenza con vincolo DB, non soltanto con un controllo preliminare.
+- **Risultato:** endpoint e configurazione locale non segreta; timeout, errori e log minimizzati. Controlli browser/CORS, se pertinenti, non vengono trattati come autenticazione dell'uploader.
+- **Verifica:** credenziale assente/errata, payload eccessivo o invalido, duplicato identico, conflitto diverso, due richieste simultanee, perdita della risposta e DB indisponibile. Non registrare token o header sensibili. I test simulati non sostituiscono quelli con DB reale.
+- **Riferimento:** [plan.md §7 fase 4](plan.md#fase-4--endpoint-di-ingestione), §8, RF3 e RNF2.
+
+### BE-06 — Definire lettura ultima misura e storico
+
+- [ ] **Stato: dipendenza BE-02–BE-03; lettura reale dopo BE-07.**
+- **Scopo in pratica:** Offrire al sito un modo limitato e prevedibile per leggere ultimi valori e serie temporali.
+- **Input e file coinvolti:** Contratto query in `docs/backend.md`; query/endpoint o adapter browser da introdurre nel percorso coerente con D4, senza aggiungere entrambi i livelli per default.
+- **Come:** definire query pubbliche limitate per ultimi valori e intervalli 24h/7g/30g, con ordinamento e limiti deterministici. Esporre solo campi approvati; nessun endpoint di download pubblico. Separare storico per data e record senza data.
+- **Risultato:** contratto di lettura utilizzabile dal frontend, con stati vuoti/errori e unità/provenienza; nessuna necessità di leggere tabelle interne dal browser.
+- **Verifica:** periodo vuoto, record con `measured_at` nullo, tempi uguali, anomalie, passaggi giorno/DST, dati arretrati appena importati e limiti query. Verificare indici e comportamento con un volume realistico dichiarato.
+- **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF1–RF2, RF5 e D4.
+
+### BE-07 — Applicare e verificare il backend nell'ambiente autorizzato
+
+- [ ] **Stato: richiesta remota necessaria; dipende da SET-04, BE-04–BE-06 e revisione dei file.**
+- **Scopo in pratica:** Provare il backend completo sul target reale autorizzato, oltre ai test locali.
+- **Input e file coinvolti:** Migrazione e funzione già revisionabili, target da `docs/services.md`, configurazione protetta e risultati in questo registro; nessun valore segreto nei documenti.
+- **Come:** presentare target/ambiente, migrazione, policy, funzione, configurazione e prove. Solo con richiesta esplicita applicare le modifiche richieste al target verificato, predisporre segreti con modalità protette e usare dati di prova chiaramente separati dalle misure scolastiche.
+- **Risultato:** database/endpoint effettivamente collegati e verificati; annotare cosa è stato applicato e come recuperare in caso di errore. Prima di una modifica a dati esistenti, preservarne una copia verificabile.
+- **Verifica:** schema e policy reali corrispondono ai file; test anonimo/autenticazione/ingestione/read-only e deduplicazione concorrente passano. Nessuna chiave privilegiata nel client. Non segnare il backend pronto sulla sola base di un deploy riuscito.
+- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), §13 e Definition of Done §15.
+
+**Uscita del blocco backend:** una misura conforme al contratto reale viene accettata una volta, il retry è sicuro, le scritture pubbliche sono respinte e le letture approvate funzionano. Senza BE-07 verificato si può dichiarare completato solo il codice locale pertinente.
+
+## 6. Uploader Windows e acquisizione reale
+
+### UP-01 — Integrare la sorgente e l'orario delle nuove righe
+
+- [ ] **Stato: CSV necessario; dipende da DATA-01–DATA-03.**
+- **Scopo in pratica:** Trasformare soltanto le nuove righe complete del CSV reale in eventi pronti per l’invio.
+- **Input e file coinvolti:** Futuro codice Python in `uploader/`, fixture e test in `uploader/tests/`, contratto DATA-03 e integrazione con writer autorizzata.
+- **Come:** implementare lettura incrementale e rilevamento della riga completa/stabile usando le evidenze del writer. Modificare il punto di acquisizione temporale concordato, senza attribuire a vecchie righe l'ora di importazione. Leggere nuove righe senza ricaricare tutto l'archivio.
+- **Risultato:** parser per il CSV reale e metadati di provenienza coerenti. Originale preservato; EOF senza newline e scrittura parziale trattati esplicitamente.
+- **Verifica:** separatori/decimali reali, riga incompleta o malformata, valori ripetuti, reset e righe vecchie iniziali. Fixture sintetiche aggiuntive sempre dichiarate.
+- **Riferimento:** [plan.md §7 fase 5](plan.md#fase-5--uploader-python-per-windows), §8 e D1–D2.
+
+### UP-02 — Implementare stato durevole e outbox
+
+- [ ] **Stato: dipendenza UP-01 e DATA-03.**
+- **Scopo in pratica:** Non perdere gli eventi già acquisiti e non cambiare identità quando il PC o la rete si interrompono.
+- **Input e file coinvolti:** Futura outbox SQLite e registro cursore/identità gestiti da `uploader/`; percorsi di stato sul PC fuori da Git, test di crash/ripresa in `uploader/tests/`.
+- **Come:** proposta semplice SQLite: salvare atomicamente evento, ID, identità/generazione file e cursore prima dell'invio. Impedire doppia esecuzione. Segnare l'evento confermato solo dopo risposta affidabile, mantenendo ID e sorgente per eventuale replay.
+- **Risultato:** crash/restart non perdono righe già persistite; retry usa lo stesso ID. Rotazione, troncamento e sostituzione riconosciuti senza deduplicare unicamente per hash della riga.
+- **Verifica:** crash prima/dopo invio o conferma locale, file cambiato, stato corrotto/perso e restore del database precedente alle conferme uploader. Se l'identità non è ricostruibile, fermare il replay automatico e segnalare anziché creare nuovi UUID per tutto.
+- **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF3–RF4 e D14.
+
+### UP-03 — Implementare retry, quarantena e diagnostica
+
+- [ ] **Stato: dipendenza UP-02 e contratto endpoint BE-05.**
+- **Scopo in pratica:** Riprovare quando il problema è temporaneo e conservare le righe invalide senza nasconderle.
+- **Input e file coinvolti:** Invio HTTPS, stato retry, quarantena e log nel futuro `uploader/`; guida di diagnosi in `uploader/README.md`; spazio e canale avvisi da concordare.
+- **Come:** inviare via HTTPS, backoff con jitter per errori temporanei e rispetto di `Retry-After` quando presente. Credenziale rifiutata → sospensione e avviso; invalidi permanenti → quarantena con originale e motivo, senza bloccare tutte le altre righe. Limitare/ruotare log e osservare spazio/coda, senza segreti.
+- **Risultato:** ripresa dopo offline senza scarti silenziosi, ritardi distinguibili dalle anomalie e dal fermo sensore; nessuna eliminazione automatica dei non confermati per liberare spazio.
+- **Verifica:** timeout, risposta persa dopo commit, 429/5xx, 4xx di validazione/auth, disco pieno e stato locale non scrivibile. Definire la durata offline sostenibile sulla capacità reale, non assumere spazio infinito.
+- **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), §13, D16–D17 e D21.
+
+### UP-04 — Installare, avviare automaticamente e provare sul PC reale
+
+- [ ] **Stato: dipendenza UP-01–UP-03, BE-07 e disponibilità/accesso autorizzato al PC.**
+- **Scopo in pratica:** Far partire e mantenere l’uploader sul PC Windows senza doverlo lanciare a mano a ogni accensione.
+- **Input e file coinvolti:** PC reale accessibile con permessi concordati; pacchetto `uploader/` e `uploader/README.md`; credenziale fuori dai file versionati.
+- **Come:** verificare Python/permessi, clock, rete, proxy, sospensione e file accessibile all'account tecnico; configurare avvio automatico e singola istanza con strumento Windows adatto. Custodire credenziale fuori dal sorgente; solo HTTPS in uscita. Non confondere un PC dedicato con disponibilità continua verificata.
+- **Risultato:** procedura breve `uploader/README.md` per installazione, configurazione senza valori, stop/start, log e aggiornamento; nuova misura realmente inviata anche dopo riavvio secondo modalità concordata.
+- **Verifica:** reboot, avvio senza intervento manuale nel caso richiesto, rete scollegata/ripresa, file occupato e nuova riga fino al DB. Nessuna porta in ingresso. Segnalare eventuale necessità di login rimasta, senza nasconderla.
+- **Riferimento:** [plan.md §7 fase 5](plan.md#fase-5--uploader-python-per-windows), D7, D15 e D24.
+
+## 7. Previsioni e collegamento al frontend
+
+### WX-01 — Validare località, provider e risoluzione
+
+- [ ] **Stato: decisione/verifica necessaria; indipendente dal campione CSV.**
+- **Scopo in pratica:** Verificare che esista una previsione adatta alla località e ai tre orizzonti richiesti, nel budget.
+- **Input e file coinvolti:** Indirizzo/coordinate da confermare, documentazione ufficiale del provider e risposta reale; esito e condizioni in `docs/backend.md`/`docs/services.md`.
+- **Come:** confermare indirizzo/coordinate della stazione senza dedurle dal solo nome della scuola. Valutare il candidato Open-Meteo consultando fonti ufficiali aggiornate, uso scolastico/open day, quote, attribuzione e copertura delle variabili a breve intervallo.
+- **Risultato:** scelta motivata e risposta reale verificata per la località; distinguere serie native e interpolate. Nessuna promessa di previsione puntuale a mezz'ora se la risoluzione non lo supporta.
+- **Verifica:** condizioni +30 minuti/+1 ora/giornata disponibili con semantica corretta; nessun abbonamento attivato o caricamento di CSV al provider. Se non idoneo, documentare il limite e l'alternativa prima del collegamento.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), RF7 e D23; i collegamenti alle fonti ufficiali sono nel piano.
+
+### WX-02 — Implementare lettura previsioni e cache minima
+
+- [ ] **Stato: dipendenza WX-01 e SET-03 per l'eventuale componente server.**
+- **Scopo in pratica:** Recuperare e presentare i dati del provider con tempi e fonte chiari, senza confonderli con i sensori.
+- **Input e file coinvolti:** Futuro adapter previsioni e cache, collocati dopo scelta browser/server; test degli intervalli e della risposta reale. Il CSV non viene inviato al provider.
+- **Come:** scegliere il percorso più semplice compatibile con quote e configurazione; normalizzare solo i campi necessari. Tenere separati provider, recupero, eventuale emissione realmente disponibile e tempi di validità. Gestire timeout/cache scaduta senza simulare dati.
+- **Risultato:** tre orizzonti previsionali con fonte e unità; giornata Europe/Rome distinta dalle ore residue. Nessun archivio permanente dei run aggiunto per deduzione dalla retention delle misure.
+- **Verifica:** cambio giorno/DST, finestre non allineate ai campioni, pioggia accumulata rispetto a valori istantanei, dati mancanti, provider offline e quota esaurita. Fallimento previsioni non blocca osservazioni e grafici.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §8 e RF7.
+
+### UI-01 — Costruire la dashboard italiana essenziale
+
+- [ ] **Stato: struttura/stati vuoti preparabili dopo SET-03; dati reali dipendono da BE-06–BE-07 e WX-02.**
+- **Scopo in pratica:** Sostituire il template con la pagina meteo reale e comprensibile da mobile e desktop.
+- **Input e file coinvolti:** `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
+- **Come:** conservare React/TypeScript/Vite; realizzare ultimi valori, grafici 24h/7g/30g, freschezza e previsioni separate. Layout curato mobile/desktop per open day; scegliere libreria grafici solo se utile, senza introdurre un nuovo stack.
+- **Risultato:** caricamento, archivio vuoto, periodo vuoto, campo assente, anomalia, dati obsoleti, orario sconosciuto ed errore rete hanno messaggi italiani distinti. Nessun account, download o profilazione.
+- **Verifica:** tastiera/focus, contrasto, zoom, riduzione animazioni e riepilogo accessibile dei grafici; nessuna misura inventata o zero sostitutivo. Con pochi dati mostrare quelli esistenti, senza completare 30 giorni artificialmente.
+- **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--interfaccia-e-lettura-dei-dati), §8, RF1–RF2 e RNF3.
+
+### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
+
+- [ ] **Stato: dipendenza UI-01 e backend reale BE-07.**
+- **Scopo in pratica:** Mostrare una misura nuova nella pagina già aperta e indicare correttamente se la stazione è in ritardo.
+- **Input e file coinvolti:** Adapter letture e componenti di UI-01 in `src/`; eventuale canale backend scelto, timer e prove riconnessione. Soglia fissata nel piano: atteso +20 minuti.
+- **Come:** confrontare notifiche mirate con polling breve, scegliendo la soluzione minima compatibile con quote. Aggiornare valori e grafici sulla pagina aperta; riconnettere/ricaricare dati dopo errore senza duplicare record. Calcolare ritardo sull'atteso +20 minuti, distinguendo ora di misura e ricezione.
+- **Risultato:** niente reload manuale e niente attesa fino al prossimo ciclo orario della stazione. Target proposto nell'ordine di 30 secondi dal commit DB in condizioni normali, da misurare; non è uno SLA approvato né latenza nulla.
+- **Verifica:** due browser aperti, inserimento nuovo, retry, offline e riconnessione; soglia appena prima/al/dopo il limite; arrivo di storico vecchio che non fa risultare la stazione aggiornata. Se l'ora misura è ignota, freschezza dichiarata sconosciuta.
+- **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF8, D8 e D24.
+
+## 8. Backup, gestione e rilascio
+
+### OPS-01 — Scegliere e provare il backup indipendente
+
+- [ ] **Stato: decisione necessaria su destinazione e recupero; dipende da BE-02–BE-03.**
+- **Scopo in pratica:** Dimostrare che i dati possono essere recuperati se il database o il PC smettono di funzionare.
+- **Input e file coinvolti:** Storage indipendente approvato e futura procedura/esportazione in `docs/operations.md`; copie dati fuori dal repository; ambiente restore autorizzato.
+- **Come:** verificare storage consentito e capacità a 0 €, fissare frequenza e obiettivi di perdita/tempo di recupero con il responsabile. Esportare misure, provenienza e quanto necessario a ricostruire schema/accessi; preservare CSV e mappa identità/outbox. Scrivere guida essenziale `docs/operations.md`.
+- **Risultato:** copia separata e procedura provata; il CSV sullo stesso PC, il DB operativo e il deployment non diventano automaticamente backup. Retention permanente delle misure distinta dalla durata dei log/versioni delle copie.
+- **Verifica:** restore in ambiente separato autorizzato, confronto integrità/conteggi/null temporali/duplicati e RLS. Verificare replay sicuro degli eventi che l'uploader crede già confermati. Annotare data, durata, esito e limiti; nessuna pubblicazione di dump su GitHub dedotta dalla sua disponibilità.
+- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), RF6, D6, D10 e D17.
+
+### OPS-02 — Completare gestione segreti, avvisi e diagnosi minima
+
+- [ ] **Stato: dipendenza SET-04, BE-03 e UP-03; canale avvisi ancora da scegliere.**
+- **Scopo in pratica:** Dare al responsabile istruzioni brevi per riconoscere guasti, sostituire credenziali e ricevere avvisi.
+- **Input e file coinvolti:** Futuro `docs/operations.md`, configurazione log/avvisi di backend e uploader; custode già l’utente, canale notifiche ancora da scegliere.
+- **Come:** registrare custode, scopo delle credenziali, modalità protetta di sostituzione/revoca e cosa fare per uploader fermo, sensore fermo, DB/provider offline, spazio o quote esauriti. Scegliere come avvisare l'utente senza creare una piattaforma di account; nessun messaggio esterno inviato senza istruzione specifica.
+- **Risultato:** istruzioni brevi nello stesso `docs/operations.md`, con responsabilità dell'utente e limiti dichiarati; nessun piano di manutenzione o passaggio consegne sproporzionato.
+- **Verifica:** assenza di segreti in bundle/log/file versionabili, comportamento con credenziale revocata e avviso osservabile nel canale concordato. Non presentare rotazione o allarmi come attivi prima della prova reale.
+- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), D7, D19 e D21.
+
+### REL-01 — Verificare il flusso completo e chiudere la checklist MVP
+
+- [ ] **Stato: dipendenza backend/uploader/UI/previsioni operativi e OPS-01–OPS-02.**
+- **Scopo in pratica:** Dimostrare il funzionamento dell’intera catena, non soltanto che il codice compila.
+- **Input e file coinvolti:** CSV reale, PC/uploader, ambiente backend e pagina aperta; esiti test e prove nel registro di `tasks.md`, problemi confermati in `CORRECTIONS.md`.
+- **Come:** confrontare una misura reale dal CSV alla pagina e osservare un evento nuovo sulla pagina già aperta. Provare rete assente/ripresa, restart, retry, reset Arduino e stato stazione. Confermare fonte/validità delle previsioni e comportamento senza provider.
+- **Risultato:** evidenze datate per i criteri RF1–RF8 e RNF pertinenti; distinguere test automatici, prove manuali e limiti non verificati. Aggiornare solo bug dimostrati in `CORRECTIONS.md`.
+- **Verifica:** `npm run build`, `npm run lint`, test pertinenti del runtime backend e dell'uploader realmente introdotti. Un comando inesistente o un test non eseguito non passa per successo. Validare i componenti nel loro runtime, oltre alla build browser.
+- **Riferimento:** [plan.md §13](plan.md#13-test-e-verifiche-previste), §15 e percorso critico §7.
+
+### REL-02 — Pubblicare solo la versione verificata e richiesta
+
+- [ ] **Stato: richiesta di pubblicazione necessaria; dipende da REL-01 e SET-04.**
+- **Scopo in pratica:** Rendere pubblico esattamente il sistema verificato nell’ambiente richiesto.
+- **Input e file coinvolti:** Versione revisionabile, target effettivi in `docs/services.md`, configurazione sicura, backup e checklist di REL-01; pubblicazione e Git hanno autorizzazioni distinte.
+- **Come:** presentare versione revisionabile, target Vercel/Supabase, variabili per scopo senza valori, risultati delle verifiche, limitazioni e recupero. Solo nell'ambito della richiesta esplicita pubblicare/applicare le configurazioni necessarie, senza commit o push automatici.
+- **Risultato:** sito di produzione corrispondente alla versione verificata; breve elenco per l'utente di accessi tecnici, comandi essenziali e limiti.
+- **Verifica:** da produzione leggere dati reali, vedere l'aggiornamento senza reload e i tre orizzonti previsionali, verificare assenza di scritture pubbliche, controllare crediti e disponibilità dei backup. La scadenza ravvicinata non elimina i controlli critici.
+- **Riferimento:** [plan.md §7 fase 8](plan.md#fase-8--rilascio-ed-esercizio-del-sito-per-scuolaopen-day), §15 e D18.
+
+### END-01 — Gestire la possibile chiusura a dicembre
+
+- [ ] **Stato: rinviato; chiusura non ancora confermata né autorizzata.**
+- **Scopo in pratica:** Chiudere il servizio soltanto se confermato, conservando lo storico richiesto come permanente.
+- **Input e file coinvolti:** Decisione esplicita su data/perimetro, copie di OPS-01, procedura in `docs/operations.md` e dati fuori da Git; nessun arresto pianificato oggi.
+- **Come:** soltanto quando concreta, chiarire data e perimetro: fermare acquisizione, sito o servizi. Preparare copia indipendente ripristinabile e modalità di consultazione/conservazione permanente prima di un eventuale arresto richiesto.
+- **Risultato:** spegnimento controllato solo se richiesto, senza perdita dello storico o cancellazioni implicite. Nessuna automazione di chiusura creata oggi.
+- **Verifica:** copie leggibili/ripristinabili, accessi e credenziali trattati secondo la decisione, conseguenze documentate; niente eliminazione di progetti o dati per deduzione da “si pensa”.
+- **Riferimento:** [plan.md §11](plan.md#11-registro-decisioni-ed-esiti), D19; §17 chiarimento successivo.
+
+## 9. Da dove ripartire dopo la revisione insieme
+
+1. **Setup locale completato:** SET-01–SET-03; inventario iniziale SET-04 completato in sola lettura. Non ripetere installazione o verifiche già superate senza nuove modifiche o problemi.
+2. **Primo backend locale:** bozza DATA-02/DATA-03 → BE-01; preparare funzioni e test senza fingere di conoscere il CSV. Per i servizi usare l’inventario SET-04 e ricontrollare soltanto quanto cambia o resta pertinente da chiarire.
+3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, poi BE-02–BE-07 e UP-01–UP-04. WX-01 e struttura UI possono progredire separatamente.
+4. **Prima del rilascio:** previsioni, aggiornamento live, backup e prova completa, poi pubblicazione richiesta. Nessun task remoto viene anticipato dalla sola approvazione di questa checklist.
+
+Il prossimo intervento proposto è la bozza DATA-02/DATA-03 e la validazione BE-01: il setup generale è completato, il backend applicativo no. CSV, località previsionale, backup e canale avvisi restano input da raccogliere; non è necessario rispondere di nuovo a tutte le domande del piano.
+
+## 10. Registro esecuzioni
+
+| Data | Task | Esito ed evidenza | Limiti / passo successivo |
+|---|---|---|---|
+| 21 ottobre 2026 | SET-00 | Baseline iniziale e successivo setup: stato Git, configurazioni e strumenti ricontrollati | Documenti locali preesistenti preservati; niente commit/push |
+| 21 ottobre 2026 | SET-01 | Regole ambiente corrette; esempi versionabili, nomi ambiente reali ancora ignorati | COR-001 risolto dopo controlli basati sui soli nomi |
+| 21 ottobre 2026 | SET-02 | README, esempi vuoti e guida backend creati; nessun `.env.local` letto o sovrascritto | Il template non usa ancora un client Supabase |
+| 21 ottobre 2026 | SET-03 | Deno 2.9.6 locale; typecheck/lint backend superati; 3 test superati, senza permessi ambiente/rete/file | Modulo base di configurazione soltanto; nessuna ingestione o migrazione |
+| 21 ottobre 2026 | SET-04 | GitHub/Supabase verificati con connettori; Vercel con target esplicito; quote/condizioni ufficiali consultate | Limiti e controlli successivi in `docs/services.md`; nessuna modifica remota |
+
+Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
+
+Completato il gruppo SET-00–SET-04. Le altre 23 attività restano non completate. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.

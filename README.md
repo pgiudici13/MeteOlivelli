@@ -1,5 +1,93 @@
-# MeteoOlivelli
-Meteo dal liceo teresio Olivelli a Pavia
+# MeteOlivelli
 
-## Authors
- Pietro Giudici e Nicholas Borin
+Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas Borin.
+
+## Stato del progetto
+
+Il frontend è ancora il template React/Vite. Il setup locale del backend è predisposto
+per TypeScript/Deno, ma non esistono ancora endpoint di ingestione, schema applicativo,
+uploader o collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
+
+Il sito previsto è pubblico, con misure e grafici, senza account, profilazione o download.
+Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
+in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
+
+## Requisiti locali
+
+- Node.js compatibile con Vite 8: `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
+- npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
+- Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
+
+Docker, Supabase CLI e Vercel CLI non servono per compilare il frontend o eseguire i
+controlli backend attuali. Serviranno strumenti ulteriori per prove reali e deploy,
+da configurare nei task pertinenti.
+
+## Installazione e avvio
+
+Dal repository eseguire:
+
+```sh
+npm ci
+npm run dev
+```
+
+Aprire l'indirizzo stampato da Vite. Per vedere il template non servono credenziali
+o connessioni a un database. Il server di sviluppo non avvia né configura Supabase.
+
+## Configurazione: cosa è pubblico e cosa è segreto
+
+| File | Destinatario | Contenuto ammesso |
+|---|---|---|
+| `.env.example` | Collaboratori | Nomi delle future variabili frontend, con valori vuoti |
+| `.env.local` | Solo PC di sviluppo, escluso da Git | Configurazione locale; non sovrascrivere il file già presente |
+| `supabase/functions/.env.example` | Collaboratori | Nomi per il futuro endpoint, senza segreti |
+| Eventuale file ambiente server locale | Solo backend, escluso da Git | Valori necessari alle prove autorizzate, mai copiati nel client |
+
+Le convenzioni introdotte sono `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
+per il futuro client, `SUPABASE_URL` e `STATION_INGEST_TOKEN` per il futuro endpoint.
+Gli esempi non attestano quali variabili siano già presenti in `.env.local`.
+Il codice attuale non usa ancora queste variabili per collegarsi ai servizi.
+
+Il prefisso `VITE_` rende una variabile adatta all'esposizione nel browser: non usarlo
+per segreti. Il token uploader deve restare sul PC autorizzato e sul server; una
+chiave DB privilegiata non va né nel browser né nell'uploader. La credenziale DB
+server sarà scelta nel task BE-03, non in questo setup.
+
+Non è necessario creare o copiare file `.env` per eseguire i test attuali. Non
+stampare questi file o i relativi valori per diagnosticare la configurazione.
+
+## Comandi di verifica
+
+| Comando | Cosa verifica |
+|---|---|
+| `npm run lint` | ESLint su frontend e configurazioni Node; esclude esplicitamente il codice Deno |
+| `npm run build` | TypeScript/Vite e bundle del frontend |
+| `npm run backend:check` | Typecheck dei moduli backend con Deno |
+| `npm run backend:lint` | Lint e formato dei file backend con Deno |
+| `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
+| `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
+| `npm run preview` | Anteprima della build frontend già generata |
+
+I tre test backend attuali riguardano solo la lettura esplicita di configurazione
+obbligatoria con valori sintetici. Non verificano CSV, ingestione, RLS, database o
+servizi remoti. Il frontend non ha ancora una suite di test dedicata.
+
+## Struttura essenziale
+
+```text
+src/                          Frontend React/TypeScript
+public/                       Asset statici
+supabase/functions/           Moduli TypeScript per il backend Deno
+  deno.json                   Controlli backend e formattazione
+  _shared/config.ts           Lettura richiesta di configurazione, senza effetti all'import
+  _shared/config_test.ts      Test isolati, senza segreti reali
+docs/backend.md               Runtime, configurazione e limiti del setup
+docs/services.md              Inventario servizi in sola lettura e quote consultate
+plan.md                       Requisiti e decisioni
+tasks.md                      Checklist operativa ed esiti
+CORRECTIONS.md                Bug confermati e correzioni verificate
+```
+
+La separazione fra frontend e Deno segue il runtime delle future Edge Functions:
+[ambiente di sviluppo Supabase](https://supabase.com/docs/guides/functions/development-environment).
+Installare i controlli non pubblica funzioni né applica migrazioni.
