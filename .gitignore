@@ -1,3 +1,5 @@
+.gitignore
+
 # Logs
 logs
 *.log
@@ -27,3 +29,5 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.vercel
+.env*
