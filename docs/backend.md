@@ -11,6 +11,16 @@ CSV, clock, writer e PC reali ancora da convalidare.
 
 Schema, matrice accessi, letture, applicazione e limiti: [backend-schema.md](backend-schema.md).
 
+La Fase 6 ha predisposto l'[uploader Python](../uploader/README.md) sul contratto v1:
+outbox SQLite, lettura incrementale configurabile, retry e quarantena. Test solo
+locali/sintetici; nessuna prova CSV/Windows o invio remoto aggiuntivo. Il default
+storico senza `captured_at` non alimenta le schede live o i grafici datati.
+
+Su successiva richiesta esplicita è stata provata anche la catena CSV sintetico →
+uploader → HTTPS → Supabase, con retry, conflitti, concorrenza e verifica dei flag.
+Tutti i sette eventi sintetici sono stati rimossi; conteggio finale zero, RLS
+attiva. [Esiti e limiti](backend-csv-verification.md). Nessun CSV/PC reale provato.
+
 Sono presenti:
 
 - Deno 2.9.6, fissato nelle dipendenze di sviluppo npm e nel lockfile;

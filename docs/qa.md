@@ -1,7 +1,7 @@
 # Piano futuro di controllo qualità (QA) — MeteOlivelli
 
 > **Scopo:** dare una lista di prove eseguibili, nell'ordine giusto, prima di dichiarare pronta ogni parte del prodotto.
-> **Stato:** piano di prove residue. La pagina iniziale “Work in progress” è già stata controllata dall'utente e non viene ripetuta qui. Endpoint di ingestione/lettura e database sono implementati e verificati in BE-07; risultati e limiti sono in [docs/backend-verification.md](backend-verification.md). Dashboard e uploader Windows non sono ancora implementati. CSV/writer reali e catena Arduino → sito restano da verificare.
+> **Stato:** piano di prove residue. La pagina iniziale “Work in progress” è già stata controllata dall'utente e non viene ripetuta qui. Endpoint di ingestione/lettura e database sono implementati e verificati in BE-07; risultati e limiti sono in [docs/backend-verification.md](backend-verification.md). L'uploader Python è implementato e testato localmente; anche la catena CSV sintetico → uploader → HTTPS → Supabase è stata verificata, con pulizia delle fixture ([verbale](backend-csv-verification.md)). Dashboard, installazione Windows, CSV/writer reali e catena Arduino → sito restano da verificare. Le prove sotto richiedono le rispettive evidenze e non sono tutte completate dalla prova sintetica.
 > **Regola:** una prova è “superata” solo con evidenza annotata. Una prova non eseguita non è superata.
 
 ## Come leggere questa checklist

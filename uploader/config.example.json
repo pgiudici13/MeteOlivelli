@@ -1,0 +1,12 @@
+{
+  "csv_path": "C:\\PERCORSO_DA_VERIFICARE\\sorgente.csv",
+  "state_dir": "C:\\PERCORSO_PROTETTO_DA_SCEGLIERE\\MeteOlivelli",
+  "source_id": "sorgente-da-confermare",
+  "endpoint": "https://PROGETTO-DA-VERIFICARE.invalid/functions/v1/ingest-measurement",
+  "delimiter": ";",
+  "decimal_separator": ",",
+  "encoding": "utf-8",
+  "empty_measurement": "reject",
+  "header": null,
+  "live_verified": false
+}

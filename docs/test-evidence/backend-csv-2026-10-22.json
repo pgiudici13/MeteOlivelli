@@ -1,0 +1,79 @@
+{
+  "label": "DATI SINTETICI - NON MISURE DELLA STAZIONE",
+  "date": "2026-10-22",
+  "project_ref": "pvtzncseisbxaaseqfvo",
+  "fixture": "uploader/tests/fixtures/synthetic_backend.csv",
+  "source_id": "meteolivelli",
+  "synthetic_event_ids": [
+    "16476d52-268d-4f03-aac1-663b2bb1cdfa",
+    "13180c45-dc59-43f2-9b6b-07f5d215b1c5",
+    "a7b0aa6c-8463-41e6-8074-3a84981e12f2",
+    "155364e8-82a6-4dc7-a84a-96302e9b5400",
+    "781be0cd-b29c-403f-9dc1-5e5187f496e0",
+    "2876700a-99a6-4985-b422-fd95641d78ac",
+    "c331b786-3993-491e-b8e3-d4a0bb89c295"
+  ],
+  "http_csv_check": {
+    "label": "DATI SINTETICI - NON MISURE DELLA STAZIONE",
+    "project": "pvtzncseisbxaaseqfvo",
+    "checks": {
+      "configurazione_sorgente_e_token": "PASS",
+      "csv_parziale_non_consumato": "PASS",
+      "restart_con_identita_stabile": "PASS",
+      "riga_completata_acquisita": "PASS",
+      "sei_eventi_senza_date_inventate": "PASS",
+      "cinque_confermati_uno_da_ritentare": "PASS",
+      "received_at_immutato_16476d52-268d-4f03-aac1-663b2bb1cdfa": "PASS",
+      "outbox_tutti_confermati": "PASS",
+      "sei_201_e_retry_200": "PASS",
+      "received_at_immutato_13180c45-dc59-43f2-9b6b-07f5d215b1c5": "PASS",
+      "received_at_immutato_a7b0aa6c-8463-41e6-8074-3a84981e12f2": "PASS",
+      "received_at_immutato_155364e8-82a6-4dc7-a84a-96302e9b5400": "PASS",
+      "received_at_immutato_781be0cd-b29c-403f-9dc1-5e5187f496e0": "PASS",
+      "received_at_immutato_2876700a-99a6-4985-b422-fd95641d78ac": "PASS",
+      "replay_sei_duplicati_stessa_ricezione": "PASS",
+      "conflitto_409": "PASS",
+      "concorrenza_un_201_cinque_200": "PASS",
+      "concorrenza_ricezione_unica": "PASS",
+      "token_assente_401": "PASS",
+      "token_errato_401": "PASS",
+      "metodo_405": "PASS",
+      "json_malformato_400": "PASS",
+      "contratto_invalido_422": "PASS",
+      "content_type_415": "PASS",
+      "payload_grande_413": "PASS",
+      "sorgente_diversa_403": "PASS",
+      "lettura_storico_escluso_latest": "PASS",
+      "lettura_storico_escluso_?view=history&period=24h": "PASS",
+      "lettura_storico_escluso_?view=history&period=7g": "PASS",
+      "lettura_storico_escluso_?view=history&period=30g": "PASS",
+      "lettura_storico_escluso_?view=history&period=30g&basis=measured_at": "PASS",
+      "query_nonvalida_400": "PASS",
+      "lettura_sola_get_405": "PASS",
+      "cors_preflight_204": "PASS"
+    },
+    "expected_remote_events": 7,
+    "result": "PASS"
+  },
+  "database_checks": {
+    "persisted_events": 7,
+    "payloads_unchanged": true,
+    "all_historical_without_dates": true,
+    "suspicious_humidity_flag": true,
+    "missing_temperature_flag": true,
+    "sql_suite_rolled_back": "PASS"
+  },
+  "cleanup": {
+    "exact_manifest_events_removed": 7,
+    "initial_events": 0,
+    "final_events": 0,
+    "rls_enabled": true
+  },
+  "limits": [
+    "CSV e writer reali non verificati",
+    "Windows non verificato",
+    "Letture positive e paginazione tramite RPC in rollback; HTTP read senza dati datati",
+    "Ricevuta ignorata dopo un vero 201; nessun guasto remoto provocato",
+    "Nessun test 429 o carico sostenuto"
+  ]
+}

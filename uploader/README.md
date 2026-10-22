@@ -1,0 +1,172 @@
+# Uploader Windows — Fase 6
+
+Implementazione locale provvisoria per il contratto v1. **Non installata sul PC
+scolastico e non collegata alla stazione.** Tutti i test usano dati sintetici.
+Python 3.11 o successivo, solo libreria standard; verificato localmente con Python
+3.15.0 su macOS. Compatibilità Windows, Python effettivo e filesystem da provare.
+
+## Funzionamento
+
+Il programma apre il CSV in sola lettura, cerca nuove righe terminate da LF/CRLF
+e registra in SQLite riga originale (byte), UUID v4, generazione, posizione,
+payload congelato e cursore nella stessa transazione. Due righe identiche sono
+due eventi diversi. Il reset dei secondi Arduino non cambia questa regola.
+Una riga senza newline resta in attesa; non viene consumata dopo un timeout.
+
+Prima di inviare esiste già una copia durevole. Dopo un'interruzione riparte dagli
+stessi ID. Solo una conferma `accepted`/201 o `duplicate`/200 con sorgente, UUID e
+ricezione coerenti chiude l'evento. Un timeout, anche dopo il salvataggio server,
+causa retry dello stesso payload. Gli eventi confermati restano nel registro.
+
+Il parser replica il formato a quattro campi dichiarato: secondi Arduino, °C, %, hPa.
+Separatore, decimali, encoding, intestazione e politica dei vuoti sono obbligatori
+in configurazione. Non c'è riconoscimento automatico. Numeri sospetti conservati:
+la classificazione «probabile errato» è assegnata dal backend v1. Righe illeggibili
+e rifiuti permanenti 400/409/413/415/422 sono conservati in quarantena con motivo.
+L'originale non viene corretto o modificato.
+
+## Ora di acquisizione e limiti del monitor
+
+`measured_at` resta sempre null: il CSV dichiarato non contiene un'ora assoluta.
+Per impostazione iniziale `live_verified: false`, ogni riga viene inviata come
+`historical`, con `captured_at: null`. Non apparirà quindi come ultima misura live
+o punto dei grafici datati: è una protezione contro date inventate.
+
+Impostare `live_verified: true` solo dopo DATA-01–DATA-03: writer append verificato,
+clock UTC corretto, latenza/buffering noti e completamento riga osservabile. In
+esecuzione continua il timestamp UTC al millisecondo viene assegnato solo a una
+singola riga nuova fra due osservazioni distanti al massimo 10 secondi. Prima
+lettura, `--once`, righe già parzialmente presenti, batch di più righe e riprese
+dopo pause più lunghe restano storico. Il timestamp descrive l'osservazione sul PC,
+non l'istante fisico della misura. Il polling locale è ogni 2 secondi, distinto
+dal polling futuro del sito. Questi limiti conservativi potranno essere adattati
+solo dopo la prova del writer; il monitor da solo non certifica assenza di buffering.
+
+Un file sostituito/troncato o un cambiamento delle porzioni già lette controllate
+provoca fermo per riconciliazione. Non si assegnano automaticamente nuovi ID al
+file successivo. I controlli incrementali usano identità del filesystem, dimensione,
+mtime a EOF e hash di testa/coda (4 KiB ciascuna). **Non garantiscono il rilevamento
+di riscritture arbitrarie nella parte centrale di un grande file**: un writer che
+riscrive richiede un adattatore diverso. Nessun accesso esclusivo al CSV è imposto.
+UTF-8 senza BOM o cp1252, record su una sola riga e terminatore LF/CRLF sono i soli
+formati predisposti. BOM, altri encoding e CSV multilinea richiedono verifica e
+adattamento; niente deduzioni dal nome CSV. Oltre 64 KiB per riga il programma si
+ferma, conservando il cursore e la sorgente.
+
+## Preparazione sul PC autorizzato
+
+Procedura predisposta, **non eseguita**. Non sostituire i segnaposto senza aver
+osservato sorgente e writer. L'esempio `config.example.json` contiene un dialetto
+puramente illustrativo, non quello della stazione, e un endpoint `.invalid`.
+
+1. Verificare `py -3 --version`, orologio Windows, sincronizzazione ora, permessi
+   dell'account tecnico, rete/proxy e accesso al CSV. Scegliere percorsi locali
+   stabili e non sincronizzati per SQLite; non usare share di rete per lo stato.
+2. Copiare il pacchetto `uploader/` in una cartella applicativa. Creare una cartella
+   di stato separata, scrivibile soltanto dall'account tecnico e amministratori.
+   `state_dir` contiene anche quarantena e ricevute: proteggerla e copiarla con il
+   registro. Nel repository usare eventualmente `uploader/runtime/`, già ignorata.
+3. Preparare un JSON locale fuori Git (oppure `uploader/config.local.json`, ignorato).
+   Specificare percorsi assoluti, dialetto e intestazione esatta o `null` se assente.
+   Sorgente registrata in BE-07: `meteolivelli`; verificare il target nel verbale
+   `docs/backend-verification.md`. Non trasferire chiavi DB o service_role sul PC.
+4. Configurare nell'ambiente del processo il solo `STATION_INGEST_TOKEN` già
+   concordato con l'endpoint. Usare un canale protetto dell'account tecnico; niente
+   token in JSON, argomenti CLI, script, screenshot o cronologia dei comandi.
+   L'attuale loader legge solo questa variabile, non carica `.env` e non integra
+   Windows Credential Manager: la custodia definitiva va verificata sul PC.
+5. Solo per una sorgente mai importata, inizializzare una volta dalla cartella
+   applicativa, senza rete né token:
+
+   ```powershell
+   py -3 -m uploader --config "C:\PERCORSO_CONFIG_VERIFICATO\config.json" --initialize
+   py -3 -m uploader --config "C:\PERCORSO_CONFIG_VERIFICATO\config.json" --status
+   ```
+
+6. Dopo aver verificato destinazione e contratto, avviare un ciclo oppure la
+   modalità continua. Il ciclo può acquisire fino a 100 righe e inviare fino a 20
+   eventi pronti; il lavoro rimanente persiste per i cicli successivi:
+
+   ```powershell
+   py -3 -m uploader --config "C:\PERCORSO_CONFIG_VERIFICATO\config.json" --once
+   py -3 -m uploader --config "C:\PERCORSO_CONFIG_VERIFICATO\config.json"
+   ```
+
+La singola istanza usa un lock del sistema operativo nella cartella di stato,
+rilasciato anche dopo crash. Usare sempre lo stesso `state_dir` per la sorgente:
+due cartelle diverse non condividono il lock o l'identità degli eventi.
+
+## Avvio automatico Windows (UP-04 da provare)
+
+Nell'Utilità di pianificazione predisporre un'attività per l'account tecnico con
+trigger all'avvio, esecuzione anche senza sessione utente e opzione «non avviare
+una nuova istanza». Usare il percorso assoluto dell'interprete verificato con
+`py -3 -c "import sys; print(sys.executable)"`, argomenti `-m uploader --config
+"C:\PERCORSO_CONFIG_VERIFICATO\config.json"` e cartella iniziale dell'applicazione.
+Non inserire il token negli argomenti. Verificare che l'ambiente del processo
+pianificato riceva il segreto protetto: non basta quello del terminale interattivo.
+Configurare ripartenza dopo errore e verificare condizioni su alimentazione,
+sospensione e accesso al file; un riavvio con errore auth non cancella la sospensione
+persistente. Nessuna attività Windows è creata automaticamente da questo pacchetto.
+
+Per fermare: Ctrl+C in primo piano; nell'attività pianificata arrestare il processo
+e verificare che non sia più attivo prima di aggiornare i file applicativi.
+Per aggiornare, conservare configurazione e stato; non inizializzare di nuovo.
+Questa versione non migra automaticamente schemi SQLite diversi da v1.
+
+Prova necessaria: avvio senza login, nuova riga fino al DB, reboot, file occupato,
+sospensione/ripresa, rete assente/ripristinata e replay invariato degli ID. Richiede
+accesso al PC e target concordato; non è sostituita dai test locali su macOS.
+
+## Diagnosi, recupero e capacità
+
+`--status` mostra conteggi per stato e motivo di sospensione, senza leggere token
+o CSV. I log contengono solo messaggi controllati e conteggi; rotazione di 256 KiB
+con tre copie. Mai stampare le risposte HTTP arbitrarie o le eccezioni originali.
+Per ispezionare la quarantena usare una copia consistente di SQLite sul PC, senza
+pubblicarla: contiene le righe originali. Non ci sono email o monitor indipendente
+in questa fase; un processo spento non può avvisare da solo (OPS-02).
+
+- **Offline/408/429/5xx:** tentativi persistenti, backoff con jitter fino a 256 s
+  prima di eventuali `Retry-After` più lunghi; supportati secondi e data HTTP.
+  Un errore di protocollo o redirect sospende l'invio; nessun token inoltrato
+  attraverso redirect. HTTPS con validazione certificato standard, timeout 15 s.
+- **401/403:** invio sospeso e uscita con codice 2; dopo aver corretto credenziale,
+  sorgente e target, usare `--resume` e poi riavviare. Nessuna riga cancellata.
+- **Conferma illeggibile/incoerente:** evento ancora in coda, stesso payload/ID.
+- **Disco:** sotto 64 MiB liberi il ciclo si ferma senza cancellare righe. Un errore
+  SQLite annulla la transazione; la sorgente deve rimanere disponibile. Misurare
+  crescita reale di CSV e SQLite e capacità libera prima di promettere giorni di
+  autonomia offline. Nessuna durata offline garantita o pulizia automatica.
+- **File sostituito, stato perso/corrotto o configurazione diversa:** arrestare,
+  preservare copie e riconciliare generazione/offset/ID. Non cancellare cartella,
+  marcatore `initialized` o SQLite per far ripartire. `--initialize` rifiuta stato
+  o marcatore preesistente; senza entrambe le copie la perdita totale non è
+  riconoscibile automaticamente. Non è ancora fornito un comando di cambio
+  generazione: questa operazione richiede esame del writer e riconciliazione.
+- **Restore:** usare `sqlite3.Connection.backup()` per una copia consistente;
+  copiare anche configurazione non segreta, marcatore e CSV. Non copiare un DB
+  aperto con una semplice copia del file. Dopo restore server precedente alle
+  conferme locali, `--replay-confirmed` riporta in coda gli eventi confermati
+  conservando payload e ID; poi riavviare. Nessuna correzione automatica dei conflitti.
+  Il restore effettivo e il backup indipendente restano OPS-01.
+
+## Verifiche ripetibili
+
+Da root, su macOS/Linux: `npm run uploader:test` (richiede `python3`). Su Windows:
+`py -3 -m unittest discover -s uploader/tests -v`. Nessuna dipendenza pip.
+`npm run check` include anche i test Python, oltre ai controlli frontend/backend.
+Su Windows senza alias `python3`, eseguire separatamente i comandi npm frontend/
+backend e il comando `py -3` precedente.
+
+Le prove coprono parsing, parziali, ripetizioni/reset, quarantena, restart, rollback
+atomico mediante errore SQLite indotto, perdita conferma, retry, 429/5xx, auth,
+replay invariato, conferme incoerenti e lock locale. Non simulano un'interruzione
+elettrica fisica, un disco realmente pieno, TLS/proxy della scuola o il runtime
+Windows. Non attestano l'acquisizione della stazione né un invio remoto.
+
+Il protocollo usato è quello degli handler v1 nel repository, con `Authorization:
+Bearer` e autorizzazione della sorgente nell'handler. La distinzione tra controllo
+JWT della piattaforma e autenticazione applicativa è documentata da
+[Supabase](https://supabase.com/docs/guides/functions/auth); nessuna configurazione
+del backend è stata modificata in questa fase.

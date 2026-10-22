@@ -31,3 +31,11 @@ dist-ssr
 # Cache locale della CLI Supabase
 supabase/.temp/
 supabase/.branches/
+
+# Stato operativo uploader: mai versionare coda, quarantena o configurazione reale
+uploader/runtime/
+uploader/config.local.json
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.sqlite3-*

@@ -1,8 +1,8 @@
 # Attività operative — MeteOlivelli
 
-> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo backend locale della Fase 5.
+> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo implementazione locale provvisoria della Fase 6.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** eseguire la Fase 5 di questo file (BE-02–BE-07) e sincronizzare plan.md. BE-02–BE-07 completati tecnicamente sul contratto v1, applicati e verificati nel progetto esistente MeteOlivelli scelto dall’utente. CSV/writer reale ancora necessari per la chiusura operativa di DATA-01–DATA-03.
+> **Richiesta attuale:** dopo la Fase 6 locale, testare il backend Supabase con un CSV fittizio. Prova CSV → uploader → HTTPS → DB superata e sette fixture rimosse; nessuna installazione Windows. CSV/writer reale ancora necessari per DATA-01–DATA-03 e chiusura operativa UP-01–UP-04. [Verbale della prova](docs/backend-csv-verification.md).
 
 ## 1. Come usare la checklist
 
@@ -241,41 +241,46 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UP-01 — Integrare la sorgente e l'orario delle nuove righe
 
-- [ ] **Stato: CSV necessario; dipende da DATA-01–DATA-03.**
+- [ ] **Stato: implementazione provvisoria locale; CSV/writer necessari per la chiusura. Dipende da DATA-01–DATA-03.**
 - **Scopo in pratica:** Trasformare soltanto le nuove righe complete del CSV reale in eventi pronti per l’invio.
 - **Input e file coinvolti:** Futuro codice Python in `uploader/`, fixture e test in `uploader/tests/`, contratto DATA-03 e integrazione con writer autorizzata.
 - **Come:** implementare lettura incrementale e rilevamento della riga completa/stabile usando le evidenze del writer. Modificare il punto di acquisizione temporale concordato, senza attribuire a vecchie righe l'ora di importazione. Leggere nuove righe senza ricaricare tutto l'archivio.
 - **Risultato:** parser per il CSV reale e metadati di provenienza coerenti. Originale preservato; EOF senza newline e scrittura parziale trattati esplicitamente.
+- **Esito locale Fase 6:** `uploader/core.py` legge incrementalmente LF/CRLF, con dialetto/encoding/intestazione espliciti e ordine/unità v1. EOF parziale atteso; originale conservato. Default storico senza date inventate. Modalità live abilitabile solo dopo verifica del writer, limitata a singola riga nuova in osservazione continua; batch, startup e pause restano storico. Nessun parser definitivo dichiarato. Limiti di formato e osservazione in `uploader/README.md`.
 - **Verifica:** separatori/decimali reali, riga incompleta o malformata, valori ripetuti, reset e righe vecchie iniziali. Fixture sintetiche aggiuntive sempre dichiarate.
 - **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--uploader-windows-e-acquisizione-reale), §8 e D1–D2.
 
 ### UP-02 — Implementare stato durevole e outbox
 
-- [ ] **Stato: dipendenza UP-01 e DATA-03.**
+- [ ] **Stato: implementato e testato localmente su v1; chiusura operativa dipendente da UP-01 e DATA-03.**
 - **Scopo in pratica:** Non perdere gli eventi già acquisiti e non cambiare identità quando il PC o la rete si interrompono.
 - **Input e file coinvolti:** Futura outbox SQLite e registro cursore/identità gestiti da `uploader/`; percorsi di stato sul PC fuori da Git, test di crash/ripresa in `uploader/tests/`.
 - **Come:** scelta tecnica su delega, SQLite: salvare atomicamente evento, ID, identità/generazione file e cursore prima dell'invio. Impedire doppia esecuzione. Segnare l'evento confermato solo dopo risposta affidabile, mantenendo ID e sorgente per eventuale replay.
 - **Risultato:** crash/restart non perdono righe già persistite; retry usa lo stesso ID. Rotazione, troncamento e sostituzione riconosciuti senza deduplicare unicamente per hash della riga.
+- **Esito locale Fase 6:** SQLite con transazione evento/cursore, payload immutabile, UUID per posizione/generazione, lock OS, marcatore di inizializzazione e apertura senza ricreazione automatica. Test di restart, rollback SQLite indotto, conferma persa e replay dopo restore con stessi ID. Rotazione/troncamento provocano fermo conservativo: riconciliazione e cambio generazione non automatizzati prima di conoscere il writer. Hash incrementali testa/coda non attestano ogni possibile riscrittura interna; guasto elettrico e restore operativo non provati.
 - **Verifica:** crash prima/dopo invio o conferma locale, file cambiato, stato corrotto/perso e restore del database precedente alle conferme uploader. Se l'identità non è ricostruibile, fermare il replay automatico e segnalare anziché creare nuovi UUID per tutto.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF3–RF4 e D14.
 
 ### UP-03 — Implementare retry, quarantena e diagnostica
 
-- [ ] **Stato: dipendenza UP-02 e contratto endpoint BE-05.**
+- [ ] **Stato: testato localmente e via HTTPS/Supabase con CSV sintetico; prova della sorgente reale dipendente da UP-01–UP-02.**
 - **Scopo in pratica:** Riprovare quando il problema è temporaneo e conservare le righe invalide senza nasconderle.
 - **Input e file coinvolti:** Invio HTTPS, stato retry, quarantena e log nel futuro `uploader/`; guida di diagnosi in `uploader/README.md`; spazio e canale avvisi da concordare.
 - **Come:** inviare via HTTPS, backoff con jitter per errori temporanei e rispetto di `Retry-After` quando presente. Credenziale rifiutata → sospensione e avviso; invalidi permanenti → quarantena con originale e motivo, senza bloccare tutte le altre righe. Limitare/ruotare log e osservare spazio/coda, senza segreti.
 - **Risultato:** ripresa dopo offline senza scarti silenziosi, ritardi distinguibili dalle anomalie e dal fermo sensore; nessuna eliminazione automatica dei non confermati per liberare spazio.
+- **Esito locale Fase 6:** HTTPS senza redirect, timeout 15 s, backoff/jitter e Retry-After (secondi/data), verifica ricevute con identità, sospensione persistente auth/protocollo, quarantena SQLite con originale e motivo. CLI `--status`, `--resume`, `--replay-confirmed`; log ruotati e soli messaggi controllati; fermo sotto 64 MiB liberi. Test HTTP simulati e rollback indotto, nessun disco fisicamente pieno o collegamento remoto provato. Autonomia offline da dimensionare; email/monitor indipendente restano OPS-02.
+- **Prova successiva richiesta:** uploader/HTTPS/Supabase con CSV sintetico superati; retry dopo ricevuta ignorata e replay degli stessi ID verificati nel DB reale. Sette fixture eliminate, zero residui. L'esito locale precedente non includeva questa prova; restano esclusi Windows, guasti di rete/DB provocati e rate limit reale. [Verbale](docs/backend-csv-verification.md).
 - **Verifica:** timeout, risposta persa dopo commit, 429/5xx, 4xx di validazione/auth, disco pieno e stato locale non scrivibile. Definire la durata offline sostenibile sulla capacità reale, non assumere spazio infinito.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), §13, D16–D17 e D21.
 
 ### UP-04 — Installare, avviare automaticamente e provare sul PC reale
 
-- [ ] **Stato: dipendenza UP-01–UP-03, BE-07 e disponibilità/accesso autorizzato al PC.**
+- [ ] **Stato: guida predisposta; installazione e prove Windows non eseguite. Dipende da UP-01–UP-03 e disponibilità/accesso al PC.**
 - **Scopo in pratica:** Far partire e mantenere l’uploader sul PC Windows senza doverlo lanciare a mano a ogni accensione.
 - **Input e file coinvolti:** PC reale accessibile con permessi concordati; pacchetto `uploader/` e `uploader/README.md`; credenziale fuori dai file versionati.
 - **Come:** verificare Python/permessi, clock, rete, proxy, sospensione e file accessibile all'account tecnico; configurare avvio automatico e singola istanza con strumento Windows adatto. Custodire credenziale fuori dal sorgente; solo HTTPS in uscita. Non confondere un PC dedicato con disponibilità continua verificata.
 - **Risultato:** procedura breve `uploader/README.md` per installazione, configurazione senza valori, stop/start, log e aggiornamento; nuova misura realmente inviata anche dopo riavvio secondo modalità concordata.
+- **Esito locale Fase 6:** guida per Python senza dipendenze pip, configurazione con soli segnaposto, account tecnico, Utilità di pianificazione, custodia del token, diagnosi e recupero. Nessuna attività pianificata creata o credenziale letta. Runtime Windows, lock `msvcrt`, avvio senza login, writer/clock/rete e flusso fino al DB ancora da verificare sul PC.
 - **Verifica:** reboot, avvio senza intervento manuale nel caso richiesto, rete scollegata/ripresa, file occupato e nuova riga fino al DB. Nessuna porta in ingresso. Segnalare eventuale necessità di login rimasta, senza nasconderla.
 - **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--uploader-windows-e-acquisizione-reale), D7, D15 e D24.
 
@@ -397,7 +402,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 1. **Setup locale completato:** SET-01–SET-03; inventario iniziale SET-04 completato in sola lettura. Non ripetere installazione o verifiche già superate senza nuove modifiche o problemi.
 2. **Controlli locali pronti:** BE-01 completo sul contratto v1; DATA-02/DATA-03 documentati e testati come regole pure. Per i servizi usare l'inventario SET-04 e ricontrollare soltanto quanto cambia o resta pertinente da chiarire.
-3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, riallineare i file backend se necessario; UP-01–UP-04 restano da realizzare/provare; ripetere solo le verifiche backend interessate da eventuali cambi al contratto. WX-01 e struttura UI possono progredire separatamente.
+3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, verificare/adattare l'uploader locale v1 e completare UP-01–UP-04 sul PC. Riallineare backend solo se cambia il contratto e ripetere i controlli interessati. WX-01 e struttura UI possono progredire separatamente.
 4. **Prima del rilascio:** previsioni, aggiornamento live, backup e prova completa, poi pubblicazione richiesta. Nessun task remoto viene anticipato dalla sola approvazione di questa checklist.
 
 La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scelto; verificare DATA-01–DATA-03 sul CSV/writer quando disponibili e aggiornare eventuali differenze. Ordine/unità dichiarati non provano separatore, decimali o tempi reali. Backup e canale avvisi restano da concretizzare; WX-01 attende dati idonei, senza provider esterno.
@@ -426,9 +431,13 @@ La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scel
 | 22 ottobre 2026 | BE-07: applicazione al progetto esistente autorizzato | Target verificato pvtzncseisbxaaseqfvo; migrazione 20261022125448 applicata; ingest/read ACTIVE v3. SQL/permessi con rollback e prove HTTP reali superati, sei invii concorrenti senza duplicati, accessi diretti negati. Volume sintetico 8.760 righe annullato; fixture HTTP rimosse, zero eventi finali. Verbale in docs/backend-verification.md | Contratto v1, CSV/clock/Windows reali ancora da convalidare; endpoint read provato vuoto, letture positive via RPC. Rate limit e guasti remoti forzati non attestati. Nessun commit/push o modifica frontend/Vercel |
 | 22 ottobre 2026 | Commit/push completo richiesto | Rieseguito npm run check in copia senza .env: build/lint frontend, check/lint/formato backend e 39 test superati. git diff --check senza errori; remoto pgiudici13/MeteOlivelli, branch main verificati | File credenziali ignorati; nessun segreto incluso. Commit/push autorizzati esplicitamente dall’utente |
 | 22 ottobre 2026 | UI-00 (Obsidian v5 · revisione umidità e leggibilità) | Aggiornate le percentuali di umidità a un decimale in scheda mobile/desktop, grafico e sei righe di cronologia; testi di nota dello storico ingranditi e resi più leggibili; screenshot comparativo ispezionato | Limite Starter Figma raggiunto durante la fase di composizione: la sezione informativa desktop è stata creata, ma il riordino finale con cronologia/footer e la verifica screenshot successiva non sono riusciti. Frase mobile originale preservata; desktop ancora da completare e verificare. Nessuna modifica a codice o servizi remoti |
+| 22 ottobre 2026 | Fase 6: UP-01–UP-04 parziali | Uploader Python/SQLite, CLI e guida Windows predisposti. `npm run check` superato in copia senza `.env`: build/lint frontend, check/lint/formato backend, 39 test Deno e 21 test Python. Prova aggiuntiva Python → parser/handler Deno → ricevuta Python: 16 casi sintetici nei quattro dialetti, storico/live e valori sospetti/null. Smoke CLI initialize/status/resume/replay, rifiuto reinizializzazione e status senza CSV superati; `git diff --check` senza errori | Nessun CSV/writer/Windows reale, invio HTTP remoto, installazione o servizio modificato. Rollback e crash simulati tramite errori indotti, non interruzione elettrica o disco fisicamente pieno. Rotazione richiede riconciliazione; parser e acquisizione temporale restano provvisori. Nessun commit/push o segreto reale letto |
 
+Verifica storica del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Per i controlli attuali, inclusi uploader e 39 test backend, vedere la riga Fase 6. Nessuna prova contro CSV reale.
 
-Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
+**Sincronizzazione e pubblicazione richieste — 22 ottobre 2026:** integrati senza conflitti tramite fast-forward i commit remoti `b0c602b` (CSV dimostrativo) e `5ebeeaa` (QA e copia storica README). Preservati i file dell'altro lavoro; allineati stato QA e riferimenti README alla Fase 6 e alla prova sintetica remota. Verifica integrata `npm run check` superata su copia senza `.env`: build/lint frontend, check/lint/formato backend, 39 test Deno e 21 Python. Controlli preventivi sui file pubblicabili senza segnalazioni; segreti, stato operativo e cache esclusi da Git. Commit e push su `origin/main` autorizzati esplicitamente dall'utente; esito Git verificato separatamente dopo la pubblicazione.
 
-Completati SET-00–SET-04 e BE-01–BE-07 sul contratto v1: 12 attività su 29; 17 restano non completate, incluse DATA-01–DATA-03, UI-00 e UI-01 parziali. La Fase 4 attende il campione reale; la Fase 5 è verificata sul contratto v1, senza dichiarare pronta la catena fisica o il rilascio complessivo. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+**Prova successiva richiesta dall'utente — CSV sintetico e Supabase:** target MeteOlivelli verificato, funzioni v3 attive; sei eventi CSV più un evento concorrente salvati via uploader/HTTPS. Retry/ricezione immutata, replay senza duplicati, conflitti, auth, quarantena, flag qualità e sei richieste concorrenti superati. Suite SQL con rollback superata. Rimosse soltanto le sette fixture identificate dal manifesto; zero eventi finali e RLS attiva. [Verbale](docs/backend-csv-verification.md). Nessun codice applicativo modificato, deploy, commit o push; DATA e UP restano aperti per CSV/Windows reali. Prova sintetica remota non equivale a chiusura della Fase 6 sul PC scolastico.
+
+Completati SET-00–SET-04 e BE-01–BE-07 sul contratto v1: 12 attività su 29; 17 restano non completate, incluse DATA-01–DATA-03, UP-01–UP-04, UI-00 e UI-01 parziali. La Fase 6 ha codice locale provvisorio e guida, ma resta aperta per campione/writer e prova Windows. La Fase 5 è verificata sul contratto v1, senza dichiarare pronta la catena fisica o il rilascio complessivo. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
 

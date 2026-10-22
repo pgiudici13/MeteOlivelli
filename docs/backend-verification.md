@@ -1,5 +1,10 @@
 # BE-07 — verifica del backend Supabase
 
+**Prova successiva, 22 ottobre 2026:** completata anche la verifica CSV sintetico
+→ uploader Python → HTTPS → DB, con retry, concorrenza, controlli SQL e pulizia
+finale. [Verbale della prova CSV](backend-csv-verification.md). Le evidenze BE-07
+riportate sotto restano il registro dell'intervento precedente.
+
 **Data:** 22 ottobre 2026. **Target scelto esplicitamente dall’utente:** progetto
 esistente `MeteOlivelli`, riferimento `pvtzncseisbxaaseqfvo`, regione eu-west-1,
 PostgreSQL 17.11.0.003. Nessun progetto o servizio a pagamento attivato.

@@ -11,7 +11,8 @@
     "backend:check": "deno task --config supabase/functions/deno.json check",
     "backend:lint": "deno task --config supabase/functions/deno.json lint",
     "backend:test": "deno task --config supabase/functions/deno.json test",
-    "check": "npm run lint && npm run build && npm run backend:check && npm run backend:lint && npm run backend:test"
+    "uploader:test": "python3 -m unittest discover -s uploader/tests -v",
+    "check": "npm run lint && npm run build && npm run backend:check && npm run backend:lint && npm run backend:test && npm run uploader:test"
   },
   "dependencies": {
     "react": "^19.3.1",

@@ -159,6 +159,20 @@ La tabella precedente resta la baseline storica: questi fatti la aggiornano dove
 - **F:** test SQL con rollback e HTTPS reali passano; sei invii concorrenti producono un solo inserimento. Fixture sintetiche separate dalle misure e rimosse; conteggio finale zero. Nessun avviso performance; solo INFO RLS senza policy, previsto dalla negazione dell’accesso diretto. Verbale in docs/backend-verification.md.
 - **Limite:** contratto v1 ancora da confermare sul CSV/PC reale. Letture HTTP nello stato vuoto, letture positive via RPC; rate limit distribuito e guasti remoti forzati non provati. Nessuna modifica frontend, Git o Vercel.
 
+### Implementazione locale provvisoria Fase 6 — 22 ottobre 2026
+
+- **U:** richiesta di eseguire la Fase 6 di tasks.md e spiegare risultato e attività residue.
+- **F locale:** pacchetto Python `uploader/`, solo libreria standard; lettura incrementale LF/CRLF con dialetto esplicito, parser v1, SQLite atomico per riga originale/identità/payload/cursore, lock OS, retry con conferme verificate e quarantena durevole. CLI di stato, riabilitazione e replay degli stessi ID; guida installazione Windows e configurazione con segnaposto. Nessun segreto letto, servizio remoto modificato o invio alla stazione eseguito.
+- **D tecnica provvisoria:** default storico con `captured_at` e `measured_at` null. Solo dopo verifica del writer si può abilitare acquisizione PC per una singola riga nuova osservata durante esecuzione continua; backlog, batch e pause restano storico. Un file cambiato richiede riconciliazione prima di procedere, senza reimport con nuovi ID; nessun cambio generazione automatizzato. Controlli hash incrementali limitati a testa/coda, non garanzia contro ogni riscrittura interna.
+- **Verifica:** test sintetici Python e compatibilità del payload con validatore/handler Deno v1; esiti finali nel registro di tasks.md. I test di errore SQLite e risposta persa non sostituiscono power loss, disco pieno reale o prove Windows.
+- **Aperto:** DATA-01–DATA-03 e chiusura UP-01–UP-04 sul CSV/PC reale, custodia token nel processo pianificato, clock/buffering, rotazioni del writer e autonomia offline. Guida e limiti in [uploader/README.md](uploader/README.md). Monitor indipendente/email e backup operativo restano Fase 8.
+
+### Verifica backend con CSV sintetico — 22 ottobre 2026
+
+- **U:** richiesta esplicita di testare backend Supabase con un CSV fittizio.
+- **F:** target MeteOlivelli verificato, funzioni v3 attive; sei eventi CSV e un evento concorrente inviati via uploader/HTTPS come storico senza date. Persistenza, flag qualità, retry con ricevuta ignorata, replay, conflitti, auth e concorrenza verificati; suite SQL con rollback superata. Sette fixture HTTP rimosse con filtro su UUID/sorgente/payload/provenienza; zero eventi finali, RLS attiva.
+- **Limiti:** nessun cambio schema/configurazione o deploy; CSV/writer e Windows reali restano aperti. Letture positive/paginazione via RPC in rollback, HTTP read con storico senza date correttamente escluso. Nessuna garanzia su 429, carico, guasti DB o catena fisica. [Verbale ed evidenze](docs/backend-csv-verification.md).
+
 ### Informazioni dell’utente dopo la revisione Q1–Q35 (U)
 
 Queste sono dichiarazioni e scelte dell’utente, non verifiche indipendenti di hardware o servizi. Il riepilogo di tutte le risposte è nella sezione 17.
@@ -435,6 +449,11 @@ BE-07 applicato e verificato nel progetto esistente scelto: [verbale](docs/backe
 - Nessuna chiave privilegiata nel bundle frontend o nel repository.
 
 ### Fase 6 — Uploader Windows e acquisizione reale
+
+**Stato:** implementazione locale provvisoria e guida predisposte (`uploader/`);
+UP-01–UP-04 restano parziali fino a verifica di CSV/writer e installazione/prove sul
+PC Windows. La successiva prova remota con CSV sintetico è superata e documentata
+in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della stazione.
 
 **Design da privilegiare**
 
@@ -836,9 +855,10 @@ Il prodotto è pronto per essere considerato un MVP rilasciabile solo quando (il
 Il setup SET-00–SET-04 e BE-01–BE-07 sul contratto v1 sono completati tecnicamente.
 BE-07 è stato applicato al progetto Supabase MeteOlivelli esistente scelto dall’utente;
 prove e limiti in [docs/backend-verification.md](docs/backend-verification.md).
-Il prossimo blocco operativo è la Fase 6, uploader Windows, con vincoli CSV/tempo
-ancora da verificare in DATA-01–DATA-03. Nessuna promessa di catena fisica pronta
-prima del campione e delle prove sul PC.
+La Fase 6 dispone ora di uploader locale provvisorio e guida: restano vincoli
+CSV/tempo da verificare in DATA-01–DATA-03 e prove sul PC Windows. La Fase 7
+(dashboard e modello sperimentale) può progredire nei suoi task indipendenti.
+Nessuna promessa di catena fisica pronta prima del campione e delle prove sul PC.
 
 La baseline locale della fase 3 è completata nei limiti della sezione 4. L’MVP definito nella fase 3 prevede: sito pubblico per scuola/open day, ultimi valori, grafici 24h/7g/30g, aggiornamento automatico, previsioni +30 minuti/+1 ora/giornata, stato con tolleranza di 20 minuti oltre l’atteso, niente account/profilazione/download. Consegna richiesta settimana prossima, finestra interpretata 26 ottobre–1 novembre 2026; eventuale chiusura a dicembre ancora incerta. Non riproporre come aperte queste scelte.
 

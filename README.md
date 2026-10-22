@@ -11,8 +11,9 @@ Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
 gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.
 Database, RPC ed endpoint sono applicati e verificati nel progetto Supabase
-MeteOlivelli scelto dall’utente (BE-07); mancano uploader
-e collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
+MeteOlivelli scelto dall’utente (BE-07). L'uploader Python è predisposto e testato
+localmente sul contratto v1, con outbox SQLite e retry; campione CSV, writer e prove
+sul PC Windows restano necessari. Non è collegato alla stazione. Le previsioni non sono ancora integrate.
 
 Chiarimento del 22 ottobre: CSV e misure devono restare conservati; 24h/7g/30g sono
 filtri dei grafici. Per le nuove righe il programma Windows aggiungerà data e ora
@@ -24,6 +25,9 @@ di backup in [plan.md §18](plan.md#18-revisione-delle-criticità-e-scelte-deleg
 Il sito previsto è pubblico, con misure e grafici, senza account, profilazione o download.
 Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
 in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
+Le prove residue sono descritte in [docs/qa.md](docs/qa.md); il CSV dimostrativo
+dell'altro lavoro è conservato in [data/simulazioni/](data/simulazioni/README.md),
+distinto dalla fixture usata nella prova HTTP del backend.
 
 ## Collaborazione e progettazione UI
 
@@ -38,6 +42,7 @@ La prima dashboard può usare soltanto dati dimostrativi **sempre etichettati**.
 - Node.js compatibile con Vite 8: `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
 - npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
 - Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
+- Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0. Windows ancora da provare.
 
 Docker, Supabase CLI e Vercel CLI non servono per compilare il frontend o eseguire i
 controlli backend attuali. Serviranno strumenti ulteriori per prove reali e deploy,
@@ -90,6 +95,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run backend:check` | Typecheck dei moduli backend con Deno |
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
+| `npm run uploader:test` | Test sintetici Python con SQLite temporaneo, senza rete; richiede `python3` |
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
@@ -103,6 +109,14 @@ RPC, privilegi/RLS e ingestione HTTP sintetica concorrente; fixture rimosse.
 Resta da provare l’acquisizione reale da CSV/Windows. Le prove SQL in `supabase/tests/`
 richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno. Il frontend non ha ancora una suite di test dedicata.
 Contratto e limiti in [docs/backend.md](docs/backend.md).
+
+L'uploader e la procedura Windows sono descritti in [uploader/README.md](uploader/README.md).
+La catena CSV sintetico → uploader → HTTPS → Supabase è stata provata con esito
+positivo, rimuovendo tutti gli eventi di test: [verbale](docs/backend-csv-verification.md).
+Per impostazione iniziale conserva lo storico senza attribuirgli date di misura;
+la modalità di acquisizione PC richiede verifica del writer. Su Windows senza alias
+`python3` eseguire i test con `py -3 -m unittest discover -s uploader/tests -v`,
+separatamente dai comandi npm frontend/backend.
 
 ## Struttura essenziale
 
@@ -123,6 +137,8 @@ docs/backend-schema.md        Schema, accessi e lettura
 docs/backend-verification.md  Target, prove live, recupero e limiti BE-07
 docs/backend.md               Contratto dati, runtime e limiti delle verifiche
 docs/services.md              Inventario servizi in sola lettura e quote consultate
+uploader/                     Lettore CSV provvisorio Python, outbox/retry, CLI e test
+uploader/README.md            Configurazione, installazione Windows e limiti da provare
 plan.md                       Requisiti e decisioni
 tasks.md                      Checklist operativa ed esiti
 CORRECTIONS.md                Bug confermati e correzioni verificate
