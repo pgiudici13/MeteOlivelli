@@ -430,6 +430,27 @@ Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in u
 - Gestione degli errori comprensibile senza esporre dettagli interni.
 - Evitare componenti e dipendenze aggiunte solo per moda; valutare Tailwind ed ECharts in base alla necessità reale.
 
+### Sessione di progettazione UI con il compagno — 22 ottobre 2026 (programmata)
+
+**Organizzazione confermata dall'utente:** il 22 ottobre 2026 i due studenti resteranno a scuola per una sessione congiunta di circa **due ore**. Prima della sessione, il compagno installerà/aprirà Figma e verrà creato un file di progetto, nome proposto **MeteOlivelli — Dashboard**. L'installazione, il file e la sessione sono **previsti, non ancora completati**.
+
+**Divisione iniziale dei ruoli (proposta operativa):**
+- **Compagno — UI/UX e QA:** raccogliere 2–3 riferimenti visivi (da usare come ispirazione, non da copiare); imparare le funzioni essenziali di Figma; produrre un primo layout desktop e una variante mobile; definire disposizione delle card temperatura/umidità/pressione, grafici, stato stazione, spaziatura, colori e tipografia; verificare il risultato implementato.
+- **Utente — dati/backend e integrazione:** proseguire specifica dati, schema/API e, se accessibile a scuola, osservare il CSV reale e il processo Windows; concordare con il compagno i campi necessari alla UI. Nessuna modifica al PC o ai servizi implicata dal solo piano.
+- **Insieme:** riesaminare il design, consegnare all'AI/Codex uno screenshot o un riferimento Figma con specifiche, tradurre il design in componenti React/TypeScript mantenendo Vite, e fare revisione manuale prima del merge.
+
+**Programma indicativo delle due ore (adattabile):**
+1. 0–15 min: obiettivi, contenuto della dashboard e responsabilità;
+2. 15–60 min: progettazione Figma in parallelo al lavoro backend/CSV;
+3. 60–90 min: passaggio del progetto visuale a Codex e prima implementazione **solo se il design è abbastanza definito**;
+4. 90–120 min: QA, correzioni prioritarie e verifica di build/lint; deployment soltanto dopo verifica e autorizzazione.
+
+**Consegne minime della sessione:** file Figma condivisibile o screenshot/wireframe, almeno una vista desktop e indicazioni per mobile, palette e gerarchia dati, lista di osservazioni QA e, se pronto, una prima UI revisionabile su branch dedicato. Se la progettazione richiede più tempo, non forzare codice incompleto: conservare il design per l'implementazione successiva.
+
+**Regole:** Figma è uno strumento di design, non sostituisce i test né garantisce codice pronto; mantenere la proprietà delle scelte agli studenti. Verificare licenze dei template/asset. Dati dimostrativi sempre segnalati, mai esposti come dati reali. Non inserire nel file Figma segreti o dati riservati del PC; non dare a tool AI accessi superflui. Branch distinti per backend e UI, revisione tramite pull request; nessun merge/deploy implicito.
+
+**Checklist QA iniziale:** responsive desktop/mobile, unità corrette (°C, %, hPa), grafici leggibili, dati demo etichettati, caricamento/vuoto/errore rete, orario misura vs ricezione, stato stazione non falsamente online, navigazione da tastiera/contrasto, assenza errori console, `npm run build` e `npm run lint`. Test con dati reali e dell'intera pipeline in una fase successiva.
+
 ### Fase 7 — Backup, migrazione e ripristino
 
 **Livelli minimi richiesti**
