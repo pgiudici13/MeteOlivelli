@@ -1,0 +1,58 @@
+{
+  "deployment": "https://meteolivelli-dyq0vqzkt-pedro13-projects.vercel.app",
+  "sourceCommit": "0af54b811dc9c6a076ab2a68241c6a9041f9ee0a",
+  "date": "2026-10-22",
+  "csv": "data/simulazioni/simulazioni_demo.csv",
+  "csvSha256": "6b18a57a17e4ee4646a460e18e6dcc64e02150f5976936396467d0886ec934ca",
+  "samples": 50,
+  "lastValues": [
+    -4.1,
+    89.6,
+    1008.3
+  ],
+  "virtualTime": "Solo fixture browser: 2026-10-22T00:00:00Z + uptime. Nessuna data fisica dedotta.",
+  "scope": "Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o DEMO pubblica.",
+  "access": "HTML, JS, CSS e font dal preview tramite vercel curl autenticato; stessi byte renderizzati nel browser di prova",
+  "browser": "155.0.8059.85",
+  "results": [
+    {
+      "name": "deployment online: titolo, asset e API pubblica reale vuota",
+      "passed": true
+    },
+    {
+      "name": "CSV originale: ultimo campione esatto nelle tre schede",
+      "passed": true
+    },
+    {
+      "name": "grafici: 50 punti per grandezza, minimi/massimi coerenti col CSV",
+      "passed": true
+    },
+    {
+      "name": "cronologia: tutti i 50 campioni identici al CSV, senza salti o duplicati",
+      "passed": true
+    },
+    {
+      "name": "24h/7g/30g: richiesta corretta e 50 campioni, nessuno storico artificiale aggiunto",
+      "passed": true
+    },
+    {
+      "name": "online desktop/mobile: reflow 320/390/768/1280 px, screenshot DEMO",
+      "passed": true
+    },
+    {
+      "name": "pagina online aperta: un nuovo evento simulato compare senza reload",
+      "passed": true
+    },
+    {
+      "name": "rete interrotta e recupero: valori conservati con avviso, nessun falso vuoto",
+      "passed": true
+    }
+  ],
+  "assets": [
+    "/assets/index-C72V-Nq2.js",
+    "/assets/index-CnNBW7TE.css",
+    "/fonts/InterVariable.woff2"
+  ],
+  "pageErrors": [],
+  "assetFailures": []
+}

@@ -4,7 +4,10 @@ La dashboard React/TypeScript sostituisce la pagina provvisoria. Riferimento:
 [MeteOlivelli · Obsidian UI v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2),
 viste desktop `7:3` e mobile `7:4`, lette tramite il plugin Figma con contesto
 e screenshot. Il file Figma non è stato modificato. Branch locale:
-`codex/frontend-phase-7`; nessun commit, push, PR o deploy eseguito.
+`codex/frontend-phase-7`. Successivamente, su richiesta esplicita, frontend
+pubblicato con commit/push `0af54b8` e deploy Git preview verificato online con il
+CSV simulato: [verbale, screenshot e limiti](frontend-online.md). Nessun merge
+verso `main` o promozione in produzione.
 
 ## Comportamento implementato
 
