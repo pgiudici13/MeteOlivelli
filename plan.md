@@ -1,17 +1,17 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** soluzioni del riepilogo problema/soluzione approvate dall’utente il 22 ottobre 2026; dettagli tecnici e verifiche residue indicati nelle singole attività.
+> **Stato:** pagina iniziale “Work in progress” senza dati e controllo dati locale v1 implementati su richiesta del 22 ottobre 2026; dashboard e conferma del contratto sul CSV/writer reale ancora aperte.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo revisione delle criticità e risposte dell’utente.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo pagina iniziale provvisoria senza dati.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito corrente:** setup generale locale SET-00–SET-04 eseguito su richiesta dell’utente. Configurazione, runtime e controlli backend predisposti; nessuna ingestione applicativa, migrazione, modifica remota, commit o push.
+> **Ambito corrente:** setup SET-00–SET-04, validazione pura BE-01 e adattatore CSV provvisorio configurabile realizzati. Ordine/unità forniti dall’utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa. Nessun endpoint, parser CSV definitivo, migrazione o intervento su Supabase/Vercel. Commit e push dei file locali richiesti esplicitamente dall'utente dopo i controlli.
 
 > **Decisioni correnti:** le risposte del 22 ottobre e le scelte tecniche delegate sono raccolte nella sezione 18. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, non è più prevista l’integrazione di un provider meteo esterno.
 
 ## Come leggere e mantenere il piano
 
 - **Fatto verificato (F):** dimostrato nell'ispezione locale, con fonte nella sezione 4. Una verifica locale non dimostra lo stato dei servizi remoti.
-- **Informazione dell'utente (U):** vincolo o richiesta esplicita nella conversazione attuale. Include i tre documenti richiesti, la tutela del lavoro locale e dei segreti, il divieto iniziale di implementazione nella fase documentale e quello di modifiche remote non richieste. In seguito l’utente ha autorizzato il setup generale locale, mantenendo separati gli interventi successivi.
+- **Informazione dell'utente (U):** vincolo o richiesta esplicita nella conversazione attuale. Include i tre documenti richiesti, la tutela del lavoro locale e dei segreti, il divieto iniziale di implementazione nella fase documentale e quello di modifiche remote non richieste. In seguito l’utente ha autorizzato il setup locale e, il 22 ottobre, la Fase 2 dei controlli dati.
 - **Contesto ereditato (C):** affermazione contenuta in `piano.md`, senza prova indipendente disponibile in questa attività. Va confermata dall'utente o da evidenze; non viene attribuita automaticamente a una sua dichiarazione diretta.
 - **Ipotesi/proposta (I):** soluzione da valutare. Tutta l'architettura candidata e i nomi dei campi da progettare appartengono a questa categoria.
 - **Decisione (D):** scelta registrata con stato, esito, fonte e dipendenze; quelle aperte devono essere chiuse prima della fase dipendente. Il registro, con stato ed esiti, è nella sezione 11.
@@ -23,6 +23,13 @@ Gli obiettivi e i comportamenti delle sezioni successive sono requisiti del pian
 La checklist esecutiva è [tasks.md](tasks.md): traduce questo piano in attività ordinate, dipendenze, istruzioni e criteri di completamento. Non sostituisce requisiti e decisioni di questo documento. Il 21 ottobre 2026 l’utente ha prima richiesto la checklist e poi l’esecuzione del setup generale. SET-00–SET-04 sono ora completati, con esiti e limiti registrati; il backend applicativo resta da realizzare.
 
 ## 1. Scopo
+
+**Pagina provvisoria, richiesta il 22 ottobre 2026 (U/F):** sostituito il template
+React/Vite con una pagina italiana senza dati, avviso “Work in progress / Lavori in
+corso”, breve descrizione del progetto, grandezze previste e autori già indicati nel
+README. Nessuna dashboard o connessione dati implicata. Metadati italiani, favicon
+del progetto e contenuto `noscript`; commit e push richiesti dall'utente. Non è
+un'implementazione fedele del mockup Figma, che rimane riferimento della dashboard futura.
 
 Il piano precedente descrive MeteOlivelli come una piattaforma meteorologica pubblica sviluppata da due studenti del Liceo Scientifico Paritario Teresio Olivelli di Pavia (C; denominazione completa da confermare; destinazione pubblica confermata dall’utente in Q18). Il README conferma il riferimento al liceo Teresio Olivelli a Pavia e indica come autori Pietro Giudici e Nicholas Borin (F). Deve presentare in modo chiaro le misurazioni raccolte dalla stazione scolastica, conservarne lo storico e restare gestibile con risorse limitate.
 
@@ -86,7 +93,7 @@ Le prove di accettazione devono usare fixture dichiarate e poi un campione reale
 2. **Non riscrivere la storia Git** e non creare commit o push automaticamente.
 3. **Non modificare configurazioni remote** di GitHub, Vercel o Supabase senza una richiesta esplicita.
 4. **Non applicare migrazioni** finché lo schema e i criteri di timestamp non sono stati progettati e revisionati.
-5. **Non indovinare il CSV.** L’esempio fornito è illustrativo; delimitatore, intestazioni, formato decimale, scrittura e contenuto effettivo devono essere verificati su un file reale.
+5. **Non indovinare il CSV.** Ordine e unità dichiarati dall'utente il 22 ottobre: secondi dall'accensione, temperatura °C, umidità %, pressione hPa. Delimitatore, intestazioni, formato decimale, scrittura e contenuto effettivo devono essere verificati su un file reale.
 6. **Non trattare `arduino_seconds` come data assoluta.** Il contatore si azzera al riavvio e non è un timestamp Unix.
 7. **Non esporre chiavi privilegiate nel client.** Segreti e credenziali di ingestione restano lato server o nel sistema locale protetto del PC uploader.
 8. **Nessuna scrittura anonima.** I visitatori non devono poter modificare o cancellare le misurazioni.
@@ -127,6 +134,14 @@ La tabella precedente resta la baseline storica: questi fatti la aggiornano dove
 - `npm run check` superato con exit code 0 su copia isolata senza `.env`, usando Node 26.12.0/npm 11.20.0/Deno 2.9.6. I 3 test backend usano valori sintetici e non hanno permessi su ambiente, rete o file applicativi. Nessuna prova di ingestione/RLS/CSV viene implicata dai test di configurazione.
 - GitHub confermato pubblico su `main`; Supabase attivo, senza tabelle restituite in `public`, funzioni o migrazioni; progetto Vercel confermato con framework Vite e Node 24.x. Dettagli, fonti e limiti in [docs/services.md](docs/services.md). Nessun billing effettivo o deploy attuale certificato.
 - Tutti i task di setup sono specificati con scopo, file/input, procedura, verifiche ed esito. Al 22 ottobre le attività successive sono 24, inclusa UI-00 aggiunta e parzialmente eseguita. Il codice frontend e le configurazioni remote sono invariati.
+
+### Aggiornamento controllo dati — 22 ottobre 2026
+
+- **U:** richiesta di eseguire la Fase 2 dei controlli dati; ordine dei quattro campi dichiarato: secondi dall'accensione Arduino, temperatura °C, umidità %, pressione hPa. Nessun timestamp assoluto dichiarato nel CSV.
+- **F:** `_shared/measurement.ts` implementa parsing JSON, validazione del contratto locale v1, qualità per campo e contenuto canonico. `_shared/measurement_csv.ts` aggiunge un adattatore provvisorio con dialetto obbligatorio e riga originale restituita anche negli errori. Check/lint/test Deno ricorsivi; 27 test sintetici superati (3 configurazione, 14 dati, 10 CSV). Build/lint e controlli backend superati su copia senza `.env`.
+- **U, successivo chiarimento:** richiesta di completare la sezione 4 di `tasks.md`, non l'endpoint della Fase 4 del piano. Separatore, decimali, intestazione e writer non conosciuti; l'utente ipotizza un formato “standard”. Questa ipotesi non fissa un dialetto: nessun valore predefinito di produzione o rilevamento automatico del separatore.
+- **D tecnica locale:** campi JSON con unità nel nome, ID UUID v4 e sorgente, null espliciti, istanti UTC normalizzati; storico senza ora PC inventata, valori sospetti conservati e segnalati. Contratto e risposte future documentati in [docs/backend.md](docs/backend.md#contratto-json-locale-v1--data-02data-03be-01).
+- **Limite:** DATA-01 e verifica operativa DATA-02/DATA-03 restano aperti: nessun CSV reale/writer/clock osservato, nessuna prova di endpoint, persistenza, reset hardware o deduplicazione nel DB. Le regole sui retry sono testate solo come trasformazioni pure.
 
 ### Informazioni dell’utente dopo la revisione Q1–Q35 (U)
 
@@ -325,6 +340,13 @@ Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in u
 - Nessuna migrazione o chiave creata in questa fase.
 
 ### Fase 2 — Contratto di acquisizione e campione CSV
+
+**Avanzamento al 22 ottobre 2026:** ordine e unità dichiarati dall'utente;
+contratto JSON locale v1 e controlli BE-01 implementati con 14 test dedicati;
+adattatore CSV provvisorio configurabile con altri 10 test sintetici.
+Specifiche temporali e risposte dell'handler in [docs/backend.md](docs/backend.md).
+Campione reale e verifica del writer ancora necessari per la chiusura operativa;
+nessun parser CSV definitivo o endpoint implementato.
 
 **Input richiesti**
 
@@ -664,7 +686,7 @@ Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ott
 
 | ID | Tema | Stato / esito | Verifica o dipendenza residua |
 |---|---|---|---|
-| D1 | CSV e writer | Campione rinviato dall’utente; CSV sul Desktop Windows (U, 22 ottobre), percorso completo ignoto | Campione reale e osservazione del writer prima del parser definitivo; nessun nome file dedotto |
+| D1 | CSV e writer | U, 22 ottobre: ordine secondi dall'accensione, temperatura °C, umidità %, pressione hPa; CSV sul Desktop Windows, campione rinviato e percorso completo ignoto. L'utente non conosce dialetto/writer; “standard” resta ipotesi | Adattatore locale con dialetto esplicito, senza default. Campione/writer necessari per separatore, decimali, intestazioni, risoluzione, append e righe parziali; nessun parser definitivo |
 | D2 | Tempo misura/acquisizione | U: aggiungere l’ora all’invio quando cambia il file. Scelta tecnica: data/ora completa UTC in `captured_at`, asse di acquisizione dichiarato; `measured_at` resta nullo se ignoto | Prima osservazione di nuove righe complete, non ogni retry; righe pregresse senza data e buffering da distinguere; dettagli §18 |
 | D3 | Identità eventi | Scelta tecnica delegata: UUID per evento persistito in SQLite insieme a generazione file e posizione | Vincolo DB sorgente + ID; nessuna nuova identità nei retry; riconciliazione dopo perdita stato |
 | D4 | Lettura dati | Scelta tecnica delegata: endpoint di lettura a parametri fissi e risultati limitati; pubblico read-only | Query parametrizzate, privilegi/RLS e cache da implementare/provare; niente tabelle interne esposte per comodità |
@@ -679,7 +701,7 @@ Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ott
 | D13 | Sessioni Arduino | Parziale: GIGA R1 dichiarato (U) | Firmware, rollover, reset e riordino da verificare |
 | D14 | Replay/perdita stato | Aperto | Registro identità e procedura di riconciliazione, prima dell’import storico |
 | D15 | Vincoli Windows | Parziale: PC dedicato/adattabile, installazione consentita (U) | Append, attività continua, avvio senza login, proxy, spazio e permessi effettivi da provare |
-| D16 | Anomalie | U confermata il 22 ottobre: conservare comunque e mostrare “probabile errato” | Flag per singolo campo con motivo; nessuna correzione automatica. Originale in quarantena se non interpretabile; soglie e sentinelle da verificare |
+| D16 | Anomalie | U: conservare e mostrare “probabile errato”; F: validatore locale v1 preserva numeri sospetti con motivo per campo, distingue null da zero | Limiti fisici minimi e range opzionali implementati; soglie sensore/sentinelle da verificare. Quarantena durevole ancora UP-03 |
 | D17 | Recupero/offline | Aperto | RPO/RTO e durata offline non indicati; nessun valore assunto come approvato |
 | D18 | MVP/scadenza | Deciso (U): pronto settimana prossima; misure/grafici/stato, aggiornamento automatico e previsioni +30m/+1h/giornata | Finestra interpretata 26 ottobre–1 novembre 2026; giorno preciso non indicato; dati reali e nuovo requisito previsioni condizionano la consegna |
 | D19 | Gestione/continuità | Utente responsabile; chiusura complessiva ipotizzata a dicembre (U), non confermata | Data e perimetro della chiusura da decidere allora; nessuna cancellazione o spegnimento implicito, storico da preservare |
@@ -784,7 +806,7 @@ Il prodotto è pronto per essere considerato un MVP rilasciabile solo quando (il
 
 ## 16. Prossimo passo consigliato
 
-Il setup generale SET-00–SET-04 è completato. Per il prossimo intervento seguire [tasks.md](tasks.md#9-da-dove-ripartire-dopo-la-revisione-insieme): bozza DATA-02/DATA-03 e validazione BE-01. Il modulo di configurazione e i suoi test non completano la validazione delle misure; chiudere parser/schema dipendenti dai dati soltanto con campione reale.
+Il setup SET-00–SET-04 e BE-01 sul contratto locale v1 sono completati. Seguire [tasks.md](tasks.md#9-da-dove-ripartire-dopo-la-revisione-insieme): verificare DATA-01–DATA-03 sul campione/writer quando disponibili, poi adeguare test e progettare schema/accessi. Il parser CSV definitivo e il flusso persistente richiedono prove reali; la sola validazione locale non li completa.
 
 La baseline locale della fase 0 è completata nei limiti della sezione 4. L’MVP della fase 1 è ora definito: sito pubblico per scuola/open day, ultimi valori, grafici 24h/7g/30g, aggiornamento automatico, previsioni +30 minuti/+1 ora/giornata, stato con tolleranza di 20 minuti oltre l’atteso, niente account/profilazione/download. Consegna richiesta settimana prossima, finestra interpretata 26 ottobre–1 novembre 2026; eventuale chiusura a dicembre ancora incerta. Non riproporre come aperte queste scelte.
 
