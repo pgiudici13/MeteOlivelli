@@ -3,7 +3,7 @@ import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
-import type { Measurement, Period } from './weather.ts'
+import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import './App.css'
 
@@ -45,11 +45,13 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 
 function App() {
   useBorderLight()
-  const [period, setPeriod] = useState<Period>('24h')
-  const data = useWeather(period)
+  const [period, setPeriod] = useState<ChartMode>('auto')
+  const queryPeriod = period === 'auto' ? '30g' : period
+  const data = useWeather(queryPeriod, period === 'auto')
   const latest = data.latest
-  const historyLoading = data.period !== period || !data.historyLoaded
-  const rows = data.period === period ? data.history : []
+  const matchingHistory = data.period === queryPeriod && data.anchorToLatest === (period === 'auto')
+  const historyLoading = !matchingHistory || !data.historyLoaded
+  const rows = matchingHistory ? data.history : []
   const latestLoaded = data.latestLoaded
   const latestError = data.latestError
   const historyError = data.historyError
@@ -81,7 +83,7 @@ function App() {
           <p className="instrument-caption">Ultima lettura della stazione</p>
           <p className="hero-temperature">{latestLoaded && latest && latest.temperature_c !== null ? <Value row={latest} metric={metrics[0]} /> : <><span>—</span><span className="temperature-unit"> °C</span></>}</p>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'In attesa del primo campione'}</p>
-          <HistoryChart metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
+          <HistoryChart period={period} until={data.windowUntil} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
@@ -110,13 +112,13 @@ function App() {
         <p className="secondary">{rows.length ? `${rows.length} campioni disponibili nel periodo selezionato.` : 'Lo storico mostra i campioni disponibili per il periodo selezionato.'} Orari di acquisizione sul PC · Europe/Rome.</p>
         <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={period === item.value} onClick={() => setPeriod(item.value)}>{item.label}</button>)}</div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${periods.find(item => item.value === period)?.label}: ${rows.length} campioni.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
-        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
-        <p className="small">Le linee collegano i campioni validi disponibili. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
+        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        <p className="small">In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. La cronologia conserva i campioni originali. Le linee collegano solo i valori validi disponibili. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
       </section></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
-        <p className="secondary">Campioni del periodo selezionato, dal più recente. Unità: °C, %, hPa.</p>
+        <p className="secondary">{period === 'auto' ? 'Campioni originali dei 30 giorni caricati prima dell’ultima misura' : 'Campioni del periodo selezionato'}, dal più recente. Unità: °C, %, hPa.</p>
         {historyError && !historyLoading && <p className="warning">Aggiornamento dello storico non riuscito. Eventuali campioni conservati dall’ultima lettura.</p>}
         {historyLoading ? <p className="empty-state">Caricamento dei campioni…</p> : rows.length ? <HistoryTable key={period} rows={rows} /> : <p className="empty-state">{historyError ? 'Cronologia temporaneamente non disponibile.' : 'Nessun campione da mostrare per questo periodo.'}</p>}
       </section></Reveal>

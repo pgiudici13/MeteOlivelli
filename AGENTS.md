@@ -59,6 +59,7 @@ Leggere prima queste regole e `git status`, poi soltanto i documenti necessari a
 | [src/main.tsx](src/main.tsx), [index.html](index.html) | Avvio React, integrazioni Vercel, metadati e fallback senza JS |
 | [src/App.tsx](src/App.tsx) | Struttura pagina, ultime misure, filtri, cronologia e postilla |
 | [src/index.css](src/index.css), [src/App.css](src/App.css) | Font/base e presentazione responsive, stati e riflessi |
+| [src/chart.ts](src/chart.ts) | Finestre, Auto adattivo, medie per fascia e separatori di calendario in Europe/Rome |
 | [src/weather.ts](src/weather.ts) | Contratto pubblico, provenienza, formati, serie e freschezza |
 | [src/weather-feed.ts](src/weather-feed.ts), [src/use-weather.ts](src/use-weather.ts) | Letture, paginazione, recupero, finestre e ciclo polling/visibilità |
 | [src/components/HistoryChart.tsx](src/components/HistoryChart.tsx) | Grafici SVG accessibili e disegno progressivo dei campioni |

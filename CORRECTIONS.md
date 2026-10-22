@@ -86,3 +86,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** contenuti già visibili che scomparivano all’avvio della dissolvenza.
 - **Correzione:** stato pendente applicato prima del paint e rimosso all’ingresso; fallback e focus tastiera espliciti.
 - **Verifica:** build/lint, 16 test frontend e 13 scenari browser superati; scheda fuori vista con opacità zero, disegno attivo all’ingresso e nessuno stato nascosto residuo con movimento ridotto.
+
+
+## COR-007 — Curva del grafico iniziale spezzata durante l’animazione
+
+- **Stato:** corretto localmente, 22 ottobre 2026; pubblicazione non eseguita in questa revisione.
+- **Prova:** screenshot e segnalazione dell’utente mostrano più segmenti disgiunti durante il refresh; il tracciato usava dash normalizzati e stroke non scalabile.
+- **Impatto:** la progressione grafica sembrava introdurre buchi assenti nella serie.
+- **Correzione:** unica maschera SVG che scopre curva, area e punti da sinistra a destra a velocità costante, senza dash; assi e testi restano separati.
+- **Verifica:** test browser mette la maschera a metà durata, controlla il 50% della larghezza ed easing lineare e conferma l’assenza di tratteggio. Conservati riduzione movimento e ingressi senza lampeggio. Verifiche su scale e fuso con test Node dedicati.

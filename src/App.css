@@ -162,7 +162,7 @@ button:disabled { cursor: default; opacity: .45; }
 /* Navigazione ad ancore e microinterazioni; lo scroll manuale resta nativo. */
 html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 .hero > div { min-width: 0; }
-.site-header { animation: header-enter 500ms ease-out backwards; }
+.site-header { animation: header-enter 350ms ease-out backwards; }
 .hero-link, .site-header a { transition: color 180ms, background-color 180ms, border-color 180ms; }
 .hero-link > span { transition: transform 180ms ease-out; }
 .hero-link:hover > span { transform: translate(2px, -2px); }
@@ -226,3 +226,11 @@ button::after, .hero-link::after { padding: 2px; }
 }
 
 .development-notice { padding-top: 20px; color: var(--secondary); font: 12px/1.5 ui-monospace, monospace; }
+
+.chart-time-gridline { stroke: #34312e; stroke-width: 1; }
+.chart-time-gridline.minor { opacity: .35; }
+.chart-time-gridline.major { stroke-dasharray: 2 4; opacity: .8; }
+.chart-period-note { font-size: 10px; }
+
+.chart-average-label { display: block; font-size: 10px; letter-spacing: 0; color: var(--secondary); }
+@media (max-width: 450px) { .period-picker { gap: 6px; } .period-picker button { padding-inline: 6px; } }

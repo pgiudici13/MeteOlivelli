@@ -1,3 +1,4 @@
+import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { parsePage, readPage, readHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
@@ -162,4 +163,81 @@ test('provenienza: il tipo sintetico è conservato, un tipo sconosciuto è rifiu
 
 test('freschezza: i campioni sintetici non diventano misure fisiche aggiornate', () => {
   assert.equal(getFreshness(row(1, { acquisition_kind: 'synthetic', measured_at: '2026-10-22T12:00:00.000Z' }), Date.parse('2026-10-22T12:00:00.000Z'), 3600000), 'unknown')
+})
+
+test('grafici: scala completa 24h/7g/30g indipendente dai campioni', () => {
+  for (const [period, hours] of [['24h', 24], ['7g', 168], ['30g', 720]]) {
+    const axis = chartTimeline(period, '2026-10-22T20:00:00.000Z')
+    assert.equal(axis.end - axis.start, hours * 3600000)
+    assert.ok(axis.ticks.every(tick => tick.time > axis.start && tick.time < axis.end))
+  }
+  const month = chartTimeline('30g', '2026-10-22T20:00:00.000Z')
+  assert.ok(month.ticks.length >= 29)
+  assert.ok(month.ticks.filter(tick => tick.major).length >= 4)
+})
+test('grafici: linee giornaliere a mezzanotte italiana anche al cambio ora', () => {
+  const axis = chartTimeline('7g', '2026-10-28T12:00:00.000Z')
+  const localHour = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', hourCycle: 'h23' })
+  assert.ok(axis.ticks.every(tick => localHour.format(tick.time) === '00'))
+  const gaps = axis.ticks.slice(1).map((tick, i) => (tick.time - axis.ticks[i].time) / 3600000)
+  assert.ok(gaps.includes(25))
+  assert.throws(() => chartTimeline('24h', 'invalid'))
+})
+
+test('Auto: due giorni mantengono i campioni e la loro estensione temporale', () => {
+  const records = [row(1, { captured_at: '2026-10-20T10:00:00Z' }), row(2, { captured_at: '2026-10-22T10:00:00Z' })]
+  const chart = prepareChart(records, 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
+  assert.equal(chart.averaged, false)
+  assert.equal(chart.timeline.end - chart.timeline.start, 48 * 3600000)
+  assert.equal(chart.segments.flat().length, 2)
+})
+test('Auto: due mesi diventano sette giornate con tre medie, inclusa la notte', () => {
+  const records = Array.from({ length: 61 * 4 }, (_, index) => row(index + 1, {
+    captured_at: new Date(Date.UTC(2026, 7, 23 + Math.floor(index / 4), [0, 6, 12, 18][index % 4])).toISOString(),
+    temperature_c: [10, 20, 30, 40][index % 4],
+  }))
+  const chart = prepareChart(records, 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
+  const points = chart.segments.flat()
+  assert.equal(chart.averaged, true)
+  assert.equal(points.length, 21)
+  assert.deepEqual(points.slice(-3).map(point => point.value), [15, 30, 40])
+  assert.deepEqual(points.slice(-3).map(point => point.count), [2, 1, 1])
+  assert.equal(records.at(-1).temperature_c, 40)
+})
+test('Auto: null e sospetti non contribuiscono alle medie; fasce vuote interrompono la linea', () => {
+  const records = [row(1, { captured_at: '2026-10-01T10:00:00Z' }), row(2, { captured_at: '2026-10-22T08:00:00Z', temperature_c: 20 }), row(3, { captured_at: '2026-10-22T09:00:00Z', temperature_c: 999, quality_flags: [{ field: 'temperature_c', label: 'probabile errato' }] }), row(4, { captured_at: '2026-10-22T12:00:00Z', temperature_c: null }), row(5, { captured_at: '2026-10-22T18:00:00Z', temperature_c: 30 })]
+  const chart = prepareChart(records, 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
+  assert.deepEqual(chart.segments.map(segment => segment.length), [1, 1])
+  assert.deepEqual(chart.segments.flat().map(point => [point.value, point.count]), [[20, 1], [30, 1]])
+})
+test('Auto: fasce e sette giornate rispettano il cambio ora Europe/Rome', () => {
+  const records = [row(1, { captured_at: '2026-10-01T12:00:00Z' }), row(2, { captured_at: '2026-10-28T18:00:00Z' })]
+  const chart = prepareChart(records, 'temperature_c', 'auto', '2026-10-28T20:00:00Z')
+  assert.equal(chart.timeline.end - chart.timeline.start, 169 * 3600000)
+  assert.equal(chart.segments.flat().at(-1).label.includes('Sera'), true)
+})
+test('Auto: una misura singola ha spazio e le medie vere non includono sintetici', () => {
+  const only = prepareChart([row()], 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
+  assert.equal(only.timeline.end - only.timeline.start, 3600000)
+  const mixed = prepareChart([row(1, { acquisition_kind: 'synthetic', captured_at: '2026-10-01T10:00:00Z', temperature_c: 999 }), row(2, { acquisition_kind: 'live', captured_at: '2026-10-22T10:00:00Z', temperature_c: 20 })], 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
+  assert.equal(mixed.averaged, false)
+  assert.deepEqual(mixed.segments.flat().map(point => point.value), [20])
+})
+
+test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma da mesi', async () => {
+  const old = row(1, { captured_at: '2026-08-01T10:00:00.000Z' })
+  let published
+  let calls = 0
+  const feed = createWeatherFeed('30g', state => { published = state }, async params => {
+    if (params.get('view') === 'latest') return page([old])
+    calls++
+    assert.equal(params.get('until'), old.captured_at)
+    return { ...page([old]), until: old.captured_at }
+  }, { anchorToLatest: true })
+  await feed.refresh()
+  assert.equal(published.history.length, 1)
+  assert.equal(published.windowUntil, old.captured_at)
+  await feed.refresh()
+  assert.equal(calls, 1)
+  feed.stop()
 })

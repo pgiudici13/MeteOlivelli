@@ -81,6 +81,26 @@ try {
     assert.equal(await page.getByRole('status').first().textContent(), 'Freschezza non determinabile')
     await markSynthetic(page)
   })
+  await check('Auto predefinito: intervallo breve e medie settimanali senza cambiare i campioni', async () => {
+    assert.equal(await page.getByRole('button', { name: 'Auto', exact: true }).getAttribute('aria-pressed'), 'true')
+    const originalRows = fixtureRows
+    const originalLatest = latest
+    try {
+      fixtureRows = Array.from({ length: 45 * 3 }, (_, index) => record(index, {
+        captured_at: new Date(Date.UTC(2026, 8, 8 + Math.floor(index / 3), [0, 12, 18][index % 3])).toISOString(),
+        temperature_c: 10 + index % 3,
+      }))
+      latest = fixtureRows.at(-1)
+      const auto = await context.newPage()
+      await auto.goto(base)
+      await auto.locator('.chart-average-label').first().waitFor()
+      assert.equal(await auto.locator('.hero-instrument .chart-point').count(), 21)
+      assert.match(await auto.locator('.chart-period-note').first().textContent(), /medie 00–12/)
+      assert.match(await auto.locator('.chart-point title').first().textContent(), /media di/)
+      assert.equal(await auto.locator('.history-table tbody tr').count(), 6)
+      await auto.close()
+    } finally { fixtureRows = originalRows; latest = originalLatest }
+  })
   await check('reflow 320, 390, 768, 1280 px e font Inter locale', async () => {
     for (const width of [320, 390, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 })
@@ -104,12 +124,23 @@ try {
     attachErrors(motion)
     await motion.emulateMedia({ reducedMotion: 'no-preference' })
     await motion.goto(base)
-    await motion.waitForFunction(() => document.querySelector('.hero-instrument .chart-line')?.getAnimations().length > 0)
+    await motion.waitForFunction(() => document.querySelector('.hero-instrument .chart-reveal-mask')?.getAnimations().length > 0)
+    const drawing = await motion.locator('.hero-instrument .chart-reveal-mask').evaluate(mask => {
+      const animation = mask.getAnimations()[0]
+      animation.pause()
+      const width = Number(mask.getAttribute('width'))
+      animation.currentTime = 410
+      return { fraction: parseFloat(getComputedStyle(mask).width) / width, dash: getComputedStyle(document.querySelector('.hero-instrument .chart-line')).strokeDasharray, easing: animation.effect.getTiming().easing }
+    })
+    assert.ok(Math.abs(drawing.fraction - 0.5) < 0.02)
+    assert.equal(drawing.dash, 'none')
+    assert.equal(drawing.easing, 'linear')
+    await motion.locator('.hero-instrument .chart-reveal-mask').evaluate(mask => mask.getAnimations()[0].play())
     assert.equal(await motion.locator('.forecast-card').first().evaluate(element => getComputedStyle(element).opacity), '0')
-    await motion.waitForTimeout(2000)
-    assert.equal(await motion.locator('.hero-instrument .chart-line').evaluate(line => line.getAnimations().length), 0)
+    await motion.waitForTimeout(1000)
+    assert.equal(await motion.locator('.hero-instrument .chart-reveal-mask').evaluate(line => line.getAnimations().length), 0)
     await motion.locator('.chart-grid .chart svg').first().scrollIntoViewIfNeeded()
-    await motion.waitForFunction(() => [...document.querySelectorAll('.chart-grid .chart-line')].some(line => line.getAnimations().length > 0))
+    await motion.waitForFunction(() => [...document.querySelectorAll('.chart-grid .chart-reveal-mask')].some(line => line.getAnimations().length > 0))
     await motion.emulateMedia({ reducedMotion: 'reduce' })
     await motion.waitForFunction(() => document.querySelectorAll('[data-entrance-pending]').length === 0)
     await motion.waitForFunction(() => document.getAnimations().length === 0)
@@ -142,6 +173,8 @@ try {
     await page.getByRole('button', { name: '30 giorni', exact: true }).click()
     await page.locator('.chart svg').first().waitFor()
     assert.equal(await page.locator('.history-table tbody tr').count(), 6)
+    assert.ok(await page.locator('.hero-instrument .chart-time-gridline.minor').count() >= 20)
+    assert.ok(await page.locator('.hero-instrument .chart-time-gridline.major').count() >= 4)
     await page.getByRole('button', { name: '24 ore', exact: true }).click()
     await page.locator('.chart svg').first().waitFor()
   })

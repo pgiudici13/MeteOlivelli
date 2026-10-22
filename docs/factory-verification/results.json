@@ -12,6 +12,10 @@
       "passed": true
     },
     {
+      "name": "Auto predefinito: intervallo breve e medie settimanali senza cambiare i campioni",
+      "passed": true
+    },
+    {
       "name": "reflow 320, 390, 768, 1280 px e font Inter locale",
       "passed": true
     },

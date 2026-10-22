@@ -1,28 +1,35 @@
-import { useLayoutEffect, useId, useRef } from 'react'
+import { useLayoutEffect, useId, useRef, useMemo } from 'react'
+import { prepareChart } from '../chart.ts'
 import { animateOnEntrance } from '../motion.ts'
-import { chartSegments, formatTime, formatValue, metrics } from '../weather.ts'
-import type { Measurement } from '../weather.ts'
+import { formatValue, metrics } from '../weather.ts'
+import type { Measurement, ChartMode } from '../weather.ts'
 
-export function HistoryChart({ metric, rows, loading, error }: {
+export function HistoryChart({ metric, rows, loading, error, period, until }: {
+  period: ChartMode; until: string | null;
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
   const ref = useRef<HTMLElement>(null)
-  const segments = chartSegments(rows, metric.key)
+  const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until) : null, [rows, metric.key, period, until])
+  const segments = prepared?.segments ?? []
   const points = segments.flat()
-  const values = points.map(row => row[metric.key] as number)
+  const values = points.map(point => point.value)
   const min = values.length ? Math.min(...values) : 0
   const max = values.length ? Math.max(...values) : 1
   const padding = Math.max((max - min) * 0.15, 0.5)
   const low = min - padding
   const high = max + padding
-  const start = rows.length ? Date.parse(rows[0].captured_at!) : 0
-  const end = rows.length ? Date.parse(rows[rows.length - 1].captured_at!) : 1
-  const x = (row: Measurement) => start === end ? 180 : 58 + (Date.parse(row.captured_at!) - start) / (end - start) * 278
-  const y = (row: Measurement) => 176 - ((row[metric.key] as number) - low) / (high - low) * 160
+  const timeline = prepared?.timeline ?? null
+  const start = timeline?.start ?? 0
+  const end = timeline?.end ?? 1
+  const toX = (time: number) => 58 + (time - start) / (end - start) * 278
+  const x = (point: typeof points[number]) => toX(point.time)
+  const y = (point: typeof points[number]) => 176 - (point.value - low) / (high - low) * 160
   const last = points.at(-1)
   // Una nuova serie riparte; polling invariato e render estranei non riavviano il disegno.
-  const seriesKey = points.map(row => `${row.ingestion_id}:${row[metric.key]}`).join('|')
+  const seriesKey = segments.map(segment => segment.map(row => `${row.id}:${row.time}:${row.value}:${row.count}`).join('|')).join('/')
+  const revealStart = points.length ? x(points[0]) - 4 : 54
+  const revealWidth = points.length ? x(points[points.length - 1]) - revealStart + 4 : 286
   useLayoutEffect(() => {
     const element = ref.current
     if (!element || loading || error || !seriesKey) return
@@ -30,54 +37,45 @@ export function HistoryChart({ metric, rows, loading, error }: {
     if (!plot) return
     return animateOnEntrance(plot, () => {
       const animations: Animation[] = []
-      element.querySelectorAll('.chart-line').forEach(line => {
-        animations.push(line.animate([
-          { strokeDasharray: '1', strokeDashoffset: '1' },
-          { strokeDasharray: '1', strokeDashoffset: '0' },
-        ], { duration: 1400, delay: 180, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'backwards' }))
-      })
+      const mask = element.querySelector('.chart-reveal-mask')
+      if (mask) animations.push(mask.animate([
+        { width: '0px' }, { width: `${mask.getAttribute('width')}px` },
+      ], { duration: 700, delay: 60, easing: 'linear', fill: 'backwards' }))
       element.querySelectorAll('.chart-gridline').forEach((line, index) => {
         animations.push(line.animate([{ opacity: 0 }, { opacity: 1 }],
-          { duration: 400, delay: index * 55, fill: 'backwards' }))
-      })
-      element.querySelectorAll('.chart-area').forEach(area => {
-        animations.push(area.animate([{ opacity: 0 }, { opacity: 0.06 }],
-          { duration: 900, delay: 500, easing: 'ease-out', fill: 'backwards' }))
-      })
-      element.querySelectorAll<SVGCircleElement>('.chart-point').forEach(point => {
-        // Il punto appare quando la progressione raggiunge la sua posizione sull’asse.
-        const progress = Math.max(0, Math.min(1, (point.cx.baseVal.value - 58) / 278))
-        animations.push(point.animate([{ opacity: 0 }, { opacity: 1 }],
-          { duration: 280, delay: 180 + progress * 1400, easing: 'ease-out', fill: 'backwards' }))
+          { duration: 220, delay: index * 30, fill: 'backwards' }))
       })
       return animations
     })
-  }, [seriesKey, loading, error])
+  }, [seriesKey, period, loading, error])
   return (
     <article ref={ref} className={`chart tone-${metric.tone}`} aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`}>{metric.name} · {metric.unit}</h3>
-      <p className="chart-value">{last ? `${formatValue(last[metric.key])} ${metric.unit}` : 'Nessun valore disponibile'}</p>
-      {loading || error || !points.length ? (
+      <p className="chart-value">{prepared?.averaged && <span className="chart-average-label">Ultima media · </span>}{last ? `${formatValue(last.value)} ${metric.unit}` : 'Nessun valore disponibile'}</p>
+      {loading || error || !points.length || !timeline ? (
         <div className="chart-empty">{loading ? 'Caricamento del grafico…' : error ? 'Grafico temporaneamente non disponibile.' : rows.length ? 'Nessun valore valido da tracciare. Consulta i campioni nella tabella.' : 'Il grafico apparirà quando saranno disponibili misure in questo periodo.'}</div>
       ) : (
         <svg viewBox="0 0 352 210" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
-          <desc id={`${id}-desc`}>{points.length} valori validi, minimo {formatValue(min)} e massimo {formatValue(max)} {metric.unit}. Asse orizzontale: acquisizione sul PC, Europe/Rome. Valori assenti o sospetti interrompono la linea. Tutti i campioni sono consultabili sotto.</desc>
+          <desc id={`${id}-desc`}>{points.length} {prepared?.averaged ? 'medie di fascia calcolate dai campioni validi' : 'campioni validi'}, minimo {formatValue(min)} e massimo {formatValue(max)} {metric.unit}. {prepared?.averaged ? 'Asse orizzontale: fasce giornaliere in Europe/Rome; i punti sono posizionati al centro delle fasce, non all’ora di una singola misura.' : 'Asse orizzontale: acquisizione sul PC, Europe/Rome.'} Valori assenti o sospetti interrompono la linea. Da {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start)} a {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end)}. Finestra completa: {period === 'auto' ? 'adattata ai dati' : period === '24h' ? '24 ore' : period === '7g' ? '7 giorni' : '30 giorni'}. Tutti i campioni sono consultabili sotto.</desc>
+          <defs><clipPath id={`${id}-reveal`}><rect className="chart-reveal-mask" x={revealStart} y="12" width={revealWidth} height="168" /></clipPath></defs>
+          {timeline.ticks.map(tick => <g key={tick.time}>
+            <line x1={toX(tick.time)} x2={toX(tick.time)} y1="16" y2="176" className={`chart-time-gridline ${tick.major ? 'major' : 'minor'}`} />
+            {tick.label && <text x={toX(tick.time)} y="202" textAnchor="middle">{tick.label}</text>}
+          </g>)}
           {[0, 1, 2, 3].map(index => {
             const position = 16 + index * 160 / 3
             return <g key={index}><line x1="58" x2="336" y1={position} y2={position} className="chart-gridline" /><text x="0" y={position + 4}>{formatValue(high - index * (high - low) / 3)}</text></g>
           })}
-          {segments.map((segment, index) => <g key={index}>
-            {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline pathLength="1" points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
-            {segment.map(row => <circle key={row.ingestion_id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{formatTime(row.captured_at)} · {formatValue(row[metric.key])} {metric.unit}</title></circle>)}
-          </g>)}
-          {[0, 1, 2, 3].map(index => {
-            const date = new Date(start + (end - start) * index / 3)
-            const label = end - start > 86400000 ? new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit' }).format(date) : formatTime(date.toISOString(), true)
-            return <text key={index} x={58 + index * 278 / 3} y="202" textAnchor={index === 0 ? 'start' : index === 3 ? 'end' : 'middle'}>{label}</text>
-          })}
+          <g clipPath={`url(#${id}-reveal)`} className="chart-series">{segments.map((segment, index) => <g key={index}>
+            {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
+            {segment.map(row => <circle key={row.id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{row.label} · {formatValue(row.value)} {metric.unit}</title></circle>)}
+          </g>)}</g>
+          <text x="58" y="202" textAnchor="start">{timeline.startLabel}</text>
+          <text x="336" y="202" textAnchor="end">{timeline.endLabel}</text>
         </svg>
       )}
-      <p className="small">{points.length ? `Min ${formatValue(min)} · max ${formatValue(max)} ${metric.unit}` : 'Nessuna interpolazione dei dati mancanti.'}</p>
+      <p className="small">{points.length ? `${prepared?.averaged ? 'Min medie' : 'Min'} ${formatValue(min)} · max ${formatValue(max)} ${metric.unit}` : 'Nessuna interpolazione dei dati mancanti.'}</p>
+      <p className="chart-period-note small">{period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · riferimenti ogni 6 ore' : period === '7g' ? 'Ultimi 7 giorni · linee giornaliere' : 'Ultimi 30 giorni · linee giornaliere e settimane dal lunedì'}</p>
     </article>
   )
 }

@@ -1,5 +1,6 @@
 // Contratto pubblico BE-06. Nessun import del runtime server nel browser.
 export type Period = '24h' | '7g' | '30g'
+export type ChartMode = Period | 'auto'
 export type Metric = 'temperature_c' | 'humidity_pct' | 'pressure_hpa'
 export interface QualityFlag {
   field: Metric
@@ -29,8 +30,8 @@ export const metrics = [
   { key: 'humidity_pct', name: 'Umidità', unit: '%', tone: 'blue' },
   { key: 'pressure_hpa', name: 'Pressione', unit: 'hPa', tone: 'lilac' },
 ] as const
-export const periods: { value: Period; label: string }[] = [
-  { value: '24h', label: '24 ore' }, { value: '7g', label: '7 giorni' }, { value: '30g', label: '30 giorni' },
+export const periods: { value: ChartMode; label: string }[] = [
+  { value: 'auto', label: 'Auto' }, { value: '24h', label: '24 ore' }, { value: '7g', label: '7 giorni' }, { value: '30g', label: '30 giorni' },
 ]
 // URL pubblico già verificato in BE-07; non richiede chiavi o token client.
 export const READ_ENDPOINT = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements'

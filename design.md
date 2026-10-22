@@ -48,13 +48,11 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 
 | Elemento | Comportamento corrente |
 |---|---|
-| Header | Dissolvenza e spostamento da −8 px, 500 ms |
-| Hero e sezioni | Dissolvenza e spostamento da +16 px, 560 ms |
+| Header | Dissolvenza e spostamento da −8 px, 350 ms |
+| Hero e sezioni | Dissolvenza e spostamento da +12 px, 420 ms |
 | Elementi intro e schede | Observer individuale, ritardi 0/80/160 ms |
-| Griglia del grafico | Dissolvenza 400 ms, ritardo 55 ms fra linee |
-| Curve | Disegno lungo il tracciato, 1400 ms dopo 180 ms |
-| Aree | Dissolvenza 900 ms dopo 500 ms |
-| Punti | Dissolvenza 280 ms, ritardo proporzionale alla posizione temporale |
+| Griglia del grafico | Dissolvenza 220 ms, ritardo 30 ms fra linee |
+| Serie (curve, area, punti) | Rivelazione da sinistra a destra con una sola maschera SVG, 700 ms dopo 60 ms, easing lineare |
 
 Preparazione in `useLayoutEffect` prima del paint: gli elementi osservati hanno opacità zero e mantengono lo spazio nel layout. `IntersectionObserver` (soglia 8%, margine inferiore −24 px) avvia l’effetto una sola volta al loro ingresso, poi rimuove lo stato pendente. I grafici osservano la propria zona SVG, non soltanto il titolo della scheda. L’effetto procede nel tempo dopo l’ingresso; non è vincolato alla distanza di scroll.
 
@@ -75,3 +73,17 @@ Rilasci UI `fab71cb`, dati/contratto `bce39e2`, produzione verificata sul domini
 Le revisioni intermedie — pannello chiaro, marchi “m.” e “O”, hover uniforme e ingressi senza stato nascosto — sono state sostituite dalla specifica sopra. I problemi verificati sono in [CORRECTIONS.md](CORRECTIONS.md), in particolare COR-005 e COR-006. Gli screenshot precedenti in `docs/design-review/` e `docs/frontend-verification/` restano evidenze storiche, non lo stato corrente.
 
 Il test visuale non certifica WCAG, prestazioni su telefono reale, funzionamento Arduino o freschezza delle misure. Il modello previsionale resta non validato. Nessuna nuova libreria di animazione o grafici introdotta.
+
+## Scale temporali e correzione al refresh — 22 ottobre 2026
+
+La maschera della serie sostituisce il tratteggio animato normalizzato che produceva segmenti separati nel grafico iniziale. Linee, area e punti vengono scoperti insieme con avanzamento lineare; le interruzioni per campioni nulli/sospetti rimangono parte dei dati, non artefatti del disegno. Assi e testi restano esterni alla maschera.
+
+La scala orizzontale copre l’intera finestra API fino a `until`, non il solo intervallo fra primo e ultimo campione: 24 ore, 168 ore o 720 ore. Le linee fanno riferimento al calendario Europe/Rome: ogni 6 ore locali per 24h, ogni mezzanotte per 7g; nella vista 30g linee giornaliere attenuate e lunedì evidenziati come separatori settimanali. Le etichette interne sono diradate e tenute lontane dagli estremi per evitare sovrapposizioni; nessun valore aggiunto negli intervalli vuoti. Il cambio ora è gestito dal fuso, non assumendo che le mezzanotti siano sempre distanti 24 ore.
+
+## Auto predefinito e medie per fascia
+
+Auto è la selezione iniziale per tutti e quattro i grafici. Per contenere il trasferimento si caricano al massimo i 30 giorni precedenti l’ultima lettura disponibile, anche se la stazione è ferma da tempo; non si deve far sembrare fresca una misura vecchia. Nell’orizzonte caricato, con estensione fino a sette giorni l’asse si adatta al primo/ultimo campione: due giorni restano due giorni. Un campione singolo ha una finestra minima di un’ora. Oltre sette giorni si mostrano le ultime sette date di calendario disponibili in Europe/Rome.
+
+Nella vista aggregata, per ogni giorno si calcola la media aritmetica dei valori validi disponibili in tre fasce concordate: **mattina 00–12, primo pomeriggio 12–17, sera 17–24**. La notte è inclusa nella mattina su indicazione dell’utente. Ogni campo esclude i propri null/sospetti; una fascia senza valori validi interrompe la curva. Non si mescolano campioni di prova e live nelle medie: Auto privilegia le letture live quando disponibili. Le medie sono derivate in memoria e non inserite nel database né nella cronologia; tooltip con fascia e numero di contributi, dicitura “Ultima media” e minimo/massimo delle medie. Le posizioni temporali sono i centri delle fasce, non nuovi timestamp di misura.
+
+Le viste manuali 24h/7g/30g rimangono disponibili con campioni originali e finestra completa. La cronologia Auto conserva i campioni originali dei 30 giorni caricati. I pulsanti sono quattro e devono restare utilizzabili a 320 px. La maschera lineare e gli ingressi sono stati accelerati ai tempi della tabella; movimento ridotto e assenza di lampeggi restano obbligatori.

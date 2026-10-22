@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { createWeatherFeed, initialWeatherState } from './weather-feed.ts'
 import type { Period } from './weather.ts'
 
-export function useWeather(period: Period) {
-  const [state, setState] = useState(() => initialWeatherState(period))
+export function useWeather(period: Period, anchorToLatest = false) {
+  const [state, setState] = useState(() => initialWeatherState(period, anchorToLatest))
   useEffect(() => {
-    const feed = createWeatherFeed(period, setState)
+    const feed = createWeatherFeed(period, setState, undefined, { anchorToLatest })
     const refresh = () => { if (document.visibilityState === 'visible') void feed.refresh() }
     refresh()
     const timer = window.setInterval(refresh, 15000)
@@ -17,6 +17,6 @@ export function useWeather(period: Period) {
       document.removeEventListener('visibilitychange', refresh)
       window.removeEventListener('online', refresh)
     }
-  }, [period])
+  }, [period, anchorToLatest])
   return state
 }

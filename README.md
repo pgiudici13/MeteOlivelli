@@ -14,6 +14,8 @@ Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicat
 
 Rilasci applicativi verificati: `fab71cb` (UI/postilla), `bce39e2` (provenienza e dati). Git e deploy non sostituiscono il backup. La **Fase 8** distingue pubblicazione corrente completata da backup/restore, avvisi e collaudo reale ancora aperti.
 
+**Revisione grafici successiva, pubblicazione richiesta il 22 ottobre:** Auto predefinito, scala adattiva e medie per fascia nell’ultima settimana disponibile; disegno lineare più rapido. Le viste manuali rimangono. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
+
 ## Documentazione e collaborazione
 
 | Documento | Uso |
@@ -85,7 +87,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 |---|---|
 | `npm run lint` | ESLint su frontend e configurazioni Node; esclude esplicitamente il codice Deno |
 | `npm run build` | TypeScript/Vite e bundle del frontend |
-| `npm run frontend:test` | 18 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
+| `npm run frontend:test` | 26 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
 | `npm run backend:check` | Typecheck dei moduli backend con Deno |
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
