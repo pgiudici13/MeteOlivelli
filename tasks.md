@@ -408,3 +408,5 @@ Il prossimo intervento proposto è la bozza DATA-02/DATA-03 e la validazione BE-
 Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
 
 Completato il gruppo SET-00–SET-04: 5 attività completate su 29; 24 restano non completate, inclusa UI-00 parziale. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+
+| 22 ottobre 2026 | UI-00 (Obsidian v5 · revisione umidità e leggibilità) | Aggiornate le percentuali di umidità a un decimale in scheda mobile/desktop, grafico e sei righe di cronologia; testi di nota dello storico ingranditi e resi più leggibili; screenshot comparativo ispezionato | Limite Starter Figma raggiunto durante la fase di composizione: la sezione informativa desktop è stata creata, ma il riordino finale con cronologia/footer e la verifica screenshot successiva non sono riusciti. Frase mobile originale preservata; desktop ancora da completare e verificare. Nessuna modifica a codice o servizi remoti |
