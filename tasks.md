@@ -285,6 +285,17 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Verifica:** cambio giorno/DST, finestre non allineate ai campioni, pioggia accumulata rispetto a valori istantanei, dati mancanti, provider offline e quota esaurita. Fallimento previsioni non blocca osservazioni e grafici.
 - **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §8 e RF7.
 
+### UI-00 — Preparare Figma e il primo design con il compagno (22 ottobre 2026)
+
+- [ ] **Stato: programmato dall'utente, non ancora eseguito.** Può procedere in parallelo a DATA-02/BE-01; non richiede database operativo.
+- **Prima della sessione:** il compagno configura Figma (piano gratuito sufficiente per partire); l'utente crea il file/progetto proposto `MeteOlivelli — Dashboard` e condivide l'accesso necessario. Non affermare che Figma sia già stato installato o collegato.
+- **Durante le due ore a scuola:** 0–15 min requisiti UI condivisi; 15–60 min ricerca riferimenti e wireframe Figma (mentre l'utente segue backend/CSV); 60–90 min passaggio di screenshot/riferimento e specifiche a Codex per una prima implementazione, se il design è pronto; 90–120 min QA e correzioni.
+- **Responsabilità compagno:** selezionare 2–3 riferimenti, progettare disposizione card temperature/umidità/pressione, grafici, stato e sezioni, proporre colori/font, creare vista desktop e indicazioni mobile. Curare QA funzionale e visivo; non limitarsi a inviare il riferimento all'AI.
+- **Responsabilità utente:** concordare il contratto dati UI e sviluppare in parallelo il backend, senza bloccare il compagno in attesa di Supabase.
+- **Output:** file Figma o screenshot/wireframe condiviso con specifiche, note per mobile e checklist QA; se implementato, codice frontend su branch dedicato con PR revisionabile, senza merge/push/deploy automatici non richiesti.
+- **QA minimo:** dati demo permanentemente etichettati; °C/%/hPa; grafici e assi leggibili; responsività; loading/vuoto/errori; stato stazione veritiero; tastiera/contrasto; console priva di errori; build/lint. Non equivale ancora al collaudo su CSV e database reali.
+- **Riferimento:** [plan.md §7, sessione UI 22 ottobre](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e [Fase 6](plan.md#fase-6--interfaccia-e-lettura-dei-dati).
+
 ### UI-01 — Costruire la dashboard italiana essenziale
 
 - [ ] **Stato: struttura/stati vuoti preparabili dopo SET-03; dati reali dipendono da BE-06–BE-07 e WX-02.**
