@@ -4,8 +4,9 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 ## Stato del progetto
 
-Il frontend è ancora il template React/Vite. Il setup locale del backend è predisposto
-per TypeScript/Deno, ma non esistono ancora endpoint di ingestione, schema applicativo,
+Il frontend è ancora il template React/Vite. Il backend TypeScript/Deno include
+il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
+ma non esistono ancora endpoint di ingestione, schema applicativo,
 uploader o collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
 
 Chiarimento del 22 ottobre: CSV e misure devono restare conservati; 24h/7g/30g sono
@@ -83,9 +84,13 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
-I tre test backend attuali riguardano solo la lettura esplicita di configurazione
-obbligatoria con valori sintetici. Non verificano CSV, ingestione, RLS, database o
-servizi remoti. Il frontend non ha ancora una suite di test dedicata.
+I 27 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
+numeri, qualità, UTC, storico e confronto canonico dei retry, 10 sull'adattatore CSV
+provvisorio con dialetto obbligatorio. Ordine/unità dichiarati
+dall'utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa.
+Il campione CSV/writer reale resta da verificare; nessuna prova di ingestione,
+RLS, database o servizi remoti. Il frontend non ha ancora una suite di test dedicata.
+Contratto e limiti in [docs/backend.md](docs/backend.md).
 
 ## Struttura essenziale
 
@@ -96,7 +101,11 @@ supabase/functions/           Moduli TypeScript per il backend Deno
   deno.json                   Controlli backend e formattazione
   _shared/config.ts           Lettura richiesta di configurazione, senza effetti all'import
   _shared/config_test.ts      Test isolati, senza segreti reali
-docs/backend.md               Runtime, configurazione e limiti del setup
+  _shared/measurement.ts      Validazione pura e qualità del contratto locale v1
+  _shared/measurement_test.ts Test sintetici sui controlli dati
+  _shared/measurement_csv.ts  Adattatore CSV provvisorio con dialetto esplicito
+  _shared/measurement_csv_test.ts Test sintetici del parser CSV
+docs/backend.md               Contratto dati, runtime e limiti delle verifiche
 docs/services.md              Inventario servizi in sola lettura e quote consultate
 plan.md                       Requisiti e decisioni
 tasks.md                      Checklist operativa ed esiti

@@ -9,8 +9,8 @@
     "lineWidth": 100
   },
   "tasks": {
-    "check": "deno check --no-remote --no-npm _shared/*.ts",
-    "lint": "deno lint _shared && deno fmt --check _shared deno.json",
-    "test": "deno test --no-prompt --no-remote --no-npm --deny-env --deny-net --deny-read --deny-write _shared/"
+    "check": "deno check --no-remote --no-npm '**/*.ts'",
+    "lint": "deno lint . && deno fmt --check .",
+    "test": "deno test --no-prompt --no-remote --no-npm --deny-env --deny-net --deny-read --deny-write ."
   }
 }
