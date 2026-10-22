@@ -14,7 +14,8 @@ finché ora di misura e cadenza reali non saranno verificate.
 [Implementazione, prove e limiti frontend](docs/frontend.md).
 [Push del branch e collaudo CSV sul preview online](docs/frontend-online.md):
 50 campioni verificati soltanto nel browser di prova; nessuna DEMO pubblica o
-importazione DB. La dashboard è nel preview del branch, senza merge in produzione.
+importazione DB. Su successiva richiesta esplicita, pubblicazione del frontend
+tramite `main` su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
 Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
 gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.

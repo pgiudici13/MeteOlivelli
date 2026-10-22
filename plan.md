@@ -4,7 +4,7 @@
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
 > **Ultimo aggiornamento:** 22 ottobre 2026, dopo implementazione e QA locale del frontend della Fase 7.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito corrente:** dopo il frontend del blocco 7, richiesta esplicita di commit/push e collaudo online con il CSV simulato. L'utente sceglie solo collaudo, senza DEMO pubblica/importazione DB. Frontend pubblicato sul branch `codex/frontend-phase-7` con commit `0af54b8`; preview READY e otto scenari CSV online superati. UI-02 e WX restano aperti; nessun merge/promozione in produzione. [Verbale](docs/frontend-online.md).
+> **Ambito corrente:** successiva richiesta esplicita di deployment Vercel pubblico e commit/push completi. Pubblicazione del frontend già collaudato tramite avanzamento di main e deploy Git automatico in produzione su meteolivelli.vercel.app. CSV simulato solo nei test, nessuna importazione DB; UI-02 e WX restano aperti. [Verbale e ambito del rilascio](docs/frontend-online.md).
 
 > **Decisioni correnti:** le risposte del 22 ottobre e le scelte tecniche delegate sono raccolte nella sezione 18. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, non è più prevista l’integrazione di un provider meteo esterno.
 

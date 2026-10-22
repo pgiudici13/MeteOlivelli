@@ -2,7 +2,7 @@
 
 > **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo implementazione e QA locale del frontend della Fase 7.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** dopo il frontend Fase 7, eseguire commit/push e collaudo online con il CSV simulato esistente; l'utente sceglie soltanto collaudo, senza DEMO pubblica o importazione DB. Commit `0af54b8` pubblicato sul branch UI, deploy Git preview READY e otto scenari online superati con 50/50 righe corrispondenti. [Verbale](docs/frontend-online.md). UI-02 e WX restano aperti; nessun merge/promozione in produzione. La precedente prova CSV → uploader → HTTPS → DB resta nel [verbale backend](docs/backend-csv-verification.md).
+> **Richiesta attuale:** pubblicare rapidamente il frontend su Vercel in produzione e tutto il lavoro su GitHub, come richiesto esplicitamente dopo il collaudo preview. Avanzamento di main e deploy Git automatico sul dominio meteolivelli.vercel.app; nessuna modifica applicativa o importazione DB. Il precedente collaudo CSV online ha superato otto scenari e 50/50 righe. [Verbale](docs/frontend-online.md). UI-02, WX e rilascio MVP completo restano aperti.
 
 ## 1. Come usare la checklist
 
@@ -384,7 +384,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### REL-02 — Pubblicare solo la versione verificata e richiesta
 
-- [ ] **Stato: richiesta di pubblicazione necessaria; dipende da REL-01 e SET-04.**
+- [ ] **Stato: pubblicazione del solo frontend richiesta esplicitamente il 22 ottobre 2026 e avviata tramite main/Vercel; rilascio MVP completo ancora dipendente da REL-01.**
+- **Ambito del rilascio corrente:** versione frontend già collaudata con CSV solo nel browser, commit/push e deploy automatico di produzione su `meteolivelli.vercel.app`. Nessuna modifica applicativa o importazione di misure simulate. Restano dati reali, cadenza, modello e backup da collaudare; non spuntare il rilascio complessivo per la sola pubblicazione della dashboard.
 - **Scopo in pratica:** Rendere pubblico esattamente il sistema verificato nell’ambiente richiesto.
 - **Input e file coinvolti:** Versione revisionabile, target effettivi in `docs/services.md`, configurazione sicura, backup e checklist di REL-01; pubblicazione e Git hanno autorizzazioni distinte.
 - **Come:** presentare versione revisionabile, target Vercel/Supabase, variabili per scopo senza valori, risultati delle verifiche, limitazioni e recupero. Solo nell'ambito della richiesta esplicita pubblicare/applicare le configurazioni necessarie, senza commit o push automatici.

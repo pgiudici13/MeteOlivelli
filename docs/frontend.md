@@ -6,8 +6,9 @@ viste desktop `7:3` e mobile `7:4`, lette tramite il plugin Figma con contesto
 e screenshot. Il file Figma non è stato modificato. Branch locale:
 `codex/frontend-phase-7`. Successivamente, su richiesta esplicita, frontend
 pubblicato con commit/push `0af54b8` e deploy Git preview verificato online con il
-CSV simulato: [verbale, screenshot e limiti](frontend-online.md). Nessun merge
-verso `main` o promozione in produzione.
+CSV simulato: [verbale, screenshot e limiti](frontend-online.md). La successiva
+richiesta esplicita autorizza il rilascio del frontend tramite `main` su
+[meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
 
 ## Comportamento implementato
 

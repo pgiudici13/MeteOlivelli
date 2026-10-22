@@ -15,7 +15,7 @@ dati simulati**, nessuna modalità DEMO pubblica o importazione nel database.
   [pagina verificata](https://meteolivelli-dyq0vqzkt-pedro13-projects.vercel.app/),
   ID `dpl_GeFGD6NEBGCenUgE95vDDLf9QWzU`. Metadati Vercel e stato del commit GitHub
   confermano il branch/commit previsto.
-- Non eseguiti merge verso `main`, promozioni o deploy manuali in produzione.
+- Nel solo collaudo preview non eseguiti merge verso `main`, promozioni o deploy manuali in produzione.
   La produzione rilevata resta sul commit `ee9f16a`, precedente alla dashboard.
 
 Il preview richiede autenticazione Vercel. HTTP autenticato restituisce 200 con
@@ -99,3 +99,18 @@ Il collaudo dimostra il rendering e le interazioni del frontend online con quest
 fixture; non dimostra CSV/writer/Windows reali, latenza dal commit DB, modello
 previsionale, accessibilità completa o prestazioni su tutti i dispositivi.
 UI-02 resta provvisoria e la Fase 7 complessiva rimane aperta.
+
+## Rilascio frontend in produzione richiesto successivamente
+
+Il 22 ottobre 2026 l'utente richiede esplicitamente il deployment Vercel per
+vedere il sito, insieme a commit e push di tutto il lavoro. Pubblicazione tramite
+avanzamento di `main` alla versione frontend già collaudata, senza riscritture
+Git o modifiche applicative; deploy di produzione automatico della stessa
+integrazione Git nel progetto/scope già verificati. Dominio pubblico confermato:
+[meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
+
+Restano validi i limiti del collaudo: CSV simulato solo nel browser di prova,
+archivio reale attualmente vuoto e stime indisponibili. Il rilascio del frontend
+non certifica il completamento della pipeline fisica o dell'intero MVP. Prima
+della consegna del collegamento controllare stato READY, commit del deploy e
+accesso pubblico HTTP/browser; riportare l'esito nel riepilogo del rilascio.
