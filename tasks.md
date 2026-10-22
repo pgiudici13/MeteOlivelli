@@ -2,7 +2,7 @@
 
 > **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo contratto locale e adattatore CSV provvisorio.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** verificare, riepilogare e fare commit/push del lavoro della sezione 4, “Contratto dati e prima logica backend”. Ordine/unità dichiarati: secondi dall'accensione, temperatura °C, umidità %, pressione hPa. Contratto locale v1, BE-01 e adattatore CSV provvisorio implementati; DATA-01–DATA-03 conservano la verifica sul CSV/writer reale come dipendenza aperta.
+> **Richiesta attuale:** creare una pagina iniziale del sito senza dati, con “Work in progress” e breve descrizione, quindi eseguire commit/push. Contratto locale v1, BE-01 e adattatore CSV provvisorio già implementati; DATA-01–DATA-03 conservano la verifica sul CSV/writer reale come dipendenza aperta.
 
 ## 1. Come usare la checklist
 
@@ -314,7 +314,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
-- [ ] **Stato: struttura/stati vuoti preparabili dopo SET-03; osservazioni reali dipendono da BE-06–BE-07, sole stime da WX-02.**
+- [ ] **Stato: parziale, pagina iniziale “Work in progress” realizzata il 22 ottobre su richiesta; dashboard ancora da costruire. Osservazioni reali dipendono da BE-06–BE-07, sole stime da WX-02.**
+- **Esito provvisorio:** sostituito template con pagina responsive italiana, descrizione del progetto, lavori in corso e disponibilità delle misurazioni dichiarata assente. Nessun dato, grafico, previsione o richiesta a servizi; metadati, favicon e contenuto `noscript` aggiornati. La pagina provvisoria non completa la dashboard o la QA del mockup Figma.
 - **Scopo in pratica:** Sostituire il template con la pagina meteo reale e comprensibile da mobile e desktop.
 - **Input e file coinvolti:** design Figma di UI-00, condiviso tramite file o screenshot con specifiche; `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
 - **Come:** conservare React/TypeScript/Vite; realizzare ultimi valori, grafici 24h/7g/30g, freschezza e previsioni separate. Layout curato mobile/desktop per open day; scegliere libreria grafici solo se utile, senza introdurre un nuovo stack.
@@ -413,7 +414,8 @@ Il controllo dati locale v1 è pronto. Il prossimo passo è verificare DATA-01�
 | 22 ottobre 2026 | Fase 2: DATA-01–DATA-03 parziali, BE-01 locale | Ordine/unità dichiarati dall'utente; contratto v1, validazione/qualità/confronto canonico e 14 test dedicati; `npm run check` superato in copia senza `.env`, 17 test totali. Rilevamento ricorsivo check/lint/test provato con errori deliberati solo nella copia | CSV/writer/clock non osservati; nessun parser definitivo, endpoint, persistenza, migrazione o servizio remoto modificato |
 | 22 ottobre 2026 | Sezione 4: adattatore CSV e completamento locale contratto | Confermato ambito DATA-01–DATA-03/BE-01; formato “standard” resta ipotesi dell'utente. Parser provvisorio a dialetto obbligatorio con originale, errori strutturati e 10 test aggiunti; `npm run check` superato su copia senza `.env`, 27 test totali | Dialetto effettivo, writer, encoding, righe parziali e clock ancora da osservare. Nessun endpoint o modifica remota; stati DATA non chiusi senza prova reale |
 | 22 ottobre 2026 | Verifica prima di commit/push richiesti | Rieseguito `npm run check` in copia senza `.env`: lint/build frontend, typecheck/lint/formato backend e 27 test superati; `git diff --check` senza errori. Remoto verificato: `pgiudici13/MeteOlivelli`, branch corrente `main` | Dati di test sintetici; nessuna prova con CSV/PC reali, endpoint o DB. Commit e push autorizzati esplicitamente; nessuna migrazione o modifica Supabase/Vercel richiesta |
+| 22 ottobre 2026 | UI-01 parziale: pagina provvisoria | Pagina italiana “Work in progress” senza dati; descrizione breve, metadati, favicon e `noscript`. `npm run check` superato in copia senza `.env`: build/lint frontend e controlli backend con 27 test. Anteprima della build verificata visivamente a 580 px | Nessuna suite frontend dedicata; verifica completa di breakpoint/zoom e dashboard ancora da fare. Commit/push richiesti; nessun deploy manuale o modifica alla configurazione dei servizi |
 
 Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
 
-Completati SET-00–SET-04 e BE-01 sul contratto locale v1: 6 attività su 29; 23 restano non completate, incluse DATA-01–DATA-03 e UI-00 parziali. La Fase 2 attende la verifica del campione reale per la chiusura operativa. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+Completati SET-00–SET-04 e BE-01 sul contratto locale v1: 6 attività su 29; 23 restano non completate, incluse DATA-01–DATA-03, UI-00 e UI-01 parziali. La Fase 2 attende la verifica del campione reale per la chiusura operativa. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.

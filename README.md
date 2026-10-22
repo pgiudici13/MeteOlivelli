@@ -4,7 +4,10 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 ## Stato del progetto
 
-Il frontend è ancora il template React/Vite. Il backend TypeScript/Deno include
+Il frontend mostra una pagina iniziale italiana “Work in progress”, con una breve
+descrizione del progetto, senza misurazioni o grafici dimostrativi. Include layout
+responsive, metadati e un messaggio leggibile anche senza JavaScript.
+Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
 ma non esistono ancora endpoint di ingestione, schema applicativo,
 uploader o collegamento ai dati della stazione. Le previsioni non sono ancora integrate.

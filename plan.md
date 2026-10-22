@@ -1,8 +1,8 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** controllo dati locale v1 implementato su richiesta del 22 ottobre 2026; conferma del contratto sul CSV/writer reale ancora aperta.
+> **Stato:** pagina iniziale “Work in progress” senza dati e controllo dati locale v1 implementati su richiesta del 22 ottobre 2026; dashboard e conferma del contratto sul CSV/writer reale ancora aperte.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo contratto locale e adattatore CSV provvisorio.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo pagina iniziale provvisoria senza dati.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
 > **Ambito corrente:** setup SET-00–SET-04, validazione pura BE-01 e adattatore CSV provvisorio configurabile realizzati. Ordine/unità forniti dall’utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa. Nessun endpoint, parser CSV definitivo, migrazione o intervento su Supabase/Vercel. Commit e push dei file locali richiesti esplicitamente dall'utente dopo i controlli.
 
@@ -23,6 +23,13 @@ Gli obiettivi e i comportamenti delle sezioni successive sono requisiti del pian
 La checklist esecutiva è [tasks.md](tasks.md): traduce questo piano in attività ordinate, dipendenze, istruzioni e criteri di completamento. Non sostituisce requisiti e decisioni di questo documento. Il 21 ottobre 2026 l’utente ha prima richiesto la checklist e poi l’esecuzione del setup generale. SET-00–SET-04 sono ora completati, con esiti e limiti registrati; il backend applicativo resta da realizzare.
 
 ## 1. Scopo
+
+**Pagina provvisoria, richiesta il 22 ottobre 2026 (U/F):** sostituito il template
+React/Vite con una pagina italiana senza dati, avviso “Work in progress / Lavori in
+corso”, breve descrizione del progetto, grandezze previste e autori già indicati nel
+README. Nessuna dashboard o connessione dati implicata. Metadati italiani, favicon
+del progetto e contenuto `noscript`; commit e push richiesti dall'utente. Non è
+un'implementazione fedele del mockup Figma, che rimane riferimento della dashboard futura.
 
 Il piano precedente descrive MeteOlivelli come una piattaforma meteorologica pubblica sviluppata da due studenti del Liceo Scientifico Paritario Teresio Olivelli di Pavia (C; denominazione completa da confermare; destinazione pubblica confermata dall’utente in Q18). Il README conferma il riferimento al liceo Teresio Olivelli a Pavia e indica come autori Pietro Giudici e Nicholas Borin (F). Deve presentare in modo chiaro le misurazioni raccolte dalla stazione scolastica, conservarne lo storico e restare gestibile con risorse limitate.
 
