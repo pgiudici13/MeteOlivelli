@@ -1,5 +1,13 @@
 # Inventario servizi — verifica in sola lettura
 
+## Stato del rilascio applicativo — 22 ottobre 2026
+
+Versione pubblica `bce39e2` su `main`, Vercel `meteolivelli`, ID `prj_Jlxt1vouwTWorxUmqBbCxzRJK4Xm`, team `team_WF8R8uiIvXzKOKJgGrlcCYtF`, dominio [meteolivelli.vercel.app](https://meteolivelli.vercel.app/). Deploy `dpl_5RJvmAgBs38hmsfCJdmE7PMgicvt` verificato READY con lo stesso commit.
+
+Supabase `pvtzncseisbxaaseqfvo`: aggiunta migrazione `20261022194231_synthetic_measurement_kind`, lettura `read-measurements` ripubblicata e cinque record di prova `synthetic` inseriti su richiesta; l’ingestione sensori e i permessi restano invariati. [Contratto, batch ed evidenze](data-preview.md). Il backend non è più vuoto. Nessun servizio a pagamento, monitor o backup è stato attivato in questi interventi.
+
+Target, diagnosi e limiti in [operations.md](operations.md). Le sezioni successive sono inventari storici delle rispettive sessioni: nomi/versioni/assenza dati riportati al loro interno non sostituiscono questo stato di rilascio. Quote e condizioni non sono state rivalutate nella revisione documentale.
+
 Verifica: 21 ottobre 2026, task SET-04. Nessun progetto, tabella, funzione, migrazione,
 chiave, dominio o piano a pagamento creato o modificato. Nessun valore di `.env`,
 token, chiave API o password recuperato.

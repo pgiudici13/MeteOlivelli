@@ -1,20 +1,20 @@
 # Piano futuro di controllo qualità (QA) — MeteOlivelli
 
 > **Scopo:** dare una lista di prove eseguibili, nell'ordine giusto, prima di dichiarare pronta ogni parte del prodotto.
-> **Stato:** piano di prove residue. La pagina iniziale “Work in progress” è già stata controllata dall'utente e non viene ripetuta qui. Endpoint di ingestione/lettura e database sono implementati e verificati in BE-07; risultati e limiti sono in [docs/backend-verification.md](backend-verification.md). L'uploader Python è implementato e testato localmente; anche la catena CSV sintetico → uploader → HTTPS → Supabase è stata verificata, con pulizia delle fixture ([verbale](backend-csv-verification.md)). Dashboard, installazione Windows, CSV/writer reali e catena Arduino → sito restano da verificare. Le prove sotto richiedono le rispettive evidenze e non sono tutte completate dalla prova sintetica.
+> **Stato:** dashboard Factory pubblicata, 18 test frontend, 41 Deno, 21 Python e 13 scenari browser superati nel rilascio `bce39e2`; collaudo pubblico senza mock con cinque campioni `synthetic`, quattro grafici e postilla verificati ([esiti](data-preview.md)). CSV/writer/Arduino/Windows, clock/cadenza/latenza reali, backup/restore, avvisi, modello e prove su dispositivi fisici restano aperti. Le sezioni sotto sono criteri di prova: non sono tutte completate dalle evidenze sintetiche.
 > **Regola:** una prova è “superata” solo con evidenza annotata. Una prova non eseguita non è superata.
 
 ## Come leggere questa checklist
 
 Ogni prova indica **quando farla**, **cosa serve**, **passaggi**, **risultato atteso** ed **evidenza da salvare**. Per ogni passaggio segnare `PASS` se il risultato atteso si verifica, `FAIL` se non si verifica, oppure `BLOCCATO` se manca un prerequisito. Non inserire segreti, token o dati personali nelle note e negli screenshot.
 
-Per “dati di prova” si intendono fixture sintetiche chiaramente marcate e confinate ai test, oppure copie reali depurate e autorizzate. Non pubblicare valori inventati come misure della stazione.
+Per “dati di prova” si intendono fixture locali intercettate, copie reali depurate autorizzate oppure il batch pubblico esplicitamente autorizzato con tipo `synthetic`, metadati distinti e postilla visibile. Non rietichettarli come misure reali. Il batch pubblico è descritto in [data-preview.md](data-preview.md); ulteriori scritture richiedono un’autorizzazione specifica.
 
 ## 0. Preparazione di ogni sessione QA
 
 1. Annotare data, versione/commit del codice, persona che prova e ambiente: locale, ambiente di prova separato o produzione.
 2. Elencare quali funzioni esistono davvero. Non segnare prove future come superate solo perché il codice compila.
-3. Verificare di avere il permesso e l'ambiente corretti prima di inviare dati, creare record o provare credenziali. Non fare prove di scrittura/cancellazione sul database di produzione.
+3. Verificare di avere il permesso e l'ambiente corretti prima di inviare dati, creare record o provare credenziali. Non fare altre prove di scrittura/cancellazione sul database di produzione senza richiesta specifica: il batch già autorizzato non è un’autorizzazione generale.
 4. Preparare input sintetici confinati ai test e un risultato atteso per ciascun input.
 5. Aprire la scheda di registrazione in fondo al documento. Per un `FAIL`, conservare messaggio, orario e passaggi minimi per riprodurlo; oscurare dati sensibili.
 6. Ripetere dopo ogni correzione la prova fallita e le prove vicine che potrebbero essere state influenzate.
@@ -93,7 +93,7 @@ Per “dati di prova” si intendono fixture sintetiche chiaramente marcate e co
 7. **Dati insufficienti** — Restituire serie vuota o troppo corta per il modello. Atteso: stima dichiarata indisponibile, non inventata.
 8. **Stime** — Per ogni stima mostrare chiaramente che è calcolata dal progetto, orizzonte (+30 minuti, +1 ora, giornata), dati d'origine e validità/versione del metodo. Atteso: mai confusa con osservazione o previsione di fonte esterna; metodo approvato confrontato su dati storici prima della pubblicazione.
 9. **Aggiornamento automatico** — Aggiungere un record nuovo tramite ambiente di prova e misurare il ritardo fino alla UI. Atteso: aggiornamento senza ricaricare manualmente entro la soglia concordata; dati storici arretrati non fanno apparire fresca la stazione.
-10. **Isolamento fixture** — Cercare ogni schermata di produzione per verificare che non mostri fixture o valori sintetici. Nei test browser, indicare chiaramente i dati sintetici nelle sole evidenze.
+10. **Provenienza dei campioni** — Distinguere le fixture intercettate dal batch pubblico autorizzato. Verificare `acquisition_kind = synthetic` e `measured_at` NULL per il batch, postilla sempre visibile e assenza di esposizione di payload/credenziali; un inserimento sensori con tipo sintetico deve essere rifiutato. Alla transizione reale applicare OPS-03 e non collegare in modo ingannevole dati di prova e osservazioni.
 
 **Superamento della fase:** risultati UI confrontati con fixture attese per tutte le finestre e stati; unità, provenienza e qualità leggibili.
 
@@ -105,7 +105,7 @@ Per “dati di prova” si intendono fixture sintetiche chiaramente marcate e co
 2. **Tastiera** — Senza mouse, usare Tab/Shift+Tab, Invio e frecce dove appropriate. Atteso: ordine logico, focus sempre visibile, tutti i filtri e controlli attivabili.
 3. **Lettore schermo** — Verificare titoli, nome/valore/unità delle misure, grafici con riepilogo testuale, stati di caricamento/errore. Atteso: informazione equivalente disponibile senza affidarsi solo al colore o alla forma del grafico.
 4. **Contrasto e colore** — Verificare testi, linee e stati su tema previsto. Atteso: testo leggibile e allarmi distinguibili anche senza percepire il colore.
-5. **Movimento ridotto** — Attivare la preferenza “riduci animazioni”. Atteso: contenuto immediato, senza movimento o ritardi non necessari.
+5. **Ingressi e movimento ridotto** — Fuori vista verificare opacità zero prima del paint; scorrere e osservare comparsa individuale e disegno SVG, senza lampeggi o replay al polling invariato. Attivare “riduci animazioni” anche durante un effetto: contenuti subito visibili e nessuno stato pendente. Con tastiera, il focus rivela immediatamente il contenitore. Provare il riflesso locale e verificare che l’hover di “7 giorni” non illumini il divisore archivio.
 6. **Lingua e formati** — Controllare italiano, decimali, date, fuso e unità. Atteso: etichette coerenti e orario qualificato; nessuna data assoluta derivata dall'uptime.
 7. **Browser** — Provare almeno Chrome/Edge e Firefox aggiornati, più Safari se disponibile; verificare anche un telefono reale. Atteso: funzioni essenziali identiche e nessun errore che blocchi la consultazione.
 8. **Console** — Aprire gli strumenti sviluppatore durante caricamento, cambio periodo e errore controllato. Atteso: nessun errore non gestito o segreto stampato.
@@ -145,7 +145,7 @@ Eseguire dalla root dopo le modifiche, in ambiente locale senza copiare segreti 
 npm run check
 ```
 
-Atteso: lint frontend, build frontend, controllo tipi backend, lint/formato backend e test backend tutti terminano con codice 0. Questo dimostra che quei controlli automatici passano; **non** dimostra che CSV reale, Windows, database, permessi, browser o backup funzionino. La copertura frontend automatica va aggiunta quando la dashboard e i suoi comportamenti esisteranno.
+Atteso: lint frontend, build frontend, controllo tipi backend, lint/formato backend e test backend tutti terminano con codice 0. Questo dimostra che quei controlli automatici passano; **non** dimostra che CSV reale, Windows, database, permessi, browser o backup funzionino. La copertura frontend esiste: contratto, serie, provenienza, polling e freschezza sono verificati dai test Node; la QA browser opzionale e le prove SQL hanno esecuzione separata.
 
 ## 10. Prova completa prima del rilascio
 

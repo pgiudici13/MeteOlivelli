@@ -4,46 +4,32 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 ## Stato del progetto
 
-Il frontend implementa la dashboard italiana dal design Figma **Obsidian UI v5**:
-ultime misure, grafici 24h/7g/30g, cronologia e dettagli temporali/qualità, layout
-desktop/mobile e aggiornamento ogni 15 secondi a pagina visibile. Legge soltanto
-l'endpoint pubblico BE-06, senza chiavi o file ambiente. Il backend al momento
-restituisce un archivio vuoto; la dashboard mostra soltanto misure reali ricevute.
-Le stime sono esplicitamente indisponibili e la freschezza resta sconosciuta
-finché ora di misura e cadenza reali non saranno verificate.
-[Implementazione, prove e limiti frontend](docs/frontend.md).
-[Pubblicazione e collaudo CSV sul preview online](docs/frontend-online.md):
-50 campioni verificati soltanto nel browser di prova; nessuna fixture è servita
-all'utente o mantenuta nel database. Su successiva richiesta esplicita è stato
-pubblicato il frontend tramite `main` su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
-Il backend TypeScript/Deno include
-il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
-gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.
-Database, RPC ed endpoint sono applicati e verificati nel progetto Supabase
-MeteOlivelli scelto dall’utente (BE-07). L'uploader Python è predisposto e testato
-localmente sul contratto v1, con outbox SQLite e retry; campione CSV, writer e prove
-sul PC Windows restano necessari. Non è collegato alla stazione. Le previsioni non sono ancora integrate.
+Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/), pubblicato da `main` tramite GitHub → Vercel. La UI corrente adotta il design Factory: tema scuro, titolo grande e pannello temperatura a destra su desktop, layout a colonna su mobile, marchio `MO. | MeteOlivelli`, ingressi allo scroll, grafici che si disegnano e riflessi locali sui bordi. Stack React/TypeScript/Vite conservato.
 
-Chiarimento del 22 ottobre: CSV e misure devono restare conservati; 24h/7g/30g sono
-filtri dei grafici. Per le nuove righe il programma Windows aggiungerà data e ora
-di acquisizione sul PC, distinte dall’ora fisica della misura e dalla ricezione server.
-Le stime dovranno essere calcolate dal progetto senza provider meteo esterno;
-modello, fattibilità e attendibilità restano da verificare. Scelte delegate e proposta
-di backup in [plan.md §18](plan.md#18-revisione-delle-criticità-e-scelte-delegate--22-ottobre-2026).
+La dashboard mostra temperatura, umidità e pressione, grafici 24h/7g/30g e cronologia con qualità e orari. Legge soltanto l’endpoint pubblico, senza chiavi client; polling ogni 15 secondi a pagina visibile. I tempi fisici, PC e server restano distinti. Freschezza reale e stime previsionali non sono ancora verificabili: le stime sono indisponibili.
 
-Il sito previsto è pubblico, con misure e grafici, senza account, profilazione o download.
-Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
-in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
-Le prove residue sono descritte in [docs/qa.md](docs/qa.md). L'unica fixture CSV
-visuale si trova sotto `tests/fixtures/` e viene usata solo dai test browser.
+**Dati presenti nell’ultimo collaudo del 22 ottobre:** cinque campioni di prova ogni 30 minuti, inseriti su autorizzazione nel database finale con tipo applicativo `synthetic` e metadati distinti. Il sito mostra la postilla **Work in progress · Possibili dati presenti fittizi**. Non sono osservazioni Arduino e non attestano la pipeline scolastica; non esiste un selettore DEMO o un database separato. [Contratto, valori ed evidenze](docs/data-preview.md).
 
-## Collaborazione e progettazione UI
+Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. L’ingestione sensori rifiuta il tipo sintetico; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Nessuna previsione dedotta dai sensori o fonte esterna integrata.
 
-**Stato documentato al 22 ottobre 2026:** file Figma accessibile e mockup desktop/mobile arrivato alla revisione **Obsidian v5**. Il mockup era statico; revisione con il compagno, interazioni e QA completo restano aperti. La sessione congiunta prevista a scuola per circa due ore non è dichiarata svolta. [Riferimento Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e [storia delle revisioni](docs/design-review/README.md).
+Rilasci applicativi verificati: `fab71cb` (UI/postilla), `bce39e2` (provenienza e dati). Git e deploy non sostituiscono il backup. La **Fase 8** distingue pubblicazione corrente completata da backup/restore, avvisi e collaudo reale ancora aperti.
 
-Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. La dashboard React è ora realizzata sulla base Obsidian v5; resta la revisione con il compagno, oltre alle prove sui dispositivi e sulla stazione reale. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
+## Documentazione e collaborazione
 
-Il prodotto non espone modalità o dati dimostrativi. Le fixture sintetiche dei test browser sono confinate in `tests/fixtures/` e marcate come dati di prova nelle sole evidenze. Le prove visuali e responsive non sostituiscono quelle della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
+| Documento | Uso |
+|---|---|
+| [plan.md](plan.md) | Unica roadmap: requisiti, decisioni e limiti |
+| [tasks.md](tasks.md) | Checklist numerata; “Fase 8” indica il blocco 8 |
+| [AGENTS.md](AGENTS.md) | Regole operative prima di intervenire |
+| [Frontend](docs/frontend.md) | Funzioni, polling, provenienza e verifiche |
+| [Design](docs/factory-design.md) | Aspetto, motion, hover e accessibilità |
+| [Campioni di prova](docs/data-preview.md) | Tipo distinto, batch pubblico e prove SQL/API/UI |
+| [Operazioni](docs/operations.md) | Target, diagnosi, rilascio e attività operative aperte |
+| [QA](docs/qa.md) | Verifiche residue e criteri di rilascio MVP |
+| [Backend](docs/backend.md) | Contratto e integrazione dati |
+| [Uploader](uploader/README.md) | Acquisizione PC, outbox e limiti Windows |
+
+Il [file Figma Obsidian v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e la [storia delle revisioni](docs/design-review/README.md) documentano il design precedente. Il restyling Factory è stato implementato nel codice; Figma non è stato riallineato. Revisione con il compagno e prove su dispositivi reali restano aperte. Per collaborare preferire branch dedicati e pull request, preservando il lavoro locale.
 
 ## Requisiti locali
 
@@ -65,8 +51,7 @@ npm ci
 npm run dev
 ```
 
-Aprire l'indirizzo stampato da Vite. Per vedere il template non servono credenziali
-o connessioni a un database. Il server di sviluppo non avvia né configura Supabase.
+Aprire l'indirizzo stampato da Vite. Per avviare il frontend non servono credenziali. Per leggere i campioni serve la connessione all’endpoint pubblico. Il server di sviluppo non avvia né configura Supabase.
 
 ## Configurazione: cosa è pubblico e cosa è segreto
 
@@ -100,7 +85,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 |---|---|
 | `npm run lint` | ESLint su frontend e configurazioni Node; esclude esplicitamente il codice Deno |
 | `npm run build` | TypeScript/Vite e bundle del frontend |
-| `npm run frontend:test` | 16 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
+| `npm run frontend:test` | 18 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
 | `npm run backend:check` | Typecheck dei moduli backend con Deno |
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
@@ -108,9 +93,9 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
-I 39 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
+I 41 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
 numeri, qualità, UTC, storico e confronto canonico dei retry, 10 sull'adattatore CSV
-provvisorio con dialetto obbligatorio e 12 su handler HTTP, conferme, errori, query
+provvisorio con dialetto obbligatorio e 14 su handler HTTP, conferme, errori, query
 e adapter RPC simulato. Ordine/unità dichiarati
 dall'utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa.
 Il campione CSV/writer reale resta da verificare. Le prove BE-07 sul progetto scelto verificano

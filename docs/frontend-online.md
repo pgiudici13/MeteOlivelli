@@ -1,5 +1,7 @@
 # Pubblicazione del branch e collaudo CSV online — 22 ottobre 2026
 
+> **Rilasci successivi verificati:** `fab71cb` e `bce39e2` su `main`, deploy Git di produzione READY sul [dominio principale](https://meteolivelli.vercel.app/). UI Factory, postilla e cinque campioni con tipo applicativo distinto ora pubblici. [Stato corrente del frontend](frontend.md), [prove API → UI](data-preview.md). Il verbale sotto conserva le precedenti prove preview/CSV e i loro limiti; i conteggi e il deploy precedenti non sono lo stato corrente.
+
 **Verbale storico:** il prodotto non ha più una modalità DEMO. Le righe sintetiche
 furono intercettate solo nel browser di QA; il lettore DEMO e i dati sintetici nel
 database sono stati rimossi il 22 ottobre 2026. Il fixture browser resta confinato

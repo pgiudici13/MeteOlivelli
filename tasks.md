@@ -1,12 +1,12 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — 22 ottobre:** grafica e postilla pubblicate su `main` (`fab71cb`); successivamente autorizzati schema/endpoint con tipo distinto `synthetic` e cinque campioni a intervalli di 30 minuti, ora inseriti e verificati. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
+> **Stato più recente — 22 ottobre:** rilasci `fab71cb` e `bce39e2` pubblicati su `main` e verificati in produzione; UI Factory, postilla e cinque campioni con tipo distinto `synthetic` a intervalli di 30 minuti. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
 
-> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo rimozione della modalità dimostrativa e pulizia dei relativi record.
+> **Versione:** checklist aggiornata il 22 ottobre 2026 dopo release Factory, provenienza sintetica distinta e collaudo pubblico; Fase 8 riallineata.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
 > **Richiesta precedente:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
 
-> **Richiesta attuale:** restyling Factory di UI-01 nella Fase 7, dal documento allegato `DESIGN (1).md`: titolo grande e grafico temperatura a destra, mantenendo funzioni e struttura. Implementazione e collaudo locali completati; [verbale](docs/factory-design.md). UI-02, WX e collaudo reale restano aperti.
+> **Richiesta attuale:** consolidare la documentazione dello stato pubblicato, aggiornare la Fase 8 e sincronizzarla con `plan.md`, quindi commit/push autorizzati. Nessuna nuova modifica applicativa o scrittura database prevista da questo intervento.
 
 ## 1. Come usare la checklist
 
@@ -330,18 +330,14 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
-- [x] **Stato: implementazione locale e QA frontend completate il 22 ottobre 2026; collaudo con la stazione reale e rilascio restano separati.**
-- **Aggiornamento Factory:** restyling locale completato dal documento allegato: hero a due colonne con temperatura su pannello scuro, nero caldo, tipografia regolare e superfici piatte; Inter locale, nessuna dipendenza aggiunta. Build/lint, 16 test frontend e 11 scenari browser passati, screenshot ispezionati. [Esiti e limiti](docs/factory-design.md).
-- **Esito precedente:** dashboard React/TypeScript e CSS da Obsidian UI v5, viste Figma 7:3/7:4 lette con contesto e screenshot. Schede, tre grafici SVG dinamici, periodi, cronologia paginata con dettagli qualità/tempi, font Inter locale con licenza, motion breve e movimento ridotto. Solo GET BE-06; nessuna chiave client. Loading, vuoti, errori, null e sospetti distinti; nessuno zero sostitutivo. Stime esplicitamente indisponibili senza WX-02. [Implementazione ed evidenze](docs/frontend.md).
-- **Verifica corrente:** `npm run check` su copia senza file ambiente: build/lint, 16 test frontend, 39 Deno e 21 Python. QA browser: 11 scenari, reflow 320/390/768/1280 px, tastiera, movimento ridotto, fallback noscript, API reale vuota e fixture positive intercettate senza scritture DB. Screenshot desktop/mobile ispezionati; nessuna attestazione WCAG o prova su dispositivo fisico. Lavoro sul branch locale `codex/frontend-phase-7`, senza commit/push/PR.
-- **Esito provvisorio:** sostituito template con pagina responsive italiana, descrizione del progetto, lavori in corso e disponibilità delle misurazioni dichiarata assente. Nessun dato, grafico, previsione o richiesta a servizi; metadati, favicon e contenuto `noscript` aggiornati. La pagina provvisoria non completa la dashboard o la QA del mockup Figma.
-- **Scopo in pratica:** Sostituire il template con la pagina meteo reale e comprensibile da mobile e desktop.
-- **Input e file coinvolti:** design Figma di UI-00, condiviso tramite file o screenshot con specifiche; `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
-- **Come:** conservare React/TypeScript/Vite; realizzare ultimi valori, grafici 24h/7g/30g, freschezza e previsioni separate. Layout curato mobile/desktop per open day; scegliere libreria grafici solo se utile, senza introdurre un nuovo stack.
-- **Risultato:** caricamento, archivio vuoto, periodo vuoto, campo assente, anomalia, dati obsoleti, orario sconosciuto ed errore rete hanno messaggi italiani distinti. Nessun account, download o profilazione.
-- **Motion da implementare:** seguire le note Figma: pannelli sotto la piega al primo ingresso (circa 10% visibile), fade/translateY 8→0 px in 220 ms ease-out, stagger fra schede 40 ms fino a 120 ms. Nessun ritardo dello scroll; prima schermata subito leggibile e niente attese con movimento ridotto. Proposta per la SPA: messaggio statico `noscript`, nessuna dashboard live promessa senza JavaScript; con JS attivo un errore dell’animazione non nasconde i contenuti.
-- **Verifica:** tastiera/focus, contrasto, zoom, riduzione animazioni e riepilogo accessibile dei grafici; nessuna misura inventata o zero sostitutivo. Con pochi dati mostrare quelli esistenti, senza completare 30 giorni artificialmente.
-- **Riferimento:** [plan.md §7 fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), §8, RF1–RF2 e RNF3.
+- [x] **Stato: dashboard implementata, pubblicata e verificata il 22 ottobre 2026; collaudo della stazione reale separato.**
+- **Esito corrente:** UI Factory con titolo grande e pannello temperatura a destra su desktop, tema scuro, Inter locale, marchio `MO. | MeteOlivelli`, postilla, schede, quattro grafici SVG, filtri 24h/7g/30g e cronologia paginata con dettagli qualità/tempi. Solo GET BE-06, nessuna chiave client o dipendenza nuova per grafici/motion.
+- **Interazioni:** ingressi nascosti prima del paint e attivati individualmente in vista; curva/area/punti progressivi, riflesso locale sul bordo con inerzia, nessuna illuminazione del divisore quando si puntano i filtri. Focus tastiera e movimento ridotto rivelano i contenuti immediatamente. [Specifiche](docs/factory-design.md).
+- **Dati:** `live`, `historical`, `synthetic` distinti nell’applicazione. Cinque campioni di prova amministrativi sono pubblici con la postilla concordata; nessun selettore DEMO. Loading/vuoti/errori/null/sospetti restano distinti; nessuno zero sostitutivo. Le stime restano indisponibili senza WX-02.
+- **Verifica:** rilascio `bce39e2`, `npm run check` superato con 18 test Node, 41 Deno e 21 Python; 13 scenari browser locali e collaudo API → pagina pubblica con cinque campioni, quattro grafici, cronologia e postilla. Screenshot desktop/mobile e risultati in [docs/frontend.md](docs/frontend.md) e [docs/data-preview.md](docs/data-preview.md). Nessuna certificazione WCAG o prova Arduino/telefono reale attestata.
+- **File principali:** `src/App.tsx`, CSS, `src/components/HistoryChart.tsx`, `Reveal.tsx`, `src/motion.ts`, `src/use-border-light.ts`, adapter e hook dati.
+- **Limiti:** revisione con il compagno e dispositivi reali ancora aperti; Figma Obsidian v5 non è stato riallineato al restyling Factory. Freschezza reale e UI-02/WX non sono chiusi dalla pubblicazione.
+- **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), [Fase 8](#8-fase-8--backup-gestione-e-rilascio).
 
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
 
@@ -357,56 +353,67 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ## 8. Fase 8 — Backup, gestione e rilascio
 
+**Punto di partenza verificato:** versione WIP già pubblicata su `main`, UI Factory con motion/hover, postilla e cinque campioni `synthetic`; rilasci `fab71cb` e `bce39e2` verificati READY. La Fase 8 complessiva resta aperta: pubblicazione e prova API → UI non chiudono backup, allarmi o collaudo della stazione reale. [Guida operativa](docs/operations.md), [frontend](docs/frontend.md), [evidenze dati](docs/data-preview.md).
+
 ### OPS-01 — Scegliere e provare il backup indipendente
 
-- [ ] **Stato: decisione necessaria su destinazione e recupero; dipende da BE-02–BE-03.**
-- **Scopo in pratica:** Dimostrare che i dati possono essere recuperati se il database o il PC smettono di funzionare.
-- **Input e file coinvolti:** Storage indipendente approvato e futura procedura/esportazione in `docs/operations.md`; copie dati fuori dal repository; ambiente restore autorizzato.
-- **Come:** verificare storage consentito e capacità a 0 €, fissare frequenza e obiettivi di perdita/tempo di recupero con il responsabile. Esportare misure, provenienza e quanto necessario a ricostruire schema/accessi; preservare CSV e mappa identità/outbox. Scrivere guida essenziale `docs/operations.md`.
-- **Risultato:** copia separata e procedura provata; il CSV sullo stesso PC, il DB operativo e il deployment non diventano automaticamente backup. Retention permanente delle misure distinta dalla durata dei log/versioni delle copie.
-- **Verifica:** restore in ambiente separato autorizzato, confronto integrità/conteggi/null temporali/duplicati e RLS. Verificare replay sicuro degli eventi che l'uploader crede già confermati. Annotare data, durata, esito e limiti; nessuna pubblicazione di dump su GitHub dedotta dalla sua disponibilità.
-- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), RF6, D6, D10 e D17.
+- [ ] **Stato: procedura preliminare documentata; destinazione e restore ancora da concordare/provare.**
+- [x] Documentare perimetro e criteri in `docs/operations.md`, includendo tipo `synthetic`, metadati, migrazioni, CSV e identità/outbox.
+- [ ] Confermare storage indipendente a costo approvato, custode, frequenza, retention/cifratura e RPO/RTO.
+- [ ] Esportare fuori da Git e ripristinare in ambiente separato autorizzato, senza sovrascrivere produzione.
+- [ ] Confrontare conteggi, UUID, tipo/provenienza, valori, null temporali, schema/RLS e replay sicuro degli eventi già confermati dall’uploader; registrare durata ed esito.
+- **Criterio di completamento:** copia separata e restore provato. Git, screenshot, database operativo e CSV sul medesimo PC non sono automaticamente backup.
+- **Riferimento:** [plan.md Fase 8](plan.md#fase-8--backup-gestione-e-rilascio), RF6, D6, D10 e D17; [QA §8](docs/qa.md#8-backup-e-ripristino).
 
 ### OPS-02 — Completare gestione segreti, avvisi e diagnosi minima
 
-- [ ] **Stato: dipendenza SET-04, BE-03 e UP-03; avvisi email approvati, destinazione e meccanismo ancora da definire.**
-- **Scopo in pratica:** Dare al responsabile istruzioni brevi per riconoscere guasti, sostituire credenziali e ricevere avvisi.
-- **Input e file coinvolti:** Futuro `docs/operations.md`, configurazione log/avvisi di backend e uploader; custode e destinatario l’utente, avvisi email concordati, recapito e meccanismo gratuito da definire.
-- **Come:** registrare custode, scopo delle credenziali, modalità protetta di sostituzione/revoca e cosa fare per uploader fermo, sensore fermo, DB/modello non disponibile, spazio o quote esauriti. Scegliere come avvisare l'utente senza creare una piattaforma di account; nessun messaggio esterno inviato senza istruzione specifica.
-- **Risultato:** istruzioni brevi nello stesso `docs/operations.md`, con responsabilità dell'utente e limiti dichiarati; nessun piano di manutenzione o passaggio consegne sproporzionato.
-- **Verifica:** assenza di segreti in bundle/log/file versionabili, comportamento con credenziale revocata e avviso osservabile nel canale concordato. Non presentare rotazione o allarmi come attivi prima della prova reale.
-- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), D7, D19 e D21.
+- [ ] **Stato: runbook iniziale pronto; avvisi, rotazione e verifiche operative ancora aperti.**
+- [x] Registrare target, diagnosi API vuota/errore, dati vecchi, uploader e stime indisponibili in `docs/operations.md`; nessun valore segreto documentato.
+- [ ] Confermare custodia/revoca delle credenziali del PC e provare il comportamento con credenziale revocata nell’ambito autorizzato.
+- [ ] Definire recapito email e meccanismo gratuito; attivare e verificare l’avviso soltanto su richiesta specifica, senza dedurre l’autorizzazione all’invio da questa checklist.
+- [ ] Provare diagnosi di stazione/uploader fermo, rete, DB, spazio/quote; fissare soglie dopo la verifica di clock e cadenza. Controllare anche console e accessibilità di motion/focus su dispositivi reali.
+- **Criterio di completamento:** responsabile e procedure trasferibili, segreti esclusi da client/log/Git, avviso realmente osservato. Nessun allarme o backup dichiarato attivo per la sola presenza del documento.
+- **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), D7, D19 e D21; [guida](docs/operations.md).
+
+### OPS-03 — Gestire i campioni di prova e il passaggio alla stazione reale
+
+- [ ] **Stato: provenienza applicativa implementata e verificata; gestione del batch e transizione reale da concordare.**
+- [x] Tipo distinto `synthetic`, vincoli SQL, campo API/client, ingestione sensori che rifiuta il tipo, data fisica NULL e postilla pubblica verificati.
+- [x] Registrare batch `ui-preview-20261022-five-half-hour`, cinque record a distanza di 1800 secondi ed evidenze pubbliche in `docs/data-preview.md`.
+- [ ] Alla disponibilità della prima misura vera verificare priorità di `live` in `latest`, provenienza dello storico e chiarezza delle curve; non confondere lo scenario di prova con il trend della stazione.
+- [ ] Concordare conservazione identificata o rimozione esatta del batch; per eventuale cancellazione verificare UUID e copia necessaria e ottenere richiesta esplicita. Nessuna cancellazione per sola sorgente.
+- [ ] Dopo l’eventuale rimozione verificare API/UI e aggiornare documenti; rimuovere/modificare la postilla soltanto con decisione esplicita e dopo aver verificato che i campioni di prova non siano più esposti.
+- **Criterio di completamento:** passaggio alla stazione reale documentato, senza rietichettare dati inventati come `live`, perdere misure o lasciare provenienza ambigua. Questo task non autorizza altre scritture.
+- **Riferimento:** [plan.md Fase 8](plan.md#fase-8--backup-gestione-e-rilascio), [contratto](docs/data-preview.md), [guida](docs/operations.md#cinque-campioni-e-passaggio-ai-dati-reali).
 
 ### REL-01 — Verificare il flusso completo e chiudere la checklist MVP
 
-- [ ] **Stato: dipendenza backend/uploader/UI/previsioni operativi e OPS-01–OPS-02.**
-- **Scopo in pratica:** Dimostrare il funzionamento dell’intera catena, non soltanto che il codice compila.
-- **Input e file coinvolti:** CSV reale, PC/uploader, ambiente backend e pagina aperta; esiti test e prove nel registro di `tasks.md`, problemi confermati in `CORRECTIONS.md`.
-- **Come:** confrontare una misura reale dal CSV alla pagina e osservare un evento nuovo sulla pagina già aperta. Provare rete assente/ripresa, restart, retry, reset Arduino e stato stazione. Confermare metodo, dati di origine e validità delle stime; provare lo stato indisponibile se il modello non è verificato o i dati non bastano.
-- **Risultato:** evidenze datate per i criteri RF1–RF8 e RNF pertinenti; distinguere test automatici, prove manuali e limiti non verificati. Aggiornare solo bug dimostrati in `CORRECTIONS.md`.
-- **Verifica:** `npm run build`, `npm run lint`, test pertinenti del runtime backend e dell'uploader realmente introdotti. Un comando inesistente o un test non eseguito non passa per successo. Validare i componenti nel loro runtime, oltre alla build browser.
-- **Riferimento:** [plan.md §13](plan.md#13-test-e-verifiche-previste), §15 e percorso critico §7.
+- [ ] **Stato: collegamento pubblico e casi sintetici verificati; collaudo reale ancora bloccato da DATA/UP, WX e OPS-01–OPS-02.**
+- [x] Controlli locali del rilascio: `npm run check` (18 Node, 41 Deno, 21 Python), 13 scenari browser; SQL transazionale e API → pagina pubblica con cinque campioni, quattro grafici e cronologia.
+- [ ] Chiudere DATA-01–DATA-03 e UP-01–UP-04 con CSV, writer e PC Windows reali. Seguire una misura Arduino fino alla pagina aperta senza reload.
+- [ ] Misurare latenza DB → UI, verificare clock/cadenza e ritardo, rete assente/ripresa, restart, retry, reset Arduino e volume per 24h/7g/30g.
+- [ ] Completare QA su dispositivi/browser reali, zoom e lettore schermo, inclusi ingressi nascosti prima della vista, focus, movimento ridotto e assenza di illuminazione dei divisori durante l’hover dei filtri.
+- [ ] Completare backup/restore e avvisi; valutare WX-01/WX-02 o mantenere esplicitamente le stime indisponibili finché non validate. Non dichiarare raggiunto l’MVP previsionale se il modello manca.
+- **Criterio di completamento:** evidenze reali datate per RF1–RF8 e RNF pertinenti, limiti accettati e nessun blocco critico aperto. Aggiornare solo problemi verificati in `CORRECTIONS.md`.
+- **Riferimento:** [plan.md §13](plan.md#13-test-e-verifiche-previste), §15, [QA](docs/qa.md).
 
 ### REL-02 — Pubblicare solo la versione verificata e richiesta
 
-- [ ] **Stato: pubblicazione del solo frontend richiesta esplicitamente il 22 ottobre 2026 e avviata tramite main/Vercel; rilascio MVP completo ancora dipendente da REL-01.**
-- **Ambito del rilascio corrente:** versione frontend già collaudata con CSV solo nel browser, commit/push e deploy automatico di produzione su `meteolivelli.vercel.app`. Nessuna modifica applicativa o importazione di misure simulate. Restano dati reali, cadenza, modello e backup da collaudare; non spuntare il rilascio complessivo per la sola pubblicazione della dashboard.
-- **Scopo in pratica:** Rendere pubblico esattamente il sistema verificato nell’ambiente richiesto.
-- **Input e file coinvolti:** Versione revisionabile, target effettivi in `docs/services.md`, configurazione sicura, backup e checklist di REL-01; pubblicazione e Git hanno autorizzazioni distinte.
-- **Come:** presentare versione revisionabile, target Vercel/Supabase, variabili per scopo senza valori, risultati delle verifiche, limitazioni e recupero. Solo nell'ambito della richiesta esplicita pubblicare/applicare le configurazioni necessarie, senza commit o push automatici.
-- **Risultato:** sito di produzione corrispondente alla versione verificata; breve elenco per l'utente di accessi tecnici, comandi essenziali e limiti.
-- **Verifica:** da produzione leggere dati reali, vedere l'aggiornamento senza reload e i tre orizzonti previsionali, verificare assenza di scritture pubbliche, controllare crediti e disponibilità dei backup. La scadenza ravvicinata non elimina i controlli critici.
-- **Riferimento:** [plan.md §7 fase 8](plan.md#fase-8--backup-gestione-e-rilascio), §15 e D18.
+- [ ] **Stato: pubblicazione WIP corrente completata e verificata; rilascio MVP definitivo ancora dipendente da REL-01.**
+- [x] Pubblicati su `main` `fab71cb` e `bce39e2`; deploy Git Vercel READY, target `meteolivelli` / team `team_WF8R8uiIvXzKOKJgGrlcCYtF`, dominio `meteolivelli.vercel.app`.
+- [x] Applicata migrazione `20261022194231_synthetic_measurement_kind` e ripubblicata lettura Supabase nel progetto `pvtzncseisbxaaseqfvo`, dopo autorizzazione. Postilla pubblicata prima dei cinque inserimenti di prova.
+- [x] Verificati HTTP 200, postilla, dati/provenienza, quattro grafici, cinque righe di cronologia, reflow mobile e nessun errore JavaScript. [Verbale](docs/data-preview.md).
+- [ ] Per il prossimo rilascio applicativo eseguire i controlli proporzionati al diff, verificare target e richiesta, controllare file stagiati e segreti, poi commit/push solo se richiesti. Preferire il deploy Git già configurato.
+- [ ] Prima di dichiarare l’MVP finale chiudere REL-01, verificare backup, quote, dati reali e decisione sul batch/postilla di OPS-03; consegnare limiti e procedura di recupero.
+- **Criterio di completamento complessivo:** produzione corrispondente alla versione verificata e criteri MVP soddisfatti. La release pubblica WIP resta un esito già acquisito, senza essere confusa con l’MVP completo.
+- **Riferimento:** [plan.md Fase 8](plan.md#fase-8--backup-gestione-e-rilascio), §15 e D18; [procedura](docs/operations.md#rilasciare-una-modifica-autorizzata).
 
 ### END-01 — Gestire la possibile chiusura a dicembre
 
-- [ ] **Stato: rinviato; chiusura non ancora confermata né autorizzata.**
-- **Scopo in pratica:** Chiudere il servizio soltanto se confermato, conservando lo storico richiesto come permanente.
-- **Input e file coinvolti:** Decisione esplicita su data/perimetro, copie di OPS-01, procedura in `docs/operations.md` e dati fuori da Git; nessun arresto pianificato oggi.
-- **Come:** soltanto quando concreta, chiarire data e perimetro: fermare acquisizione, sito o servizi. Preparare copia indipendente ripristinabile e modalità di consultazione/conservazione permanente prima di un eventuale arresto richiesto.
-- **Risultato:** spegnimento controllato solo se richiesto, senza perdita dello storico o cancellazioni implicite. Nessuna automazione di chiusura creata oggi.
-- **Verifica:** copie leggibili/ripristinabili, accessi e credenziali trattati secondo la decisione, conseguenze documentate; niente eliminazione di progetti o dati per deduzione da “si pensa”.
-- **Riferimento:** [plan.md §11](plan.md#11-registro-decisioni-ed-esiti), D19; §17 chiarimento successivo.
+- [ ] **Stato: rinviato; chiusura non confermata né autorizzata.**
+- **Come:** confermare data e perimetro solo quando concreti; ottenere copia indipendente ripristinabile e modalità di consultazione permanente dello storico prima di fermare acquisizione, sito o servizi. Distinguere misure reali e campioni di prova anche nelle copie.
+- **Verifica:** copie leggibili e ripristinate, accessi e credenziali gestiti secondo la decisione. Nessun arresto, cancellazione o automazione creati dalla sola presenza di questo task.
+- **Riferimento:** [plan.md §11](plan.md#11-registro-decisioni-ed-esiti), D19; [guida](docs/operations.md).
 
 ## 9. Da dove ripartire dopo la revisione insieme
 
@@ -421,6 +428,7 @@ La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scel
 
 | Data | Task | Esito ed evidenza | Limiti / passo successivo |
 |---|---|---|---|
+| 22 ottobre 2026 | Fase 8 · revisione documentale | README, frontend/design, QA, servizi e guida operativa consolidati sul rilascio `bce39e2`; OPS-03 aggiunto e roadmap sincronizzata | Documentazione soltanto: backup, avvisi, transizione alla stazione e MVP reale restano aperti; commit/push richiesti |
 | 21 ottobre 2026 | SET-00 | Baseline iniziale e successivo setup: stato Git, configurazioni e strumenti ricontrollati | Documenti locali preesistenti preservati; niente commit/push |
 | 21 ottobre 2026 | SET-01 | Regole ambiente corrette; esempi versionabili, nomi ambiente reali ancora ignorati | COR-001 risolto dopo controlli basati sui soli nomi |
 | 21 ottobre 2026 | SET-02 | README, esempi vuoti e guida backend creati; nessun `.env.local` letto o sovrascritto | Il template non usa ancora un client Supabase |

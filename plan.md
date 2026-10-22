@@ -1,12 +1,12 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato più recente — 22 ottobre:** grafica e postilla pubblicate su `main` (`fab71cb`); successivamente autorizzati schema/endpoint con tipo distinto `synthetic` e cinque campioni a intervalli di 30 minuti, ora inseriti e verificati. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
+> **Stato più recente — 22 ottobre:** rilasci `fab71cb` e `bce39e2` pubblicati su `main` e verificati in produzione; UI Factory, postilla e cinque campioni con tipo distinto `synthetic` a intervalli di 30 minuti. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
 
-> **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e verificata localmente, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
+> **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo rimozione della modalità dimostrativa, pulizia dei relativi record Supabase e nuova decisione sulla destinazione dei futuri test sintetici.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo pubblicazione Factory, cinque campioni con tipo distinto e consolidamento della documentazione/Fase 8.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito precedente (completato per la rimozione DEMO):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
+> **Ambito storico prima del batch autorizzato (superato dallo stato corrente sopra):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
 
 > **Decisioni correnti:** le risposte e le scelte tecniche delegate sono raccolte nella sezione 18, con gli aggiornamenti successivi in fondo. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, il prodotto non offre una modalità DEMO né database separati. Per richiesta esplicita del 22 ottobre, eventuali righe sintetiche d'integrazione saranno registrate nello stesso progetto e tabella Supabase finali, marcate con provenienza dedicata prima di inserirle e mai confuse con misure reali. I test unitari locali possono continuare a usare fixture isolate. Non è prevista l'integrazione di un provider meteo esterno.
 
@@ -478,6 +478,8 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 
 ### Fase 7 — Previsioni e collegamento al frontend
 
+**Esito attuale UI-01:** versione Factory pubblicata e verificata con `bce39e2`; contratto con provenienza distinta, cinque campioni di prova e postilla. Le funzionalità elencate sotto restano i requisiti: stime e collaudo reale UI-02 non sono completati dal solo frontend. [Specifiche correnti](docs/frontend.md).
+
 **Esito frontend verificato (F, 22 ottobre 2026):** UI-01 implementata sul branch locale `codex/frontend-phase-7`, usando il contesto e gli screenshot delle viste Figma Obsidian v5 desktop 7:3/mobile 7:4. Schede, grafici SVG dinamici 24h/7g/30g, cronologia paginata, dettagli qualità e tre tempi distinti, font Inter locale, pannelli satinati e motion con movimento ridotto. GET pubblico BE-06 collegato senza credenziali; l'API reale risponde vuota e la UI non inserisce numeri dimostrativi. Fixture positive solo nei test browser e confinate alla directory test. `npm run check` superato senza file ambiente: 16 test frontend, 39 Deno, 21 Python oltre build/lint. QA browser: 11 scenari e viste 320/390/768/1280 px; nessun errore JavaScript non gestito. [Specifiche, prove e limiti](docs/frontend.md).
 
 **Pubblicazione e QA online successive (U/F, 22 ottobre 2026):** autorizzati commit/push e test sul sito online; chiarimento “solo collaudo con dati simulati”. Commit `0af54b8` sul branch UI e deploy Git automatico preview READY verificati. Test su codice/asset del deploy autenticato, con GET reale vuoto e risposte positive intercettate nel solo browser dalla fixture ora archiviata in `tests/fixtures/frontend_synthetic.csv`: tutte le 50 righe e gli ultimi valori corrispondono, grafici/periodi/reflow/polling/riconnessione superati in otto scenari. Nessun errore JavaScript/asset fallito; verbale ed evidenze in [docs/frontend-online.md](docs/frontend-online.md). Nessun dato di prova nel DB o modalità DEMO pubblica. Produzione/main non aggiornati; UI-02 e modello restano da verificare con dati reali.
@@ -542,35 +544,28 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 
 ### Fase 8 — Backup, gestione e rilascio
 
+**Stato verificato:** il sito WIP è già pubblicato con UI Factory, animazioni e riflessi, postilla e cinque campioni `synthetic`. I commit applicativi `fab71cb` e `bce39e2` sono stati verificati READY sul dominio principale; la catena API → UI e la provenienza dei cinque campioni sono documentate in [docs/data-preview.md](docs/data-preview.md). Questo esito non chiude il collaudo della stazione né il rilascio MVP complessivo.
+
+| Task in `tasks.md` | Stato acquisito | Cosa resta per completarlo |
+|---|---|---|
+| OPS-01 — Backup | Perimetro e criteri nella guida operativa | Destinazione indipendente, frequenza, custode, RPO/RTO, esportazione e restore separato verificato |
+| OPS-02 — Gestione e avvisi | Target e runbook iniziale, diagnosi di API/UI/PC e segreti per scopo | Custodia PC, revoca/rotazione provate, canale email e consegna, diagnosi/quote reali |
+| OPS-03 — Campioni e transizione | Tipo distinto, batch identificato, API/client e postilla verificati | Prima misura reale, convivenza/curve, decisione di conservazione o rimozione esatta e gestione della postilla |
+| REL-01 — Collaudo MVP | Suite locali, 13 scenari browser e flusso pubblico sintetico | CSV/writer/Windows, Arduino → pagina, clock/cadenza/latenza, volume, dispositivi reali, backup/avvisi e WX |
+| REL-02 — Rilascio | Pubblicazione WIP autorizzata completata via Git/Vercel; migrazione e lettura Supabase applicate | Verifiche dei prossimi rilasci e chiusura criteri MVP dopo REL-01; nessuna autorizzazione remota implicita |
+| END-01 — Chiusura | Nessuna chiusura pianificata | Decisione esplicita su data/perimetro e conservazione recuperabile dello storico |
+
 #### Backup, migrazione e ripristino
 
-**Livelli minimi richiesti**
+I tre livelli restano database operativo, sorgente CSV locale e copia indipendente autorizzata. Versionamento Git e screenshot non sostituiscono il backup dei dati. La copia deve preservare tipo/provenienza (`live`, `historical`, `synthetic`), metadati e tempi separati, schema/migrazioni, CSV e identità/outbox necessarie al replay sicuro. Destinazione, responsabile del restore, frequenza/retention/cifratura e RPO/RTO restano decisioni aperte.
 
-1. **Database online:** Supabase/PostgreSQL per le interrogazioni del sito.
-2. **Sorgente locale:** CSV originale completo sul computer scolastico, mantenuto secondo le regole concordate.
-3. **Backup indipendente:** esportazione periodica cifrata/controllata su storage separato, autorizzato dalla scuola e con credenziali distinte.
+Il restore va provato in ambiente separato senza sovrascrivere produzione; confrontare conteggi, UUID, valori, null temporali, provenienza, schema e permessi. File presente o job riuscito non bastano. Nessuna esportazione, pulizia o attivazione di servizio deriva dalla sola revisione documentale.
 
-**Da decidere**
+#### Esercizio e passaggio ai dati reali
 
-- Proprietario dello storage e modalità di ripristino: l’utente è responsabile del progetto; si propone come possibile esecutore del restore, da confermare (Q26).
-- Frequenza, retention, cifratura, verifica automatica del completamento e gestione dei fallimenti.
-- Formato di esportazione portabile (ad esempio dump PostgreSQL e/o CSV versionato).
-- Ripristino in ambiente separato senza sovrascrivere i dati correnti.
-- Procedura per confrontare conteggi, range temporali, duplicati e valori tra backup e database ripristinato.
-- Obiettivi realistici di perdita massima (RPO) e tempo di recupero (RTO) compatibili con costo zero.
+[docs/operations.md](docs/operations.md) contiene target e procedura di diagnosi/rilascio; è una guida iniziale, non prova di backup o allarmi operativi. Il batch dei cinque campioni rimane `synthetic`; la postilla resta visibile finché è esposto. Alla prima misura reale verificare priorità di `live` in `latest` e chiarezza dello storico, poi decidere il destino dei campioni di prova. Eventuale rimozione solo su richiesta e per batch/UUID verificati, mai per tutta la sorgente condivisa. Cambiare la postilla è una decisione separata.
 
-**Regola di validità**
-
-Un job “riuscito” o un file presente non dimostra che il backup sia ripristinabile. Prima del rilascio documentare almeno un restore di prova e la verifica dei dati recuperati. Pianificare poi prove periodiche.
-
-#### Rilascio ed esercizio del sito per scuola/open day
-
-- Verificare target e scope Vercel, variabili ambiente e domini prima di ogni operazione.
-- Usare preview deployment per revisione; la pubblicazione di produzione richiede esplicita decisione del proprietario del progetto.
-- Monitorare errori ingestione, ritardo dati e spazio/quote senza registrare segreti.
-- Documentare runbook per sensore fermo, uploader fermo, credenziale revocata, database non disponibile e restore.
-- Consegnare il sito per scuola/open day con breve descrizione del progetto e dei limiti delle misure. Nessuna relazione, slide o presentazione separata richiesta (U: Q34).
-- Riesaminare costi e condizioni dei piani periodicamente.
+Per la scuola/open day la versione corrente è WIP, senza freschezza reale attestata o stime disponibili. Il rilascio definitivo richiede le prove di REL-01 e i criteri di §15. Nessuna relazione, slide o presentazione separata richiesta. La checklist operativa è il [blocco 8 di tasks.md](tasks.md#8-fase-8--backup-gestione-e-rilascio).
 
 ### Dipendenze, risultati attesi e criteri di uscita
 
@@ -583,7 +578,7 @@ Il setup generale locale SET-00–SET-04 è stato eseguito su richiesta dell’u
 | 5 — Database e backend | 4 locale; conferma reale prima del rilascio | BE-02–BE-07, schema/accessi, migrazione, ingest/read | BE-02–BE-07 applicati e verificati sul contratto v1; catena fisica ancora da convalidare |
 | 6 — Uploader | 4, contratto 5 e PC Windows | UP-01–UP-04, outbox e guida | Crash/offline/rotazione e catena reale verificati |
 | 7 — Previsioni e frontend | 3; dati reali: 4–6; stime: serie idonee | WX-01–WX-02 e UI-00–UI-02 | UI accessibile, aggiornamento automatico e modello valutato |
-| 8 — Backup e rilascio | 5–7, storage e richiesta di pubblicazione | OPS-01–OPS-02, REL-01–REL-02, END-01 | Restore e flusso completo provati; rilascio e chiusura solo se richiesti |
+| 8 — Backup e rilascio | 5–7, storage e richiesta di pubblicazione | OPS-01–OPS-03, REL-01–REL-02, END-01 | Restore e flusso completo provati; rilascio e chiusura solo se richiesti |
 
 La UI con stati vuoti può essere progettata dopo la fase 3, senza presumere schema
 o usare misure dimostrative non dichiarate. Il disegno dei backup parte insieme

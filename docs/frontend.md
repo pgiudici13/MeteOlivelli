@@ -1,124 +1,59 @@
-# Frontend Fase 7 — 22 ottobre 2026
+# Frontend — stato al 22 ottobre 2026
 
-> **Aggiornamento 22 ottobre:** tipo applicativo `synthetic` distinto, cinque campioni amministrativi e postilla pubblica autorizzati; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti a questo aggiornamento.
+## Versione pubblicata
 
-> **Motion corrente:** ingressi progressivi e disegno dei grafici aggiornati su richiesta dell’utente; le note storiche da 220 ms sotto sono superate. Specifiche in [verbale Factory](factory-design.md).
+[MeteOlivelli](https://meteolivelli.vercel.app/) è pubblicato da `main` attraverso l’integrazione GitHub → Vercel. Rilasci verificati: `fab71cb` (grafica, motion, hover e postilla) e `bce39e2` (contratto con provenienza sintetica distinta). Il secondo deploy è stato verificato READY sul dominio principale, con HTTP 200 e nessun errore JavaScript non gestito. Queste verifiche riguardano la versione applicativa, non il collaudo della stazione reale.
 
-> **Aspetto corrente:** il successivo restyling Factory sostituisce palette e superfici Obsidian descritte sotto. Comportamento dei dati mantenuto; [specifiche ed evidenze aggiornate](factory-design.md).
+Stack conservato: React, TypeScript, Vite, ESLint, npm. Nessuna dipendenza aggiunta per grafici, animazioni o riflessi. Il riferimento Figma Obsidian v5 documenta la fase precedente; il sito corrente segue la proposta Factory adattata ai commenti dell’utente, senza aggiornamento del file Figma. [Storia Figma](design-review/README.md), [specifiche grafiche correnti](factory-design.md).
 
-La dashboard React/TypeScript sostituisce la pagina provvisoria. Riferimento:
-[MeteOlivelli · Obsidian UI v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2),
-viste desktop `7:3` e mobile `7:4`, lette tramite il plugin Figma con contesto
-e screenshot. Il file Figma non è stato modificato. Branch locale:
-`codex/frontend-phase-7`. Successivamente, su richiesta esplicita, frontend
-pubblicato con commit/push `0af54b8` e deploy Git preview verificato online con il
-fixture CSV sintetica: [verbale, screenshot e limiti](frontend-online.md). La successiva
-richiesta esplicita autorizza il rilascio del frontend tramite `main` su
-[meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
+## Struttura e contenuti
 
-## Comportamento implementato
+1. Intestazione con marchio `MO. | MeteOlivelli` e collegamenti alla stazione e all’archivio.
+2. Postilla permanente, fuori dalle animazioni: **Work in progress · Possibili dati presenti fittizi**.
+3. Titolo grande a sinistra e pannello scuro della temperatura con grafico a destra; su mobile il pannello segue il titolo. Il numero è l’ultima lettura disponibile, non una temperatura attuale garantita.
+4. Tre schede per temperatura, umidità e pressione, sempre dallo stesso evento.
+5. Archivio 24 ore / 7 giorni / 30 giorni con tre grafici SVG. Il grafico iniziale segue lo stesso periodo; “Cambia periodo” porta ai filtri.
+6. Cronologia dal campione più recente, sei righe per pagina, dettagli temporali e qualità per campo.
+7. Stime sperimentali +30 minuti / +1 ora / giornata, tutte indisponibili finché il modello non sarà validato; informazioni sul progetto e footer.
 
-- Sfondo uniforme `#05080E`, superfici satinate, accenti menta/azzurro/lilla,
-  font Inter variabile locale con licenza OFL, impaginazione responsive.
-- Le tre schede provengono dallo stesso evento. Un campo nullo dice “Dato assente”;
-  archivio vuoto, caricamento ed errore sono distinti. Nessuno zero sostitutivo.
-- Tre grafici SVG generati dalle serie ricevute, assi con unità e tempo dichiarati,
-  minimo/massimo, riepilogo accessibile e cronologia equivalente in tabella.
-  Null/sospetti interrompono la linea per il solo campo interessato; i valori
-  originali e i motivi restano consultabili nei dettagli.
-- Periodi 24h/7g/30g con pulsanti nativi e stato `aria-pressed`. Tutte le pagine
-  API sono lette con cursore e finestra coerente, deduplicate per UUID e ordinate.
-  La tabella presenta sei campioni per pagina, dal più recente.
-- Acquisizione sul PC, misura fisica e prima ricezione restano distinte;
-  visualizzazione in `Europe/Rome`, data disponibile e nessuna conversione
-  dell'uptime in data. La ricezione recente non prova freschezza.
-- Le sezioni sotto la piega entrano una sola volta con fade/8 px in 220 ms;
-  stagger 40 ms, massimo 120 ms per le schede. Scroll nativo; movimento ridotto
-  senza animazioni. I contenuti non dipendono dall'animazione per essere visibili.
-  Fallback statico `noscript` esplicito, senza promettere dati live senza JS.
-- Stime +30 minuti/+1 ora/giornata: solo “Stima non disponibile”, con stato non
-  validato. Nessun provider esterno o previsione dedotta dai sensori.
+Caricamento, archivio vuoto, periodo vuoto, errore, campo nullo e valore sospetto rimangono stati distinti. Un campo nullo mostra “Dato assente”, mai uno zero inventato. I flag qualità restano consultabili; null e sospetti interrompono la curva del campo interessato. I grafici dichiarano unità, assi temporali, minimo/massimo e riepilogo accessibile; la tabella permette di consultare i valori senza il grafico.
 
-Le curve vettoriali del mockup rappresentano dati sintetici: sono state tradotte
-in grafici dinamici alimentati dall'API. Non sono immagini decorative da inserire
-come osservazioni reali. Non ci sono immagini statiche Figma necessarie nella
-dashboard; nessun URL temporaneo di asset è presente nel codice.
+## Origine dei dati e tempi
+
+GET anonimo [read-measurements](https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=latest), senza SDK, credenziali, cookie o lettura di `.env`. Il browser non scrive tabelle e non chiama l’ingestione.
+
+La migrazione `20261022194231_synthetic_measurement_kind` distingue `live`, `historical` e `synthetic`. La lettura pubblica espone `acquisition_kind`; l’adapter frontend lo valida e conserva, accettando anche il contratto precedente privo del campo durante il rilascio. Il backend non espone payload o credenziali. Un sintetico restituisce freschezza sconosciuta; l’ingestione sensori rifiuta quel tipo.
+
+Sono stati inseriti e verificati **cinque campioni di prova** ogni 30 minuti, con provenienza nei metadati e postilla pubblica concordata. [Autorizzazione, valori, intervalli ed evidenze](data-preview.md). Le fixture del runner browser restano intercettazioni locali; il batch pubblico è un inserimento amministrativo separato e autorizzato. Non esiste un selettore DEMO né un database parallelo.
+
+`measured_at` (misura fisica), `captured_at` (acquisizione PC o tempo di scenario per i sintetici) e `received_at` (prima ricezione server) rimangono separati. I cinque sintetici hanno `measured_at` NULL. Visualizzazione in `Europe/Rome`; uptime Arduino mai convertito in data. Per le misure reali, ora fisica e cadenza non sono ancora verificate: la UI dichiara “Freschezza non determinabile”.
 
 ## Letture e aggiornamenti
 
-Endpoint pubblico già documentato in BE-07:
-[read-measurements](https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements).
-Solo GET anonimo, senza SDK, credenziali, cookie o letture di `.env`.
-Il browser non accede alle tabelle e non esegue scritture.
+- `src/weather.ts`: verifica del contratto pubblico, formattazione, serie e freschezza.
+- `src/weather-feed.ts`: letture, finestre, recupero e gestione stato.
+- `src/use-weather.ts`: ciclo React, visibilità e ritorno online.
 
-`src/weather.ts` verifica la risposta e mantiene una proiezione dei campi pubblici.
-`weather-feed.ts` gestisce letture e recupero; `use-weather.ts` collega ciclo e
-visibilità a React. Timeout 10 secondi per richiesta, annullamento allo smontaggio,
-nessun ciclo sovrapposto. Risposte invalide/errori HTTP non diventano archivi vuoti.
-Un errore conserva gli ultimi dati riusciti con avviso esplicito.
+Polling latest ogni 15 secondi solo a pagina visibile, tentativo al ritorno in primo piano/online, timeout per richiesta di 10 secondi, annullamento allo smontaggio e nessun ciclo sovrapposto. Lo storico si aggiorna all’apertura, al cambio periodo, al nuovo ultimo evento e al recupero da errore. Cache pubblica server di 10 secondi. Risposte invalide/errori HTTP non diventano archivi vuoti; un errore mantiene gli ultimi dati riusciti con avviso.
 
-Polling latest ogni 15 secondi a pagina visibile; ritorno in primo piano e evento
-online avviano un tentativo. Storico all'apertura, cambio periodo, variazione
-dell'ultimo evento e recupero da errore dello storico. Il backend dichiara cache
-pubblica di 10 secondi; finestre scadute eliminate usando `until` del server anche
-senza nuovi campioni. Oltre 100 pagine/50.000 eventi la consultazione fallisce
-esplicitamente, senza presentare una serie parziale come completa.
+Paginazione API con cursore e finestra `until` coerenti, deduplica UUID e ordinamento. Limite esplicito di 100 pagine/50.000 eventi, senza presentare serie parziali come complete. Le finestre scadute sono eliminate anche senza nuove misure usando l’ora server. Un inserimento storico che non cambia l’ultimo evento può richiedere cambio periodo o riapertura per essere riletto; non è promesso il rilevamento completo dei backfill.
 
-Cadenza e ancoraggio reali restano ignoti: `getFreshness` ha test prima/al/dopo
-atteso +20 minuti, ma il client passa cadenza non configurata. Lo stato corrente è
-quindi “Freschezza non determinabile” in presenza di misure. Non dedurre la cadenza
-dai campioni DEMO Figma. La soglia usa `measured_at`, mai `received_at` come surrogato.
+## Animazioni e interazioni
 
-## Verifiche eseguite e ripetibili
+Le [specifiche correnti](factory-design.md) sostituiscono quelle storiche da 220 ms: ingressi individuali, grafici progressivi e riflesso locale sui bordi. `useLayoutEffect` prepara gli elementi nascosti prima del paint; `IntersectionObserver` li rivela all’ingresso in vista. Focus tastiera e movimento ridotto rendono il contenuto immediatamente visibile; nessun blocco dello scroll manuale. Il fallback `noscript` spiega che senza JavaScript non vengono mostrati dati live.
 
-`npm run check` su copia del progetto priva di `.env*`, `.vercel` e configurazioni
-locali, con le dipendenze già installate: build/lint frontend, **16 test Node**,
-check/lint/formato backend, **39 test Deno** e **21 test Python** superati.
-Nessuna dipendenza aggiunta. `npm run frontend:test` richiede Node 24+ per il
-supporto nativo al TypeScript; verificato con Node 26.12.0.
+## Verifiche e ripetibilità
 
-QA browser opzionale in `tests/frontend-browser.mjs`, con Playwright disponibile
-esternamente. Il controllo `npm run check` non scarica né avvia browser.
-Con Vite già in ascolto su localhost:
+Ultima verifica completa prima del rilascio `bce39e2`: `npm run check` superato — build/lint, **18 test Node, 41 Deno, 21 Python**. Nessun segreto necessario ai test automatici locali. Le prove SQL separate non fanno parte di questo comando.
+
+Runner browser opzionale, Playwright esterno al progetto e server locale già avviato:
 
 ```sh
-node tests/frontend-browser.mjs /percorso/playwright/index.mjs /percorso/chrome
+node tests/frontend-browser.mjs /percorso/playwright/index.mjs /percorso/chrome http://127.0.0.1:5179/
 ```
 
-Se Playwright e il suo Chromium sono già disponibili tramite normale risoluzione
-Node, basta `node tests/frontend-browser.mjs`. Il terzo argomento opzionale è
-l'URL locale. Il runner registra screenshot e [risultati JSON](frontend-verification/results.json).
+**13 scenari browser**: risposte vuote/positive intercettate, reflow 320/390/768/1280 px, tastiera e periodi, polling e due pagine, errori/recupero, null/sospetti, movimento ridotto, caricamento, noscript, motion e riflessi. [Risultati locali](factory-verification/results.json). Gli screenshot con fixture sono marcati come test e non sono osservazioni della stazione.
 
-Undici scenari browser superati: GET reale vuoto, tre grafici con fixture,
-reflow 320/390/768/1280 px, tastiera e filtri, assenza di riletture inutili,
-nuovo evento in due pagine senza reload, errore/riconnessione, null e sospetti,
-reflow equivalente a viewport dimezzato per zoom 200% e movimento ridotto,
-caricamento e fallback senza JavaScript. Nessun errore JavaScript non gestito;
-le richieste fallite nel caso offline sono intenzionali. Non è una certificazione
-WCAG o una prova manuale di zoom/lettore di schermo su dispositivo fisico.
+Collaudo pubblico senza mock: cinque righe di cronologia, quattro grafici, ultimo valore 17,3 °C, intervalli di 30 minuti, postilla visibile, reflow 390 px e nessun errore JavaScript. [Risultati pubblici](data-preview-verification/results.json), [desktop](data-preview-verification/desktop.png), [mobile](data-preview-verification/mobile.png).
 
-Screenshot ispezionati:
-
-- [Desktop con API reale vuota](frontend-verification/desktop-empty.png).
-- [Desktop con fixture sintetica](frontend-verification/desktop-demo.png) (evidenza storica del collaudo).
-- [Mobile con fixture sintetica](frontend-verification/mobile-demo.png) (evidenza storica del collaudo).
-
-I numeri negli screenshot di prova sintetici sono fixture intercettate solo nel browser di
-prova; non sono nel bundle applicativo né nel database. La modalità DEMO del prodotto
-e il relativo lettore backend sono stati rimossi il 22 ottobre 2026; le schermate
-archiviate documentano il collaudo precedente e non fanno parte dell'applicazione attuale.
-Le evidenze verificano l'interazione locale, non osservazioni meteorologiche.
-
-## Limiti ancora aperti
-
-- UI-00: revisione con il compagno e QA con utenti/dispositivi reali.
-- UI-02: inserimento reale DB → pagina aperta, latenza dal commit, quote/costi
-  con pubblico reale, cadenza e ancoraggio verificati. Il GET pubblico attuale è
-  stato provato vuoto; tutti i casi positivi del frontend sono sintetici.
-- Il contratto latest non cambia per i soli inserimenti storici anteriori:
-  questi diventano visibili riaprendo la pagina o cambiando periodo. Non è
-  promesso un cursore su `received_at` o un rilevamento completo dei backfill.
-- WX-01–WX-02: modello e orizzonti da valutare su dati idonei, separatamente dal
-  completamento frontend. Nessuna attendibilità previsionale attestata.
-- CSV/writer, clock, installazione e prove Windows restano DATA/UP; nessuna prova
-  frontend li sostituisce. La Fase 7 complessiva e il rilascio restano aperti.
+Restano aperti: prova CSV/writer/Arduino/Windows, latenza reale DB → pagina aperta, clock e cadenza, revisione con il compagno e dispositivi fisici, lettore di schermo e zoom manuale, volume/quote, backup/restore e avvisi. Nessuna certificazione WCAG o attendibilità previsionale attestata. Checklist: [Fase 8](../tasks.md#8-fase-8--backup-gestione-e-rilascio), [QA](qa.md), [gestione operativa](operations.md).
