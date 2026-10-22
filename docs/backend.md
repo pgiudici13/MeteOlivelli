@@ -91,6 +91,13 @@ Il contatore Arduino non è una data o un'identità evento sufficiente. Un event
 ritentato deve conservare ID e primo `received_at`. Queste regole sono requisiti
 da implementare, non funzionalità già presenti nel modulo di configurazione.
 
+Le scelte delegate del 22 ottobre sono in [plan.md §18](../plan.md#18-revisione-delle-criticità-e-scelte-delegate--22-ottobre-2026):
+`captured_at` completo nell’evento quando viene osservata una nuova riga completa,
+SQLite per identità/coda/cursore, endpoint di lettura limitato, valori sospetti
+conservati con “probabile errato” e modello sperimentale nostro senza provider meteo.
+Non equiparare il timestamp di osservazione del CSV all’ora fisica della misura.
+Il contratto definitivo e il parser restano dipendenti dal campione futuro.
+
 Vedere [tasks.md](../tasks.md) per i singoli passaggi e [plan.md](../plan.md) per
 semantica, requisiti e decisioni. L'inventario corrente dei servizi è in
 [services.md](services.md).

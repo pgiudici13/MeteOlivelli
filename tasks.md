@@ -1,8 +1,8 @@
 # Attività operative — MeteOlivelli
 
-> **Versione:** checklist operativa, aggiornata il 21 ottobre 2026 dopo esecuzione del setup generale.
+> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo revisione delle criticità e scelte delegate.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** eseguire il setup generale SET-01–SET-04 e rendere ogni task specifico e autoesplicativo. I task backend applicativi restano successivi; una voce spuntata riporta ciò che è stato realmente verificato.
+> **Richiesta attuale:** registrare l’approvazione dell’utente al riepilogo problema/soluzione del 22 ottobre 2026. Scelte concordate e dettagli residui in [plan.md §18](plan.md#18-revisione-delle-criticità-e-scelte-delegate--22-ottobre-2026). Setup completato; attività applicative ancora da eseguire.
 
 ## 1. Come usare la checklist
 
@@ -32,17 +32,17 @@
 
 ## 2. Perimetro e percorso critico
 
-**Deciso dall'utente:** sito pubblico in italiano per scuola/open day; ultimi valori reali di temperatura °C, umidità % e pressione hPa; grafici 24h/7g/30g; nessun account, profilazione o download. CSV e misure da conservare, anomalie da segnalare. Previsioni esterne distinte per +30 minuti, +1 ora e giornata. Budget 0 €.
+**Deciso dall'utente:** sito pubblico in italiano per scuola/open day; ultimi valori reali di temperatura °C, umidità % e pressione hPa; grafici 24h/7g/30g; nessun account, profilazione o download. CSV e misure permanenti: i periodi dei grafici non sono retention. Valori sospetti conservati con “probabile errato”. Calcolo delle stime nel progetto, senza provider meteo esterno; +30 minuti/+1 ora/giornata restano richiesti ma da validare. Budget 0 €.
 
 **Tempi:** consegna richiesta per settimana prossima, interpretata nel piano come 26 ottobre–1 novembre 2026; nessun giorno preciso o promessa di completamento. Possibile chiusura a dicembre, ancora incerta e senza autorizzazione a cancellare dati.
 
-**Flusso da realizzare:** sensori → Arduino GIGA R1 → writer Windows/CSV → nuove righe complete → uploader con outbox → endpoint autenticato → DB → sito aggiornato senza reload. Il provider previsionale è una sorgente separata; non riceve automaticamente il CSV.
+**Flusso da realizzare:** sensori → Arduino GIGA R1 → writer Windows/CSV sul Desktop (U) → nuove righe complete con `captured_at` → uploader con outbox → endpoint Supabase autenticato → DB → endpoint di lettura → sito aggiornato senza reload. Il modello sperimentale usa dati ammessi della stazione, con stime separate dalle osservazioni.
 
-**Due tempi distinti:** `measured_at` è l'ora della misura, eventualmente nulla; `received_at` è assegnata dal backend alla prima accettazione e non cambia nei retry. L'eventuale `captured_at` del PC è un'altra informazione. Il contatore Arduino non è Unix time.
+**Tre tempi distinti:** `captured_at` è l’osservazione della nuova riga completa sul PC, registrata una sola volta con data/ora UTC; `measured_at` è l’ora fisica della misura, eventualmente nulla; `received_at` è assegnata dal backend alla prima accettazione e non cambia nei retry. La UI può mostrare HH:mm, con data disponibile e provenienza dichiarata. Il contatore Arduino non è Unix time; storico e backlog non ricevono date di misura inventate.
 
 **Stato stazione:** ritardo oltre 20 minuti dalla prossima misura attesa. Con cadenza esatta di un'ora, esempio illustrativo: misura 10:00 → attesa 11:00 → ritardo oltre 11:20. La regola definitiva richiede cadenza e ancoraggio verificati; ricevere un batch storico non dimostra freschezza.
 
-**Limiti ancora aperti:** CSV non disponibile; append e cadenza circa oraria probabili; writer, firmware, clock, buffering, sentinelle, accessi effettivi Windows non verificati e schema applicativo da progettare; `public` remoto risulta senza tabelle nell’inventario SET-04. Per previsioni mancano località precisa e verifica del provider; per backup destinazione indipendente e obiettivi di recupero.
+**Limiti ancora aperti:** campione CSV rinviato dall’utente; nome/percorso completo e writer ignoti, append/cadenza probabili; firmware, clock, buffering, sentinelle e accessi Windows non verificati. Schema applicativo e modello locale da progettare/provare; `public` senza tabelle nell’inventario storico SET-04. Backup: proposta in plan.md §18, destinazione e obiettivi ancora da concordare.
 
 Percorso critico:
 
@@ -52,7 +52,7 @@ Setup → CSV/writer + semantica tempo → contratto → schema/accessi
       → prova completa + backup/restore → rilascio richiesto
 
 In parallelo, dopo avvio dell'implementazione:
-  UI con stati vuoti; località/provider → previsioni → integrazione UI
+  UI con stati vuoti; studio modello → dati datati → verifica stime → integrazione UI
 ```
 
 La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche provvisorie; impedisce di dichiarare definitivi parser, schema dipendente dal dato e flusso reale. Nessun formato fittizio diventa quello della stazione.
@@ -133,6 +133,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Scopo in pratica:** Stabilire che ora mostriamo e quali dati restano senza data, senza trasformare il contatore Arduino in un calendario.
 - **Input e file coinvolti:** Writer/seriale e clock del PC da osservare; regole temporali in `docs/backend.md` e decisioni D2/D12/D13 del piano.
 - **Come:** scegliere dove registrare l'ora sul PC il più vicino possibile al seriale/writer; verificare sincronizzazione, ritardi e buffering. Definire semantica/nullabilità di `measured_at`, `captured_at`, `received_at` e qualità temporale; UTC per gli istanti, UI Europe/Rome.
+- **Scelta delegata del 22 ottobre:** il monitor aggiunge `captured_at` all’evento quando osserva la nuova riga completa; data/ora completa, non solo HH:mm. Payload e orario persistiti prima dell’invio, mai aggiornati nei retry. Serie per ora PC dichiarata e separata dalle misure con orario affidabile; primo import storico e backlog non diventano nuove acquisizioni originali.
 - **Risultato:** regola temporale documentata. Storico privo di data conservato con `measured_at` nullo e fuori dai grafici per data; contatore grezzo conservato. Reset/overflow/riordino distinti quando dimostrabili; nessun `boot_id` affidabile inventato da un semplice calo del contatore.
 - **Verifica:** casi di reset Arduino, solo restart uploader, invio tardivo, record senza ora e DST. Un retry non cambia l'istante originario di ricezione backend; nessun Unix time ricavato dall'uptime.
 - **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), D2, D12 e D13.
@@ -165,6 +166,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Scopo in pratica:** Progettare come ogni evento e la sua provenienza vengono conservati e interrogati nel database.
 - **Input e file coinvolti:** Disegno schema e query in `docs/backend.md`; inventario reale in `docs/services.md`. Nomi di tabelle e tipi definitivi ancora da scegliere.
 - **Come:** progettare archivio misure, provenienza, qualità e chiave di unicità; aggiungere strutture sorgenti/sessioni solo se servono. Definire tipi, precisione, nullabilità e vincoli senza presumere tabelle esistenti. Ordinamento deterministico per ultima misura e storico.
+- **Scelte delegate:** stesso ultimo evento ammesso per le tre schede; campi mancanti non sostituiti da altri orari, sospetti conservati con “probabile errato”. Schema predisposto a originale immutato e reinterpretazioni versionate; leggere plan.md §18 per identità e qualità. Non definire range sensore senza evidenze.
 - **Risultato:** schema revisionabile in `docs/backend.md`, indici motivati dalle query e comportamento per record senza data/anomali. Nessun SQL applicato o nome di tabella dichiarato come già presente.
 - **Verifica:** dati ripetuti legittimi ammessi; eventi ripetuti non duplicati; `received_at` server-side immutato nei retry; coerenza di unità e trattamento dei null. Riesaminare capacità per retention permanente sul volume osservato.
 - **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 3, RF1–RF4 e D10.
@@ -174,7 +176,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - [ ] **Stato: dipendenza BE-02 e inventario SET-04.**
 - **Scopo in pratica:** Consentire ai visitatori soltanto le letture approvate, tenendo la scrittura al server autenticato.
 - **Input e file coinvolti:** Matrice ruoli/policy e modalità custodia in `docs/backend.md`; esempi ambiente aggiornati solo quando necessari, sempre vuoti.
-- **Come:** fissare superficie pubblica e scegliere lettura diretta limitata o endpoint. Progettare privilegi SQL e RLS separatamente, verificando anche viste/funzioni; pubblico solo SELECT necessario, nessuna scrittura. Uploader autenticato verso endpoint, senza chiave DB privilegiata sul PC.
+- **Come:** fissare superficie pubblica e contratto dell’endpoint di lettura scelto su delega. Progettare privilegi SQL e RLS separatamente, verificando anche viste/funzioni; pubblico solo letture necessarie, nessuna scrittura. Uploader autenticato verso endpoint, senza chiave DB privilegiata sul PC.
+- **Scelta tecnica su delega:** endpoint di lettura a parametri ammessi e limiti server. Definire ruoli minimi e autenticazione Edge coerente con il token della stazione; non lasciare la verifica dell’accesso soltanto alla configurazione del browser.
 - **Risultato:** matrice accessi e policy revisionabili; credenziale d'ingestione separata dalla configurazione browser, custodia e revoca documentate per il responsabile. Nessun account visitatore introdotto.
 - **Verifica:** individuare come provare rifiuto di insert/update/delete e letture interne non autorizzate, anche tramite funzioni/viste. Nessun uso di privilegi elevati per aggirare errori di permesso senza motivazione.
 - **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), RF5, RNF2, D4 e D7.
@@ -238,7 +241,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - [ ] **Stato: dipendenza UP-01 e DATA-03.**
 - **Scopo in pratica:** Non perdere gli eventi già acquisiti e non cambiare identità quando il PC o la rete si interrompono.
 - **Input e file coinvolti:** Futura outbox SQLite e registro cursore/identità gestiti da `uploader/`; percorsi di stato sul PC fuori da Git, test di crash/ripresa in `uploader/tests/`.
-- **Come:** proposta semplice SQLite: salvare atomicamente evento, ID, identità/generazione file e cursore prima dell'invio. Impedire doppia esecuzione. Segnare l'evento confermato solo dopo risposta affidabile, mantenendo ID e sorgente per eventuale replay.
+- **Come:** scelta tecnica su delega, SQLite: salvare atomicamente evento, ID, identità/generazione file e cursore prima dell'invio. Impedire doppia esecuzione. Segnare l'evento confermato solo dopo risposta affidabile, mantenendo ID e sorgente per eventuale replay.
 - **Risultato:** crash/restart non perdono righe già persistite; retry usa lo stesso ID. Rotazione, troncamento e sostituzione riconosciuti senza deduplicare unicamente per hash della riga.
 - **Verifica:** crash prima/dopo invio o conferma locale, file cambiato, stato corrotto/perso e restore del database precedente alle conferme uploader. Se l'identità non è ricostruibile, fermare il replay automatico e segnalare anziché creare nuovi UUID per tutto.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF3–RF4 e D14.
@@ -265,30 +268,37 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ## 7. Previsioni e collegamento al frontend
 
-### WX-01 — Validare località, provider e risoluzione
+### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato: decisione/verifica necessaria; indipendente dal campione CSV.**
-- **Scopo in pratica:** Verificare che esista una previsione adatta alla località e ai tre orizzonti richiesti, nel budget.
-- **Input e file coinvolti:** Indirizzo/coordinate da confermare, documentazione ufficiale del provider e risposta reale; esito e condizioni in `docs/backend.md`/`docs/services.md`.
-- **Come:** confermare indirizzo/coordinate della stazione senza dedurle dal solo nome della scuola. Valutare il candidato Open-Meteo consultando fonti ufficiali aggiornate, uso scolastico/open day, quote, attribuzione e copertura delle variabili a breve intervallo.
-- **Risultato:** scelta motivata e risposta reale verificata per la località; distinguere serie native e interpolate. Nessuna promessa di previsione puntuale a mezz'ora se la risoluzione non lo supporta.
-- **Verifica:** condizioni +30 minuti/+1 ora/giornata disponibili con semantica corretta; nessun abbonamento attivato o caricamento di CSV al provider. Se non idoneo, documentare il limite e l'alternativa prima del collegamento.
-- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), RF7 e D23; i collegamenti alle fonti ufficiali sono nel piano.
+- [ ] **Stato: studio possibile; verifica dipendente da DATA-01–DATA-02 e storico datato idoneo.**
+- **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
+- **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
+- **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
+- **Risultato:** decisione motivata per +30m/+1h/giornata, anche “non supportato con i dati attuali”. Nessuna conversione arbitraria di pressione/umidità in sole o pioggia; cadenza oraria non fornisce una verità di confronto reale a mezz’ora.
+- **Verifica:** assenza di uso di dati futuri nella valutazione, dati mancanti/sospetti, timestamp acquisizione non idonei, confronto con base semplice e limiti dell’orizzonte giornaliero. Nessuna attendibilità meteorologica dichiarata senza prove.
+- **Riferimento:** plan.md §6, D23 e §18. La vecchia proposta provider è superata.
 
-### WX-02 — Implementare lettura previsioni e cache minima
+### WX-02 — Implementare stime sperimentali e stato indisponibile
 
-- [ ] **Stato: dipendenza WX-01 e SET-03 per l'eventuale componente server.**
-- **Scopo in pratica:** Recuperare e presentare i dati del provider con tempi e fonte chiari, senza confonderli con i sensori.
-- **Input e file coinvolti:** Futuro adapter previsioni e cache, collocati dopo scelta browser/server; test degli intervalli e della risposta reale. Il CSV non viene inviato al provider.
-- **Come:** scegliere il percorso più semplice compatibile con quote e configurazione; normalizzare solo i campi necessari. Tenere separati provider, recupero, eventuale emissione realmente disponibile e tempi di validità. Gestire timeout/cache scaduta senza simulare dati.
-- **Risultato:** tre orizzonti previsionali con fonte e unità; giornata Europe/Rome distinta dalle ore residue. Nessun archivio permanente dei run aggiunto per deduzione dalla retention delle misure.
-- **Verifica:** cambio giorno/DST, finestre non allineate ai campioni, pioggia accumulata rispetto a valori istantanei, dati mancanti, provider offline e quota esaurita. Fallimento previsioni non blocca osservazioni e grafici.
-- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §8 e RF7.
+- [ ] **Stato: dipendenza WX-01, SET-03 e contratto dei dati ammessi.**
+- **Scopo:** calcolare e servire le sole stime supportate dalla verifica, separandole dalle misure.
+- **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
+- **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
+- **Risultato:** “Stime sperimentali MeteOlivelli”, limiti espliciti e “Stima non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata.
+- **Verifica:** dati insufficienti/vecchi/sospetti, orizzonti non validati, cambio giorno/DST, separazione osservazioni/stime e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
+- **Riferimento:** plan.md §6, §18 e RF7.
 
 ### UI-00 — Preparare Figma e il primo design con il compagno (22 ottobre 2026)
 
-- [ ] **Stato: programmato dall'utente, non ancora eseguito.** Può procedere in parallelo a DATA-02/BE-01; non richiede database operativo.
-- **Prima della sessione:** il compagno configura Figma (piano gratuito sufficiente per partire); l'utente crea il file/progetto proposto `MeteOlivelli — Dashboard` e condivide l'accesso necessario. Non affermare che Figma sia già stato installato o collegato.
+- **Strumento scelto:** Figma per la progettazione della UI, confermato dall'utente il 22 ottobre 2026; il design guiderà l'implementazione React/TypeScript con Vite di UI-01.
+- [ ] **Stato: parzialmente eseguito il 22 ottobre 2026.** File Figma accessibile e prima base desktop/mobile creata e verificata visivamente; restano revisione con il compagno e QA completo. Può procedere in parallelo a DATA-02/BE-01; non richiede database operativo.
+- **Prima base realizzata:** [MeteOlivelli · Base UI v1](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2), viste desktop 1280 px/mobile 390 px, tre componenti riutilizzabili, variabili e stili tipografici. Rettangolo preesistente preservato. Solo stati senza dati, chiaramente etichettati; nessuna UI React implementata. Controllati livelli modificabili, font Inter e composizioni desktop/mobile; interazioni, accessibilità completa e dati reali restano da verificare.
+- **Revisione dark realizzata su richiesta dell'utente:** stessa tavola rinominata `MeteOlivelli · Dark UI v2 · DEMO`; tema scuro, tre grafici vettoriali con assi/unità e cronologia degli ultimi sei campioni (tabella desktop, schede mobile). Dieci campioni orari fittizi coerenti con le schede; scenari previsionali fittizi separati. Avviso generale e marcature DEMO nelle sezioni/campioni. Verifica visiva desktop/mobile eseguita; mockup statico, senza dati reali o interazioni implementate. Revisione con il compagno e QA completo restano aperti.
+- **Revisione Product Design v3:** gerarchia delle informazioni migliorata, componente misure compatto mobile, cronologia semplificata, assi allineati e periodo selezionato più evidente. Screenshot prima/dopo acquisiti e ispezionati; [report con evidenze](docs/design-review/README.md). Mockup statico, dati sempre DEMO; nessuna verifica di accessibilità completa o codice React implicata.
+- **Revisione frosted v4:** applicati vetro satinato sobrio, blur di sfondo 20 px, bordi sfumati e ombre morbide. Grafici con fondo più schermato; viste desktop/mobile ispezionate, contenuti e marcature DEMO preservati. Solo design Figma e documentazione.
+- **Revisione Obsidian v5:** sfondo uniforme `#05080E`, nessun gradiente di sfondo; pannelli più neutri, riflessi/bordi e ombre attenuati. Riempimenti SOLID verificati e composizioni desktop/mobile ispezionate. Design statico, dati DEMO invariati.
+- **Note motion:** aggiunte in Figma (area componenti) e nelle descrizioni dei componenti: ingresso 220 ms ease-out, fade + 8 px, stagger 40 ms fino a 120 ms; una sola volta, scroll naturale e rispetto del movimento ridotto. Sono indicazioni per UI-01, non animazioni già implementate.
+- **Prima della sessione:** accesso al file Figma ora verificato; il compagno verifica la propria configurazione/accesso. Non affermare che l'app locale sia già installata o che la sessione congiunta sia stata svolta.
 - **Durante le due ore a scuola:** 0–15 min requisiti UI condivisi; 15–60 min ricerca riferimenti e wireframe Figma (mentre l'utente segue backend/CSV); 60–90 min passaggio di screenshot/riferimento e specifiche a Codex per una prima implementazione, se il design è pronto; 90–120 min QA e correzioni.
 - **Responsabilità compagno:** selezionare 2–3 riferimenti, progettare disposizione card temperature/umidità/pressione, grafici, stato e sezioni, proporre colori/font, creare vista desktop e indicazioni mobile. Curare QA funzionale e visivo; non limitarsi a inviare il riferimento all'AI.
 - **Responsabilità utente:** concordare il contratto dati UI e sviluppare in parallelo il backend, senza bloccare il compagno in attesa di Supabase.
@@ -298,11 +308,12 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
-- [ ] **Stato: struttura/stati vuoti preparabili dopo SET-03; dati reali dipendono da BE-06–BE-07 e WX-02.**
+- [ ] **Stato: struttura/stati vuoti preparabili dopo SET-03; osservazioni reali dipendono da BE-06–BE-07, sole stime da WX-02.**
 - **Scopo in pratica:** Sostituire il template con la pagina meteo reale e comprensibile da mobile e desktop.
-- **Input e file coinvolti:** `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
+- **Input e file coinvolti:** design Figma di UI-00, condiviso tramite file o screenshot con specifiche; `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
 - **Come:** conservare React/TypeScript/Vite; realizzare ultimi valori, grafici 24h/7g/30g, freschezza e previsioni separate. Layout curato mobile/desktop per open day; scegliere libreria grafici solo se utile, senza introdurre un nuovo stack.
 - **Risultato:** caricamento, archivio vuoto, periodo vuoto, campo assente, anomalia, dati obsoleti, orario sconosciuto ed errore rete hanno messaggi italiani distinti. Nessun account, download o profilazione.
+- **Motion da implementare:** seguire le note Figma: pannelli sotto la piega al primo ingresso (circa 10% visibile), fade/translateY 8→0 px in 220 ms ease-out, stagger fra schede 40 ms fino a 120 ms. Nessun ritardo dello scroll; prima schermata subito leggibile e niente attese con movimento ridotto. Proposta per la SPA: messaggio statico `noscript`, nessuna dashboard live promessa senza JavaScript; con JS attivo un errore dell’animazione non nasconde i contenuti.
 - **Verifica:** tastiera/focus, contrasto, zoom, riduzione animazioni e riepilogo accessibile dei grafici; nessuna misura inventata o zero sostitutivo. Con pochi dati mostrare quelli esistenti, senza completare 30 giorni artificialmente.
 - **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--interfaccia-e-lettura-dei-dati), §8, RF1–RF2 e RNF3.
 
@@ -311,7 +322,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - [ ] **Stato: dipendenza UI-01 e backend reale BE-07.**
 - **Scopo in pratica:** Mostrare una misura nuova nella pagina già aperta e indicare correttamente se la stazione è in ritardo.
 - **Input e file coinvolti:** Adapter letture e componenti di UI-01 in `src/`; eventuale canale backend scelto, timer e prove riconnessione. Soglia fissata nel piano: atteso +20 minuti.
-- **Come:** confrontare notifiche mirate con polling breve, scegliendo la soluzione minima compatibile con quote. Aggiornare valori e grafici sulla pagina aperta; riconnettere/ricaricare dati dopo errore senza duplicare record. Calcolare ritardo sull'atteso +20 minuti, distinguendo ora di misura e ricezione.
+- **Come:** partire dalla scelta delegata, polling novità ogni 15 secondi a pagina visibile e cache condivisa fino a 10 secondi; verificarne quote e comportamento effettivo prima del rilascio. Ricaricare serie soltanto a nuove misure/cambio periodo e riprendere al ritorno in primo piano. Riconnettere dopo errore senza duplicati; calcolare ritardo sull’atteso +20 minuti distinguendo acquisizione PC, misura e ricezione.
 - **Risultato:** niente reload manuale e niente attesa fino al prossimo ciclo orario della stazione. Target proposto nell'ordine di 30 secondi dal commit DB in condizioni normali, da misurare; non è uno SLA approvato né latenza nulla.
 - **Verifica:** due browser aperti, inserimento nuovo, retry, offline e riconnessione; soglia appena prima/al/dopo il limite; arrivo di storico vecchio che non fa risultare la stazione aggiornata. Se l'ora misura è ignota, freschezza dichiarata sconosciuta.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF8, D8 e D24.
@@ -330,10 +341,10 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### OPS-02 — Completare gestione segreti, avvisi e diagnosi minima
 
-- [ ] **Stato: dipendenza SET-04, BE-03 e UP-03; canale avvisi ancora da scegliere.**
+- [ ] **Stato: dipendenza SET-04, BE-03 e UP-03; avvisi email approvati, destinazione e meccanismo ancora da definire.**
 - **Scopo in pratica:** Dare al responsabile istruzioni brevi per riconoscere guasti, sostituire credenziali e ricevere avvisi.
-- **Input e file coinvolti:** Futuro `docs/operations.md`, configurazione log/avvisi di backend e uploader; custode già l’utente, canale notifiche ancora da scegliere.
-- **Come:** registrare custode, scopo delle credenziali, modalità protetta di sostituzione/revoca e cosa fare per uploader fermo, sensore fermo, DB/provider offline, spazio o quote esauriti. Scegliere come avvisare l'utente senza creare una piattaforma di account; nessun messaggio esterno inviato senza istruzione specifica.
+- **Input e file coinvolti:** Futuro `docs/operations.md`, configurazione log/avvisi di backend e uploader; custode e destinatario l’utente, avvisi email concordati, recapito e meccanismo gratuito da definire.
+- **Come:** registrare custode, scopo delle credenziali, modalità protetta di sostituzione/revoca e cosa fare per uploader fermo, sensore fermo, DB/modello non disponibile, spazio o quote esauriti. Scegliere come avvisare l'utente senza creare una piattaforma di account; nessun messaggio esterno inviato senza istruzione specifica.
 - **Risultato:** istruzioni brevi nello stesso `docs/operations.md`, con responsabilità dell'utente e limiti dichiarati; nessun piano di manutenzione o passaggio consegne sproporzionato.
 - **Verifica:** assenza di segreti in bundle/log/file versionabili, comportamento con credenziale revocata e avviso osservabile nel canale concordato. Non presentare rotazione o allarmi come attivi prima della prova reale.
 - **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), D7, D19 e D21.
@@ -343,7 +354,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - [ ] **Stato: dipendenza backend/uploader/UI/previsioni operativi e OPS-01–OPS-02.**
 - **Scopo in pratica:** Dimostrare il funzionamento dell’intera catena, non soltanto che il codice compila.
 - **Input e file coinvolti:** CSV reale, PC/uploader, ambiente backend e pagina aperta; esiti test e prove nel registro di `tasks.md`, problemi confermati in `CORRECTIONS.md`.
-- **Come:** confrontare una misura reale dal CSV alla pagina e osservare un evento nuovo sulla pagina già aperta. Provare rete assente/ripresa, restart, retry, reset Arduino e stato stazione. Confermare fonte/validità delle previsioni e comportamento senza provider.
+- **Come:** confrontare una misura reale dal CSV alla pagina e osservare un evento nuovo sulla pagina già aperta. Provare rete assente/ripresa, restart, retry, reset Arduino e stato stazione. Confermare metodo, dati di origine e validità delle stime; provare lo stato indisponibile se il modello non è verificato o i dati non bastano.
 - **Risultato:** evidenze datate per i criteri RF1–RF8 e RNF pertinenti; distinguere test automatici, prove manuali e limiti non verificati. Aggiornare solo bug dimostrati in `CORRECTIONS.md`.
 - **Verifica:** `npm run build`, `npm run lint`, test pertinenti del runtime backend e dell'uploader realmente introdotti. Un comando inesistente o un test non eseguito non passa per successo. Validare i componenti nel loro runtime, oltre alla build browser.
 - **Riferimento:** [plan.md §13](plan.md#13-test-e-verifiche-previste), §15 e percorso critico §7.
@@ -375,7 +386,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, poi BE-02–BE-07 e UP-01–UP-04. WX-01 e struttura UI possono progredire separatamente.
 4. **Prima del rilascio:** previsioni, aggiornamento live, backup e prova completa, poi pubblicazione richiesta. Nessun task remoto viene anticipato dalla sola approvazione di questa checklist.
 
-Il prossimo intervento proposto è la bozza DATA-02/DATA-03 e la validazione BE-01: il setup generale è completato, il backend applicativo no. CSV, località previsionale, backup e canale avvisi restano input da raccogliere; non è necessario rispondere di nuovo a tutte le domande del piano.
+Il prossimo intervento proposto è la bozza DATA-02/DATA-03 e la validazione BE-01: il setup generale è completato, il backend applicativo no. Il CSV sarà fornito in futuro; backup e canale avvisi restano proposte da concretizzare. WX-01 studia un modello nostro e attende dati idonei per valutarlo; non richiedere coordinate per integrare il provider ormai superato.
 
 ## 10. Registro esecuzioni
 
@@ -386,7 +397,14 @@ Il prossimo intervento proposto è la bozza DATA-02/DATA-03 e la validazione BE-
 | 21 ottobre 2026 | SET-02 | README, esempi vuoti e guida backend creati; nessun `.env.local` letto o sovrascritto | Il template non usa ancora un client Supabase |
 | 21 ottobre 2026 | SET-03 | Deno 2.9.6 locale; typecheck/lint backend superati; 3 test superati, senza permessi ambiente/rete/file | Modulo base di configurazione soltanto; nessuna ingestione o migrazione |
 | 21 ottobre 2026 | SET-04 | GitHub/Supabase verificati con connettori; Vercel con target esplicito; quote/condizioni ufficiali consultate | Limiti e controlli successivi in `docs/services.md`; nessuna modifica remota |
+| 22 ottobre 2026 | UI-00 (parziale) | Accesso al file Figma e creazione base UI desktop/mobile con componenti, variabili e stili; verifica visiva dopo correzione altezza testi | Revisione con il compagno e QA completo ancora da fare; nessuna implementazione React o integrazione dati |
+| 22 ottobre 2026 | UI-00 (revisione dark) | Tema scuro, tre grafici vettoriali, cronologia e dati DEMO su desktop/mobile; composizioni verificate visivamente | Mockup statico; revisione con il compagno e QA completo ancora aperti |
+| 22 ottobre 2026 | UI-00 (Product Design v3) | Revisione visiva documentata prima/dopo; gerarchia, misure mobile, cronologia, assi e periodo selezionato migliorati | Verifica del mockup; tastiera, semantica e interazioni da provare nell'implementazione |
+| 22 ottobre 2026 | UI-00 (frosted v4) | Superfici traslucide, bordi sottili e profondità discreta; verifica visiva desktop/mobile | Mockup statico; nessuna verifica runtime o implementazione React |
+| 22 ottobre 2026 | UI-00 (Obsidian v5) | Sfondo uniforme quasi nero e superfici satinate rifinite; verifica strutturale e visiva desktop/mobile | Solo Figma e documentazione; nessuna verifica runtime necessaria |
+| 22 ottobre 2026 | Revisione criticità | Recepite risposte 1–20, scelte delegate e proposte 21–36; aggiornati timestamp, retention, modello locale e dipendenze UI; corrette incoerenze documentali | Solo documentazione; nessun task applicativo spuntato, nessuna implementazione o modifica remota |
+| 22 ottobre 2026 | Approvazione soluzioni | L’utente approva il riepilogo abbreviato problema/soluzione; registrati orientamenti concordati in plan.md §18 | Input e dettagli tecnici residui aperti; nessun task applicativo completato da questa conferma |
 
 Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
 
-Completato il gruppo SET-00–SET-04. Le altre 23 attività restano non completate. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+Completato il gruppo SET-00–SET-04: 5 attività completate su 29; 24 restano non completate, inclusa UI-00 parziale. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.

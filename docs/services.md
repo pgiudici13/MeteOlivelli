@@ -60,6 +60,10 @@ non costituisce ancora una prova sul runtime Node 24 del deployment.
 
 ## Quote e condizioni consultate: offerte, non piano effettivo dell'account
 
+**Aggiornamento documentale del 22 ottobre:** Open-Meteo resta qui come consultazione
+storica del setup; la successiva richiesta dell’utente prevede un modello calcolato
+dal progetto senza provider meteo esterno. Non integrarlo sulla base di questo inventario.
+
 | Servizio/offerta | Informazioni consultate | Conseguenza per il progetto |
 |---|---|---|
 | Supabase Free | 500 MB database, 5 GB egress, 1 GB file storage; pausa dopo una settimana di inattività, massimo due progetti attivi | Stimare spazio/traffico quando avremo dati reali; non presumere storico sempre disponibile o backup indipendenti inclusi |
@@ -79,8 +83,8 @@ piano sia attivo sugli account dell'utente; non sono stati autorizzati addebiti.
 - **Prima di BE-07:** scegliere ambiente separato per le prove DB, modalità di custodia
   dei segreti e richiesta esplicita di applicazione. Il progetto vuoto non viene
   automaticamente usato come ambiente sacrificabile.
-- **Dati necessari:** CSV/writer e clock sul PC; modelli/sentinelle sensori; località
-  previsionale; volume/traffico atteso, storage backup e obiettivi di recupero.
+- **Dati necessari:** CSV/writer e clock sul PC; modelli/sentinelle e collocazione sensori;
+  serie datate idonee alla valutazione del modello; volume/traffico atteso, storage backup e obiettivi di recupero.
 - **Non deciso:** lettura diretta o endpoint, schema definitivo, ruoli DB server,
   destinazione backup, canale avvisi e conferma della possibile chiusura di dicembre.
 

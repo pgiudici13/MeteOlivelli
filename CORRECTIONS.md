@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 21 ottobre 2026. La prima ispezione ha registrato i problemi; il successivo setup generale autorizzato ha corretto COR-001 nella configurazione locale.
+Ultima verifica documentale: 22 ottobre 2026. Il setup ha corretto COR-001; la revisione delle criticità ha corretto le incoerenze documentali COR-002. Nessuna funzionalità applicativa implementata in questa revisione.
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -16,6 +16,16 @@ Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione comprome
 - **Verifica necessaria:** confermare che `.env.example` non sia ignorato e che `.env`, `.env.local` e un nome ambiente di prova restino ignorati, usando soltanto nomi di file. Verificare che ogni eventuale esempio contenga solo segnaposto.
 
 **Esito della verifica:** `git check-ignore --no-index --quiet` restituisce 1 per `.env.example`, `supabase/functions/.env.example` e `.gitignore` (non ignorati), 0 per `.env`, `.env.local`, `.env.production`, i corrispondenti nomi server `.env.local`/`.env.production`, `.vercel/repo.json`, `node_modules/example` e `dist/example` (ignorati). Verificati soltanto nomi; gli esempi hanno valori vuoti. La verifica con `-v` può mostrare anche una regola negativa: l’exit code senza `-v` distingue il risultato effettivo.
+
+## COR-002 — Riepiloghi e struttura documentale non coerenti
+
+- **Stato:** risolto nella documentazione locale (22 ottobre 2026).
+- **Area/file:** `README.md`, `plan.md`, `tasks.md`.
+- **Problema/prova:** README descriveva Figma come ancora da preparare, mentre piano e attività registravano v5. Le 29 intestazioni task comprendevano 5 completati e 24 aperti, contro il riepilogo di 23. Una riga vuota interrompeva la tabella esecuzioni prima di frosted v4. La Definition of Done definiva “setup completo” l’MVP applicativo, mentre il setup locale risultava già completato.
+- **Impatto/priorità:** bassa; stato del lavoro ambiguo e registro Markdown malformato.
+- **Correzione:** allineati README e conteggi, ricomposta la tabella, distinti setup locale e MVP rilasciabile; intestazioni correnti aggiornate. Conservate evidenze storiche e modifiche locali preesistenti.
+- **Verifica necessaria:** ricontare intestazioni/checkbox, verificare righe contigue della tabella, rileggere README/Definition of Done e controllare diff/collegamenti locali.
+- **Esito:** 29 task, 5 completati e 24 non completati (UI-00 parziale); tabella esecuzioni contigua e riferimenti correnti coerenti. Nessun test applicativo attestato da una correzione documentale.
 
 ## Come registrare nuove correzioni
 
@@ -38,4 +48,4 @@ Verifica necessaria:
 Esito e data della verifica:
 ```
 
-Non sono stati confermati altri bug durante questa ispezione. Dopo il setup `npm run check` passa su copia senza `.env`: lint/build frontend, typecheck/lint backend e 3 test backend. Non esiste uno script npm generico `test`: i test disponibili si eseguono con `backend:test`. Non è stata effettuata una verifica funzionale dei servizi remoti.
+Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build frontend, typecheck/lint backend e 3 test backend. Non esiste uno script npm generico `test`: i test disponibili si eseguono con `backend:test`. La revisione documentale del 22 ottobre non modifica codice e non riesegue questi controlli. Nessuna verifica funzionale dei servizi remoti viene attestata.

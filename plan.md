@@ -1,10 +1,12 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** bozza di pianificazione, da rivedere prima delle decisioni architetturali definitive.
+> **Stato:** soluzioni del riepilogo problema/soluzione approvate dall’utente il 22 ottobre 2026; dettagli tecnici e verifiche residue indicati nelle singole attività.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 21 ottobre 2026.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo revisione delle criticità e risposte dell’utente.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
 > **Ambito corrente:** setup generale locale SET-00–SET-04 eseguito su richiesta dell’utente. Configurazione, runtime e controlli backend predisposti; nessuna ingestione applicativa, migrazione, modifica remota, commit o push.
+
+> **Decisioni correnti:** le risposte del 22 ottobre e le scelte tecniche delegate sono raccolte nella sezione 18. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, non è più prevista l’integrazione di un provider meteo esterno.
 
 ## Come leggere e mantenere il piano
 
@@ -68,7 +70,7 @@ Questo documento organizza il lavoro e rende esplicite le decisioni ancora apert
 | RF4 | Funzionale | Recupero offline e quarantena: dopo la ripresa ogni riga persistita è confermata, ancora accodata o esplicitamente segnalata, senza scarti silenziosi |
 | RF5 | Funzionale | Lettura secondo la matrice approvata, nessuna scrittura pubblica e nessuna esposizione dei metadati interni |
 | RF6 | Funzionale | Esportazione operativa indipendente e ripristino verificato; download pubblico escluso dall’MVP per scelta dell’utente; esportazioni riservate alla gestione |
-| RF7 | Funzionale | Previsioni separate per +30 minuti, +1 ora e giornata, con fonte, intervallo di validità, ultimo recupero e stato indisponibile; non derivate arbitrariamente dai tre sensori |
+| RF7 | Funzionale | Stime calcolate dal progetto per +30 minuti, +1 ora e giornata, separate dalle osservazioni, con metodo/versione, dati di origine, validità e stato indisponibile; pubblicazione subordinata a verifica del modello, senza formule meteorologiche arbitrarie |
 | RF8 | Funzionale | Il PC trasferisce nuove righe complete come eventi, il backend le persiste e la pagina aperta si aggiorna senza ricaricamento manuale; obiettivo proposto nell’ordine di 30 secondi dal commit DB in condizioni normali, da misurare e confermare |
 | RNF1 | Non funzionale | Integrità: identità e timestamp preservati, transazioni locali/remoto coerenti, originali conservati secondo retention concordata |
 | RNF2 | Non funzionale | Sicurezza e minimizzazione: HTTPS, privilegi minimi, RLS verificata e segreti fuori da client/Git/log |
@@ -124,7 +126,7 @@ La tabella precedente resta la baseline storica: questi fatti la aggiornano dove
 - ESLint browser esclude il codice Deno, controllato separatamente con `backend:check`, `backend:lint`, `backend:test`; `npm run check` orchestra lint/build frontend e i tre controlli backend.
 - `npm run check` superato con exit code 0 su copia isolata senza `.env`, usando Node 26.12.0/npm 11.20.0/Deno 2.9.6. I 3 test backend usano valori sintetici e non hanno permessi su ambiente, rete o file applicativi. Nessuna prova di ingestione/RLS/CSV viene implicata dai test di configurazione.
 - GitHub confermato pubblico su `main`; Supabase attivo, senza tabelle restituite in `public`, funzioni o migrazioni; progetto Vercel confermato con framework Vite e Node 24.x. Dettagli, fonti e limiti in [docs/services.md](docs/services.md). Nessun billing effettivo o deploy attuale certificato.
-- Tutti i task di setup sono specificati con scopo, file/input, procedura, verifiche ed esito; i 23 task applicativi successivi restano non completati. Il codice frontend e le configurazioni remote sono invariati.
+- Tutti i task di setup sono specificati con scopo, file/input, procedura, verifiche ed esito. Al 22 ottobre le attività successive sono 24, inclusa UI-00 aggiunta e parzialmente eseguita. Il codice frontend e le configurazioni remote sono invariati.
 
 ### Informazioni dell’utente dopo la revisione Q1–Q35 (U)
 
@@ -181,8 +183,8 @@ Sensori → Arduino → PC Windows / CSV
                                       ▼
                          React + TypeScript su Vercel
 
-Provider previsioni ── lettura/cache previsionale separata ── frontend
-                     (località, fonte e tempi espliciti)
+Misure datate ammesse ── modello locale validato ── stime/cache ── frontend
+                        (metodo, limiti e tempi espliciti)
 
 Database online ── esportazioni indipendenti ── storage autorizzato dalla scuola
 ```
@@ -197,7 +199,7 @@ Database online ── esportazioni indipendenti ── storage autorizzato dall
 | Endpoint server-side | Autenticare uploader, validare payload, applicare limiti e deduplicare | Segreto solo server-side; risposte e log non devono rivelare credenziali |
 | PostgreSQL | Archivio canonico interrogabile e migrabile | Vincoli, indici, RLS e privilegi minimi definiti prima della migrazione |
 | Frontend | Presentare misure, grafici, freschezza e previsioni distinte; aggiornare automaticamente i dati | Nessun segreto; stati vuoti/errore espliciti; valori di esempio sempre etichettati |
-| Fonte previsionale (I) | Fornire una previsione per la località, indipendente dal CSV | Fonte esterna proposta; nessuna misura del provider presentata come osservazione della scuola; licenza, risoluzione e località da validare |
+| Modello previsionale del progetto | Calcolare stime dai dati della stazione ammessi dalla verifica | Richiesta U del 22 ottobre: nessun provider esterno; metodo e attendibilità da validare prima della pubblicazione |
 | Backup indipendente | Consentire recupero fuori dal database operativo | Destinazione autorizzata, retention e restore testato |
 
 ### Punto da valutare: endpoint di lettura
@@ -265,7 +267,7 @@ Definire: null contro zero, valori sentinella contro valori reali, numeri non fi
 - Proposta: memorizzare istanti assoluti in UTC con tipo timezone-aware, visualizzarli nel fuso approvato `Europe/Rome` (U: Q8). Definire conversione di date locali senza offset, ora legale ambigua/inesistente e orologio PC fuori sincronia; niente conversioni implicite.
 - `measured_at` può restare nullo. Se ricostruito, conservare metodo e incertezza; se il modello non distingue adeguatamente una stima da una misura affidabile, progettare un campo separato anziché falsare il significato.
 - `received_at` è assegnato dal backend all'accettazione iniziale persistita. Nei retry conservare lo stesso valore; eventuali tentativi di ricezione sono diagnostica separata. Non usarlo per correggere un timestamp mancante.
-- Per lo storico per data usare solo istanti di misura ammessi dalla policy di qualità; mostrare separatamente record senza orario. Un'eventuale vista per data di ricezione deve dichiarare questa semantica. Non mescolare in silenzio i due assi temporali.
+- Per lo storico per ora di misura usare solo istanti ammessi dalla policy di qualità. Dopo il chiarimento del 22 ottobre è ammessa anche una serie distinta per ora di acquisizione PC, dichiarata e qualificata come nella §18; nessuna sostituzione silenziosa di `measured_at`. Record senza alcun orario originale restano separati. Un’eventuale vista per ricezione server deve dichiarare questa ulteriore semantica.
 - Un calo dell'uptime è un indizio di reset, overflow, riordino o file riscritto, non una prova sufficiente. Conservare valore grezzo e contesto; non cancellare record precedenti e non riusare identità di eventi.
 - Se il firmware fornisce un'identità di avvio verificabile, usarla per delimitare le sessioni. In alternativa progettare sessioni locali con evidenze e stato di incertezza; una semplice crescita del contatore dopo una pausa non esclude un riavvio non osservato.
 - Ricostruire tempi da uptime solo con ancoraggio attendibile nella stessa sessione e ipotesi documentate su clock, drift e overflow. Non trasformare l'uptime in Unix time, non sommarlo a `received_at`, non inferire ore storiche dal solo ordine delle righe o dall'ultima modifica del file.
@@ -273,22 +275,20 @@ Definire: null contro zero, valori sentinella contro valori reali, numeri non fi
 
 ### Previsioni: requisito aggiunto e proposta tecnica
 
-**U:** mostrare la mezz’ora successiva, l’ora seguente e una sintesi della giornata. **I:** usare un provider meteo esterno; le letture circa orarie di temperatura, umidità e pressione non sono in questa attività un modello previsionale validato. Nessuna previsione generata tramite formule improvvisate o attribuita ai sensori della scuola.
+**U, chiarimento del 22 ottobre:** le previsioni devono essere calcolate dal progetto, senza dipendere da un servizio meteo esterno. La precedente proposta Open-Meteo è superata, non implementata. Interpretazione tecnica: usare lo storico della stazione; il modello non può produrre informazione senza dati di ingresso. Non è stato richiesto un servizio AI o un modello linguistico.
 
-**Candidato proposto: Open-Meteo**, senza integrazione o chiamate al servizio dati in questa attività. La documentazione ufficiale descrive serie orarie, giornaliere e a 15 minuti; queste ultime possono essere interpolate da dati orari a seconda dell’area e della variabile. Occorre validare coordinate, copertura effettiva e risoluzione del modello per la località scolastica; non si presume un nowcasting locale nativo. [Fonte: documentazione Open-Meteo, consultata il 21 ottobre 2026](https://open-meteo.com/en/docs).
-
-Il servizio gratuito è subordinato alle condizioni di uso non commerciale, alle quote e alla licenza con attribuzione. Verificare che l’uso effettivo scolastico/open day rientri nelle condizioni, senza assumere che qualsiasi attività promozionale sia automaticamente inclusa. Non è stata scelta una sottoscrizione né attivato alcun servizio. [Fonte: termini Open-Meteo, consultati il 21 ottobre 2026](https://open-meteo.com/en/terms).
+**Proposta da valutare:** confrontare una base di persistenza (ultimo valore ammesso mantenuto nel futuro) con modelli semplici di andamento delle serie di temperatura, umidità e pressione. Non scegliere una formula prima dei dati. Valutare su istanti successivi usando soltanto dati antecedenti, riportando errore, numerosità e orizzonte; un risultato migliore sul passato non garantisce accuratezza futura. Riferimento metodologico: [Hyndman e Athanasopoulos, metodi di confronto e validazione temporale](https://otexts.com/fpp3/toolbox.html), consultato il 22 ottobre 2026. Il riferimento non valida un modello meteorologico per la stazione.
 
 | Area UI | Contratto proposto e criterio di accettazione |
 |---|---|
-| Prossimi 30 minuti | Finestra esplicita riferita all’ora corrente; usare passi disponibili sufficientemente fini, dichiarando eventuale interpolazione. Non presentare un campione distante come previsione esatta a +30 minuti |
-| Ora successiva | Finestra e validità chiare; selezionare la serie coerente e indicare se si mostra un istante o un aggregato. Niente arrotondamento temporale nascosto |
-| Giornata | Sintesi sul giorno civile Europe/Rome: condizioni e, se disponibili, min/max e pioggia previsti. Non confondere intera giornata con sole ore residue |
-| Fonte indisponibile | Misure della stazione continuano a funzionare; indicare previsioni non disponibili oppure cache con età e limite. Nessun fallback a valori inventati |
+| Prossimi 30 minuti | Stima sperimentale solo se supportata da dati e valutazione dichiarata. Con sole osservazioni orarie non esiste automaticamente un valore reale a +30 minuti su cui misurare l’errore; non creare una verità di confronto interpolata |
+| Ora successiva | Stima delle grandezze osservate, metodo e errore verificati a questo orizzonte; niente precisione o intervalli di confidenza inventati |
+| Giornata | Richiesta mantenuta, fattibilità aperta. Serve una valutazione dedicata; non estendere automaticamente un andamento di un’ora all’intero giorno, né sostituire l’intera giornata con le sole ore residue |
+| Modello non pronto o dati insufficienti/vecchi | “Stima non disponibile”; misure e grafici continuano a funzionare. Nessuna previsione fittizia |
 
-Campi interni concettuali da progettare, separati dalle misure: `provider`, coordinate/località, `fetched_at` (recupero), `issued_at` se realmente fornito dal provider (non inventarlo), `valid_at` o intervallo di validità, unità e metodo/risoluzione. Non confondere questi tempi con `measured_at`/`received_at`. Nell’MVP basta valutare una cache breve e controllata, senza archiviare permanentemente tutti i run previsionali se non serve; il requisito di storico permanente riguarda i dati della stazione.
+Campi candidati separati dalle misure: metodo/versione, ID e qualità dei dati utilizzati, `generated_at`, `valid_at` o intervallo, grandezza/unità e risultati di valutazione. Conservare i run necessari a valutarli dopo l’arrivo delle osservazioni; retention delle stime da definire, distinta da quella permanente delle misure. Non confondere i tempi del modello con `measured_at`/`received_at`.
 
-Proposta di UI minima: “Misure della stazione” e “Previsioni per la località”, con temperatura e condizioni previste, pioggia se disponibile e sintesi giornaliera; vento o altre grandezze eventuali sono dati del provider e non nuovi sensori dichiarati. Nomi precisi delle variabili da confermare sul payload reale. Nessun invio del CSV al provider necessario per questa proposta.
+UI proposta: “Misure della stazione” e “Stime sperimentali MeteOlivelli”. Non generare etichette sole/pioggia/temporale, quantità di precipitazione o vento dai tre sensori senza un metodo specifico e prove adeguate. Prima di WX-01/WX-02 tutte le stime restano indisponibili; nessuna attendibilità meteorologica già dimostrata.
 
 ## 7. Fasi di lavoro
 
@@ -432,7 +432,21 @@ Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in u
 
 ### Sessione di progettazione UI con il compagno — 22 ottobre 2026 (programmata)
 
-**Organizzazione confermata dall'utente:** il 22 ottobre 2026 i due studenti resteranno a scuola per una sessione congiunta di circa **due ore**. Prima della sessione, il compagno installerà/aprirà Figma e verrà creato un file di progetto, nome proposto **MeteOlivelli — Dashboard**. L'installazione, il file e la sessione sono **previsti, non ancora completati**.
+**Decisione confermata dall'utente il 22 ottobre 2026:** useremo **Figma per progettare la UI**, definendo layout desktop/mobile, colori, tipografia e componenti. Il design Figma sarà il riferimento per l'implementazione in React/TypeScript con Vite.
+
+**Avanzamento verificato il 22 ottobre 2026:** accessibile il file [MeteOlivelli in Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2). Creata accanto al rettangolo preesistente, preservato, la tavola `MeteOlivelli · Base UI v1`: vista desktop 1280 px, mobile 390 px e area componenti/note. La base usa livelli modificabili, auto-layout, variabili colore/spaziatura, stili Inter e tre componenti riutilizzabili (misura, previsione, periodo). Include misure assenti, storico vuoto e previsioni indisponibili, con avviso di bozza senza dati reali. Verificata visivamente la composizione desktop/mobile dopo correzione dell'altezza dei testi. È una prima proposta da rivedere con il compagno: nessuna implementazione React, integrazione dati o sessione congiunta dichiarata completata.
+
+**Revisione dark richiesta e verificata il 22 ottobre 2026:** la stessa tavola è ora `MeteOlivelli · Dark UI v2 · DEMO`. Tema scuro applicato tramite variabili, tre grafici vettoriali con assi e unità (temperatura, umidità, pressione), cronologia dei sei campioni più recenti in tabella desktop/schede mobile. Dieci campioni orari sintetici del 22 ottobre, 00:00–09:00 Europe/Rome, alimentano coerentemente schede, grafici e cronologia. L'utente ha autorizzato dati fittizi per questa bozza Figma: avviso generale e marcature DEMO nelle sezioni e nei campioni; gli scenari previsionali sono fittizi, separati e senza validità meteorologica. Verificate visivamente entrambe le composizioni. Si tratta di un mockup statico: nessun dato reale, collegamento al backend o controllo interattivo implementato. La cronologia entra nella proposta UI da rivedere prima dell'implementazione.
+
+**Organizzazione confermata dall'utente (programma iniziale):** il 22 ottobre 2026 i due studenti resteranno a scuola per una sessione congiunta di circa **due ore**. Il programma prevedeva apertura/configurazione di Figma e creazione di un file, nome proposto **MeteOlivelli — Dashboard**. L'accesso al file e la prima base sono ora verificati come sopra; installazione locale e svolgimento della sessione congiunta non sono stati verificati.
+
+**Revisione Product Design eseguita su richiesta il 22 ottobre 2026:** stessa tavola aggiornata a `MeteOlivelli · Dark UI v3 · Product Design`. Catturate e ispezionate le viste prima/dopo; ridotta l'introduzione, aggiunto componente misura compatta per mobile, allineati gli assi e chiarito il periodo selezionato. Cronologia mobile compattata mantenendo sei campioni e unità. Altezza mobile da 4179 a 3553 px; misura di layout, non validazione di usabilità. [Evidenze e limiti](docs/design-review/README.md). Restano un mockup statico e la revisione con il compagno; nessun codice applicativo modificato.
+
+**Revisione frosted v4 richiesta e verificata il 22 ottobre 2026:** tavola `MeteOlivelli · Frosted UI v4 · DEMO`. Direzione premium sobria: fondo blu notte sfumato, superfici traslucide, blur di sfondo 20 px, bordi luminosi sottili e ombre morbide. Nessuna rifrazione o distorsione; grafici su superfici interne più schermate. Ridotti i contorni colorati delle schede e gli arrotondamenti delle righe della cronologia. Stili di effetto e riempimento riutilizzabili; composizioni desktop/mobile ispezionate. Dati e marcature DEMO conservati; nessun codice applicativo modificato.
+
+**Revisione Obsidian v5 richiesta e verificata il 22 ottobre 2026:** sfondo uniforme `#05080E` (quasi nero bluastro), senza gradienti su desktop, mobile e area componenti. Superfici satinate rese più neutre, riflessi e ombre attenuati, fondi dei grafici più schermati; stili riutilizzabili aggiornati. Ispezionate le due composizioni e verificati i riempimenti SOLID dello sfondo. Tutti i dati restano DEMO; nessun codice applicativo modificato.
+
+**Indicazioni motion aggiunte il 22 ottobre 2026:** note visibili in Figma, area componenti, e descrizioni dei componenti. Ingresso dei pannelli sotto la piega al primo ingresso in viewport: opacità 0→1, translateY 8→0 px, durata 220 ms ease-out; ritardo fra schede 40 ms, massimo 120 ms. Trigger indicativo al 10% visibile. Scroll nativo senza ritardi o blocchi; titolo e valori iniziali subito visibili. Con `prefers-reduced-motion` nessuna traslazione o attesa; le note originarie chiedono contenuti visibili anche senza JavaScript. Chiarimento documentale della revisione criticità: nella SPA si propone un fallback statico `noscript`, senza promettere una dashboard live senza JS; con JS attivo un errore dell’animazione non nasconde i contenuti. Note Figma non modificate da questa revisione; specifica da implementare in UI-01.
 
 **Divisione iniziale dei ruoli (proposta operativa):**
 - **Compagno — UI/UX e QA:** raccogliere 2–3 riferimenti visivi (da usare come ispirazione, non da copiare); imparare le funzioni essenziali di Figma; produrre un primo layout desktop e una variante mobile; definire disposizione delle card temperatura/umidità/pressione, grafici, stato stazione, spaziatura, colori e tipografia; verificare il risultato implementato.
@@ -493,7 +507,7 @@ Il setup generale locale SET-00–SET-04 è stato eseguito su richiesta dell’u
 | 3 — Schema/accessi | 2 e decisioni su pubblico/retention | Disegno dati, vincoli, chiavi, indici, matrice ruoli/RLS e stima volumi/costi | Revisione tecnica dello schema e del modello di accesso; successiva richiesta esplicita prima di applicare migrazioni |
 | 4 — Ingestione | 3 e autorizzazione alla specifica implementazione | Endpoint documentato e prove su ambiente separato autorizzato | Validazione, autenticazione, concorrenza, conflitti e retry verificati; nessun segreto client; schema applicato solo se richiesto |
 | 5 — Uploader | 2, contratto 4 stabile, vincoli Windows | Uploader, outbox durevole, guida installazione/avvio/diagnosi | Crash/restart, offline, reset, rotazione e risposte parziali recuperabili senza perdite dei dati già persistiti o duplicati |
-| 6 — Frontend | 1; per misure reali anche 2–4; previsioni anche località/provider validati | Dashboard, aggiornamento automatico, grafici e tre orizzonti previsionali distinti | Build/lint, accessibilità, confronto con sorgenti; latenza osservabile; previsioni con fonte e validità, errori indipendenti |
+| 6 — Frontend | 1; per misure reali anche 2–4; stime anche dati idonei e modello locale valutato | Dashboard, aggiornamento automatico, grafici e tre orizzonti previsionali distinti | Build/lint, accessibilità, confronto con sorgenti; latenza osservabile; previsioni con fonte e validità, errori indipendenti |
 | 7 — Backup/restore | 3, storage e responsabili approvati | Runbook, esportazioni indipendenti, retention, verbale di restore | Restore separato riuscito entro obiettivi concordati, con integrità e accessi verificati; responsabilità trasferibile |
 | 8 — Esercizio/rilascio | 4–7, accettazione e richiesta di pubblicazione | Checklist rilascio, istruzioni essenziali di gestione e sito per scuola/open day | Flusso completo verificato, restore provato, quote/condizioni ricontrollate, decisioni bloccanti chiuse e autorizzazioni esplicite |
 
@@ -503,11 +517,11 @@ La UI con stati vuoti può essere progettata dopo la fase 1, senza presumere sch
 
 Finestra richiesta: **26 ottobre–1 novembre 2026**, interpretata rispetto al 21 ottobre; non è una promessa di completamento o una data già concordata per la pubblicazione. Ridurre il lavoro al flusso essenziale, senza saltare autenticazione, unicità, timestamp e prova di recupero. Non iniziare l’implementazione in questa revisione.
 
-1. **Prima del parser/schema definitivo:** acquisire un campione reale e osservare writer/seriale sul PC; identificare località previsioni e verificare permessi, clock e riavvio automatico. Se il campione manca, il flusso reale non è dichiarabile pronto.
-2. **In parallelo come attività indipendenti, dopo richiesta di implementazione:** UI italiana con stati vuoti e grafici; validazione del provider e dei tre orizzonti su località reale. Nessun dato simulato non marcato.
+1. **Prima del parser/schema definitivo:** acquisire un campione reale e osservare writer/seriale sul PC; verificare permessi, clock e riavvio automatico. Se il campione manca, il flusso reale non è dichiarabile pronto.
+2. **In parallelo come attività indipendenti, dopo richiesta di implementazione:** UI italiana con stati vuoti e grafici; studio del modello locale, con valutazione dei tre orizzonti appena esiste una serie datata idonea. Nessun dato simulato non marcato.
 3. **Catena minima reale:** endpoint autenticato, vincolo idempotente e outbox persistente; una misura nuova attraversa PC → DB → pagina aperta. Preferire lettura incrementale delle righe al caricamento ricorrente dell’intero CSV.
 4. **Accettazione prima del rilascio:** CSV reale confrontato con DB/UI, retry senza duplicati, rete assente e ripresa, UI senza reload, previsioni mancanti/vecchie, separazione fonti, copia indipendente con restore minimo, build/lint e test critici.
-5. **Rifinitura e rilascio autorizzato:** layout mobile/open day, testi, crediti del provider e breve guida per l’utente. Rimandare confronti avanzati, account/download già esclusi, modelli previsionali propri e automazioni non necessarie.
+5. **Rifinitura e rilascio autorizzato:** layout mobile/open day, testi, limiti del modello e breve guida per l’utente. Rimandare confronti avanzati, account/download già esclusi e automazioni non necessarie; modello nostro valutato separatamente secondo §6 e WX-01/WX-02.
 
 La chiusura a dicembre è una previsione organizzativa, non una scadenza di consegna e non una richiesta operativa. Quando sarà confermata, concordare se fermare solo l’acquisizione o anche sito/servizi; esportare e verificare la conservazione dello storico prima di revocare accessi. Nessuna cancellazione o arresto programmato automaticamente da questo piano.
 
@@ -547,7 +561,7 @@ Fissare:
 
 - dati pubblici e colonne escluse;
 - query per ultima misurazione e intervallo;
-- fuso orario di visualizzazione (probabilmente `Europe/Rome`, con dati memorizzati in UTC);
+- fuso orario di visualizzazione `Europe/Rome` approvato, con istanti assoluti memorizzati in UTC;
 - ordinamento, limiti e paginazione;
 - trattamento esplicito di `measured_at` nullo, senza sostituzione silenziosa con `received_at`;
 - comportamento con dataset vuoto o non aggiornato;
@@ -646,33 +660,33 @@ La gestione ordinaria deve essere automatica ogni ora, nei limiti da verificare 
 
 ## 11. Registro decisioni ed esiti
 
-Esiti al 21 ottobre 2026, fonte risposte dell’utente Q1–Q35. “Deciso (U)” indica una scelta dichiarata, non una configurazione implementata o un’autorizzazione a intervenire sui servizi.
+Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ottobre con le risposte alle criticità e le scelte tecniche delegate (§18). “Deciso (U)” indica una scelta dichiarata, non una configurazione implementata o un’autorizzazione a intervenire sui servizi.
 
 | ID | Tema | Stato / esito | Verifica o dipendenza residua |
 |---|---|---|---|
-| D1 | CSV e writer | Aperto: campione assente; append probabile, file mai cancellato (U) | Campione reale, writer, encoding, separatori, intestazioni e comportamento file prima del parser |
-| D2 | Tempo misura | Scelta delegata: storico senza date conservato e fuori dai grafici per data; timestamp locale per nuove acquisizioni proposto | Clock, buffering e punto di acquisizione da validare; non equiparare ricezione a misura senza evidenze |
-| D3 | Identità eventi | Aperto | Progettare chiave persistente per retry/reset/reimportazione |
-| D4 | Lettura dati | Aperto tecnicamente; pubblico read-only deciso | Scegliere accesso diretto limitato o endpoint, con RLS/privilegi verificati |
-| D5 | Sensori e validità | Parziale: °C, %, hPa confermati (U) | Modelli, precisione, sentinelle e pressione assoluta/corretta mancanti |
-| D6 | Backup | Aperto: PC/GitHub/Vercel/Supabase indicati come candidati | Scegliere vera copia indipendente, destinazione/permessi, capacità e restore; non dedurre un upload autorizzato |
+| D1 | CSV e writer | Campione rinviato dall’utente; CSV sul Desktop Windows (U, 22 ottobre), percorso completo ignoto | Campione reale e osservazione del writer prima del parser definitivo; nessun nome file dedotto |
+| D2 | Tempo misura/acquisizione | U: aggiungere l’ora all’invio quando cambia il file. Scelta tecnica: data/ora completa UTC in `captured_at`, asse di acquisizione dichiarato; `measured_at` resta nullo se ignoto | Prima osservazione di nuove righe complete, non ogni retry; righe pregresse senza data e buffering da distinguere; dettagli §18 |
+| D3 | Identità eventi | Scelta tecnica delegata: UUID per evento persistito in SQLite insieme a generazione file e posizione | Vincolo DB sorgente + ID; nessuna nuova identità nei retry; riconciliazione dopo perdita stato |
+| D4 | Lettura dati | Scelta tecnica delegata: endpoint di lettura a parametri fissi e risultati limitati; pubblico read-only | Query parametrizzate, privilegi/RLS e cache da implementare/provare; niente tabelle interne esposte per comodità |
+| D5 | Sensori e validità | Parziale: °C, %, hPa confermati (U) | Modelli, collocazione/schermatura, taratura, precisione, sentinelle e pressione assoluta/corretta mancanti |
+| D6 | Backup | Approvato il 22 ottobre: backup automatico cifrato indipendente e prova di ripristino; proposta tecnica di esportazione notturna in §18 | Destinazione/permessi, capacità, frequenza e obiettivi concreti da definire; nessun job o upload eseguito |
 | D7 | Responsabile credenziali/PC | Deciso (U): utente responsabile e custode | Custodia concreta, procedura revoca e diritti tecnici Windows da verificare |
-| D8 | Ritardo | Deciso (U): oltre 20 minuti dalla misura successiva attesa | Validare cadenza/ancoraggio e testare esattamente la soglia; non confondere arrivo con misura |
+| D8 | Ritardo | U: oltre atteso +20 minuti; delegata la tecnica. Configurazione iniziale proposta: 60 minuti, ancora non verificati | Stato dell’acquisizione PC con `captured_at` quando ammesso; freschezza fisica sconosciuta senza ora misura; backlog escluso e cadenza da verificare |
 | D9 | Budget/quote | Deciso (U): 0 € | Quote attuali, volumi, tolleranza ai fermi e comportamento a limite esaurito ancora aperti |
 | D10 | Retention | Deciso (U): CSV/storico permanenti | Capacità e copie sostenibili; retention log/quarantena/versioni backup aperta |
 | D11 | Download pubblico | Deciso (U): escluso | Esportazioni amministrative per backup ammesse come requisito tecnico, non download per visitatori |
-| D12 | Fuso UI | Deciso (U): Europe/Rome | Memorizzazione UTC proposta; test DST e provenienza del timestamp |
+| D12 | Fuso UI | Deciso (U): Europe/Rome; scelta tecnica UTC per gli istanti assoluti | Test DST, clock e provenienza del timestamp |
 | D13 | Sessioni Arduino | Parziale: GIGA R1 dichiarato (U) | Firmware, rollover, reset e riordino da verificare |
 | D14 | Replay/perdita stato | Aperto | Registro identità e procedura di riconciliazione, prima dell’import storico |
 | D15 | Vincoli Windows | Parziale: PC dedicato/adattabile, installazione consentita (U) | Append, attività continua, avvio senza login, proxy, spazio e permessi effettivi da provare |
-| D16 | Anomalie | Deciso (U): conservare e segnalare | Definire flag e sentinelle; isolare righe non interpretabili senza perderne l’originale |
+| D16 | Anomalie | U confermata il 22 ottobre: conservare comunque e mostrare “probabile errato” | Flag per singolo campo con motivo; nessuna correzione automatica. Originale in quarantena se non interpretabile; soglie e sentinelle da verificare |
 | D17 | Recupero/offline | Aperto | RPO/RTO e durata offline non indicati; nessun valore assunto come approvato |
 | D18 | MVP/scadenza | Deciso (U): pronto settimana prossima; misure/grafici/stato, aggiornamento automatico e previsioni +30m/+1h/giornata | Finestra interpretata 26 ottobre–1 novembre 2026; giorno preciso non indicato; dati reali e nuovo requisito previsioni condizionano la consegna |
 | D19 | Gestione/continuità | Utente responsabile; chiusura complessiva ipotizzata a dicembre (U), non confermata | Data e perimetro della chiusura da decidere allora; nessuna cancellazione o spegnimento implicito, storico da preservare |
 | D20 | Roadmap unica | Deciso (U: Q35): tenere solo plan.md | Fonte piano.md rimossa dopo integrazione dei contenuti utili |
-| D21 | Avvisi al responsabile | Destinatario deciso (U): utente; canale aperto | Scegliere canale e permessi senza introdurre account visitatore o servizi a pagamento |
+| D21 | Avvisi al responsabile | Approvato il 22 ottobre: controllo indipendente e avvisi email all’utente | Destinazione email e meccanismo gratuito da configurare/provare; nessun messaggio inviato |
 | D22 | Design/presentazione | Deciso (U): sito curato per scuola/open day, niente slide o relazione | Proposta visiva da valutare; blu notte non obbligatorio; buone pratiche accessibilità di base |
-| D23 | Previsioni | Richieste (U): mezz’ora, ora successiva e giornata; proposta fonte esterna Open-Meteo | Località, copertura/risoluzione, campi, condizioni d’uso, cache e attribuzione da validare prima del collegamento |
+| D23 | Previsioni | U, 22 ottobre: calcolate dal progetto senza servizio meteo esterno; precedente proposta Open-Meteo superata | Modello locale sperimentale, qualità temporale e valutazione per orizzonte da progettare; nessuna previsione attendibile già disponibile; §6 e WX-01/WX-02 |
 | D24 | Aggiornamento live | Richiesto (U): inserire nuova misura e aggiornare il sito automaticamente | Progettare rilevamento CSV e aggiornamento UI; target ~30s dal commit proposto, non SLA approvato |
 
 ## 12. Rischi e mitigazioni
@@ -691,9 +705,9 @@ Esiti al 21 ottobre 2026, fonte risposte dell’utente Q1–Q35. “Deciso (U)�
 | Backup non ripristinabile | Perdita dello storico | Restore di prova con checklist e confronto di integrità |
 | Indicatore online fuorviante | Perdita di fiducia | Stato basato sulla freschezza dei dati, con soglia documentata |
 | Eccesso di dipendenze | Manutenzione difficile | Aggiungere librerie soltanto quando migliorano una funzione necessaria |
-| Scadenza ravvicinata e CSV ancora assente | Impossibile validare il flusso reale in tempo | Campione/writer come prima dipendenza; UI/provider possono essere progettati separatamente senza spacciare simulazioni per funzionamento |
+| Scadenza ravvicinata e CSV ancora assente | Impossibile validare il flusso reale in tempo | Campione/writer come prima dipendenza; UI e studio del modello possono procedere separatamente senza spacciare simulazioni per funzionamento |
 | Previsioni confuse con misure | Attribuzione falsa alla stazione | Sezioni e tempi distinti, fonte e interpolazione dichiarate, nessuna previsione inventata |
-| Provider indisponibile o senza risoluzione utile | Orizzonte di mezz’ora fuorviante | Verifica località/modello, cache etichettata e stato indisponibile indipendente dalle misure |
+| Modello locale non valutato o serie insufficiente | Stime senza attendibilità dimostrata | Verifica temporale per orizzonte e stato indisponibile indipendente dalle misure; nessuna condizione meteorologica inventata |
 | Chiusura a dicembre interpretata come cancellazione | Perdita dello storico permanente | Conferma esplicita di data/perimetro, copia e restore verificati prima di arresti o revoche |
 
 ## 13. Test e verifiche previste
@@ -706,7 +720,7 @@ Esiti al 21 ottobre 2026, fonte risposte dell’utente Q1–Q35. “Deciso (U)�
 - Nessuna misura segnaposto presentata come reale.
 - Query e fusi orari ai limiti di giorno/settimana e ora legale.
 - Nuovo evento nel DB visibile sulla pagina già aperta senza reload; misurare ritardo, ripresa dopo disconnessione e assenza di falsi record.
-- Previsioni +30m/+1h/giornata: selezione intervalli al cambio ora/giorno e DST, distinzione istante/accumulo, fonte/validità, risoluzione/interpolazione, risposta mancante e cache scaduta. Fallimento provider non nasconde le misure.
+- Stime +30m/+1h/giornata: dati ammessi e provenienza temporale, valutazione senza dati futuri per ciascun orizzonte, errore e numerosità dichiarati, modello/versione e validità. Dati insufficienti, sospetti o vecchi e stime scadute producono stato indisponibile senza nascondere le misure; nessun valore di confronto interpolato spacciato per osservazione.
 - Storico senza timestamp conservato ma escluso dai grafici cronologici; nessun orario ottenuto dalla data di importazione.
 
 ### Verifiche backend/database
@@ -754,7 +768,7 @@ Esiti al 21 ottobre 2026, fonte risposte dell’utente Q1–Q35. “Deciso (U)�
 
 ## 15. Definition of Done complessiva
 
-Il progetto è pronto per essere considerato un setup completo solo quando:
+Il prodotto è pronto per essere considerato un MVP rilasciabile solo quando (il setup locale SET è un risultato distinto, già completato):
 
 - l’applicazione è una dashboard italiana responsive, accessibile e priva di dati inventati non marcati;
 - il modello dati e le policy sono stati revisionati e applicati tramite migrazioni versionate;
@@ -776,7 +790,7 @@ La baseline locale della fase 0 è completata nei limiti della sezione 4. L’MV
 
 Prima di parser e schema definitivi serve il campione reale, oggi non disponibile, e una breve osservazione del writer/seriale. La disponibilità a modificare il PC permette di progettare un timestamp locale per le nuove righe, ma non rende automaticamente noto l’orario delle misure storiche. Possibile progettare in seguito la UI con stati vuoti, senza inventare dati o iniziare ora l’implementazione.
 
-Dipendenze residue prioritarie: campione CSV/writer, località esatta per validare le previsioni, destinazione della copia indipendente e procedura minima di recupero; canale delle notifiche. Trattamento storico senza date scelto tecnicamente su delega; chiusura a dicembre da confermare solo quando concreta. Se non noti, diventano attività esplicite, non default approvati. Migrazioni, installazioni, pubblicazione e altre modifiche remote richiedono comunque richiesta esplicita.
+Dipendenze residue prioritarie: campione CSV/writer, qualità temporale e serie idonee per il modello locale, destinazione della copia indipendente e procedura minima di recupero; canale delle notifiche. Le scelte del 22 ottobre e le proposte correnti sono nella sezione 18. Trattamento storico senza date scelto tecnicamente su delega; chiusura a dicembre da confermare solo quando concreta. Se non noti, diventano attività esplicite, non default approvati. Migrazioni, installazioni, pubblicazione e altre modifiche remote richiedono comunque richiesta esplicita.
 
 ## 17. Risposte dell’utente e chiarimenti residui
 
@@ -881,13 +895,66 @@ L’utente chiede “solo quello nuovo”: mantenuto `plan.md` come unica roadma
 - **Fine esercizio U con riserva:** si pensa di chiudere tutto a dicembre; non è certo e non autorizza arresti o eliminazioni. La conservazione dello storico resta distinta dalla durata dell’acquisizione.
 - **Flusso U:** il PC è soprattutto un tramite; CSV scritto e aggiornato automaticamente, nuove misure inserite nel database e mostrate subito dal sito. Implementare in futuro eventi incrementali, non caricamenti ripetitivi dell’intero archivio.
 - **Tempo storico, delega U e scelta tecnica:** conservare i record privi di data con `measured_at` nullo e non inventare un asse cronologico. Per il futuro progettare acquisizione temporale sul PC verificando writer, clock e latenza; l’ora di arrivo al database resta separata.
-- **Nuovo requisito U:** previsioni per mezz’ora successiva, ora dopo e giornata. Fonte esterna proposta e verifiche richieste nella sezione 6; nessun modello locale validato o previsione reale già ottenuta.
+- **Nuovo requisito U del 21 ottobre:** previsioni per mezz’ora successiva, ora dopo e giornata. Inizialmente proposta una fonte esterna; proposta superata il 22 ottobre dalla richiesta di calcolo nel progetto (§6 e §18). Nessun modello locale validato o previsione reale già ottenuta.
 
 ### Questioni residue e attività di verifica
 
 1. **Campione CSV e writer:** da ottenere appena disponibile per completare contratto, tempo e parser; non ripetere ora la richiesta di un file che l’utente non ha con sé.
-2. **Località previsionale:** confermare posizione o indirizzo della stazione scolastica; Pavia è il contesto del README, non coordinate già verificate. Validare il provider prima di promettere risoluzione utile a mezz’ora.
+2. **Qualità sensori e modello:** confermare collocazione, sensori e qualità della serie temporale. La richiesta del 22 ottobre supera la proposta del provider; posizione utile a descrivere la stazione, non prerequisito per collegare Open-Meteo.
 3. **Backup minimo e avvisi:** restano aperti destinazione indipendente, recupero e canale verso l’utente; proporre una soluzione essenziale compatibile con 0 € e permessi reali.
 4. **Fine esercizio:** non chiedere nuovamente se Natale sia la consegna; è già chiarito che la consegna è settimana prossima. Confermare data/perimetro della chiusura solo prima di eseguirla, senza cancellare dati per deduzione.
 
 La scadenza è un obiettivo, non prova di fattibilità della catena reale senza campione e verifiche. Questa raccolta di requisiti era documentale. Il setup successivo ha predisposto runtime/configurazione locale e test; restano non implementati ingestione, collegamento applicativo, migrazioni, previsioni e deploy.
+
+## 18. Revisione delle criticità e scelte delegate — 22 ottobre 2026
+
+Fonte: risposte dell’utente ai punti 1–20 dell’analisi. U indica dichiarazione esplicita; T indica scelta progettuale effettuata su delega; P indica proposta ancora da discutere. Nessuna voce attesta codice, installazione o risorsa remota già realizzati. La richiesta corrente riguarda decisioni e possibili soluzioni; non esegue deploy, migrazioni, configurazione di backup o invio di avvisi.
+
+**Approvazione successiva del 22 ottobre 2026:** dopo il riepilogo abbreviato problema/soluzione, l’utente conferma “Ok, questi vanno bene”. Gli orientamenti del riepilogo sono quindi concordati, inclusi backup indipendente, modello nostro sperimentale e avvisi email. Restano da definire gli input mancanti e i dettagli non fissati dal riepilogo: campione CSV, sensori, destinazione delle copie, recapito email, frequenze e obiettivi numerici di recupero. Le quantità proposte sotto non diventano automaticamente valori approvati. L’approvazione delle soluzioni non segna completati i task applicativi né avvia operazioni remote.
+
+### Risposte e regole operative
+
+| Punti analisi | Stato | Esito |
+|---|---|---|
+| 1, 11 | U | Campione in futuro. CSV sul Desktop Windows; nome, percorso completo, eventuale reindirizzamento del Desktop e writer sconosciuti. Non cercare percorsi inventati |
+| 2 | U + T | Osservare nuove righe complete dopo modifica del file. Aggiungere una sola volta `captured_at` con data, ora, secondi e fuso, conservato in UTC. Il sito può mostrare “13:59”, con data disponibile. Non modificare il CSV originale né usare solo HH:mm come timestamp |
+| 3 | U + T | CSV e misure conservati permanentemente. 24h/7g/30g sono filtri del grafico, non scadenze di cancellazione. All’avvio poche misure producono grafici parziali. Storico senza data resta conservato, separato dalla serie datata |
+| 4 | T | Configurazione provvisoria di cadenza 60 minuti, da verificare; tolleranza U +20 minuti. Con sola acquisizione PC, etichettare “acquisita dal PC alle” e stato dell’acquisizione, senza attestare l’ora o la freschezza fisica della misura. Mai riattivare lo stato per import storico |
+| 5 | T | Verificare writer, sospensione, riavvio, clock e buffering; prevedere avvio automatico e singola istanza. Nessuna modifica firmware prima di verificare capacità esistenti; misure mai salvate non sono recuperabili tramite outbox |
+| 6 | U | Calcolo delle previsioni nel progetto, senza provider meteo esterno; proposta scientifica e limiti nella §6. Le stime dipendono dai dati disponibili, non sono informazioni generate senza una sorgente |
+| 7 | U + P | Approvato il principio del backup automatico cifrato indipendente con restore di prova; dettagli proposti sotto, destinazione effettiva e obiettivi ancora da definire |
+| 8 | U | L’utente non richiede approfondimento delle stime di lavoro. Mantenere un ordine pratico senza Gantt o promesse di consegna; la finestra precedente non è stata esplicitamente cancellata |
+| 9 | T | Procedere per risultati: contratto locale e UI con stati vuoti, poi CSV/tempo reale, pipeline, recupero e rilascio. Se manca il CSV la consegna tecnica resta una bozza; non trasformare una demo in produzione |
+| 10, 12 | T | SQLite conserva atomicamente riga originale, ID UUID, generazione/posizione, payload congelato e cursore. Unicità server su sorgente + ID. Confrontare campi canonici versionati in unità fissate; escludere timestamp server/tentativi e ordine delle proprietà JSON. ID uguale e contenuto diverso → conflitto senza sovrascrittura |
+| 13 | T | Le tre schede mostrano lo stesso ultimo evento acquisito con provenienza temporale ammessa; campi assenti restano assenti, sospetti visibili con avviso. Un import storico non sostituisce la scheda corrente. Per un eventuale ultimo valore valido precedente mostrare il suo orario distinto |
+| 14 | T | Serie principale dei grafici con dati ammessi e buchi espliciti; campioni sospetti consultabili con marcatura e opzione di visualizzazione dedicata. Niente interpolazione silenziosa e nessun uso predefinito dei sospetti per statistiche o modello |
+| 15 | U + T | Valori sospetti mantenuti, etichetta esatta “probabile errato” e motivo per campo. Non riscrivere l’originale; eventuali reinterpretazioni/correzioni future hanno versione e motivazione. Riga non leggibile conservata in quarantena, senza inventare numeri |
+| 16 | Aperto | Sensori, collocazione, precisione, taratura e tipo di pressione da osservare a scuola. Nel frattempo dichiarare limiti noti, senza certificare qualità meteo o soglie fisiche mai verificate |
+| 17 | U + T | Supabase confermato come backend; Edge Function con token dedicato alla sola sorgente, autenticazione piattaforma coerente e autorizzazione nell’handler. Nessuna chiave DB privilegiata nel browser o sul PC uploader; test di rifiuto prima del rilascio |
+| 18 | T | Letture tramite endpoint con periodi ammessi 24h/7g/30g, colonne esplicite, paginazione/cursore stabile e limiti server. Nessuna scrittura visitatore. Indici, privilegi SQL e RLS provati separatamente |
+| 19 | T | Partenza con polling delle sole novità ogni 15 secondi a pagina visibile e cache condivisa fino a 10 secondi, da provare nel runtime reale. Ricaricare la serie solo se cambia il periodo o arrivano nuovi eventi; sospendere in background e aggiornare al ritorno. Il target ~30s resta da misurare, non garantito dalla sola somma dei timer |
+| 20 | U + T | Approvati controllo indipendente e avvisi email. Stato e conteggi operativi per ultima acquisizione, coda/errori e ultimo backup; rilevare anche uploader/PC fermi. Avvisi solo su guasto, recupero o azione necessaria, senza ripetizioni continue; destinazione e meccanismo gratuito da verificare, senza inviare messaggi ora |
+
+`captured_at` indica l’osservazione della riga completa sul PC: non è automaticamente una misura temporale precisa. Per batch già presenti o rilasciati in ritardo non distribuire artificiosamente orari fra le righe. Nei grafici si può usare una serie dichiarata “ora di acquisizione sul PC” per nuove acquisizioni ammesse, mantenendo separata un’eventuale serie per `measured_at`. La data di caricamento storico non diventa data di acquisizione originale. Verificare l’idoneità temporale prima di usare queste serie per il modello.
+
+### Proposta minima di backup a costo zero
+
+1. Mantenere sul PC CSV originali e registro SQLite; proteggere lo stato con backup consistente, non copia arbitraria del database mentre è scritto.
+2. Esportare ogni notte database applicativo e metadati necessari al recupero; copiare CSV e stato locale. Conservare un pacchetto cifrato su storage già disponibile fuori dal PC scolastico e fuori dall’account del DB, per esempio spazio istituzionale autorizzato. Non è stata scelta né collegata una destinazione.
+3. Proposta iniziale per le versioni di recupero: 30 copie giornaliere e 12 mensili, da dimensionare e concordare. Ogni copia completa contiene lo storico disponibile: la rotazione delle copie non elimina misure dall’archivio permanente. Nessuna cancellazione o rotazione eseguita da questa proposta.
+4. Obiettivi proposti da discutere: backup entro 24 ore, recupero operativo entro un giorno lavorativo con accessi disponibili. Non sono garanzie né un RPO/RTO approvato. Le righe ancora nel CSV/registro possono consentire recuperi più recenti, da verificare con replay.
+5. Provare un restore separato prima del rilascio, riconciliando eventi già confermati dall’uploader; registrare esito e rilevare backup mancati. Verificare periodicamente capacità e possibilità di migrare per sostenere la conservazione permanente.
+
+Supabase raccomanda ai progetti Free esportazioni regolari e copie fuori sede; non assumere backup giornalieri gestiti inclusi nel piano gratuito. [Documentazione ufficiale backup](https://supabase.com/docs/guides/platform/backups), consultata il 22 ottobre 2026. Nessun billing effettivo dell’account verificato in questa revisione.
+
+### Soluzioni concordate per le criticità 21–36
+
+| Punti | Soluzione e verifica proposta |
+|---|---|
+| 21 | UI-01 sostituisce template, lingua HTML, titolo/metadati e asset con la dashboard italiana; nessuna modifica di stack |
+| 22–23 | Prima dei nuovi moduli estendere i controlli Deno a endpoint e sottocartelle; provare che un errore introdotto apposta in una copia venga rilevato. Test mirati a tempo, identità, parsing, retry e stati UI; non una suite sproporzionata |
+| 24–25 | Preparare CI locale versionata e allineamento a Node 24 già riportato nell’inventario Vercel, dopo verifica sul runtime. Vincolo versione ed esecuzione frontend/backend e futuro uploader; attivazione remota solo se richiesta |
+| 26 | Riservare cartelle operative ignorate per outbox, backup e quarantena; fixture depurate esplicitamente versionabili. Controllare esclusioni mediante soli nomi di file |
+| 27 | Nella SPA proporre un messaggio statico `noscript`; con JS attivo i contenuti restano visibili se l’animazione non parte. Non introdurre SSR o promettere una dashboard live senza JavaScript |
+| 28–33, 36 | Allineare documenti correnti a decisioni, conteggi e dipendenze; conservare le evidenze storiche come tali. Separare integrazione misure e stime. Ulteriore riduzione delle duplicazioni da fare senza perdere requisiti |
+| 34–35 | Fissare una consegna Figma con versione/screenshot e stati vuoto, caricamento, errore, ritardo e valore sospetto. Provare app a 320/390/768/1280 px, zoom, tastiera e movimento ridotto; misurare blur ed effetti su un dispositivo reale e semplificarli se costosi |

@@ -8,13 +8,20 @@ Il frontend è ancora il template React/Vite. Il setup locale del backend è pre
 per TypeScript/Deno, ma non esistono ancora endpoint di ingestione, schema applicativo,
 uploader o collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
 
+Chiarimento del 22 ottobre: CSV e misure devono restare conservati; 24h/7g/30g sono
+filtri dei grafici. Per le nuove righe il programma Windows aggiungerà data e ora
+di acquisizione sul PC, distinte dall’ora fisica della misura e dalla ricezione server.
+Le stime dovranno essere calcolate dal progetto senza provider meteo esterno;
+modello, fattibilità e attendibilità restano da verificare. Scelte delegate e proposta
+di backup in [plan.md §18](plan.md#18-revisione-delle-criticità-e-scelte-delegate--22-ottobre-2026).
+
 Il sito previsto è pubblico, con misure e grafici, senza account, profilazione o download.
 Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
 in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
 
 ## Collaborazione e progettazione UI
 
-**Sessione pianificata per il 22 ottobre 2026:** circa due ore a scuola. Prima della sessione, il compagno preparerà Figma e verrà creato un progetto/file di design proposto come **MeteOlivelli — Dashboard**; questa preparazione non risulta ancora completata.
+**Stato documentato al 22 ottobre 2026:** file Figma accessibile e mockup desktop/mobile arrivato alla revisione **Obsidian v5 · DEMO**. Il design resta statico, con dati sintetici etichettati; revisione con il compagno, interazioni e QA completo restano aperti. La sessione congiunta prevista a scuola per circa due ore non è dichiarata svolta. [Riferimento Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e [storia delle revisioni](docs/design-review/README.md).
 
 Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. Il compagno raccoglierà riferimenti visivi e creerà un wireframe desktop con indicazioni per mobile; il design potrà poi essere trasformato con l'aiuto di Codex in componenti React, da verificare manualmente. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
 
