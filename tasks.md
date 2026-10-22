@@ -450,3 +450,15 @@ Verifica storica del setup: `npm run check` superato su copia senza `.env` con e
 
 Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 attività su 29; 16 restano non completate, incluse DATA-01–DATA-03, UP-01–UP-04, UI-00 e UI-02 parziali. La Fase 6 resta aperta per campione/writer e prova Windows. La Fase 7 ha frontend verificato localmente, ma non modello validato o collaudo della catena fisica. Il rilascio complessivo resta aperto. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
 
+
+## Fase 7 — Correzione DEMO del 22 ottobre 2026
+
+- [x] Confermata via SQL l'esistenza di 50 record `meteolivelli-demo-20261022` con timestamp assoluti nulli.
+- [x] Preparata in PR #3 una modalità DEMO distinta dai dati reali, senza riscrivere i record.
+- [x] Distribuita Edge Function di sola lettura `read-demo-measurements` (ACTIVE); preview Vercel del branch READY.
+- [ ] Verificare risposta API con 50 elementi, qualità e ordine, senza divulgare metadati interni.
+- [ ] Eseguire build, lint, test backend/frontend e test di integrazione in browser, incluso cambio modalità, grafici e cronologia.
+- [ ] Correggere eventuali difetti; riesaminare la semantica dei timestamp sintetici e la gestione dei filtri DEMO.
+- [ ] Solo dopo QA e revisione, integrare la PR #3 e verificare il deploy di produzione.
+
+**Non confondere:** READY indica che il deploy è stato completato, non che la funzionalità sia stata collaudata. La pagina pubblica su main resta invariata.

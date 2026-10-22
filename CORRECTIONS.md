@@ -58,3 +58,14 @@ Esito e data della verifica:
 ```
 
 Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build frontend, typecheck/lint backend e 3 test backend. Non esiste uno script npm generico `test`: i test disponibili si eseguono con `backend:test`. La revisione documentale del 22 ottobre non modifica codice e non riesegue questi controlli. Nessuna verifica funzionale dei servizi remoti viene attestata.
+
+## COR-004 — Campioni DEMO assenti dalla dashboard
+
+- **Stato:** in analisi (22 ottobre 2026); correzione proposta, collaudo non completato.
+- **Area/file:** `src/App.tsx`, `src/demo.ts`, `src/weather.ts`, `supabase/functions/read-demo-measurements/index.ts`, Supabase `station_measurements`.
+- **Problema:** la dashboard pubblica mostra valori vuoti nonostante la presenza di 50 righe dimostrative.
+- **Prova:** query SQL conferma 50 record della sorgente `meteolivelli-demo-20261022` con `acquisition_kind=historical` e `captured_at`/`measured_at` nulli. La lettura ordinaria è vincolata alla sorgente reale e filtra per data assoluta.
+- **Impatto/priorità:** media, demo non visualizzabile; nessuna prova di perdita dati.
+- **Correzione preparata:** PR https://github.com/pgiudici13/MeteOlivelli/pull/3 con selettore DEMO/reale e endpoint DEMO separato. Timestamp solo di visualizzazione sintetici, senza modificare DB. Edge Function ACTIVE e preview Vercel READY.
+- **Verifica necessaria:** HTTP e JSON API, 50 elementi, grafici, cronologia, cambio modalità, test automatici, sicurezza, build e lint, QA browser, conferma dei filtri temporali. Nessuna di queste prove è ancora attestata come superata.
+- **Esito:** aperto in attesa di collaudo; non segnare risolto né pubblicare in produzione prima della verifica.
