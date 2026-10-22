@@ -12,6 +12,14 @@ Il sito previsto è pubblico, con misure e grafici, senza account, profilazione 
 Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
 in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
 
+## Collaborazione e progettazione UI
+
+**Sessione pianificata per il 22 ottobre 2026:** circa due ore a scuola. Prima della sessione, il compagno preparerà Figma e verrà creato un progetto/file di design proposto come **MeteOlivelli — Dashboard**; questa preparazione non risulta ancora completata.
+
+Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. Il compagno raccoglierà riferimenti visivi e creerà un wireframe desktop con indicazioni per mobile; il design potrà poi essere trasformato con l'aiuto di Codex in componenti React, da verificare manualmente. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
+
+La prima dashboard può usare soltanto dati dimostrativi **sempre etichettati**. I test visuali e responsive non sostituiscono quelli della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
+
 ## Requisiti locali
 
 - Node.js compatibile con Vite 8: `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
