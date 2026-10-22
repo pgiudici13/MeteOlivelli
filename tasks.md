@@ -1,12 +1,13 @@
 # Attività operative — MeteOlivelli
 
-> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo contratto locale e adattatore CSV provvisorio.
+> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo backend locale della Fase 5.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** creare una pagina iniziale del sito senza dati, con “Work in progress” e breve descrizione, quindi eseguire commit/push. Contratto locale v1, BE-01 e adattatore CSV provvisorio già implementati; DATA-01–DATA-03 conservano la verifica sul CSV/writer reale come dipendenza aperta.
+> **Richiesta attuale:** eseguire la Fase 5 di questo file (BE-02–BE-07) e sincronizzare plan.md. BE-02–BE-07 completati tecnicamente sul contratto v1, applicati e verificati nel progetto esistente MeteOlivelli scelto dall’utente. CSV/writer reale ancora necessari per la chiusura operativa di DATA-01–DATA-03.
 
 ## 1. Come usare la checklist
 
 - `[x]` significa completato con evidenza; `[ ]` significa non completato. Gli stati aggiuntivi indicano `pronto`, `dipendenza`, `CSV necessario`, `decisione necessaria`, `richiesta remota necessaria`.
+- **Convenzione dell’utente:** “Fase N” indica sempre il blocco N di questo file. plan.md usa gli stessi numeri; sincronizzare rimandi e stato in entrambi.
 - Ogni attività contiene dipendenze, istruzioni, risultato, verifica e riferimento al piano. Aggiornare stato ed esito nello stesso intervento che completa il lavoro; non spuntare task solo perché esiste un file.
 - Seguire `AGENTS.md`, controllare Git prima delle modifiche e preservare i file locali. Alla creazione di questa checklist risultano non tracciati `plan.md`, `AGENTS.md` e `CORRECTIONS.md`; nessuna modifica ai file tracciati.
 - Le scelte tecniche indicate come **proposte** non sono risorse già configurate. I percorsi indicati come futuri sono candidati: crearli solo nel task pertinente, leggendo prima ciò che eventualmente esiste. I file realizzati nel setup sono elencati con esito nei task SET.
@@ -42,7 +43,7 @@
 
 **Stato stazione:** ritardo oltre 20 minuti dalla prossima misura attesa. Con cadenza esatta di un'ora, esempio illustrativo: misura 10:00 → attesa 11:00 → ritardo oltre 11:20. La regola definitiva richiede cadenza e ancoraggio verificati; ricevere un batch storico non dimostra freschezza.
 
-**Limiti ancora aperti:** ordine/unità dei quattro campi dichiarati dall'utente, campione CSV rinviato; nome/percorso completo, separatore, decimali e writer ignoti, append/cadenza probabili; firmware, clock, buffering, sentinelle e accessi Windows non verificati. Contratto JSON e validatore locale v1 pronti; schema applicativo e modello da progettare/provare; `public` senza tabelle nell’inventario storico SET-04. Backup: proposta in plan.md §18, destinazione e obiettivi ancora da concordare.
+**Limiti ancora aperti:** ordine/unità dei quattro campi dichiarati dall'utente, campione CSV rinviato; nome/percorso completo, separatore, decimali e writer ignoti, append/cadenza probabili; firmware, clock, buffering, sentinelle e accessi Windows non verificati. Contratto JSON e validatore locale v1 pronti; schema applicativo v1 preparato localmente, applicazione DB e modello ancora da provare; `public` senza tabelle nell’inventario storico SET-04. Backup: proposta in plan.md §18, destinazione e obiettivi ancora da concordare.
 
 Percorso critico:
 
@@ -57,7 +58,7 @@ In parallelo, dopo avvio dell'implementazione:
 
 La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche provvisorie; impedisce di dichiarare definitivi parser, schema dipendente dal dato e flusso reale. Nessun formato fittizio diventa quello della stazione.
 
-## 3. Primo blocco — Mini setup generale
+## 3. Fase 3 — Mini setup generale
 
 ### SET-00 — Confermare lo stato iniziale prima di modificare
 
@@ -100,7 +101,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Risultato:** `npm run backend:check` controlla i tipi; `npm run backend:lint` controlla lint/formato; `npm run backend:test` prova assenza/vuoto, conservazione esatta del valore e lettura della sola variabile richiesta. I test non leggono ambiente, rete o file applicativi. Nessun parser CSV, endpoint, tabella, Docker o servizio locale avviato.
 - **Verifica ripetibile:** eseguire i tre comandi backend dalla root; tutti devono finire con exit code 0, con 3 test superati. `npm run check` aggiunge lint e build frontend; in questa attività viene eseguito su copia senza `.env`, così Vite non carica configurazioni locali.
 - **Completamento:** controlli realmente eseguibili e dipendenza fissata nel lockfile. All'aggiunta di endpoint/sottocartelle aggiornare i percorsi dei controlli Deno: oggi coprono i moduli direttamente in `_shared/`, non un handler ancora assente.
-- **Riferimento:** [plan.md §5](plan.md#5-architettura-candidata), §7 fase 0 e §13; [docs/backend.md](docs/backend.md).
+- **Riferimento:** [plan.md §5](plan.md#5-architettura-candidata), §7 fase 3 e §13; [docs/backend.md](docs/backend.md).
 
 ### SET-04 — Registrare cosa esiste sui servizi, senza modificarli
 
@@ -115,7 +116,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 **Uscita del blocco setup:** configurazione spiegata, COR-001 verificato, struttura locale proporzionata e comandi di verifica chiari; nessuna modifica ai servizi necessaria per dichiarare il solo setup locale pronto.
 
-## 4. Contratto dati e prima logica backend
+## 4. Fase 4 — Contratto dati e prima logica backend
 
 ### DATA-01 — Acquisire il campione reale e osservare il writer
 
@@ -127,7 +128,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Esito locale:** documentata la dichiarazione dell'utente (secondi dall'accensione, °C, %, hPa). Nessun separatore, decimale o comportamento del writer dedotto; nessun parser CSV definitivo realizzato.
 - **Secondo intervento locale:** l'utente non conosce ancora separatore, decimali, intestazione e writer. Preparato `measurement_csv.ts` con dialetto obbligatorio e 10 test sintetici; restituisce originale e problemi senza scarti silenziosi. Checklist della verifica reale e limiti in `docs/backend.md`, sezione “Adattatore CSV provvisorio”. Questo non sostituisce il campione di DATA-01.
 - **Verifica:** nessuna assunzione derivata da un esempio inventato; controllare che due righe identiche possano comunque essere due eventi validi. Nessuna richiesta ripetuta del file finché l'utente non lo ha disponibile.
-- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 2, D1 e D5.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 4, D1 e D5.
 
 ### DATA-02 — Fissare timestamp, sessioni e trattamento dello storico
 
@@ -164,22 +165,24 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Esito:** 14 test dedicati superati, più 3 di configurazione; build/lint e check/lint/test backend superati in copia senza `.env`. Copertura ricorsiva verificata con errori deliberati in una sottocartella della sola copia temporanea. Nessun accesso dei test a rete/ambiente/file applicativi. Valori sospetti mantenuti con “probabile errato” e motivo; range sensore opzionali, nessuna taratura presunta.
 - **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §13, RNF1 e D16.
 
-## 5. Database, sicurezza e ingestione
+## 5. Fase 5 — Database, sicurezza e ingestione
 
 ### BE-02 — Disegnare lo schema minimo e gli indici
 
-- [ ] **Stato: schema concettuale possibile; definitivo dipende da DATA-01–DATA-03.**
+- [x] **Stato: schema v1 applicato e verificato in BE-07; conferma sul CSV reale ancora aperta.**
+- **Esito del 22 ottobre 2026:** `docs/backend-schema.md` descrive tabella, tipi, null, immutabilità, unicità e indici; migrazione preparata. Nessun DB applicato.
 - **Scopo in pratica:** Progettare come ogni evento e la sua provenienza vengono conservati e interrogati nel database.
-- **Input e file coinvolti:** Disegno schema e query in `docs/backend.md`; inventario reale in `docs/services.md`. Nomi di tabelle e tipi definitivi ancora da scegliere.
+- **Input e file coinvolti:** Disegno schema e query in `docs/backend.md`; inventario reale in `docs/services.md`. Nomi e tipi locali v1 definiti in `docs/backend-schema.md`; da confermare sul dato reale.
 - **Come:** progettare archivio misure, provenienza, qualità e chiave di unicità; aggiungere strutture sorgenti/sessioni solo se servono. Definire tipi, precisione, nullabilità e vincoli senza presumere tabelle esistenti. Ordinamento deterministico per ultima misura e storico.
 - **Scelte delegate:** stesso ultimo evento ammesso per le tre schede; campi mancanti non sostituiti da altri orari, sospetti conservati con “probabile errato”. Schema predisposto a originale immutato e reinterpretazioni versionate; leggere plan.md §18 per identità e qualità. Non definire range sensore senza evidenze.
 - **Risultato:** schema revisionabile in `docs/backend.md`, indici motivati dalle query e comportamento per record senza data/anomali. Nessun SQL applicato o nome di tabella dichiarato come già presente.
 - **Verifica:** dati ripetuti legittimi ammessi; eventi ripetuti non duplicati; `received_at` server-side immutato nei retry; coerenza di unità e trattamento dei null. Riesaminare capacità per retention permanente sul volume osservato.
-- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 3, RF1–RF4 e D10.
+- **Riferimento:** [plan.md §6](plan.md#6-dati-e-semantica-temporale), §7 fase 5, RF1–RF4 e D10.
 
 ### BE-03 — Progettare ruoli, RLS, lettura pubblica e credenziali
 
-- [ ] **Stato: dipendenza BE-02 e inventario SET-04.**
+- [x] **Stato: accessi applicati e verificati in BE-07; nessuna scrittura pubblica.**
+- **Esito del 22 ottobre 2026:** Matrice accessi e credenziali in `docs/backend-schema.md`; tabella con RLS e grant SELECT/INSERT al solo server, RPC invoker revocate a pubblico. Token associato a STATION_SOURCE_ID; nessuna chiave DB sul PC/browser.
 - **Scopo in pratica:** Consentire ai visitatori soltanto le letture approvate, tenendo la scrittura al server autenticato.
 - **Input e file coinvolti:** Matrice ruoli/policy e modalità custodia in `docs/backend.md`; esempi ambiente aggiornati solo quando necessari, sempre vuoti.
 - **Come:** fissare superficie pubblica e contratto dell’endpoint di lettura scelto su delega. Progettare privilegi SQL e RLS separatamente, verificando anche viste/funzioni; pubblico solo letture necessarie, nessuna scrittura. Uploader autenticato verso endpoint, senza chiave DB privilegiata sul PC.
@@ -190,27 +193,30 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### BE-04 — Preparare migrazione e prove database revisionabili
 
-- [ ] **Stato: dipendenza schema/contratto revisionati BE-02–BE-03.**
+- [x] **Stato: preparazione completata; applicazione e prove SQL eseguite nel successivo BE-07.**
+- **Esito del 22 ottobre 2026:** CLI 2.121.0: `supabase migration new station_backend_v1`; SQL in `supabase/migrations/20261022125448_station_backend_v1.sql`, prove transazionali e protocollo concorrenza in `supabase/tests/`. Nessuna migrazione applicata, neppure localmente.
 - **Scopo in pratica:** Trasformare lo schema revisionato in modifiche SQL verificabili prima di eseguirle.
 - **Input e file coinvolti:** Futuri file in `supabase/migrations/` e prove accessi/vincoli; percorso e comandi definiti dalla CLI supportata dopo revisione, non file SQL applicati a sorpresa.
 - **Come:** dopo revisione dello schema creare i file versionati con gli strumenti supportati, verificando prima i comandi disponibili. Preparare prove per vincoli, idempotenza concorrente e accessi; indicare effetto, prerequisiti e recupero. Non applicare la migrazione come effetto collaterale della sua preparazione.
 - **Risultato:** diff SQL, test e note di applicazione comprensibili a un collaboratore, senza segreti o risorse remote create.
 - **Verifica:** distinguere controllo statico del file da esecuzione SQL reale. Per applicarla anche in ambiente locale chiedere/eseguire solo nell'ambito di una richiesta esplicita; provare prima in ambiente separato autorizzato, senza reset del database operativo.
-- **Riferimento:** [plan.md §3](plan.md#3-vincoli-non-negoziabili), §7 fase 3 e §13.
+- **Riferimento:** [plan.md §3](plan.md#3-vincoli-non-negoziabili), §7 fase 5 e §13.
 
 ### BE-05 — Implementare l'endpoint di ingestione
 
-- [ ] **Stato: dipendenza DATA-03, BE-01, BE-02–BE-03; integrazione DB dopo BE-07.**
+- [x] **Stato: codice pubblicato; persistenza e concorrenza HTTP verificate in BE-07.**
+- **Esito del 22 ottobre 2026:** Handler, entrypoint e RPC adapter implementati: auth, sorgente, corpo 16 KiB, validazione, commit prima della conferma, duplicato/conflitto, timeout e errori minimizzati. Test simulati inclusi nei 39 totali; rate limit distribuito e runtime da verificare.
 - **Scopo in pratica:** Costruire l’indirizzo HTTP a cui l’uploader invierà ogni nuova misura e riceverà una conferma affidabile.
-- **Input e file coinvolti:** Futuro `supabase/functions/ingest-measurement/index.ts`, test dell’handler e moduli condivisi; configurazione funzione e controlli Deno da estendere.
+- **Input e file coinvolti:** `supabase/functions/ingest-measurement/index.ts`, test dell’handler e moduli condivisi; configurazione funzione e controlli Deno da estendere.
 - **Come:** proposta percorso `supabase/functions/ingest-measurement/`, se confermata la scelta Edge Function. Handler minimale: autenticazione, limite corpo/metodo, validazione, inserimento idempotente atomico e risposta dopo commit. Assegnare `received_at` sul server; prevenire concorrenza con vincolo DB, non soltanto con un controllo preliminare.
 - **Risultato:** endpoint e configurazione locale non segreta; timeout, errori e log minimizzati. Controlli browser/CORS, se pertinenti, non vengono trattati come autenticazione dell'uploader.
 - **Verifica:** credenziale assente/errata, payload eccessivo o invalido, duplicato identico, conflitto diverso, due richieste simultanee, perdita della risposta e DB indisponibile. Non registrare token o header sensibili. I test simulati non sostituiscono quelli con DB reale.
-- **Riferimento:** [plan.md §7 fase 4](plan.md#fase-4--endpoint-di-ingestione), §8, RF3 e RNF2.
+- **Riferimento:** [plan.md §7 fase 5](plan.md#fase-5--database-sicurezza-e-ingestione), §8, RF3 e RNF2.
 
 ### BE-06 — Definire lettura ultima misura e storico
 
-- [ ] **Stato: dipendenza BE-02–BE-03; lettura reale dopo BE-07.**
+- [x] **Stato: endpoint pubblicato; query SQL e lettura HTTP vuota verificate in BE-07.**
+- **Esito del 22 ottobre 2026:** Endpoint read e RPC preparati: latest coerente, 24h/7g/30g, basi temporali distinte, limite 500, cursore tempo/UUID a finestra fissa, proiezione pubblica e CORS. Test su vuoto, parametri, cursore e campi interni; snapshot concorrente e polling spiegati in docs/backend-schema.md.
 - **Scopo in pratica:** Offrire al sito un modo limitato e prevedibile per leggere ultimi valori e serie temporali.
 - **Input e file coinvolti:** Contratto query in `docs/backend.md`; query/endpoint o adapter browser da introdurre nel percorso coerente con D4, senza aggiungere entrambi i livelli per default.
 - **Come:** definire query pubbliche limitate per ultimi valori e intervalli 24h/7g/30g, con ordinamento e limiti deterministici. Esporre solo campi approvati; nessun endpoint di download pubblico. Separare storico per data e record senza data.
@@ -220,7 +226,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### BE-07 — Applicare e verificare il backend nell'ambiente autorizzato
 
-- [ ] **Stato: richiesta remota necessaria; dipende da SET-04, BE-04–BE-06 e revisione dei file.**
+- [x] **Stato: completato tecnicamente sul contratto v1 nel progetto esistente MeteOlivelli, autorizzato il 22 ottobre 2026.**
+- **Esito:** migrazione `20261022125448`, tabella/RPC e due Edge Function ACTIVE v3; sorgente finale meteolivelli e token custodito in file locale ignorato, senza valori nei log. SQL con rollback e prove HTTPS superate, incluso invio concorrente (una 201/cinque 200) e rifiuto accessi diretti. Tre fixture HTTP rimosse per sorgente/UUID; conteggio finale zero. Verbale e limiti in [docs/backend-verification.md](docs/backend-verification.md). CSV/PC reali, guasti remoti forzati e rate limit non attestati.
 - **Scopo in pratica:** Provare il backend completo sul target reale autorizzato, oltre ai test locali.
 - **Input e file coinvolti:** Migrazione e funzione già revisionabili, target da `docs/services.md`, configurazione protetta e risultati in questo registro; nessun valore segreto nei documenti.
 - **Come:** presentare target/ambiente, migrazione, policy, funzione, configurazione e prove. Solo con richiesta esplicita applicare le modifiche richieste al target verificato, predisporre segreti con modalità protette e usare dati di prova chiaramente separati dalle misure scolastiche.
@@ -230,7 +237,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 **Uscita del blocco backend:** una misura conforme al contratto reale viene accettata una volta, il retry è sicuro, le scritture pubbliche sono respinte e le letture approvate funzionano. Senza BE-07 verificato si può dichiarare completato solo il codice locale pertinente.
 
-## 6. Uploader Windows e acquisizione reale
+## 6. Fase 6 — Uploader Windows e acquisizione reale
 
 ### UP-01 — Integrare la sorgente e l'orario delle nuove righe
 
@@ -240,7 +247,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Come:** implementare lettura incrementale e rilevamento della riga completa/stabile usando le evidenze del writer. Modificare il punto di acquisizione temporale concordato, senza attribuire a vecchie righe l'ora di importazione. Leggere nuove righe senza ricaricare tutto l'archivio.
 - **Risultato:** parser per il CSV reale e metadati di provenienza coerenti. Originale preservato; EOF senza newline e scrittura parziale trattati esplicitamente.
 - **Verifica:** separatori/decimali reali, riga incompleta o malformata, valori ripetuti, reset e righe vecchie iniziali. Fixture sintetiche aggiuntive sempre dichiarate.
-- **Riferimento:** [plan.md §7 fase 5](plan.md#fase-5--uploader-python-per-windows), §8 e D1–D2.
+- **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--uploader-windows-e-acquisizione-reale), §8 e D1–D2.
 
 ### UP-02 — Implementare stato durevole e outbox
 
@@ -270,9 +277,9 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Come:** verificare Python/permessi, clock, rete, proxy, sospensione e file accessibile all'account tecnico; configurare avvio automatico e singola istanza con strumento Windows adatto. Custodire credenziale fuori dal sorgente; solo HTTPS in uscita. Non confondere un PC dedicato con disponibilità continua verificata.
 - **Risultato:** procedura breve `uploader/README.md` per installazione, configurazione senza valori, stop/start, log e aggiornamento; nuova misura realmente inviata anche dopo riavvio secondo modalità concordata.
 - **Verifica:** reboot, avvio senza intervento manuale nel caso richiesto, rete scollegata/ripresa, file occupato e nuova riga fino al DB. Nessuna porta in ingresso. Segnalare eventuale necessità di login rimasta, senza nasconderla.
-- **Riferimento:** [plan.md §7 fase 5](plan.md#fase-5--uploader-python-per-windows), D7, D15 e D24.
+- **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--uploader-windows-e-acquisizione-reale), D7, D15 e D24.
 
-## 7. Previsioni e collegamento al frontend
+## 7. Fase 7 — Previsioni e collegamento al frontend
 
 ### WX-01 — Progettare e valutare il modello locale
 
@@ -310,7 +317,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Responsabilità utente:** concordare il contratto dati UI e sviluppare in parallelo il backend, senza bloccare il compagno in attesa di Supabase.
 - **Output:** file Figma o screenshot/wireframe condiviso con specifiche, note per mobile e checklist QA; se implementato, codice frontend su branch dedicato con PR revisionabile, senza merge/push/deploy automatici non richiesti.
 - **QA minimo:** dati demo permanentemente etichettati; °C/%/hPa; grafici e assi leggibili; responsività; loading/vuoto/errori; stato stazione veritiero; tastiera/contrasto; console priva di errori; build/lint. Non equivale ancora al collaudo su CSV e database reali.
-- **Riferimento:** [plan.md §7, sessione UI 22 ottobre](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e [Fase 6](plan.md#fase-6--interfaccia-e-lettura-dei-dati).
+- **Riferimento:** [plan.md §7, sessione UI 22 ottobre](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e [Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend).
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
@@ -322,7 +329,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Risultato:** caricamento, archivio vuoto, periodo vuoto, campo assente, anomalia, dati obsoleti, orario sconosciuto ed errore rete hanno messaggi italiani distinti. Nessun account, download o profilazione.
 - **Motion da implementare:** seguire le note Figma: pannelli sotto la piega al primo ingresso (circa 10% visibile), fade/translateY 8→0 px in 220 ms ease-out, stagger fra schede 40 ms fino a 120 ms. Nessun ritardo dello scroll; prima schermata subito leggibile e niente attese con movimento ridotto. Proposta per la SPA: messaggio statico `noscript`, nessuna dashboard live promessa senza JavaScript; con JS attivo un errore dell’animazione non nasconde i contenuti.
 - **Verifica:** tastiera/focus, contrasto, zoom, riduzione animazioni e riepilogo accessibile dei grafici; nessuna misura inventata o zero sostitutivo. Con pochi dati mostrare quelli esistenti, senza completare 30 giorni artificialmente.
-- **Riferimento:** [plan.md §7 fase 6](plan.md#fase-6--interfaccia-e-lettura-dei-dati), §8, RF1–RF2 e RNF3.
+- **Riferimento:** [plan.md §7 fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), §8, RF1–RF2 e RNF3.
 
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
 
@@ -334,7 +341,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Verifica:** due browser aperti, inserimento nuovo, retry, offline e riconnessione; soglia appena prima/al/dopo il limite; arrivo di storico vecchio che non fa risultare la stazione aggiornata. Se l'ora misura è ignota, freschezza dichiarata sconosciuta.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF8, D8 e D24.
 
-## 8. Backup, gestione e rilascio
+## 8. Fase 8 — Backup, gestione e rilascio
 
 ### OPS-01 — Scegliere e provare il backup indipendente
 
@@ -374,7 +381,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Come:** presentare versione revisionabile, target Vercel/Supabase, variabili per scopo senza valori, risultati delle verifiche, limitazioni e recupero. Solo nell'ambito della richiesta esplicita pubblicare/applicare le configurazioni necessarie, senza commit o push automatici.
 - **Risultato:** sito di produzione corrispondente alla versione verificata; breve elenco per l'utente di accessi tecnici, comandi essenziali e limiti.
 - **Verifica:** da produzione leggere dati reali, vedere l'aggiornamento senza reload e i tre orizzonti previsionali, verificare assenza di scritture pubbliche, controllare crediti e disponibilità dei backup. La scadenza ravvicinata non elimina i controlli critici.
-- **Riferimento:** [plan.md §7 fase 8](plan.md#fase-8--rilascio-ed-esercizio-del-sito-per-scuolaopen-day), §15 e D18.
+- **Riferimento:** [plan.md §7 fase 8](plan.md#fase-8--backup-gestione-e-rilascio), §15 e D18.
 
 ### END-01 — Gestire la possibile chiusura a dicembre
 
@@ -390,10 +397,10 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 1. **Setup locale completato:** SET-01–SET-03; inventario iniziale SET-04 completato in sola lettura. Non ripetere installazione o verifiche già superate senza nuove modifiche o problemi.
 2. **Controlli locali pronti:** BE-01 completo sul contratto v1; DATA-02/DATA-03 documentati e testati come regole pure. Per i servizi usare l'inventario SET-04 e ricontrollare soltanto quanto cambia o resta pertinente da chiarire.
-3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, poi BE-02–BE-07 e UP-01–UP-04. WX-01 e struttura UI possono progredire separatamente.
+3. **Appena disponibile il PC/campione:** chiudere DATA-01–DATA-03, riallineare i file backend se necessario; UP-01–UP-04 restano da realizzare/provare; ripetere solo le verifiche backend interessate da eventuali cambi al contratto. WX-01 e struttura UI possono progredire separatamente.
 4. **Prima del rilascio:** previsioni, aggiornamento live, backup e prova completa, poi pubblicazione richiesta. Nessun task remoto viene anticipato dalla sola approvazione di questa checklist.
 
-Il controllo dati locale v1 è pronto. Il prossimo passo è verificare DATA-01–DATA-03 sul CSV/writer quando disponibili, aggiornare eventuali differenze e procedere con schema/accessi. Ordine/unità dichiarati non provano separatore, decimali o tempi reali. Backup e canale avvisi restano da concretizzare; WX-01 attende dati idonei, senza provider esterno.
+La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scelto; verificare DATA-01–DATA-03 sul CSV/writer quando disponibili e aggiornare eventuali differenze. Ordine/unità dichiarati non provano separatore, decimali o tempi reali. Backup e canale avvisi restano da concretizzare; WX-01 attende dati idonei, senza provider esterno.
 
 ## 10. Registro esecuzioni
 
@@ -411,11 +418,15 @@ Il controllo dati locale v1 è pronto. Il prossimo passo è verificare DATA-01�
 | 22 ottobre 2026 | UI-00 (Obsidian v5) | Sfondo uniforme quasi nero e superfici satinate rifinite; verifica strutturale e visiva desktop/mobile | Solo Figma e documentazione; nessuna verifica runtime necessaria |
 | 22 ottobre 2026 | Revisione criticità | Recepite risposte 1–20, scelte delegate e proposte 21–36; aggiornati timestamp, retention, modello locale e dipendenze UI; corrette incoerenze documentali | Solo documentazione; nessun task applicativo spuntato, nessuna implementazione o modifica remota |
 | 22 ottobre 2026 | Approvazione soluzioni | L’utente approva il riepilogo abbreviato problema/soluzione; registrati orientamenti concordati in plan.md §18 | Input e dettagli tecnici residui aperti; nessun task applicativo completato da questa conferma |
-| 22 ottobre 2026 | Fase 2: DATA-01–DATA-03 parziali, BE-01 locale | Ordine/unità dichiarati dall'utente; contratto v1, validazione/qualità/confronto canonico e 14 test dedicati; `npm run check` superato in copia senza `.env`, 17 test totali. Rilevamento ricorsivo check/lint/test provato con errori deliberati solo nella copia | CSV/writer/clock non osservati; nessun parser definitivo, endpoint, persistenza, migrazione o servizio remoto modificato |
+| 22 ottobre 2026 | Controlli dati (precedente Fase 2, oggi 4): DATA-01–DATA-03 parziali, BE-01 locale | Ordine/unità dichiarati dall'utente; contratto v1, validazione/qualità/confronto canonico e 14 test dedicati; `npm run check` superato in copia senza `.env`, 17 test totali. Rilevamento ricorsivo check/lint/test provato con errori deliberati solo nella copia | CSV/writer/clock non osservati; nessun parser definitivo, endpoint, persistenza, migrazione o servizio remoto modificato |
 | 22 ottobre 2026 | Sezione 4: adattatore CSV e completamento locale contratto | Confermato ambito DATA-01–DATA-03/BE-01; formato “standard” resta ipotesi dell'utente. Parser provvisorio a dialetto obbligatorio con originale, errori strutturati e 10 test aggiunti; `npm run check` superato su copia senza `.env`, 27 test totali | Dialetto effettivo, writer, encoding, righe parziali e clock ancora da osservare. Nessun endpoint o modifica remota; stati DATA non chiusi senza prova reale |
 | 22 ottobre 2026 | Verifica prima di commit/push richiesti | Rieseguito `npm run check` in copia senza `.env`: lint/build frontend, typecheck/lint/formato backend e 27 test superati; `git diff --check` senza errori. Remoto verificato: `pgiudici13/MeteOlivelli`, branch corrente `main` | Dati di test sintetici; nessuna prova con CSV/PC reali, endpoint o DB. Commit e push autorizzati esplicitamente; nessuna migrazione o modifica Supabase/Vercel richiesta |
 | 22 ottobre 2026 | UI-01 parziale: pagina provvisoria | Pagina italiana “Work in progress” senza dati; descrizione breve, metadati, favicon e `noscript`. `npm run check` superato in copia senza `.env`: build/lint frontend e controlli backend con 27 test. Anteprima della build verificata visivamente a 580 px | Nessuna suite frontend dedicata; verifica completa di breakpoint/zoom e dashboard ancora da fare. Commit/push richiesti; nessun deploy manuale o modifica alla configurazione dei servizi |
+| 22 ottobre 2026 | Fase 5: BE-02–BE-06 locali | Schema/accessi revisionati, migrazione creata tramite CLI e prove SQL preparate; handler ingest/read e adapter RPC senza nuove dipendenze. `npm run check` superato in copia senza .env: build/lint frontend, check/lint/formato backend e 39 test sintetici. Numerazione plan/tasks sincronizzata, convenzione in AGENTS.md, COR-003 risolto | BE-07 aperto: nessun SQL eseguito, DB o runtime remoto verificato. Concorrenza e privilegi reali da provare nel target separato autorizzato. Nessun commit/push/deploy o segreto reale letto |
+| 22 ottobre 2026 | BE-07: applicazione al progetto esistente autorizzato | Target verificato pvtzncseisbxaaseqfvo; migrazione 20261022125448 applicata; ingest/read ACTIVE v3. SQL/permessi con rollback e prove HTTP reali superati, sei invii concorrenti senza duplicati, accessi diretti negati. Volume sintetico 8.760 righe annullato; fixture HTTP rimosse, zero eventi finali. Verbale in docs/backend-verification.md | Contratto v1, CSV/clock/Windows reali ancora da convalidare; endpoint read provato vuoto, letture positive via RPC. Rate limit e guasti remoti forzati non attestati. Nessun commit/push o modifica frontend/Vercel |
+| 22 ottobre 2026 | Commit/push completo richiesto | Rieseguito npm run check in copia senza .env: build/lint frontend, check/lint/formato backend e 39 test superati. git diff --check senza errori; remoto pgiudici13/MeteOlivelli, branch main verificati | File credenziali ignorati; nessun segreto incluso. Commit/push autorizzati esplicitamente dall’utente |
+
 
 Verifica aggregata del setup: `npm run check` superato su copia senza `.env` con exit code 0 (lint/build frontend, check/lint backend, 3 test backend). Nessuna prova contro database o CSV reale.
 
-Completati SET-00–SET-04 e BE-01 sul contratto locale v1: 6 attività su 29; 23 restano non completate, incluse DATA-01–DATA-03, UI-00 e UI-01 parziali. La Fase 2 attende la verifica del campione reale per la chiusura operativa. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+Completati SET-00–SET-04 e BE-01–BE-07 sul contratto v1: 12 attività su 29; 17 restano non completate, incluse DATA-01–DATA-03, UI-00 e UI-01 parziali. La Fase 4 attende il campione reale; la Fase 5 è verificata sul contratto v1, senza dichiarare pronta la catena fisica o il rilascio complessivo. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.

@@ -27,3 +27,7 @@ dist-ssr
 .env*
 !.env.example
 .vercel/
+
+# Cache locale della CLI Supabase
+supabase/.temp/
+supabase/.branches/

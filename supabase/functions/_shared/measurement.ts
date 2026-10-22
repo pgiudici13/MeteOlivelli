@@ -61,6 +61,8 @@ function normalizeTimestamp(value: unknown): string | null | undefined {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(value)) {
     return undefined
   }
+  // PostgreSQL non ammette l'anno zero: rifiutarlo prima della persistenza.
+  if (value.startsWith('0000-')) return undefined
   const milliseconds = Date.parse(value)
   if (!Number.isFinite(milliseconds)) return undefined
   const normalized = new Date(milliseconds).toISOString()

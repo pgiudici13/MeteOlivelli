@@ -9,8 +9,10 @@ descrizione del progetto, senza misurazioni o grafici dimostrativi. Include layo
 responsive, metadati e un messaggio leggibile anche senza JavaScript.
 Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
-ma non esistono ancora endpoint di ingestione, schema applicativo,
-uploader o collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
+gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.
+Database, RPC ed endpoint sono applicati e verificati nel progetto Supabase
+MeteOlivelli scelto dall’utente (BE-07); mancano uploader
+e collegamento ai dati della stazione. Le previsioni non sono ancora integrate.
 
 Chiarimento del 22 ottobre: CSV e misure devono restare conservati; 24h/7g/30g sono
 filtri dei grafici. Per le nuove righe il programma Windows aggiungerà data e ora
@@ -63,14 +65,18 @@ o connessioni a un database. Il server di sviluppo non avvia né configura Supab
 | Eventuale file ambiente server locale | Solo backend, escluso da Git | Valori necessari alle prove autorizzate, mai copiati nel client |
 
 Le convenzioni introdotte sono `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
-per il futuro client, `SUPABASE_URL` e `STATION_INGEST_TOKEN` per il futuro endpoint.
+per il futuro client; `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STATION_SOURCE_ID`
+e `STATION_INGEST_TOKEN` per gli endpoint server.
 Gli esempi non attestano quali variabili siano già presenti in `.env.local`.
-Il codice attuale non usa ancora queste variabili per collegarsi ai servizi.
+Gli entrypoint Edge richiedono le variabili server all’avvio; i test usano store
+simulati e il frontend rimane senza collegamento. Configurazione server e prove remote eseguite in BE-07;
+[verbale e limiti](docs/backend-verification.md).
 
 Il prefisso `VITE_` rende una variabile adatta all'esposizione nel browser: non usarlo
 per segreti. Il token uploader deve restare sul PC autorizzato e sul server; una
 chiave DB privilegiata non va né nel browser né nell'uploader. La credenziale DB
-server sarà scelta nel task BE-03, non in questo setup.
+server scelta è service_role, custodita esclusivamente nel runtime Edge;
+[matrice accessi e limiti](docs/backend-schema.md).
 
 Non è necessario creare o copiare file `.env` per eseguire i test attuali. Non
 stampare questi file o i relativi valori per diagnosticare la configurazione.
@@ -87,12 +93,15 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
-I 27 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
+I 39 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
 numeri, qualità, UTC, storico e confronto canonico dei retry, 10 sull'adattatore CSV
-provvisorio con dialetto obbligatorio. Ordine/unità dichiarati
+provvisorio con dialetto obbligatorio e 12 su handler HTTP, conferme, errori, query
+e adapter RPC simulato. Ordine/unità dichiarati
 dall'utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa.
-Il campione CSV/writer reale resta da verificare; nessuna prova di ingestione,
-RLS, database o servizi remoti. Il frontend non ha ancora una suite di test dedicata.
+Il campione CSV/writer reale resta da verificare. Le prove BE-07 sul progetto scelto verificano
+RPC, privilegi/RLS e ingestione HTTP sintetica concorrente; fixture rimosse.
+Resta da provare l’acquisizione reale da CSV/Windows. Le prove SQL in `supabase/tests/`
+richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno. Il frontend non ha ancora una suite di test dedicata.
 Contratto e limiti in [docs/backend.md](docs/backend.md).
 
 ## Struttura essenziale
@@ -108,6 +117,10 @@ supabase/functions/           Moduli TypeScript per il backend Deno
   _shared/measurement_test.ts Test sintetici sui controlli dati
   _shared/measurement_csv.ts  Adattatore CSV provvisorio con dialetto esplicito
   _shared/measurement_csv_test.ts Test sintetici del parser CSV
+supabase/migrations/          Migrazione applicata in BE-07
+supabase/tests/               Prove SQL con rollback e protocollo concorrenza
+docs/backend-schema.md        Schema, accessi e lettura
+docs/backend-verification.md  Target, prove live, recupero e limiti BE-07
 docs/backend.md               Contratto dati, runtime e limiti delle verifiche
 docs/services.md              Inventario servizi in sola lettura e quote consultate
 plan.md                       Requisiti e decisioni

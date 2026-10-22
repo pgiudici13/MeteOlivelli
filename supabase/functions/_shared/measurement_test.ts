@@ -178,6 +178,7 @@ Deno.test('timestamp rigorosi: calendario, bisestili, offset assenti e ore local
         '2026-10-22',
         '2026-10-25T02:30:00',
         '2026-03-29T02:30:00',
+        '0000-01-01T00:00:00Z',
         '2026-10-22T08:00:00+02:00',
         '2026-10-22T08:00:00.1234Z',
       ]

@@ -1,0 +1,8 @@
+# Configurazione versionata, allineata al deploy BE-07 autorizzato.
+project_id = "meteolivelli"
+
+[functions.ingest-measurement]
+verify_jwt = false
+
+[functions.read-measurements]
+verify_jwt = false

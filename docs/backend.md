@@ -4,7 +4,12 @@
 
 Il backend previsto è una Supabase Edge Function TypeScript per ricevere eventi
 dall'uploader Windows. Sono pronti runtime, configurazione e validazione pura del
-contratto locale v1; non è ancora presente un endpoint HTTP o un database applicativo.
+contratto locale v1. Migrazione, database/RPC e handler HTTP ingest/read sono
+ora applicati e verificati nel progetto Supabase MeteOlivelli scelto dall’utente.
+[Verbale BE-07](backend-verification.md): prove sintetiche SQL/HTTPS, fixture rimosse;
+CSV, clock, writer e PC reali ancora da convalidare.
+
+Schema, matrice accessi, letture, applicazione e limiti: [backend-schema.md](backend-schema.md).
 
 Sono presenti:
 
@@ -14,7 +19,7 @@ Sono presenti:
   mancante senza includere valori nell'errore;
 - `_shared/measurement.ts`, con parsing JSON, validazione, flag per campo e confronto canonico;
 - `_shared/measurement_csv.ts`, adattatore provvisorio di una riga completa, senza dialetto predefinito;
-- 27 test con valori sintetici (3 configurazione, 14 controllo dati, 10 CSV), senza permessi su ambiente, rete o file applicativi;
+- 39 test con valori sintetici (3 configurazione, 14 controllo dati, 10 CSV, 12 HTTP/adapter), senza permessi su ambiente, rete o file applicativi;
 - esempi di configurazione vuoti, distinti per browser e server.
 
 Importare `config.ts` non legge variabili ambiente o file: il chiamante deve passare
@@ -35,8 +40,9 @@ servire le funzioni è un ambiente distinto: i test qui non sostituiscono la pro
 della funzione nell'ambiente effettivo. [Fonte ufficiale Supabase](https://supabase.com/docs/guides/functions/development-environment).
 
 Non sono stati installati Docker, un database locale o servizi aggiuntivi.
-Non esistono ancora `supabase/config.toml`, migrazioni o cartella dell'endpoint:
-verranno creati quando servono, dopo progettazione e verifica dei comandi supportati.
+`supabase/config.toml`, cartelle ingest/read, migrazione e prove SQL sono presenti.
+La migrazione è applicata e le funzioni pubblicate in BE-07; i controlli Deno
+continuano a non eseguire SQL o collegarsi al servizio.
 
 ## Comandi, dalla root del repository
 
@@ -70,16 +76,19 @@ aggiunta a `.env.local`.
 | `VITE_SUPABASE_URL` | Futuro browser | Pubblico; nessun client collegato oggi |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Futuro browser | Solo chiave pubblicabile; non fornisce da sola protezione dei dati |
 | `SUPABASE_URL` | Futuro backend | URL server; fornito dal runtime in produzione |
-| `STATION_INGEST_TOKEN` | Futuro endpoint e uploader | Segreto applicativo da generare/configurare nel task pertinente, oggi assente negli esempi |
+| `STATION_INGEST_TOKEN` | Endpoint e futuro uploader | Token dedicato, almeno 32 caratteri; esempio vuoto |
+| `STATION_SOURCE_ID` | Endpoint server | Sorgente associata al token; esempio vuoto |
+| `SUPABASE_SERVICE_ROLE_KEY` | Solo runtime Edge | Credenziale DB privilegiata; mai browser/uploader; esempio vuoto |
 
 Questi sono nomi definiti per il progetto; non descrivono il contenuto dei file
 locali o delle configurazioni remote, che non è stato letto. `SUPABASE_URL` è una
 variabile predefinita del runtime: [documentazione ufficiale](https://supabase.com/docs/guides/functions/secrets).
 
-Non viene scelta ora una chiave DB privilegiata: ruoli e permessi saranno progettati
-in BE-03. Eventuali segreti server non vanno nel file frontend, nel browser, nei
-messaggi di errore o nell'uploader come credenziali di accesso diretto al DB.
-La generazione e la rotazione del token sono attività successive, non già eseguite.
+BE-03 sceglie la credenziale service_role fornita dal runtime solo sul server,
+con grant espliciti e RPC invoker; poteri e limiti sono documentati nella matrice
+[backend-schema.md](backend-schema.md). Non è stato letto o generato alcun segreto.
+Sorgente e token sono stati configurati tramite un canale protetto in BE-07; una
+configurazione incompleta restituisce 503. Gli handler non registrano credenziali.
 
 ## Cosa serve prima dell'ingestione
 
@@ -91,8 +100,8 @@ La generazione e la rotazione del token sono attività successive, non già eseg
 6. **BE-05–BE-07:** handler, lettura e applicazione richiesta nel target verificato, con prove reali.
 
 Il contatore Arduino non è una data o un'identità evento sufficiente. Un evento
-ritentato deve conservare ID e primo `received_at`. La persistenza di queste regole
-resta da implementare in uploader ed endpoint; il validatore non salva eventi.
+ritentato deve conservare ID e primo `received_at`. La persistenza di queste regole è implementata nei file SQL e
+verificata nel DB reale in BE-07; resta da realizzare/provare l’outbox nell’uploader. Il validatore non salva eventi.
 
 Le scelte delegate del 22 ottobre sono in [plan.md §18](../plan.md#18-revisione-delle-criticità-e-scelte-delegate--22-ottobre-2026):
 `captured_at` completo nell’evento quando viene osservata una nuova riga completa,
@@ -216,7 +225,7 @@ Tutti i campi sono obbligatori; `null` esplicito è ammesso dove indicato.
 | `measured_at` | UTC completo solo con fonte attendibile indipendente; altrimenti `null`. Per il formato CSV attualmente dichiarato resta `null` |
 
 Istanti accettati: `YYYY-MM-DDTHH:mm:ss[.SSS]Z`, frazione da 1 a 3 cifre facoltativa;
-normalizzazione esplicita a tre cifre. Date impossibili, rollover, secondi intercalari,
+normalizzazione esplicita a tre cifre, anni 0001–9999 (nessun anno zero nel DB). Date impossibili, rollover, secondi intercalari,
 offset, date senza ora e ore locali senza fuso sono rifiutati. L'uploader deve
 convertire in UTC con una provenienza attendibile, senza indovinare orari ambigui
 Europe/Rome durante il cambio d'ora. Nessun confronto con l'ora corrente nel modulo
@@ -274,7 +283,7 @@ L'ID, la generazione del file, la posizione e il payload congelato saranno persi
 insieme nell'outbox. Dopo perdita del registro identità fermare il reimport automatico
 e riconciliare: un nuovo UUID per ogni replay non garantisce unicità.
 
-Specifica per BE-05, **non endpoint implementato**: POST HTTPS con token dedicato
+Contratto BE-05 implementato e verificato tramite HTTPS/DB in BE-07, **sul payload v1 ancora da convalidare sul CSV reale**: POST HTTPS con token dedicato
 alla sorgente, un evento e limite corpo di 16 KiB; controllare autenticazione,
 sorgente e limite prima della scrittura. Nessuna chiave DB sul PC o nel browser.
 
@@ -286,11 +295,16 @@ sorgente e limite prima della scrittura. Nessuna chiave DB sul PC o nel browser.
 | 422 / `invalid_measurement` | `issues` del validatore; quarantena durevole, nessuno scarto silenzioso |
 | 401 / `unauthorized` | Token assente/errato; sospendere e segnalare |
 | 403 / `source_mismatch` | Sorgente non autorizzata dal token; sospendere e segnalare |
+| 415 / `unsupported_media_type` | Content-Type diverso da application/json; correggere il client |
+| 408 / `body_timeout` | Corpo non completato entro 5 s; retry dello stesso evento |
+| 400 / `invalid_encoding` | UTF-8 invalido; quarantena e diagnosi |
 | 405 / `method_not_allowed` | Metodo diverso da POST; correggere configurazione |
 | 413 / `payload_too_large` | Superato limite; quarantena e diagnosi |
 | 409 / `event_conflict` | Stesso ID, contenuto differente; conservare entrambi per diagnosi, nessuna sovrascrittura |
-| 429 / `rate_limited` | Retry con `Retry-After` se presente; limiti operativi da provare in BE-05 |
+| 429 / `rate_limited` | Eventuale risposta della piattaforma: retry con `Retry-After` se presente; l’handler non implementa un rate limit distribuito e le soglie non sono misurate |
 | 5xx / `temporarily_unavailable` o timeout | Retry con backoff/jitter e stesso evento; mancata risposta non prova mancato commit |
 
-Le prove locali verificano trasformazioni e confronto, non commit concorrenti,
-autenticazione, unicità DB o riconciliazione. Questi restano BE-05/BE-07/UP-02/UP-03.
+Le prove locali verificano trasformazioni, confronto e handler con store simulato,
+autenticazione e conferme HTTP. Le prove BE-07 aggiungono privilegi/RLS,
+unicità e invii HTTP concorrenti nel DB reale. La riconciliazione dell’outbox e
+la catena fisica rimangono UP-02/UP-03; i dettagli sono nel verbale BE-07.

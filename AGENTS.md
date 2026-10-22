@@ -2,6 +2,7 @@
 
 - Conservare React, TypeScript, Vite, ESLint e npm; non ricreare il progetto o cambiare stack senza richiesta esplicita. Mantenere soluzioni semplici e proporzionate.
 - Prima di modificare, leggere i file interessati, le istruzioni applicabili e `git status`. Preservare modifiche locali e file non tracciati; non sovrascrivere il lavoro presente.
+- “Fase N” indica sempre il blocco N di `tasks.md`; mantenere numerazione, rimandi e stato sincronizzati con `plan.md`.
 - Consultare `plan.md` per stato, requisiti, ipotesi e decisioni; usare `tasks.md` per ordine operativo, dipendenze e verifiche, aggiornando gli esiti quando si completa un’attività. Non trattare una proposta documentata come autorizzazione a implementarla. `plan.md` è l’unica roadmap: il duplicato `piano.md` è stato rimosso su richiesta dell’utente; non ricrearlo.
 - Distinguere fatti verificati, informazioni dell'utente, ipotesi e decisioni. Non assumere formato, unità, timestamp o modalità di scrittura del CSV senza un campione reale.
 - Non presentare misurazioni inventate come dati della stazione. I dati dimostrativi devono essere chiaramente e permanentemente etichettati. Distinguere le previsioni dalle osservazioni della stazione, indicando fonte e validità; non inventare previsioni dai valori dei sensori.

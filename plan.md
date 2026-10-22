@@ -1,17 +1,17 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** pagina iniziale “Work in progress” senza dati e controllo dati locale v1 implementati su richiesta del 22 ottobre 2026; dashboard e conferma del contratto sul CSV/writer reale ancora aperte.
+> **Stato:** Fase 5 di tasks.md completata tecnicamente sul contratto v1; BE-07 applicato e verificato nel progetto MeteOlivelli esistente scelto dall’utente. Pagina “Work in progress” senza dati; CSV reale e dashboard ancora aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo pagina iniziale provvisoria senza dati.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo backend locale e sincronizzazione delle fasi.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito corrente:** setup SET-00–SET-04, validazione pura BE-01 e adattatore CSV provvisorio configurabile realizzati. Ordine/unità forniti dall’utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa. Nessun endpoint, parser CSV definitivo, migrazione o intervento su Supabase/Vercel. Commit e push dei file locali richiesti esplicitamente dall'utente dopo i controlli.
+> **Ambito corrente:** richiesta di eseguire il blocco 5 di tasks.md: schema/accessi, migrazione preparata, ingestione e lettura locali sul contratto v1. Successiva scelta esplicita del progetto esistente: migrazione e due Edge Function applicate e verificate in BE-07. Nessun commit/push o intervento frontend/Vercel in questa attività.
 
 > **Decisioni correnti:** le risposte del 22 ottobre e le scelte tecniche delegate sono raccolte nella sezione 18. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, non è più prevista l’integrazione di un provider meteo esterno.
 
 ## Come leggere e mantenere il piano
 
 - **Fatto verificato (F):** dimostrato nell'ispezione locale, con fonte nella sezione 4. Una verifica locale non dimostra lo stato dei servizi remoti.
-- **Informazione dell'utente (U):** vincolo o richiesta esplicita nella conversazione attuale. Include i tre documenti richiesti, la tutela del lavoro locale e dei segreti, il divieto iniziale di implementazione nella fase documentale e quello di modifiche remote non richieste. In seguito l’utente ha autorizzato il setup locale e, il 22 ottobre, la Fase 2 dei controlli dati.
+- **Informazione dell'utente (U):** vincolo o richiesta esplicita nella conversazione attuale. Include i tre documenti richiesti, la tutela del lavoro locale e dei segreti, il divieto iniziale di implementazione nella fase documentale e quello di modifiche remote non richieste. In seguito l’utente ha autorizzato il setup locale e, il 22 ottobre, la fase dei controlli dati (oggi blocco 4).
 - **Contesto ereditato (C):** affermazione contenuta in `piano.md`, senza prova indipendente disponibile in questa attività. Va confermata dall'utente o da evidenze; non viene attribuita automaticamente a una sua dichiarazione diretta.
 - **Ipotesi/proposta (I):** soluzione da valutare. Tutta l'architettura candidata e i nomi dei campi da progettare appartengono a questa categoria.
 - **Decisione (D):** scelta registrata con stato, esito, fonte e dipendenze; quelle aperte devono essere chiuse prima della fase dipendente. Il registro, con stato ed esiti, è nella sezione 11.
@@ -20,7 +20,9 @@ Gli obiettivi e i comportamenti delle sezioni successive sono requisiti del pian
 
 `plan.md` è l’unica roadmap, come richiesto dall’utente in Q35. `piano.md` è stato rimosso dopo integrazione: i riferimenti al suo contenuto qui sotto sono storici e non collegamenti a un file ancora presente. `AGENTS.md` contiene le regole operative stabili; `CORRECTIONS.md` contiene esclusivamente problemi confermati o segnalati.
 
-La checklist esecutiva è [tasks.md](tasks.md): traduce questo piano in attività ordinate, dipendenze, istruzioni e criteri di completamento. Non sostituisce requisiti e decisioni di questo documento. Il 21 ottobre 2026 l’utente ha prima richiesto la checklist e poi l’esecuzione del setup generale. SET-00–SET-04 sono ora completati, con esiti e limiti registrati; il backend applicativo resta da realizzare.
+**Numerazione concordata (U, 22 ottobre 2026):** quando l’utente dice “Fase”, intende sempre il blocco numerato di tasks.md. Le fasi operative sotto usano gli stessi numeri 3–8; i blocchi 1–2 sono istruzioni e perimetro, non implementazione. Mantenere sincronizzati numeri, rimandi e stato. Le vecchie diciture Fase 0–2 nei resoconti storici indicano la numerazione precedente.
+
+La checklist esecutiva è [tasks.md](tasks.md): traduce questo piano in attività ordinate, dipendenze, istruzioni e criteri di completamento. Non sostituisce requisiti e decisioni di questo documento. Il 21 ottobre 2026 l’utente ha prima richiesto la checklist e poi l’esecuzione del setup generale. SET-00–SET-04 sono ora completati, con esiti e limiti registrati; il backend locale successivo è descritto nell’aggiornamento Fase 5 sotto.
 
 ## 1. Scopo
 
@@ -137,11 +139,25 @@ La tabella precedente resta la baseline storica: questi fatti la aggiornano dove
 
 ### Aggiornamento controllo dati — 22 ottobre 2026
 
-- **U:** richiesta di eseguire la Fase 2 dei controlli dati; ordine dei quattro campi dichiarato: secondi dall'accensione Arduino, temperatura °C, umidità %, pressione hPa. Nessun timestamp assoluto dichiarato nel CSV.
+- **U:** richiesta di eseguire la fase dei controlli dati (oggi blocco 4); ordine dei quattro campi dichiarato: secondi dall'accensione Arduino, temperatura °C, umidità %, pressione hPa. Nessun timestamp assoluto dichiarato nel CSV.
 - **F:** `_shared/measurement.ts` implementa parsing JSON, validazione del contratto locale v1, qualità per campo e contenuto canonico. `_shared/measurement_csv.ts` aggiunge un adattatore provvisorio con dialetto obbligatorio e riga originale restituita anche negli errori. Check/lint/test Deno ricorsivi; 27 test sintetici superati (3 configurazione, 14 dati, 10 CSV). Build/lint e controlli backend superati su copia senza `.env`.
-- **U, successivo chiarimento:** richiesta di completare la sezione 4 di `tasks.md`, non l'endpoint della Fase 4 del piano. Separatore, decimali, intestazione e writer non conosciuti; l'utente ipotizza un formato “standard”. Questa ipotesi non fissa un dialetto: nessun valore predefinito di produzione o rilevamento automatico del separatore.
+- **U, successivo chiarimento:** richiesta di completare la sezione 4 di `tasks.md`, non l'endpoint della precedente Fase 4 del piano (oggi blocco 5). Separatore, decimali, intestazione e writer non conosciuti; l'utente ipotizza un formato “standard”. Questa ipotesi non fissa un dialetto: nessun valore predefinito di produzione o rilevamento automatico del separatore.
 - **D tecnica locale:** campi JSON con unità nel nome, ID UUID v4 e sorgente, null espliciti, istanti UTC normalizzati; storico senza ora PC inventata, valori sospetti conservati e segnalati. Contratto e risposte future documentati in [docs/backend.md](docs/backend.md#contratto-json-locale-v1--data-02data-03be-01).
 - **Limite:** DATA-01 e verifica operativa DATA-02/DATA-03 restano aperti: nessun CSV reale/writer/clock osservato, nessuna prova di endpoint, persistenza, reset hardware o deduplicazione nel DB. Le regole sui retry sono testate solo come trasformazioni pure.
+
+### Preparazione locale Fase 5 — 22 ottobre 2026 (prima di BE-07)
+
+- **U:** “Fase 5” indica il blocco Database, sicurezza e ingestione di tasks.md; richiesta di sincronizzare i due documenti e ricordare questa convenzione.
+- **F locale:** tabella/RPC, grant/RLS e indici progettati; migrazione creata con CLI, non applicata. Handler ingest/read e adapter PostgREST senza nuove dipendenze. 39 test sintetici superati, inclusi 12 HTTP/adapter; SQL e concorrenza reale non eseguiti.
+- **D:** payload immutabile; chiave (sorgente, UUID); service_role solo server con SELECT/INSERT sulla tabella, RPC invoker e accesso diretto visitatori revocato. Serie captured_at/measured_at distinte, paginazione a finestra fissa; limiti di concorrenza documentati in docs/backend-schema.md.
+- **Aperto:** BE-07, CSV/writer reale, rate limit/runtime e prova DB separata. Nessuna risorsa remota, migrazione applicata o credenziale reale letta.
+
+### Aggiornamento applicazione BE-07 — 22 ottobre 2026
+
+- **U:** alla scelta dell’ambiente l’utente risponde “Progetto Supabase MeteOlivelli esistente”, autorizzando l’applicazione e le prove del backend preparato sul target verificato.
+- **F:** progetto pvtzncseisbxaaseqfvo inizialmente privo di oggetti applicativi; migrazione 20261022125448 applicata, tabella e RPC con RLS/grant verificati, ingest/read ACTIVE v3. Sorgente definitiva meteolivelli e token configurati senza pubblicare segreti.
+- **F:** test SQL con rollback e HTTPS reali passano; sei invii concorrenti producono un solo inserimento. Fixture sintetiche separate dalle misure e rimosse; conteggio finale zero. Nessun avviso performance; solo INFO RLS senza policy, previsto dalla negazione dell’accesso diretto. Verbale in docs/backend-verification.md.
+- **Limite:** contratto v1 ancora da confermare sul CSV/PC reale. Letture HTTP nello stato vuoto, letture positive via RPC; rate limit distribuito e guasti remoti forzati non provati. Nessuna modifica frontend, Git o Vercel.
 
 ### Informazioni dell’utente dopo la revisione Q1–Q35 (U)
 
@@ -309,7 +325,11 @@ UI proposta: “Misure della stazione” e “Stime sperimentali MeteOlivelli”
 
 Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in uno stato comprensibile e verificabile. Le fasi con decisioni esterne sono punti di revisione: non proseguire assumendo le risposte mancanti.
 
-### Fase 0 — Revisione iniziale e baseline
+### Fase 3 — Mini setup generale
+
+Corrisponde a SET-00–SET-04 di tasks.md. Include baseline e decisioni iniziali.
+
+#### Revisione iniziale e baseline
 
 **Attività**
 
@@ -324,7 +344,7 @@ Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in u
 - Stato iniziale documentato, modifiche preesistenti conservate, nessun segreto divulgato.
 - Problemi preesistenti separati dai problemi introdotti successivamente.
 
-### Fase 1 — Specifica funzionale e decisioni minime
+#### Specifica funzionale e decisioni minime
 
 **Attività**
 
@@ -339,14 +359,14 @@ Le fasi sono ordinate per dipendenza. Ogni fase deve lasciare il repository in u
 - Decisioni minime registrate in questo piano o in una specifica collegata.
 - Nessuna migrazione o chiave creata in questa fase.
 
-### Fase 2 — Contratto di acquisizione e campione CSV
+### Fase 4 — Contratto dati e prima logica backend
 
 **Avanzamento al 22 ottobre 2026:** ordine e unità dichiarati dall'utente;
 contratto JSON locale v1 e controlli BE-01 implementati con 14 test dedicati;
 adattatore CSV provvisorio configurabile con altri 10 test sintetici.
 Specifiche temporali e risposte dell'handler in [docs/backend.md](docs/backend.md).
 Campione reale e verifica del writer ancora necessari per la chiusura operativa;
-nessun parser CSV definitivo o endpoint implementato.
+nessun parser CSV definitivo; gli endpoint locali successivi sono nella Fase 5.
 
 **Input richiesti**
 
@@ -366,7 +386,13 @@ nessun parser CSV definitivo o endpoint implementato.
 - Contratto CSV/payload con esempi verificati e casi limite.
 - Nessun parser dichiarato definitivo prima di questa verifica.
 
-### Fase 3 — Progettazione schema, accessi e retention
+### Fase 5 — Database, sicurezza e ingestione
+
+BE-02–BE-07 completati tecnicamente sul contratto v1; specifica e matrice accessi in
+[docs/backend-schema.md](docs/backend-schema.md), migrazione e prove SQL preparate.
+BE-07 applicato e verificato nel progetto esistente scelto: [verbale](docs/backend-verification.md). CSV/PC reali restano aperti nella Fase 4/6.
+
+#### Progettazione schema, accessi e retention
 
 **Attività**
 
@@ -384,7 +410,7 @@ nessun parser CSV definitivo o endpoint implementato.
 - Schema e modello di accesso revisionati prima di scrivere o applicare migrazioni.
 - Impatto sui costi e limiti operativi documentati con fonti aggiornate nella fase decisionale.
 
-### Fase 4 — Endpoint di ingestione
+#### Endpoint di ingestione e lettura
 
 **Tecnologia candidata:** Supabase Edge Function, coerente con la proposta iniziale; confrontarla con Vercel Function soltanto se emergono ragioni operative concrete.
 
@@ -408,7 +434,7 @@ nessun parser CSV definitivo o endpoint implementato.
 - Credenziale errata/assente e comportamento di rate limit.
 - Nessuna chiave privilegiata nel bundle frontend o nel repository.
 
-### Fase 5 — Uploader Python per Windows
+### Fase 6 — Uploader Windows e acquisizione reale
 
 **Design da privilegiare**
 
@@ -429,7 +455,7 @@ nessun parser CSV definitivo o endpoint implementato.
 - Prova di ripresa dopo riavvio e di recupero dopo rete assente.
 - Istruzioni di installazione, aggiornamento, avvio automatico, stop e diagnosi su Windows.
 
-### Fase 6 — Interfaccia e lettura dei dati
+### Fase 7 — Previsioni e collegamento al frontend
 
 **Contenuto MVP**
 
@@ -487,7 +513,9 @@ nessun parser CSV definitivo o endpoint implementato.
 
 **Checklist QA iniziale:** responsive desktop/mobile, unità corrette (°C, %, hPa), grafici leggibili, dati demo etichettati, caricamento/vuoto/errore rete, orario misura vs ricezione, stato stazione non falsamente online, navigazione da tastiera/contrasto, assenza errori console, `npm run build` e `npm run lint`. Test con dati reali e dell'intera pipeline in una fase successiva.
 
-### Fase 7 — Backup, migrazione e ripristino
+### Fase 8 — Backup, gestione e rilascio
+
+#### Backup, migrazione e ripristino
 
 **Livelli minimi richiesti**
 
@@ -508,7 +536,7 @@ nessun parser CSV definitivo o endpoint implementato.
 
 Un job “riuscito” o un file presente non dimostra che il backup sia ripristinabile. Prima del rilascio documentare almeno un restore di prova e la verifica dei dati recuperati. Pianificare poi prove periodiche.
 
-### Fase 8 — Rilascio ed esercizio del sito per scuola/open day
+#### Rilascio ed esercizio del sito per scuola/open day
 
 - Verificare target e scope Vercel, variabili ambiente e domini prima di ogni operazione.
 - Usare preview deployment per revisione; la pubblicazione di produzione richiede esplicita decisione del proprietario del progetto.
@@ -519,25 +547,24 @@ Un job “riuscito” o un file presente non dimostra che il backup sia ripristi
 
 ### Dipendenze, risultati attesi e criteri di uscita
 
-Il setup generale locale SET-00–SET-04 è stato eseguito su richiesta dell’utente. Le fasi applicative successive restano future; il loro piano non autorizza automaticamente operazioni remote o migrazioni.
+Il setup generale locale SET-00–SET-04 è stato eseguito su richiesta dell’utente. La Fase 5 è ora applicata e verificata nel target scelto; il piano non autorizza automaticamente operazioni remote o migrazioni.
 
 | Fase | Dipende da | Risultato concreto | Criterio di completamento |
 |---|---|---|---|
-| 0 — Baseline | Repository disponibile | Inventario, stato Git, esiti e limiti dei controlli | Ispezione locale e baseline completate; verifica remota rinviata ed esplicita, nessun segreto letto |
-| 1 — Specifica | 0 e risposte dell'utente | Perimetro MVP, metriche, accessi, responsabili e criteri misurabili concordati | Decisioni minime registrate senza trasformare ipotesi in fatti |
-| 2 — Contratto | 1, CSV reale, descrizione del writer | Specifica CSV e payload versionato; regole di tempo/reset/reimportazione; esempi reali depurati e fixture etichettate | Ogni campo e caso limite ha semantica e comportamento concordati; nessun parser definitivo prima del campione |
-| 3 — Schema/accessi | 2 e decisioni su pubblico/retention | Disegno dati, vincoli, chiavi, indici, matrice ruoli/RLS e stima volumi/costi | Revisione tecnica dello schema e del modello di accesso; successiva richiesta esplicita prima di applicare migrazioni |
-| 4 — Ingestione | 3 e autorizzazione alla specifica implementazione | Endpoint documentato e prove su ambiente separato autorizzato | Validazione, autenticazione, concorrenza, conflitti e retry verificati; nessun segreto client; schema applicato solo se richiesto |
-| 5 — Uploader | 2, contratto 4 stabile, vincoli Windows | Uploader, outbox durevole, guida installazione/avvio/diagnosi | Crash/restart, offline, reset, rotazione e risposte parziali recuperabili senza perdite dei dati già persistiti o duplicati |
-| 6 — Frontend | 1; per misure reali anche 2–4; stime anche dati idonei e modello locale valutato | Dashboard, aggiornamento automatico, grafici e tre orizzonti previsionali distinti | Build/lint, accessibilità, confronto con sorgenti; latenza osservabile; previsioni con fonte e validità, errori indipendenti |
-| 7 — Backup/restore | 3, storage e responsabili approvati | Runbook, esportazioni indipendenti, retention, verbale di restore | Restore separato riuscito entro obiettivi concordati, con integrità e accessi verificati; responsabilità trasferibile |
-| 8 — Esercizio/rilascio | 4–7, accettazione e richiesta di pubblicazione | Checklist rilascio, istruzioni essenziali di gestione e sito per scuola/open day | Flusso completo verificato, restore provato, quote/condizioni ricontrollate, decisioni bloccanti chiuse e autorizzazioni esplicite |
+| 3 — Mini setup | Repository e decisioni minime | SET-00–SET-04, inventario e baseline | Completato nei limiti registrati |
+| 4 — Contratto dati | 3 e campione/writer reale | DATA-01–DATA-03 e BE-01 | BE-01 locale pronto; verifica CSV/tempo aperta |
+| 5 — Database e backend | 4 locale; conferma reale prima del rilascio | BE-02–BE-07, schema/accessi, migrazione, ingest/read | BE-02–BE-07 applicati e verificati sul contratto v1; catena fisica ancora da convalidare |
+| 6 — Uploader | 4, contratto 5 e PC Windows | UP-01–UP-04, outbox e guida | Crash/offline/rotazione e catena reale verificati |
+| 7 — Previsioni e frontend | 3; dati reali: 4–6; stime: serie idonee | WX-01–WX-02 e UI-00–UI-02 | UI accessibile, aggiornamento automatico e modello valutato |
+| 8 — Backup e rilascio | 5–7, storage e richiesta di pubblicazione | OPS-01–OPS-02, REL-01–REL-02, END-01 | Restore e flusso completo provati; rilascio e chiusura solo se richiesti |
 
-La UI con stati vuoti può essere progettata dopo la fase 1, senza presumere schema o usare misure dimostrative non dichiarate. La progettazione dei backup parte dalla fase 3 e non deve aspettare la perdita di dati. Nessuna pubblicazione prima della fase 7 completata.
+La UI con stati vuoti può essere progettata dopo la fase 3, senza presumere schema
+o usare misure dimostrative non dichiarate. Il disegno dei backup parte insieme
+alla fase 5; la prova di restore della fase 8 precede la pubblicazione.
 
 ### Sequenza accelerata per la consegna della prossima settimana (proposta)
 
-Finestra richiesta: **26 ottobre–1 novembre 2026**, interpretata rispetto al 21 ottobre; non è una promessa di completamento o una data già concordata per la pubblicazione. Ridurre il lavoro al flusso essenziale, senza saltare autenticazione, unicità, timestamp e prova di recupero. Non iniziare l’implementazione in questa revisione.
+Finestra richiesta: **26 ottobre–1 novembre 2026**, interpretata rispetto al 21 ottobre; non è una promessa di completamento o una data già concordata per la pubblicazione. Ridurre il lavoro al flusso essenziale, senza saltare autenticazione, unicità, timestamp e prova di recupero. La revisione originaria era documentale; le successive implementazioni richiedono una richiesta, ora presente per il blocco 5.
 
 1. **Prima del parser/schema definitivo:** acquisire un campione reale e osservare writer/seriale sul PC; verificare permessi, clock e riavvio automatico. Se il campione manca, il flusso reale non è dichiarabile pronto.
 2. **In parallelo come attività indipendenti, dopo richiesta di implementazione:** UI italiana con stati vuoti e grafici; studio del modello locale, con valutazione dei tre orizzonti appena esiste una serie datata idonea. Nessun dato simulato non marcato.
@@ -643,7 +670,7 @@ Criteri proposti: layout fruibile da mobile e con zoom, HTML semantico e lingua 
 
 La matrice è una proposta, non una descrizione delle policy attuali. RLS e privilegi SQL sono controlli distinti: progettare entrambi. Una vista non è automaticamente sicura o read-only per il solo fatto di essere una vista; verificarne privilegi effettivi e comportamento rispetto a RLS. Nessuna chiave server privilegiata nel PC o nel browser. [Riferimento: sicurezza Data API Supabase](https://supabase.com/docs/guides/api/securing-your-api).
 
-Per le tabelle esposte progettare RLS e provarla con i ruoli effettivi, includendo rifiuto di insert/update/delete non autorizzati e assenza di bypass tramite viste/funzioni. Nessuna verifica delle policy remote è stata effettuata. [Riferimento: RLS Supabase](https://supabase.com/docs/guides/database/postgres/row-level-security).
+Per le tabelle esposte progettare RLS e provarla con i ruoli effettivi, includendo rifiuto di insert/update/delete non autorizzati e assenza di bypass tramite viste/funzioni. Privilegi e RLS remoti ora verificati in BE-07, con accesso diretto pubblico negato; verbale in docs/backend-verification.md. [Riferimento: RLS Supabase](https://supabase.com/docs/guides/database/postgres/row-level-security).
 
 L’utente è il responsabile dichiarato delle credenziali (U: Q21), nessun sostituto indicato. Mantenere una procedura essenziale senza introdurre ruoli applicativi: inventario dei soli nomi/scopi/ambienti, luogo di custodia approvato, revoca e rotazione, prova con credenziale nuova prima di revocare quella vecchia quando possibile, procedura urgente in caso di esposizione. Non chiedere o conservare i valori nelle risposte al piano. Nel frontend Vite qualsiasi variabile resa pubblica al bundle va trattata come pubblica: non usare prefissi client per segreti.
 
@@ -806,11 +833,16 @@ Il prodotto è pronto per essere considerato un MVP rilasciabile solo quando (il
 
 ## 16. Prossimo passo consigliato
 
-Il setup SET-00–SET-04 e BE-01 sul contratto locale v1 sono completati. Seguire [tasks.md](tasks.md#9-da-dove-ripartire-dopo-la-revisione-insieme): verificare DATA-01–DATA-03 sul campione/writer quando disponibili, poi adeguare test e progettare schema/accessi. Il parser CSV definitivo e il flusso persistente richiedono prove reali; la sola validazione locale non li completa.
+Il setup SET-00–SET-04 e BE-01–BE-07 sul contratto v1 sono completati tecnicamente.
+BE-07 è stato applicato al progetto Supabase MeteOlivelli esistente scelto dall’utente;
+prove e limiti in [docs/backend-verification.md](docs/backend-verification.md).
+Il prossimo blocco operativo è la Fase 6, uploader Windows, con vincoli CSV/tempo
+ancora da verificare in DATA-01–DATA-03. Nessuna promessa di catena fisica pronta
+prima del campione e delle prove sul PC.
 
-La baseline locale della fase 0 è completata nei limiti della sezione 4. L’MVP della fase 1 è ora definito: sito pubblico per scuola/open day, ultimi valori, grafici 24h/7g/30g, aggiornamento automatico, previsioni +30 minuti/+1 ora/giornata, stato con tolleranza di 20 minuti oltre l’atteso, niente account/profilazione/download. Consegna richiesta settimana prossima, finestra interpretata 26 ottobre–1 novembre 2026; eventuale chiusura a dicembre ancora incerta. Non riproporre come aperte queste scelte.
+La baseline locale della fase 3 è completata nei limiti della sezione 4. L’MVP definito nella fase 3 prevede: sito pubblico per scuola/open day, ultimi valori, grafici 24h/7g/30g, aggiornamento automatico, previsioni +30 minuti/+1 ora/giornata, stato con tolleranza di 20 minuti oltre l’atteso, niente account/profilazione/download. Consegna richiesta settimana prossima, finestra interpretata 26 ottobre–1 novembre 2026; eventuale chiusura a dicembre ancora incerta. Non riproporre come aperte queste scelte.
 
-Prima di parser e schema definitivi serve il campione reale, oggi non disponibile, e una breve osservazione del writer/seriale. La disponibilità a modificare il PC permette di progettare un timestamp locale per le nuove righe, ma non rende automaticamente noto l’orario delle misure storiche. Possibile progettare in seguito la UI con stati vuoti, senza inventare dati o iniziare ora l’implementazione.
+Prima di parser e schema definitivi serve il campione reale, oggi non disponibile, e una breve osservazione del writer/seriale. La disponibilità a modificare il PC permette di progettare un timestamp locale per le nuove righe, ma non rende automaticamente noto l’orario delle misure storiche. La UI con stati vuoti può procedere indipendentemente, senza inventare misure.
 
 Dipendenze residue prioritarie: campione CSV/writer, qualità temporale e serie idonee per il modello locale, destinazione della copia indipendente e procedura minima di recupero; canale delle notifiche. Le scelte del 22 ottobre e le proposte correnti sono nella sezione 18. Trattamento storico senza date scelto tecnicamente su delega; chiusura a dicembre da confermare solo quando concreta. Se non noti, diventano attività esplicite, non default approvati. Migrazioni, installazioni, pubblicazione e altre modifiche remote richiedono comunque richiesta esplicita.
 
@@ -926,11 +958,11 @@ L’utente chiede “solo quello nuovo”: mantenuto `plan.md` come unica roadma
 3. **Backup minimo e avvisi:** restano aperti destinazione indipendente, recupero e canale verso l’utente; proporre una soluzione essenziale compatibile con 0 € e permessi reali.
 4. **Fine esercizio:** non chiedere nuovamente se Natale sia la consegna; è già chiarito che la consegna è settimana prossima. Confermare data/perimetro della chiusura solo prima di eseguirla, senza cancellare dati per deduzione.
 
-La scadenza è un obiettivo, non prova di fattibilità della catena reale senza campione e verifiche. Questa raccolta di requisiti era documentale. Il setup successivo ha predisposto runtime/configurazione locale e test; restano non implementati ingestione, collegamento applicativo, migrazioni, previsioni e deploy.
+La scadenza è un obiettivo, non prova di fattibilità della catena reale senza campione e verifiche. Questa raccolta di requisiti era documentale. Il setup successivo ha predisposto runtime/configurazione locale e test; quel setup non includeva ingestione, collegamento applicativo, migrazioni, previsioni o deploy. Il successivo backend locale della Fase 5 è registrato nella sezione 4; DB e deploy restano aperti.
 
 ## 18. Revisione delle criticità e scelte delegate — 22 ottobre 2026
 
-Fonte: risposte dell’utente ai punti 1–20 dell’analisi. U indica dichiarazione esplicita; T indica scelta progettuale effettuata su delega; P indica proposta ancora da discutere. Nessuna voce attesta codice, installazione o risorsa remota già realizzati. La richiesta corrente riguarda decisioni e possibili soluzioni; non esegue deploy, migrazioni, configurazione di backup o invio di avvisi.
+Fonte: risposte dell’utente ai punti 1–20 dell’analisi. U indica dichiarazione esplicita; T indica scelta progettuale effettuata su delega; P indica proposta ancora da discutere. Nessuna voce attesta codice, installazione o risorsa remota già realizzati. La richiesta di quella revisione riguardava decisioni e possibili soluzioni; non esegue deploy, migrazioni, configurazione di backup o invio di avvisi.
 
 **Approvazione successiva del 22 ottobre 2026:** dopo il riepilogo abbreviato problema/soluzione, l’utente conferma “Ok, questi vanno bene”. Gli orientamenti del riepilogo sono quindi concordati, inclusi backup indipendente, modello nostro sperimentale e avvisi email. Restano da definire gli input mancanti e i dettagli non fissati dal riepilogo: campione CSV, sensori, destinazione delle copie, recapito email, frequenze e obiettivi numerici di recupero. Le quantità proposte sotto non diventano automaticamente valori approvati. L’approvazione delle soluzioni non segna completati i task applicativi né avvia operazioni remote.
 

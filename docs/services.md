@@ -90,3 +90,30 @@ piano sia attivo sugli account dell'utente; non sono stati autorizzati addebiti.
 
 L'inventario iniziale SET-04 è concluso con questi limiti espliciti. Le verifiche
 applicative restano nei task BE, WX, OPS e REL di [tasks.md](../tasks.md).
+
+## Aggiornamento progettuale locale — 22 ottobre 2026, Fase 5
+
+L’inventario remoto sopra rimane quello del 21 ottobre, senza nuova certificazione
+dello stato corrente. La lettura tramite endpoint e la credenziale server sono ora
+scelte locali BE-03, documentate in [backend-schema.md](backend-schema.md). Schema,
+migrazione e funzioni preparati non sono risorse già presenti sul servizio.
+Nella successiva scelta BE-07 l’utente ha indicato esplicitamente il progetto
+esistente; l’applicazione e le prove live sono descritte sotto.
+
+## Backend applicato e verificato — 22 ottobre 2026, BE-07
+
+L’utente sceglie il progetto esistente MeteOlivelli, riferimento verificato
+pvtzncseisbxaaseqfvo, ACTIVE_HEALTHY, PostgreSQL 17.11.0.003. Prima di applicare
+risultano ancora vuoti tabelle public, funzioni e migrazioni. Nessun oggetto
+applicativo preesistente modificato.
+
+Migrazione 20261022125448 station_backend_v1 applicata; tabella
+public.station_measurements con RLS, due RPC invoker e indici. Edge Function ingest
+e read ACTIVE v3. Segreti stazione configurati tramite CLI senza pubblicarne i
+valori. Sorgente definitiva meteolivelli; zero eventi dopo pulizia delle sole fixture.
+
+Prove SQL/HTTP, concorrenza e permessi effettivi superati. Advisor prestazioni
+senza avvisi; sicurezza solo INFO RLS senza policy, coerente con accessi pubblici
+revocati. Evidenze e limiti in [backend-verification.md](backend-verification.md).
+Nessuna modifica GitHub/Vercel, frontend o piano a pagamento. CSV e PC reali non
+verificati da questo intervento; inventario precedente conservato come storico.
