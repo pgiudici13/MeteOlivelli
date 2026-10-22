@@ -16,6 +16,7 @@
     "check": "npm run lint && npm run build && npm run frontend:test && npm run backend:check && npm run backend:lint && npm run backend:test && npm run uploader:test"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
