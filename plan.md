@@ -1053,7 +1053,7 @@ Supabase raccomanda ai progetti Free esportazioni regolari e copie fuori sede; n
 
 **Decisione applicata:** sfondo caldo `#101010`, superfici piatte, bordi sottili, titoli regolari con tracking stretto, accenti arancio/verde per i dati, pannello temperatura scuro `#171615`. Conservato Inter locale, sostituto ammesso dalla proposta, senza nuovi download o dipendenze. Su mobile il pannello segue il titolo; misure, archivio, cronologia, stime e progetto mantengono ordine e funzioni. La scheda iniziale segue il periodo selezionato nell’archivio e riusa il grafico SVG accessibile.
 
-**Fatti verificati:** build, lint, 16 test frontend e 11 scenari browser superati; screenshot desktop/mobile ispezionati. API pubblica vuota nel collaudo; casi con misure esclusivamente sintetici intercettati nel browser e dichiarati nelle schermate. Evidenze: [verbale Factory](docs/factory-design.md).
+**Fatti verificati:** build, lint, 16 test frontend e 11 scenari browser superati; screenshot desktop/mobile ispezionati. API pubblica vuota nel collaudo; casi con misure esclusivamente sintetici intercettati nel browser e dichiarati nelle schermate. Evidenze: [verbale Factory](design.md).
 
 **Limiti:** la nuova veste non prova la freschezza della stazione: il valore principale dice “ultima lettura”, senza promettere una temperatura attuale non verificabile. UI-02, WX, CSV/writer e collaudo reale restano aperti. Questa richiesta riguarda modifiche locali del frontend; nessuna pubblicazione o modifica ai servizi eseguita.
 

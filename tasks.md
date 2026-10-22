@@ -332,7 +332,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 - [x] **Stato: dashboard implementata, pubblicata e verificata il 22 ottobre 2026; collaudo della stazione reale separato.**
 - **Esito corrente:** UI Factory con titolo grande e pannello temperatura a destra su desktop, tema scuro, Inter locale, marchio `MO. | MeteOlivelli`, postilla, schede, quattro grafici SVG, filtri 24h/7g/30g e cronologia paginata con dettagli qualità/tempi. Solo GET BE-06, nessuna chiave client o dipendenza nuova per grafici/motion.
-- **Interazioni:** ingressi nascosti prima del paint e attivati individualmente in vista; curva/area/punti progressivi, riflesso locale sul bordo con inerzia, nessuna illuminazione del divisore quando si puntano i filtri. Focus tastiera e movimento ridotto rivelano i contenuti immediatamente. [Specifiche](docs/factory-design.md).
+- **Interazioni:** ingressi nascosti prima del paint e attivati individualmente in vista; curva/area/punti progressivi, riflesso locale sul bordo con inerzia, nessuna illuminazione del divisore quando si puntano i filtri. Focus tastiera e movimento ridotto rivelano i contenuti immediatamente. [Specifiche](design.md).
 - **Dati:** `live`, `historical`, `synthetic` distinti nell’applicazione. Cinque campioni di prova amministrativi sono pubblici con la postilla concordata; nessun selettore DEMO. Loading/vuoti/errori/null/sospetti restano distinti; nessuno zero sostitutivo. Le stime restano indisponibili senza WX-02.
 - **Verifica:** rilascio `bce39e2`, `npm run check` superato con 18 test Node, 41 Deno e 21 Python; 13 scenari browser locali e collaudo API → pagina pubblica con cinque campioni, quattro grafici, cronologia e postilla. Screenshot desktop/mobile e risultati in [docs/frontend.md](docs/frontend.md) e [docs/data-preview.md](docs/data-preview.md). Nessuna certificazione WCAG o prova Arduino/telefono reale attestata.
 - **File principali:** `src/App.tsx`, CSS, `src/components/HistoryChart.tsx`, `Reveal.tsx`, `src/motion.ts`, `src/use-border-light.ts`, adapter e hook dati.
@@ -428,6 +428,7 @@ La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scel
 
 | Data | Task | Esito ed evidenza | Limiti / passo successivo |
 |---|---|---|---|
+| 22 ottobre 2026 | Documentazione design e istruzioni | `design.md` consolidato nella root, principi dell’allegato e adattamenti distinti; `AGENTS.md` con mappa dei file e regole di aggiornamento | Nessun codice o dato modificato; il vecchio percorso Factory resta un rimando |
 | 22 ottobre 2026 | Fase 8 · revisione documentale | README, frontend/design, QA, servizi e guida operativa consolidati sul rilascio `bce39e2`; OPS-03 aggiunto e roadmap sincronizzata | Documentazione soltanto: backup, avvisi, transizione alla stazione e MVP reale restano aperti; commit/push richiesti |
 | 21 ottobre 2026 | SET-00 | Baseline iniziale e successivo setup: stato Git, configurazioni e strumenti ricontrollati | Documenti locali preesistenti preservati; niente commit/push |
 | 21 ottobre 2026 | SET-01 | Regole ambiente corrette; esempi versionabili, nomi ambiente reali ancora ignorati | COR-001 risolto dopo controlli basati sui soli nomi |
@@ -479,7 +480,7 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 
 **Prova uploader precedente:** il programma CLI Python è stato eseguito su macOS contro il fixture sintetico: 6 righe storiche confermate nel database e 1 riga malformata in quarantena. L'esito ha verificato il percorso uploader → endpoint → DB; la prova Windows con Arduino e writer reali resta aperta. Le 6 righe del test sono state poi rimosse nella pulizia qui sopra.
 
-**Restyling Factory — 22 ottobre 2026, Fase 7 / UI-01:** implementazione locale e QA completati. Titolo a sinistra e grafico temperatura a destra su desktop, impilati su mobile. Ultima lettura, qualità e tempi restano espliciti; API vuota e fixture solo browser. Build/lint, 16 test Node e 11 scenari browser superati. Nessun commit, push o deploy. Riferimenti: [piano](plan.md), [verbale](docs/factory-design.md).
+**Restyling Factory — 22 ottobre 2026, Fase 7 / UI-01:** implementazione locale e QA completati. Titolo a sinistra e grafico temperatura a destra su desktop, impilati su mobile. Ultima lettura, qualità e tempi restano espliciti; API vuota e fixture solo browser. Build/lint, 16 test Node e 11 scenari browser superati. Nessun commit, push o deploy. Riferimenti: [piano](plan.md), [verbale](design.md).
 
 **Revisione dai commenti browser — 22 ottobre 2026 (Fase 7 / UI-01):** rimosso l’avviso “Progetto in sviluppo”; pannello temperatura passato a tema scuro con testo chiaro, bordi e griglia attenuati, tracciato arancio. Etichette sintetiche del collaudo ora inserite solo dal runner browser, indipendentemente dall’avviso rimosso.
 

@@ -22,7 +22,7 @@ Rilasci applicativi verificati: `fab71cb` (UI/postilla), `bce39e2` (provenienza 
 | [tasks.md](tasks.md) | Checklist numerata; “Fase 8” indica il blocco 8 |
 | [AGENTS.md](AGENTS.md) | Regole operative prima di intervenire |
 | [Frontend](docs/frontend.md) | Funzioni, polling, provenienza e verifiche |
-| [Design](docs/factory-design.md) | Aspetto, motion, hover e accessibilità |
+| [Design](design.md) | Aspetto, motion, hover e accessibilità |
 | [Campioni di prova](docs/data-preview.md) | Tipo distinto, batch pubblico e prove SQL/API/UI |
 | [Operazioni](docs/operations.md) | Target, diagnosi, rilascio e attività operative aperte |
 | [QA](docs/qa.md) | Verifiche residue e criteri di rilascio MVP |
