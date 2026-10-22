@@ -1,5 +1,7 @@
 # Frontend Fase 7 — 22 ottobre 2026
 
+> **Motion corrente:** ingressi progressivi e disegno dei grafici aggiornati su richiesta dell’utente; le note storiche da 220 ms sotto sono superate. Specifiche in [verbale Factory](factory-design.md).
+
 > **Aspetto corrente:** il successivo restyling Factory sostituisce palette e superfici Obsidian descritte sotto. Comportamento dei dati mantenuto; [specifiche ed evidenze aggiornate](factory-design.md).
 
 La dashboard React/TypeScript sostituisce la pagina provvisoria. Riferimento:

@@ -4,6 +4,7 @@ import { Reveal } from './components/Reveal.tsx'
 import { useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, Period } from './weather.ts'
+import { useBorderLight } from './use-border-light.ts'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -43,6 +44,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 }
 
 function App() {
+  useBorderLight()
   const [period, setPeriod] = useState<Period>('24h')
   const data = useWeather(period)
   const latest = data.latest
@@ -60,30 +62,30 @@ function App() {
   return <div className="site-shell">
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
-      <a className="brand" href="#contenuto"><span className="brand-symbol" aria-hidden="true">m.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
+      <a className="brand" href="#contenuto"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
       <nav aria-label="Navigazione principale"><a href="#latest-title">La stazione</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
     </header>
     <main id="contenuto" tabIndex={-1}>
-      <div className="notice"><span className="notice-dot" aria-hidden="true" /><p>Progetto in sviluppo · osservazioni della stazione, quando disponibili.</p></div>
+      <p className="development-notice">Work in progress · Possibili dati presenti fittizi</p>
       <div className="hero">
-        <section className="intro" aria-labelledby="page-title">
+        <Reveal><section className="intro" aria-labelledby="page-title">
           <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Stazione scolastica</p>
           <h1 id="page-title">Il meteo,<br />qui all’Olivelli<span className="title-stop">.</span></h1>
           <p className="hero-description">Uno sguardo fuori, un dato alla volta.<br />Temperatura, umidità e pressione, osservate dalla nostra scuola.</p>
           <a className="hero-link" href="#history-title">Esplora le misure <span aria-hidden="true">↗</span></a>
           <p className={`station-status ${latestError ? 'warning' : ''}`} role="status"><span className="status-dot" aria-hidden="true" />{stationStatus}</p>
           <p className="small freshness-note">{latest ? 'Ultima lettura disponibile. La freschezza della misura non è ancora verificabile.' : 'Le osservazioni appariranno appena saranno disponibili.'}</p>
-        </section>
-        <section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
+        </section></Reveal>
+        <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>
           <p className="instrument-caption">Ultima lettura della stazione</p>
           <p className="hero-temperature">{latestLoaded && latest && latest.temperature_c !== null ? <Value row={latest} metric={metrics[0]} /> : <><span>—</span><span className="temperature-unit"> °C</span></>}</p>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'In attesa del primo campione'}</p>
           <HistoryChart metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
-        </section>
+        </section></Reveal>
       </div>
-      <section className="latest-section" aria-labelledby="latest-title" aria-busy={!latestLoaded}>
+      <Reveal><section className="latest-section" aria-labelledby="latest-title" aria-busy={!latestLoaded}>
         <div className="section-heading"><div><p className="eyebrow section-index">01 / Osservazioni</p><h2 id="latest-title">Le ultime misure</h2></div>
           <p className="small">{latest ? `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
         </div>
@@ -101,7 +103,7 @@ function App() {
           <p>Prima ricezione del backend: {formatTime(latest.received_at)}. Tutti gli orari sono visualizzati in Europe/Rome.</p>
           <p>La ricezione di un campione non dimostra che la misura sia recente. Il contatore Arduino non è una data.</p>
         </details>}
-      </section>
+      </section></Reveal>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <p className="eyebrow section-index">02 / Archivio della stazione</p>
         <h2 id="history-title">Andamento delle misure</h2>

@@ -1,4 +1,5 @@
-import { useId } from 'react'
+import { useLayoutEffect, useId, useRef } from 'react'
+import { animateOnEntrance } from '../motion.ts'
 import { chartSegments, formatTime, formatValue, metrics } from '../weather.ts'
 import type { Measurement } from '../weather.ts'
 
@@ -6,6 +7,7 @@ export function HistoryChart({ metric, rows, loading, error }: {
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
+  const ref = useRef<HTMLElement>(null)
   const segments = chartSegments(rows, metric.key)
   const points = segments.flat()
   const values = points.map(row => row[metric.key] as number)
@@ -19,8 +21,40 @@ export function HistoryChart({ metric, rows, loading, error }: {
   const x = (row: Measurement) => start === end ? 180 : 58 + (Date.parse(row.captured_at!) - start) / (end - start) * 278
   const y = (row: Measurement) => 176 - ((row[metric.key] as number) - low) / (high - low) * 160
   const last = points.at(-1)
+  // Una nuova serie riparte; polling invariato e render estranei non riavviano il disegno.
+  const seriesKey = points.map(row => `${row.ingestion_id}:${row[metric.key]}`).join('|')
+  useLayoutEffect(() => {
+    const element = ref.current
+    if (!element || loading || error || !seriesKey) return
+    const plot = element.querySelector('svg')
+    if (!plot) return
+    return animateOnEntrance(plot, () => {
+      const animations: Animation[] = []
+      element.querySelectorAll('.chart-line').forEach(line => {
+        animations.push(line.animate([
+          { strokeDasharray: '1', strokeDashoffset: '1' },
+          { strokeDasharray: '1', strokeDashoffset: '0' },
+        ], { duration: 1400, delay: 180, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'backwards' }))
+      })
+      element.querySelectorAll('.chart-gridline').forEach((line, index) => {
+        animations.push(line.animate([{ opacity: 0 }, { opacity: 1 }],
+          { duration: 400, delay: index * 55, fill: 'backwards' }))
+      })
+      element.querySelectorAll('.chart-area').forEach(area => {
+        animations.push(area.animate([{ opacity: 0 }, { opacity: 0.06 }],
+          { duration: 900, delay: 500, easing: 'ease-out', fill: 'backwards' }))
+      })
+      element.querySelectorAll<SVGCircleElement>('.chart-point').forEach(point => {
+        // Il punto appare quando la progressione raggiunge la sua posizione sull’asse.
+        const progress = Math.max(0, Math.min(1, (point.cx.baseVal.value - 58) / 278))
+        animations.push(point.animate([{ opacity: 0 }, { opacity: 1 }],
+          { duration: 280, delay: 180 + progress * 1400, easing: 'ease-out', fill: 'backwards' }))
+      })
+      return animations
+    })
+  }, [seriesKey, loading, error])
   return (
-    <article className={`chart tone-${metric.tone}`} aria-labelledby={`${id}-title`}>
+    <article ref={ref} className={`chart tone-${metric.tone}`} aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`}>{metric.name} · {metric.unit}</h3>
       <p className="chart-value">{last ? `${formatValue(last[metric.key])} ${metric.unit}` : 'Nessun valore disponibile'}</p>
       {loading || error || !points.length ? (
@@ -33,7 +67,7 @@ export function HistoryChart({ metric, rows, loading, error }: {
             return <g key={index}><line x1="58" x2="336" y1={position} y2={position} className="chart-gridline" /><text x="0" y={position + 4}>{formatValue(high - index * (high - low) / 3)}</text></g>
           })}
           {segments.map((segment, index) => <g key={index}>
-            {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
+            {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline pathLength="1" points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
             {segment.map(row => <circle key={row.ingestion_id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{formatTime(row.captured_at)} · {formatValue(row[metric.key])} {metric.unit}</title></circle>)}
           </g>)}
           {[0, 1, 2, 3].map(index => {

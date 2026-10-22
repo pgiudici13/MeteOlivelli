@@ -29,7 +29,14 @@ let failure = false
 let waitForResponse = null
 let historyCalls = 0
 const markSynthetic = async page => page.evaluate(() => {
-  document.querySelector('.notice p').textContent = 'VERIFICA LOCALE · DATI SINTETICI · tutti i valori sono sintetici, non provengono dalla stazione.'
+  let banner = document.querySelector('.synthetic-test-notice')
+  if (!banner) {
+    banner = document.createElement('p')
+    banner.className = 'synthetic-test-notice'
+    banner.style.cssText = 'padding:16px 0;color:#b8b3b0;font:11px/1.5 monospace'
+    document.querySelector('main').prepend(banner)
+  }
+  banner.textContent = 'VERIFICA LOCALE · DATI SINTETICI · tutti i valori sono sintetici, non provengono dalla stazione.'
   document.querySelectorAll('h2, .metric-source').forEach(element => { if (!element.textContent.includes('TEST SINTETICO')) element.textContent += ' · TEST SINTETICO' })
 })
 try {
@@ -89,6 +96,39 @@ try {
       }
     }
     assert.equal(await page.evaluate(() => document.fonts.check('14px Inter')), true)
+  })
+  await check('motion: disegno curva in vista, fine animazione e riduzione dinamica', async () => {
+    const motion = await context.newPage()
+    attachErrors(motion)
+    await motion.emulateMedia({ reducedMotion: 'no-preference' })
+    await motion.goto(base)
+    await motion.waitForFunction(() => document.querySelector('.hero-instrument .chart-line')?.getAnimations().length > 0)
+    assert.equal(await motion.locator('.forecast-card').first().evaluate(element => getComputedStyle(element).opacity), '0')
+    await motion.waitForTimeout(2000)
+    assert.equal(await motion.locator('.hero-instrument .chart-line').evaluate(line => line.getAnimations().length), 0)
+    await motion.locator('.chart-grid .chart svg').first().scrollIntoViewIfNeeded()
+    await motion.waitForFunction(() => [...document.querySelectorAll('.chart-grid .chart-line')].some(line => line.getAnimations().length > 0))
+    await motion.emulateMedia({ reducedMotion: 'reduce' })
+    await motion.waitForFunction(() => document.querySelectorAll('[data-entrance-pending]').length === 0)
+    await motion.waitForFunction(() => document.getAnimations().length === 0)
+    assert.equal(await motion.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto')
+    await motion.close()
+  })
+  await check('hover: riflesso locale, nessuna illuminazione della sezione e periodo leggibile', async () => {
+    for (const selector of ['.hero-instrument', '.metric-card', '.chart-grid .chart', '.forecast-card', '.period-picker button']) {
+      const target = page.locator(selector).first()
+      await target.hover()
+      await page.waitForTimeout(220)
+      assert.equal(await target.getAttribute('data-border-light'), '')
+      assert.equal(await target.evaluate(element => getComputedStyle(element, '::after').opacity), '1')
+    }
+    const selected = page.locator('.period-picker button[aria-pressed="true"]')
+    await selected.hover()
+    assert.equal(await selected.evaluate(element => getComputedStyle(element).color), 'rgb(16, 16, 16)')
+    await page.getByRole('button', { name: '7 giorni', exact: true }).hover()
+    assert.equal(await page.getByRole('button', { name: '7 giorni', exact: true }).getAttribute('aria-pressed'), 'false')
+    assert.equal(await page.locator('.history-section').evaluate(element => getComputedStyle(element).borderTopColor), 'rgb(61, 58, 57)')
+    assert.equal(await page.locator('[data-border-light]').count(), 1)
   })
   await check('tastiera, focus e filtri 7g/30g senza storico sostitutivo', async () => {
     const seven = page.getByRole('button', { name: '7 giorni', exact: true })

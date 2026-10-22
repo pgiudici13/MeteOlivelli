@@ -16,6 +16,14 @@
       "passed": true
     },
     {
+      "name": "motion: disegno curva in vista, fine animazione e riduzione dinamica",
+      "passed": true
+    },
+    {
+      "name": "hover: riflesso locale, nessuna illuminazione della sezione e periodo leggibile",
+      "passed": true
+    },
+    {
       "name": "tastiera, focus e filtri 7g/30g senza storico sostitutivo",
       "passed": true
     },

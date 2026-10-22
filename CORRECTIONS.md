@@ -67,3 +67,22 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Prova:** prima della rimozione, SQL aveva verificato 50 righe isolate `meteolivelli-demo-20261022`; l'uploader di prova aveva inoltre lasciato 6 righe storiche sintetiche sotto `meteolivelli`.
 - **Correzione:** rimossi selettore/client/handler demo, cancellate esattamente le 50 righe demo e i 6 UUID esatti del test uploader, rimossa l'Edge Function remota, spostata la fixture CSV nella directory test. Endpoint e schema reali mantenuti.
 - **Verifica:** `DELETE ... RETURNING` ha confermato 50 + 6 righe eliminate; la query finale non restituisce record per le sorgenti demo o `meteolivelli`. L'inventario Supabase mostra soltanto `ingest-measurement` e `read-measurements` ACTIVE v3. `npm run check` superato: build/lint, 16 test frontend, 39 Deno e 21 Python; la UI locale restituisce stati vuoti via endpoint reale.
+
+
+## COR-005 — Hover dei filtri illuminava il divisore della sezione
+
+- **Stato:** risolto localmente il 22 ottobre 2026.
+- **Problema segnalato:** passando su “7 giorni” si illuminava anche la linea sopra “Archivio della stazione”.
+- **Prova:** la precedente regola `.panel:hover` includeva la sezione contenitrice, che risultava in hover anche sopra i suoi discendenti.
+- **Impatto:** riscontro visivo esteso a elementi diversi dal controllo puntato.
+- **Correzione:** eliminata l’illuminazione dei contenitori di sezione; riflesso localizzato sul solo bersaglio più vicino al puntatore.
+- **Verifica:** scenario browser conferma un solo bersaglio attivo e divisore archivio invariato (`rgb(61, 58, 57)`) durante l’hover di “7 giorni”.
+
+
+## COR-006 — Contenuti visibili prima dell’animazione d’ingresso
+
+- **Stato:** corretto localmente il 22 ottobre 2026.
+- **Prova:** glitch segnalato dall’utente; gli observer venivano registrati in `useEffect` senza uno stato iniziale nascosto.
+- **Impatto:** contenuti già visibili che scomparivano all’avvio della dissolvenza.
+- **Correzione:** stato pendente applicato prima del paint e rimosso all’ingresso; fallback e focus tastiera espliciti.
+- **Verifica:** build/lint, 16 test frontend e 13 scenari browser superati; scheda fuori vista con opacità zero, disegno attivo all’ingresso e nessuno stato nascosto residuo con movimento ridotto.
