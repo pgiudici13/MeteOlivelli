@@ -4,9 +4,14 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 ## Stato del progetto
 
-Il frontend mostra una pagina iniziale italiana “Work in progress”, con una breve
-descrizione del progetto, senza misurazioni o grafici dimostrativi. Include layout
-responsive, metadati e un messaggio leggibile anche senza JavaScript.
+Il frontend implementa la dashboard italiana dal design Figma **Obsidian UI v5**:
+ultime misure, grafici 24h/7g/30g, cronologia e dettagli temporali/qualità, layout
+desktop/mobile e aggiornamento ogni 15 secondi a pagina visibile. Legge soltanto
+l'endpoint pubblico BE-06, senza chiavi o file ambiente. Il backend al momento
+restituisce un archivio vuoto; nessun dato DEMO viene mostrato al pubblico.
+Le stime sono esplicitamente indisponibili e la freschezza resta sconosciuta
+finché ora di misura e cadenza reali non saranno verificate.
+[Implementazione, prove e limiti frontend](docs/frontend.md).
 Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
 gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.
@@ -33,13 +38,13 @@ distinto dalla fixture usata nella prova HTTP del backend.
 
 **Stato documentato al 22 ottobre 2026:** file Figma accessibile e mockup desktop/mobile arrivato alla revisione **Obsidian v5 · DEMO**. Il design resta statico, con dati sintetici etichettati; revisione con il compagno, interazioni e QA completo restano aperti. La sessione congiunta prevista a scuola per circa due ore non è dichiarata svolta. [Riferimento Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e [storia delle revisioni](docs/design-review/README.md).
 
-Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. Il compagno raccoglierà riferimenti visivi e creerà un wireframe desktop con indicazioni per mobile; il design potrà poi essere trasformato con l'aiuto di Codex in componenti React, da verificare manualmente. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
+Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. La dashboard React è ora realizzata sulla base Obsidian v5; resta la revisione con il compagno, oltre alle prove sui dispositivi e sulla stazione reale. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
 
-La prima dashboard può usare soltanto dati dimostrativi **sempre etichettati**. I test visuali e responsive non sostituiscono quelli della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
+Le fixture dei test visuali sono **sempre etichettate DEMO** nelle evidenze e non vengono incluse nella dashboard reale. Le prove visuali e responsive non sostituiscono quelle della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
 
 ## Requisiti locali
 
-- Node.js compatibile con Vite 8: `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
+- Node.js 24+ per eseguire anche i test frontend TypeScript tramite il supporto nativo di Node. Vite da solo supporta `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
 - npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
 - Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
 - Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0. Windows ancora da provare.
@@ -74,7 +79,7 @@ per il futuro client; `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STATION_SOUR
 e `STATION_INGEST_TOKEN` per gli endpoint server.
 Gli esempi non attestano quali variabili siano già presenti in `.env.local`.
 Gli entrypoint Edge richiedono le variabili server all’avvio; i test usano store
-simulati e il frontend rimane senza collegamento. Configurazione server e prove remote eseguite in BE-07;
+simulati; il frontend usa esclusivamente il GET pubblico documentato, senza SDK o credenziali. Configurazione server e prove remote eseguite in BE-07;
 [verbale e limiti](docs/backend-verification.md).
 
 Il prefisso `VITE_` rende una variabile adatta all'esposizione nel browser: non usarlo
@@ -92,6 +97,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 |---|---|
 | `npm run lint` | ESLint su frontend e configurazioni Node; esclude esplicitamente il codice Deno |
 | `npm run build` | TypeScript/Vite e bundle del frontend |
+| `npm run frontend:test` | 16 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
 | `npm run backend:check` | Typecheck dei moduli backend con Deno |
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
@@ -107,7 +113,10 @@ dall'utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa
 Il campione CSV/writer reale resta da verificare. Le prove BE-07 sul progetto scelto verificano
 RPC, privilegi/RLS e ingestione HTTP sintetica concorrente; fixture rimosse.
 Resta da provare l’acquisizione reale da CSV/Windows. Le prove SQL in `supabase/tests/`
-richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno. Il frontend non ha ancora una suite di test dedicata.
+richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno.
+La suite frontend nativa non richiede nuove dipendenze. Una QA browser opzionale
+con Playwright esterno è descritta in [docs/frontend.md](docs/frontend.md);
+le fixture positive vengono intercettate soltanto nel browser di prova.
 Contratto e limiti in [docs/backend.md](docs/backend.md).
 
 L'uploader e la procedura Windows sono descritti in [uploader/README.md](uploader/README.md).

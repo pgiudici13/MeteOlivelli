@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-22",
+  "backend": "GET pubblico vuoto; tutti i casi positivi sono fixture DEMO intercettate nel browser, nessuna scrittura remota",
+  "browser": "155.0.8059.85",
+  "results": [
+    {
+      "name": "API pubblica → dashboard vuota, nessuna misura inventata",
+      "passed": true
+    },
+    {
+      "name": "fixture DEMO: tre grafici, unità e tabella accessibile",
+      "passed": true
+    },
+    {
+      "name": "reflow 320, 390, 768, 1280 px e font Inter locale",
+      "passed": true
+    },
+    {
+      "name": "tastiera, focus e filtri 7g/30g senza storico sostitutivo",
+      "passed": true
+    },
+    {
+      "name": "polling invariato non ricarica la serie",
+      "passed": true
+    },
+    {
+      "name": "nuovo campione appare in due browser senza reload",
+      "passed": true
+    },
+    {
+      "name": "errore rete conserva dati con avviso; riconnessione automatica",
+      "passed": true
+    },
+    {
+      "name": "campi assenti e probabili errati preservati e separati dalla linea",
+      "passed": true
+    },
+    {
+      "name": "zoom 200% simulato tramite reflow e movimento ridotto",
+      "passed": true
+    },
+    {
+      "name": "stato caricamento distinto dal vuoto",
+      "passed": true
+    },
+    {
+      "name": "fallback senza JavaScript",
+      "passed": true
+    }
+  ],
+  "pageErrors": []
+}

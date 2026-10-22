@@ -1,8 +1,8 @@
 # Attività operative — MeteOlivelli
 
-> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo implementazione locale provvisoria della Fase 6.
+> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo implementazione e QA locale del frontend della Fase 7.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** dopo la Fase 6 locale, testare il backend Supabase con un CSV fittizio. Prova CSV → uploader → HTTPS → DB superata e sette fixture rimosse; nessuna installazione Windows. CSV/writer reale ancora necessari per DATA-01–DATA-03 e chiusura operativa UP-01–UP-04. [Verbale della prova](docs/backend-csv-verification.md).
+> **Richiesta attuale:** realizzare il frontend della Fase 7 basandosi sul progetto MeteOlivelli in Figma. UI-01 implementata e verificata localmente, UI-02 provvisoria; WX-01–WX-02 restano dipendenti da dati idonei. Nessuna scrittura remota, commit, push o deploy in questa attività. La precedente prova CSV → uploader → HTTPS → DB resta documentata nel [verbale](docs/backend-csv-verification.md).
 
 ## 1. Come usare la checklist
 
@@ -326,7 +326,9 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
-- [ ] **Stato: parziale, pagina iniziale “Work in progress” realizzata il 22 ottobre su richiesta; dashboard ancora da costruire. Osservazioni reali dipendono da BE-06–BE-07, sole stime da WX-02.**
+- [x] **Stato: implementazione locale e QA frontend completate il 22 ottobre 2026; collaudo con la stazione reale e rilascio restano separati.**
+- **Esito corrente:** dashboard React/TypeScript e CSS da Obsidian UI v5, viste Figma 7:3/7:4 lette con contesto e screenshot. Schede, tre grafici SVG dinamici, periodi, cronologia paginata con dettagli qualità/tempi, font Inter locale con licenza, motion breve e movimento ridotto. Solo GET BE-06; nessuna chiave client. Loading, vuoti, errori, null e sospetti distinti; nessuno zero sostitutivo. Stime esplicitamente indisponibili senza WX-02. [Implementazione ed evidenze](docs/frontend.md).
+- **Verifica corrente:** `npm run check` su copia senza file ambiente: build/lint, 16 test frontend, 39 Deno e 21 Python. QA browser: 11 scenari, reflow 320/390/768/1280 px, tastiera, movimento ridotto, fallback noscript, API reale vuota e fixture positive intercettate senza scritture DB. Screenshot desktop/mobile ispezionati; nessuna attestazione WCAG o prova su dispositivo fisico. Lavoro sul branch locale `codex/frontend-phase-7`, senza commit/push/PR.
 - **Esito provvisorio:** sostituito template con pagina responsive italiana, descrizione del progetto, lavori in corso e disponibilità delle misurazioni dichiarata assente. Nessun dato, grafico, previsione o richiesta a servizi; metadati, favicon e contenuto `noscript` aggiornati. La pagina provvisoria non completa la dashboard o la QA del mockup Figma.
 - **Scopo in pratica:** Sostituire il template con la pagina meteo reale e comprensibile da mobile e desktop.
 - **Input e file coinvolti:** design Figma di UI-00, condiviso tramite file o screenshot con specifiche; `src/App.tsx`, CSS e componenti/adapter necessari in `src/`; `index.html` per lingua/metadati; contratti di BE-06 e WX-02.
@@ -338,7 +340,9 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
 
-- [ ] **Stato: dipendenza UI-01 e backend reale BE-07.**
+- [ ] **Stato: implementazione locale provvisoria verificata; cadenza/ancoraggio e prova con inserimento reale ancora necessari.**
+- **Esito corrente:** polling latest ogni 15 secondi solo a pagina visibile, ripresa al ritorno/online, timeout, annullamento e assenza di richieste sovrapposte. Storico riletto all'apertura, cambio periodo, variazione dell'ultimo campione o recupero da errore dello storico; finestre scadute eliminate usando l'ora server. Paginazione fino a 50.000 eventi senza troncamenti silenziosi. Dati precedenti conservati e segnalati dopo errore. Due pagine aggiornate tramite fixture intercettata, senza reload. La funzione atteso +20 minuti è testata ai limiti; nel sito la cadenza resta non configurata e la freschezza dichiarata sconosciuta, anche dopo una ricezione recente.
+- **Limiti residui:** non misurati latenza dal commit DB, quote/costi con pubblico reale e cadenza della stazione. Il contratto latest non segnala inserimenti storici che non cambiano l'ultimo evento: questi richiedono riapertura/cambio periodo per rileggere lo storico. Nessuna modifica al backend per deduzione. Dettagli in [docs/frontend.md](docs/frontend.md).
 - **Scopo in pratica:** Mostrare una misura nuova nella pagina già aperta e indicare correttamente se la stazione è in ritardo.
 - **Input e file coinvolti:** Adapter letture e componenti di UI-01 in `src/`; eventuale canale backend scelto, timer e prove riconnessione. Soglia fissata nel piano: atteso +20 minuti.
 - **Come:** partire dalla scelta delegata, polling novità ogni 15 secondi a pagina visibile e cache condivisa fino a 10 secondi; verificarne quote e comportamento effettivo prima del rilascio. Ricaricare serie soltanto a nuove misure/cambio periodo e riprendere al ritorno in primo piano. Riconnettere dopo errore senza duplicati; calcolare ritardo sull’atteso +20 minuti distinguendo acquisizione PC, misura e ricezione.
@@ -439,5 +443,7 @@ Verifica storica del setup: `npm run check` superato su copia senza `.env` con e
 
 **Prova successiva richiesta dall'utente — CSV sintetico e Supabase:** target MeteOlivelli verificato, funzioni v3 attive; sei eventi CSV più un evento concorrente salvati via uploader/HTTPS. Retry/ricezione immutata, replay senza duplicati, conflitti, auth, quarantena, flag qualità e sei richieste concorrenti superati. Suite SQL con rollback superata. Rimosse soltanto le sette fixture identificate dal manifesto; zero eventi finali e RLS attiva. [Verbale](docs/backend-csv-verification.md). Nessun codice applicativo modificato, deploy, commit o push; DATA e UP restano aperti per CSV/Windows reali. Prova sintetica remota non equivale a chiusura della Fase 6 sul PC scolastico.
 
-Completati SET-00–SET-04 e BE-01–BE-07 sul contratto v1: 12 attività su 29; 17 restano non completate, incluse DATA-01–DATA-03, UP-01–UP-04, UI-00 e UI-01 parziali. La Fase 6 ha codice locale provvisorio e guida, ma resta aperta per campione/writer e prova Windows. La Fase 5 è verificata sul contratto v1, senza dichiarare pronta la catena fisica o il rilascio complessivo. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
+**Frontend Fase 7 — 22 ottobre 2026:** realizzata la dashboard sulla base Figma Obsidian v5, con letture pubbliche senza credenziali, stati espliciti, grafici e cronologia. Verifiche locali e browser in [docs/frontend.md](docs/frontend.md). UI-01 completata localmente; UI-02 provvisoria, WX e collaudo reale ancora aperti. Nessuna scrittura remota o pubblicazione Git/Vercel.
+
+Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 attività su 29; 16 restano non completate, incluse DATA-01–DATA-03, UP-01–UP-04, UI-00 e UI-02 parziali. La Fase 6 resta aperta per campione/writer e prova Windows. La Fase 7 ha frontend verificato localmente, ma non modello validato o collaudo della catena fisica. Il rilascio complessivo resta aperto. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
 

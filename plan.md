@@ -1,10 +1,10 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** Fase 5 di tasks.md completata tecnicamente sul contratto v1; BE-07 applicato e verificato nel progetto MeteOlivelli esistente scelto dall’utente. Pagina “Work in progress” senza dati; CSV reale e dashboard ancora aperti.
+> **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e verificata localmente dal design Figma Obsidian v5. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo backend locale e sincronizzazione delle fasi.
+> **Ultimo aggiornamento:** 22 ottobre 2026, dopo implementazione e QA locale del frontend della Fase 7.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito corrente:** richiesta di eseguire il blocco 5 di tasks.md: schema/accessi, migrazione preparata, ingestione e lettura locali sul contratto v1. Successiva scelta esplicita del progetto esistente: migrazione e due Edge Function applicate e verificate in BE-07. Nessun commit/push o intervento frontend/Vercel in questa attività.
+> **Ambito corrente:** frontend del blocco 7 di tasks.md sulla base del progetto MeteOlivelli in Figma, richiesto dall'utente. UI-01 locale completata, UI-02 provvisoria; WX-01–WX-02 non implementati senza dati idonei. Nessuna scrittura remota, commit, push o deploy in questa attività.
 
 > **Decisioni correnti:** le risposte del 22 ottobre e le scelte tecniche delegate sono raccolte nella sezione 18. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, non è più prevista l’integrazione di un provider meteo esterno.
 
@@ -31,7 +31,7 @@ React/Vite con una pagina italiana senza dati, avviso “Work in progress / Lavo
 corso”, breve descrizione del progetto, grandezze previste e autori già indicati nel
 README. Nessuna dashboard o connessione dati implicata. Metadati italiani, favicon
 del progetto e contenuto `noscript`; commit e push richiesti dall'utente. Non è
-un'implementazione fedele del mockup Figma, che rimane riferimento della dashboard futura.
+un'implementazione del mockup Figma. Questa descrizione è storica: la successiva dashboard della Fase 7 la sostituisce come descritto sotto.
 
 Il piano precedente descrive MeteOlivelli come una piattaforma meteorologica pubblica sviluppata da due studenti del Liceo Scientifico Paritario Teresio Olivelli di Pavia (C; denominazione completa da confermare; destinazione pubblica confermata dall’utente in Q18). Il README conferma il riferimento al liceo Teresio Olivelli a Pavia e indica come autori Pietro Giudici e Nicholas Borin (F). Deve presentare in modo chiaro le misurazioni raccolte dalla stazione scolastica, conservarne lo storico e restare gestibile con risorse limitate.
 
@@ -476,6 +476,10 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 
 ### Fase 7 — Previsioni e collegamento al frontend
 
+**Esito frontend verificato (F, 22 ottobre 2026):** UI-01 implementata sul branch locale `codex/frontend-phase-7`, usando il contesto e gli screenshot delle viste Figma Obsidian v5 desktop 7:3/mobile 7:4. Schede, grafici SVG dinamici 24h/7g/30g, cronologia paginata, dettagli qualità e tre tempi distinti, font Inter locale, pannelli satinati e motion con movimento ridotto. GET pubblico BE-06 collegato senza credenziali; l'API reale risponde vuota e la UI non inserisce numeri dimostrativi. Fixture positive solo nelle prove browser, marcate DEMO nelle evidenze. `npm run check` superato senza file ambiente: 16 test frontend, 39 Deno, 21 Python oltre build/lint. QA browser: 11 scenari e viste 320/390/768/1280 px; nessun errore JavaScript non gestito. [Specifiche, prove e limiti](docs/frontend.md).
+
+**UI-02 provvisoria:** latest ogni 15 secondi a pagina visibile; serie all'apertura/cambio periodo/nuovo ultimo campione/recupero da errore dello storico, con paginazione e scadenza della finestra usando l'ora server. Provate due pagine browser tramite fixture locale e recupero dopo rete interrotta. Non misurati latenza dal commit e sostenibilità delle quote. I soli inserimenti storici che non cambiano latest richiedono una nuova apertura/cambio periodo. Cadenza e ancoraggio reali non verificati: la funzione di ritardo è testata, ma la dashboard dichiara freschezza sconosciuta. WX-01–WX-02 restano aperti: UI “Stima non disponibile” per i tre orizzonti, nessun modello o scenario fittizio pubblico. Nessuna modifica a Figma, Supabase o Vercel e nessun commit/push.
+
 **Contenuto MVP**
 
 - Ultima temperatura, umidità e pressione disponibili.
@@ -856,8 +860,10 @@ Il setup SET-00–SET-04 e BE-01–BE-07 sul contratto v1 sono completati tecnic
 BE-07 è stato applicato al progetto Supabase MeteOlivelli esistente scelto dall’utente;
 prove e limiti in [docs/backend-verification.md](docs/backend-verification.md).
 La Fase 6 dispone ora di uploader locale provvisorio e guida: restano vincoli
-CSV/tempo da verificare in DATA-01–DATA-03 e prove sul PC Windows. La Fase 7
-(dashboard e modello sperimentale) può progredire nei suoi task indipendenti.
+CSV/tempo da verificare in DATA-01–DATA-03 e prove sul PC Windows. Nella Fase 7
+UI-01 è implementata e verificata localmente; UI-02 resta provvisoria e il modello
+sperimentale richiede serie datate idonee. Prossime prove: nuova misura reale nella
+pagina aperta, cadenza/ancoraggio e validazione separata degli orizzonti.
 Nessuna promessa di catena fisica pronta prima del campione e delle prove sul PC.
 
 La baseline locale della fase 3 è completata nei limiti della sezione 4. L’MVP definito nella fase 3 prevede: sito pubblico per scuola/open day, ultimi valori, grafici 24h/7g/30g, aggiornamento automatico, previsioni +30 minuti/+1 ora/giornata, stato con tolleranza di 20 minuti oltre l’atteso, niente account/profilazione/download. Consegna richiesta settimana prossima, finestra interpretata 26 ottobre–1 novembre 2026; eventuale chiusura a dicembre ancora incerta. Non riproporre come aperte queste scelte.

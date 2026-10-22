@@ -1,0 +1,156 @@
+// Contratto pubblico BE-06. Nessun import del runtime server nel browser.
+export type Period = '24h' | '7g' | '30g'
+export type Metric = 'temperature_c' | 'humidity_pct' | 'pressure_hpa'
+export interface QualityFlag {
+  field: Metric
+  code: 'missing_value' | 'outside_physical_bounds' | 'outside_configured_range'
+  label: 'dato assente' | 'probabile errato'
+  reason: string
+}
+export interface Measurement {
+  ingestion_id: string
+  temperature_c: number | null
+  humidity_pct: number | null
+  pressure_hpa: number | null
+  captured_at: string | null
+  measured_at: string | null
+  received_at: string
+  quality_flags: QualityFlag[]
+}
+export interface ReadPage {
+  items: Measurement[]
+  next_cursor: string | null
+  until: string
+  time_basis: 'captured_at'
+}
+export const metrics = [
+  { key: 'temperature_c', name: 'Temperatura', unit: '°C', tone: 'mint' },
+  { key: 'humidity_pct', name: 'Umidità', unit: '%', tone: 'blue' },
+  { key: 'pressure_hpa', name: 'Pressione', unit: 'hPa', tone: 'lilac' },
+] as const
+export const periods: { value: Period; label: string }[] = [
+  { value: '24h', label: '24 ore' }, { value: '7g', label: '7 giorni' }, { value: '30g', label: '30 giorni' },
+]
+// URL pubblico già verificato in BE-07; non richiede chiavi o token client.
+export const READ_ENDPOINT = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements'
+const metricKeys = new Set<string>(metrics.map(metric => metric.key))
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+function isTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string') return false
+  const match = /^(?!0000)(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?(?:Z|\+00:00)$/.exec(value)
+  if (!match || !Number.isFinite(Date.parse(value))) return false
+  const canonical = `${match[1]}.${(match[2] ?? '').padEnd(3, '0').slice(0, 3)}Z`
+  return new Date(value).toISOString() === canonical
+}
+
+export function parsePage(value: unknown): ReadPage {
+  if (!isObject(value) || !Array.isArray(value.items) || value.items.length > 500 ||
+    value.time_basis !== 'captured_at' || !isTimestamp(value.until) ||
+    !(value.next_cursor === null || (typeof value.next_cursor === 'string' && value.next_cursor.length > 0 && value.next_cursor.length <= 512))) {
+    throw new Error('Risposta non valida')
+  }
+  const items = value.items.map((row: unknown): Measurement => {
+    if (!isObject(row) || typeof row.ingestion_id !== 'string' ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(row.ingestion_id) ||
+      !metrics.every(({ key }) => row[key] === null || (typeof row[key] === 'number' && Number.isFinite(row[key]))) ||
+      !(row.captured_at === null || isTimestamp(row.captured_at)) ||
+      !(row.measured_at === null || isTimestamp(row.measured_at)) || !isTimestamp(row.received_at) ||
+      !Array.isArray(row.quality_flags) || !row.quality_flags.every((flag: unknown) =>
+        isObject(flag) && typeof flag.field === 'string' && metricKeys.has(flag.field) &&
+        ['missing_value', 'outside_physical_bounds', 'outside_configured_range'].includes(String(flag.code)) &&
+        ['dato assente', 'probabile errato'].includes(String(flag.label)) && typeof flag.reason === 'string')) {
+      throw new Error('Misura non valida')
+    }
+    // Proiezione esplicita: nessun campo interno propagato ai componenti.
+    return {
+      ingestion_id: row.ingestion_id, temperature_c: row.temperature_c as number | null,
+      humidity_pct: row.humidity_pct as number | null, pressure_hpa: row.pressure_hpa as number | null,
+      captured_at: row.captured_at, measured_at: row.measured_at, received_at: row.received_at,
+      quality_flags: row.quality_flags as QualityFlag[],
+    }
+  })
+  return { items, next_cursor: value.next_cursor, until: value.until, time_basis: 'captured_at' }
+}
+
+export async function readPage(params: URLSearchParams, signal: AbortSignal, request: typeof fetch = fetch): Promise<ReadPage> {
+  const response = await request(`${READ_ENDPOINT}?${params}`, {
+    signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+    credentials: 'omit', headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) {
+    await response.body?.cancel()
+    throw new Error('Letture temporaneamente non disponibili')
+  }
+  return parsePage(await response.json())
+}
+export type PageReader = typeof readPage
+
+export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage): Promise<Measurement[]> {
+  const items = new Map<string, Measurement>()
+  const cursors = new Set<string>()
+  let cursor: string | null = null
+  let until: string | null = null
+  // Limite conservativo: oltre 50.000 eventi fallire esplicitamente, mai mostrare una serie troncata come completa.
+  for (let page = 0; page < 100; page++) {
+    const params = new URLSearchParams({ view: 'history', period, basis: 'captured_at', limit: '500' })
+    if (cursor) params.set('cursor', cursor)
+    const result = await reader(params, signal)
+    if (until !== null && result.until !== until) throw new Error('Finestra dello storico incoerente')
+    until = result.until
+    for (const item of result.items) {
+      if (!item.captured_at) throw new Error('Acquisizione non datata nello storico')
+      items.set(item.ingestion_id, item)
+    }
+    if (!result.next_cursor) return [...items.values()].sort(compareMeasurements)
+    if (cursors.has(result.next_cursor)) throw new Error('Cursore ripetuto')
+    cursor = result.next_cursor
+    cursors.add(cursor)
+  }
+  throw new Error('Storico oltre il limite di consultazione')
+}
+
+export function compareMeasurements(a: Measurement, b: Measurement): number {
+  return Date.parse(a.captured_at ?? '') - Date.parse(b.captured_at ?? '') || a.ingestion_id.localeCompare(b.ingestion_id)
+}
+export function trimHistory(rows: Measurement[], period: Period, serverUntil: string): Measurement[] {
+  const duration = (period === '24h' ? 24 : period === '7g' ? 168 : 720) * 3600000
+  const start = Date.parse(serverUntil) - duration
+  return rows.filter(row => row.captured_at !== null && Date.parse(row.captured_at) >= start)
+}
+export function isSuspect(row: Measurement, field: Metric): boolean {
+  return row.quality_flags.some(flag => flag.field === field && flag.code !== 'missing_value')
+}
+export function formatValue(value: number | null): string {
+  return value === null ? 'Dato assente' : new Intl.NumberFormat('it-IT', { useGrouping: false, minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)
+}
+export function formatTime(value: string | null, short = false): string {
+  if (!value) return 'Orario sconosciuto'
+  return new Intl.DateTimeFormat('it-IT', {
+    timeZone: 'Europe/Rome', ...(short ? {} : { day: '2-digit', month: 'short', year: 'numeric' }),
+    hour: '2-digit', minute: '2-digit',
+  }).format(new Date(value))
+}
+export type Freshness = 'empty' | 'unknown' | 'current' | 'delayed'
+export function getFreshness(row: Measurement | null, now: number, verifiedCadenceMs: number | null): Freshness {
+  if (!row) return 'empty'
+  // received_at e captured_at non sostituiscono l'ora fisica della misura.
+  if (!row.measured_at || !verifiedCadenceMs || verifiedCadenceMs <= 0 || !Number.isFinite(verifiedCadenceMs)) return 'unknown'
+  const measured = Date.parse(row.measured_at)
+  if (!Number.isFinite(measured) || measured > now) return 'unknown'
+  return now > measured + verifiedCadenceMs + 20 * 60000 ? 'delayed' : 'current'
+}
+
+// Ogni valore nullo/sospetto interrompe la linea; i valori originali restano nella tabella.
+export function chartSegments(rows: Measurement[], field: Metric): Measurement[][] {
+  const result: Measurement[][] = []
+  let current: Measurement[] = []
+  for (const row of rows) {
+    if (row[field] === null || isSuspect(row, field) || !row.captured_at) {
+      if (current.length) result.push(current)
+      current = []
+    } else current.push(row)
+  }
+  if (current.length) result.push(current)
+  return result
+}
