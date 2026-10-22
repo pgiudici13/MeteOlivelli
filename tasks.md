@@ -1,5 +1,7 @@
 # Attività operative — MeteOlivelli
 
+> **Stato più recente — 22 ottobre:** grafica e postilla pubblicate su `main` (`fab71cb`); successivamente autorizzati schema/endpoint con tipo distinto `synthetic` e cinque campioni a intervalli di 30 minuti, ora inseriti e verificati. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
+
 > **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo rimozione della modalità dimostrativa e pulizia dei relativi record.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
 > **Richiesta precedente:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
@@ -498,3 +500,5 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **Postilla richiesta — 22 ottobre 2026 (Fase 7 / UI-01):** aggiunta sopra il contenuto, fuori dalle animazioni, la sola dicitura “Work in progress · Possibili dati presenti fittizi”. Nessuna scrittura database eseguita in questa revisione. La postilla è locale; prima di esporre campioni di prova nel database pubblico occorre pubblicarla sul sito pubblico con autorizzazione esplicita al deploy.
 
 **Pubblicazione autorizzata — 22 ottobre 2026 (Fase 7 / UI-01, REL-02):** l’utente ha richiesto esplicitamente di eseguire commit e push. Target verificato: `origin/main`, repository `pgiudici13/MeteOlivelli`, Vercel `meteolivelli` / team `team_WF8R8uiIvXzKOKJgGrlcCYtF`, dominio `meteolivelli.vercel.app`. `main` allineato a `origin/main` prima del rilascio. `npm run check` superato. GET pubblico latest risponde correttamente con `items: []`: l’assenza dei valori non è un guasto del collegamento. Pubblicazione della postilla prima di qualsiasi nuovo inserimento di prova; verifica del deploy successiva al push.
+
+**Fase 7 / UI-01 e BE-06 — Campioni di prova distinti:** applicata migrazione `20261022194231_synthetic_measurement_kind`, ripubblicata lettura pubblica, inserito batch di cinque record `synthetic` con metadati e data fisica NULL dopo pubblicazione della postilla. Intervalli SQL verificati: 1800 secondi. `npm run check` e 13 scenari browser superati; collaudo pubblico senza mock conferma dati e grafici. [Verbale](docs/data-preview.md).

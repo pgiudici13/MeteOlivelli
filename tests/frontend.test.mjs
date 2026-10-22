@@ -154,3 +154,12 @@ test('polling: richieste sovrapposte evitate; nessun aggiornamento dopo stop', a
   await first
   assert.equal(updates, 0)
 })
+
+test('provenienza: il tipo sintetico è conservato, un tipo sconosciuto è rifiutato', () => {
+  assert.equal(parsePage(page([row(1, { acquisition_kind: 'synthetic' })])).items[0].acquisition_kind, 'synthetic')
+  assert.throws(() => parsePage(page([row(1, { acquisition_kind: 'unknown' })])))
+})
+
+test('freschezza: i campioni sintetici non diventano misure fisiche aggiornate', () => {
+  assert.equal(getFreshness(row(1, { acquisition_kind: 'synthetic', measured_at: '2026-10-22T12:00:00.000Z' }), Date.parse('2026-10-22T12:00:00.000Z'), 3600000), 'unknown')
+})

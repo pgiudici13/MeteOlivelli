@@ -14,6 +14,7 @@ const check = async (name, action) => { await action(); results.push({ name, pas
 const attachErrors = page => page.on('pageerror', error => errors.push(error.message))
 const noOverflow = async page => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
 const record = (index, overrides = {}) => ({
+  acquisition_kind: 'synthetic',
   ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   temperature_c: [14.9, 15.5, 16.1, 17, 17.8, 19.4][index] ?? 20.2,
   humidity_pct: [76, 74, 72, 70, 68, 64][index] ?? 62,
@@ -41,9 +42,10 @@ const markSynthetic = async page => page.evaluate(() => {
 })
 try {
   const liveContext = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  await liveContext.route('**/functions/v1/read-measurements?*', route => route.fulfill({ json: pageData([]) }))
   const live = await liveContext.newPage()
   attachErrors(live)
-  await check('API pubblica → dashboard vuota, nessuna misura inventata', async () => {
+  await check('risposta vuota intercettata → dashboard senza misure inventate', async () => {
     await live.goto(base)
     await live.getByText('Nessuna misura disponibile', { exact: true }).waitFor({ timeout: 20000 })
     assert.deepEqual(await live.locator('.metric-value').allTextContents(), Array(3).fill('Nessun dato disponibile'))
@@ -209,5 +211,5 @@ try {
     await nojs.close()
   })
   assert.deepEqual(errors, [])
-  await writeFile(`${output}/results.json`, `${JSON.stringify({ date: '2026-10-22', backend: 'GET pubblico vuoto; tutti i casi positivi sono fixture sintetiche intercettate nel browser, nessuna scrittura remota', browser: await browser.version(), results, pageErrors: errors }, null, 2)}\n`)
+  await writeFile(`${output}/results.json`, `${JSON.stringify({ date: '2026-10-22', backend: 'Risposte vuote e positive intercettate nel browser; nessuna scrittura remota da questo runner', browser: await browser.version(), results, pageErrors: errors }, null, 2)}\n`)
 } finally { await browser.close() }

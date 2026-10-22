@@ -1,0 +1,74 @@
+{
+  "verified_at": "2026-10-22T19:44:23.801Z",
+  "url": "https://meteolivelli.vercel.app/",
+  "record_count": 5,
+  "gaps_minutes": 30,
+  "provenance": "synthetic",
+  "measured_at": null,
+  "disclaimer": "Work in progress · Possibili dati presenti fittizi",
+  "charts": 4,
+  "table_rows": 5,
+  "latest_values": [
+    "17,3 °C",
+    "68,2 %",
+    "1015,8 hPa"
+  ],
+  "browser_errors": [],
+  "records": [
+    {
+      "acquisition_kind": "synthetic",
+      "ingestion_id": "0e3c9f7d-4b69-4645-b810-8cee72d6416a",
+      "temperature_c": 18.2,
+      "humidity_pct": 65.4,
+      "pressure_hpa": 1015.2,
+      "captured_at": "2026-10-22T17:43:00+00:00",
+      "measured_at": null,
+      "received_at": "2026-10-22T19:43:21.795003+00:00",
+      "quality_flags": []
+    },
+    {
+      "acquisition_kind": "synthetic",
+      "ingestion_id": "025f79f0-646a-4643-8f54-6c8814f05bfe",
+      "temperature_c": 18,
+      "humidity_pct": 66.1,
+      "pressure_hpa": 1015.4,
+      "captured_at": "2026-10-22T18:13:00+00:00",
+      "measured_at": null,
+      "received_at": "2026-10-22T19:43:21.797563+00:00",
+      "quality_flags": []
+    },
+    {
+      "acquisition_kind": "synthetic",
+      "ingestion_id": "2384fe94-46c4-4983-b0ac-934937be1e99",
+      "temperature_c": 17.7,
+      "humidity_pct": 67,
+      "pressure_hpa": 1015.5,
+      "captured_at": "2026-10-22T18:43:00+00:00",
+      "measured_at": null,
+      "received_at": "2026-10-22T19:43:21.797658+00:00",
+      "quality_flags": []
+    },
+    {
+      "acquisition_kind": "synthetic",
+      "ingestion_id": "c074f4c7-3e5f-44c1-8562-f935b6eced95",
+      "temperature_c": 17.5,
+      "humidity_pct": 67.6,
+      "pressure_hpa": 1015.7,
+      "captured_at": "2026-10-22T19:13:00+00:00",
+      "measured_at": null,
+      "received_at": "2026-10-22T19:43:21.797721+00:00",
+      "quality_flags": []
+    },
+    {
+      "acquisition_kind": "synthetic",
+      "ingestion_id": "931f5800-e23c-4ecc-b090-c74481e425b9",
+      "temperature_c": 17.3,
+      "humidity_pct": 68.2,
+      "pressure_hpa": 1015.8,
+      "captured_at": "2026-10-22T19:43:00+00:00",
+      "measured_at": null,
+      "received_at": "2026-10-22T19:43:21.797784+00:00",
+      "quality_flags": []
+    }
+  ]
+}

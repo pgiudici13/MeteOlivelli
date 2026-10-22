@@ -8,6 +8,7 @@ export interface QualityFlag {
   reason: string
 }
 export interface Measurement {
+  acquisition_kind?: 'live' | 'historical' | 'synthetic'
   ingestion_id: string
   temperature_c: number | null
   humidity_pct: number | null
@@ -51,7 +52,7 @@ export function parsePage(value: unknown): ReadPage {
     throw new Error('Risposta non valida')
   }
   const items = value.items.map((row: unknown): Measurement => {
-    if (!isObject(row) || typeof row.ingestion_id !== 'string' ||
+    if (!isObject(row) || (row.acquisition_kind !== undefined && !['live', 'historical', 'synthetic'].includes(String(row.acquisition_kind))) || typeof row.ingestion_id !== 'string' ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(row.ingestion_id) ||
       !metrics.every(({ key }) => row[key] === null || (typeof row[key] === 'number' && Number.isFinite(row[key]))) ||
       !(row.captured_at === null || isTimestamp(row.captured_at)) ||
@@ -64,6 +65,7 @@ export function parsePage(value: unknown): ReadPage {
     }
     // Proiezione esplicita: nessun campo interno propagato ai componenti.
     return {
+      ...(row.acquisition_kind === undefined ? {} : { acquisition_kind: row.acquisition_kind as Measurement['acquisition_kind'] }),
       ingestion_id: row.ingestion_id, temperature_c: row.temperature_c as number | null,
       humidity_pct: row.humidity_pct as number | null, pressure_hpa: row.pressure_hpa as number | null,
       captured_at: row.captured_at, measured_at: row.measured_at, received_at: row.received_at,
@@ -134,6 +136,7 @@ export function formatTime(value: string | null, short = false): string {
 export type Freshness = 'empty' | 'unknown' | 'current' | 'delayed'
 export function getFreshness(row: Measurement | null, now: number, verifiedCadenceMs: number | null): Freshness {
   if (!row) return 'empty'
+  if (row.acquisition_kind === 'synthetic') return 'unknown'
   // received_at e captured_at non sostituiscono l'ora fisica della misura.
   if (!row.measured_at || !verifiedCadenceMs || verifiedCadenceMs <= 0 || !Number.isFinite(verifiedCadenceMs)) return 'unknown'
   const measured = Date.parse(row.measured_at)

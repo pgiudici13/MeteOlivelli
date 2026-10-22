@@ -1,5 +1,7 @@
 # Backend v1 — schema, accessi e verifica
 
+> **Aggiornamento 22 ottobre:** tipo applicativo `synthetic` distinto, cinque campioni amministrativi e postilla pubblica autorizzati; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti a questo aggiornamento.
+
 Specifica locale del blocco 5 di `tasks.md`, 22 ottobre 2026. Usa il contratto JSON
 v1; il CSV e il writer reali restano da verificare. Dopo preparazione e scelta
 esplicita dell’utente, schema ed endpoint sono stati applicati al progetto esistente

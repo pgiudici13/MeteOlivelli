@@ -1,10 +1,10 @@
 {
   "date": "2026-10-22",
-  "backend": "GET pubblico vuoto; tutti i casi positivi sono fixture sintetiche intercettate nel browser, nessuna scrittura remota",
+  "backend": "Risposte vuote e positive intercettate nel browser; nessuna scrittura remota da questo runner",
   "browser": "155.0.8059.85",
   "results": [
     {
-      "name": "API pubblica → dashboard vuota, nessuna misura inventata",
+      "name": "risposta vuota intercettata → dashboard senza misure inventate",
       "passed": true
     },
     {

@@ -9,6 +9,7 @@ export interface Receipt {
 }
 export type SaveResult = Receipt | { status: 'conflict' }
 export interface PublicMeasurement {
+  acquisition_kind?: 'live' | 'historical' | 'synthetic'
   ingestion_id: string
   temperature_c: number | null
   humidity_pct: number | null
@@ -92,6 +93,7 @@ export function createRestStore(
       }
       // Proiezione esplicita: non propagare colonne interne anche dopo cambi SQL.
       return value.map((row) => ({
+        acquisition_kind: row.acquisition_kind,
         ingestion_id: row.ingestion_id,
         temperature_c: row.temperature_c,
         humidity_pct: row.humidity_pct,

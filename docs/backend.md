@@ -1,5 +1,7 @@
 # Backend: setup locale e controllo dati
 
+> **Aggiornamento 22 ottobre:** tipo applicativo `synthetic` distinto, cinque campioni amministrativi e postilla pubblica autorizzati; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti a questo aggiornamento.
+
 ## Cosa è pronto
 
 Il backend previsto è una Supabase Edge Function TypeScript per ricevere eventi

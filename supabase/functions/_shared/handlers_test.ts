@@ -287,3 +287,39 @@ Deno.test('adapter read proietta colonne pubbliche e non propaga payload interno
   const rows = await database.read('test', query)
   assert(!('raw_payload' in rows[0]) && !('payload' in rows[0]) && !('arduino_seconds' in rows[0]))
 })
+
+Deno.test('ingest non accetta campioni sintetici tramite il canale dei sensori', async () => {
+  let saved = false
+  const handler = createIngestHandler({
+    token,
+    source: 'test',
+    store: store({
+      save: () => {
+        saved = true
+        return Promise.resolve(receipt)
+      },
+    }),
+  })
+  const result = await handler(request({ ...fixture, acquisition_kind: 'synthetic' }))
+  assert(result.status === 422 && !saved)
+})
+
+Deno.test('read conserva il tipo sintetico senza esporre i metadati interni', async () => {
+  const database = createRestStore(
+    'https://example.test',
+    'sintetica',
+    (() =>
+      Promise.resolve(Response.json([
+        {
+          ...fixture,
+          acquisition_kind: 'synthetic',
+          received_at: receipt.received_at,
+          quality_flags: [],
+          payload: { internal: true },
+        },
+      ]))) as typeof fetch,
+  )
+  const handler = createReadHandler({ source: 'test', store: database, now })
+  const result = await (await handler(new Request('https://example.test/'))).json()
+  assert(result.items[0].acquisition_kind === 'synthetic' && !('payload' in result.items[0]))
+})
