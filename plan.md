@@ -1040,3 +1040,11 @@ Supabase raccomanda ai progetti Free esportazioni regolari e copie fuori sede; n
 | 27 | Nella SPA proporre un messaggio statico `noscript`; con JS attivo i contenuti restano visibili se l’animazione non parte. Non introdurre SSR o promettere una dashboard live senza JavaScript |
 | 28–33, 36 | Allineare documenti correnti a decisioni, conteggi e dipendenze; conservare le evidenze storiche come tali. Separare integrazione misure e stime. Ulteriore riduzione delle duplicazioni da fare senza perdere requisiti |
 | 34–35 | Fissare una consegna Figma con versione/screenshot e stati vuoto, caricamento, errore, ritardo e valore sospetto. Provare app a 320/390/768/1280 px, zoom, tastiera e movimento ridotto; misurare blur ed effetti su un dispositivo reale e semplificarli se costosi |
+
+## Aggiornamento 22 ottobre 2026 — Visibilità dati simulati (Fase 7)
+
+**Fatti verificati:** Supabase conserva 50 righe con source_id `meteolivelli-demo-20261022`, acquisition_kind `historical`, captured_at/measured_at NULL. La lettura ordinaria filtra per sorgente della stazione e timestamp; quindi i campioni DEMO non compaiono. GitHub PR #3 contiene un selettore DEMO/misure reali e un endpoint di sola lettura separato. La Edge Function `read-demo-measurements` è stata distribuita ACTIVE; l'anteprima Vercel del branch risulta READY. Nessuna migrazione DB o modifica dei record effettuata.
+
+**Decisione di presentazione:** i dati DEMO devono essere visibilmente distinti dalle misure reali. Il backend genera orari sintetici esclusivamente nella risposta per consentire grafici; non rappresentano orari di misura e non vengono scritti nel DB. L'interfaccia indica esplicitamente la simulazione. L'endpoint reale rimane invariato.
+
+**Stato:** implementazione proposta nella PR #3, NON ancora validata end-to-end; non un rilascio in produzione. Restano da verificare risposta HTTP, conteggio 50, grafici, cambio modalità, controlli di qualità, build/lint/test, accessibilità, assenza di regressioni e protezione dei dati. Valutare anche il comportamento degli intervalli 24h/7g/30g in DEMO, attualmente basati su una serie simulata di circa 49 minuti; i filtri della DEMO non equivalgono a dati reali datati. Verificare l'assenza di problemi di sicurezza prima del merge. Link: https://github.com/pgiudici13/MeteOlivelli/pull/3.
