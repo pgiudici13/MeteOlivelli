@@ -6,7 +6,7 @@ import { resolve } from 'node:path'
 const { chromium } = await import(process.argv[2] ?? 'playwright')
 const browser = await chromium.launch({ headless: true, ...(process.argv[3] ? { executablePath: process.argv[3] } : {}) })
 const base = process.argv[4] ?? 'http://127.0.0.1:5173/'
-const output = resolve('docs/frontend-verification')
+const output = resolve('docs/factory-verification')
 await mkdir(output, { recursive: true })
 const results = []
 const errors = []
@@ -61,9 +61,14 @@ try {
   await check('fixture sintetica: tre grafici, unità e tabella accessibile', async () => {
     await page.goto(base)
     await page.locator('.chart svg').first().waitFor()
-    assert.equal(await page.locator('.chart svg').count(), 3)
+    assert.equal(await page.locator('.chart-grid .chart svg').count(), 3)
     assert.equal(await page.locator('.history-table tbody tr').count(), 6)
     assert.match(await page.locator('.metric-value').first().textContent(), /19,4/)
+    assert.match(await page.locator('.hero-temperature').textContent(), /19,4/)
+    assert.equal(await page.locator('.hero-instrument .chart svg').count(), 1)
+    const intro = await page.locator('.intro').boundingBox()
+    const instrument = await page.locator('.hero-instrument').boundingBox()
+    assert.ok(instrument.x > intro.x + intro.width, 'Grafico a destra del titolo su desktop')
     assert.equal(await page.getByRole('status').first().textContent(), 'Freschezza non determinabile')
     await markSynthetic(page)
   })
@@ -133,7 +138,7 @@ try {
     await page.clock.fastForward(15001)
     await page.getByText('Probabile errato', { exact: true }).first().waitFor()
     assert.match(await page.locator('.metric-value').nth(1).textContent(), /Dato assente/)
-    assert.equal(await page.locator('.chart.tone-mint .chart-point').count(), 2)
+    assert.equal(await page.locator('.chart-grid .chart.tone-mint .chart-point').count(), 2)
     assert.match(await page.locator('.history-table').textContent(), /999,0/)
   })
   await check('zoom 200% simulato tramite reflow e movimento ridotto', async () => {

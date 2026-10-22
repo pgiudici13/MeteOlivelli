@@ -1,10 +1,10 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e verificata localmente dal design Figma Obsidian v5. CSV reale, collaudo della stazione e modello previsionale restano aperti.
+> **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e verificata localmente, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
 > **Ultimo aggiornamento:** 22 ottobre 2026, dopo rimozione della modalità dimostrativa, pulizia dei relativi record Supabase e nuova decisione sulla destinazione dei futuri test sintetici.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
-> **Ambito corrente:** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
+> **Ambito precedente (completato per la rimozione DEMO):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
 
 > **Decisioni correnti:** le risposte e le scelte tecniche delegate sono raccolte nella sezione 18, con gli aggiornamenti successivi in fondo. Superano le proposte precedenti incompatibili; le scelte progettuali non sono funzionalità implementate. In particolare, il prodotto non offre una modalità DEMO né database separati. Per richiesta esplicita del 22 ottobre, eventuali righe sintetiche d'integrazione saranno registrate nello stesso progetto e tabella Supabase finali, marcate con provenienza dedicata prima di inserirle e mai confuse con misure reali. I test unitari locali possono continuare a usare fixture isolate. Non è prevista l'integrazione di un provider meteo esterno.
 
@@ -1048,3 +1048,14 @@ Supabase raccomanda ai progetti Free esportazioni regolari e copie fuori sede; n
 **Decisione successiva dell'utente (22 ottobre):** non esporre una modalità DEMO né dati sintetici nel prodotto. Le fixture possono rimanere esclusivamente nei test, sotto `tests/fixtures/`, con etichetta di collaudo. Nessun timestamp fittizio deve essere creato o presentato come osservazione della stazione.
 
 **Stato finale della rimozione (22 ottobre):** codice frontend del selettore, helper `src/demo.ts` e funzione locale/remota `read-demo-measurements` rimossi; eliminate 50 righe DEMO e le 6 righe sintetiche del test uploader dalla tabella `public.station_measurements`. La build e le suite automatiche saranno rieseguite dopo questa modifica. L'endpoint reale, schema, RPC, ingestione e lettura sono mantenuti.
+
+
+## Aggiornamento 22 ottobre 2026 — Restyling Factory (Fase 7, UI-01)
+
+**Richiesta dell’utente:** analizzare `DESIGN (1).md` e applicarne la direzione grafica al progetto esistente, con titolo grande a sinistra e grafico della temperatura subito a destra. Il documento allegato è una proposta visiva: gli esempi Factory non richiedono di introdurre login, marchi partner o funzionalità commerciali.
+
+**Decisione applicata:** sfondo caldo `#101010`, superfici piatte, bordi sottili, titoli regolari con tracking stretto, accenti arancio/verde per i dati, pannello temperatura chiaro `#eeeeee`. Conservato Inter locale, sostituto ammesso dalla proposta, senza nuovi download o dipendenze. Su mobile il pannello segue il titolo; misure, archivio, cronologia, stime e progetto mantengono ordine e funzioni. La scheda iniziale segue il periodo selezionato nell’archivio e riusa il grafico SVG accessibile.
+
+**Fatti verificati:** build, lint, 16 test frontend e 11 scenari browser superati; screenshot desktop/mobile ispezionati. API pubblica vuota nel collaudo; casi con misure esclusivamente sintetici intercettati nel browser e dichiarati nelle schermate. Evidenze: [verbale Factory](docs/factory-design.md).
+
+**Limiti:** la nuova veste non prova la freschezza della stazione: il valore principale dice “ultima lettura”, senza promettere una temperatura attuale non verificabile. UI-02, WX, CSV/writer e collaudo reale restano aperti. Questa richiesta riguarda modifiche locali del frontend; nessuna pubblicazione o modifica ai servizi eseguita.

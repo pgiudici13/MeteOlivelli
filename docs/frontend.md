@@ -1,5 +1,7 @@
 # Frontend Fase 7 — 22 ottobre 2026
 
+> **Aspetto corrente:** il successivo restyling Factory sostituisce palette e superfici Obsidian descritte sotto. Comportamento dei dati mantenuto; [specifiche ed evidenze aggiornate](factory-design.md).
+
 La dashboard React/TypeScript sostituisce la pagina provvisoria. Riferimento:
 [MeteOlivelli · Obsidian UI v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2),
 viste desktop `7:3` e mobile `7:4`, lette tramite il plugin Figma con contesto
