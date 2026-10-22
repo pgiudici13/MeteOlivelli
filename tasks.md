@@ -6,7 +6,7 @@
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
 > **Richiesta precedente:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
 
-> **Richiesta attuale:** consolidare la documentazione dello stato pubblicato, aggiornare la Fase 8 e sincronizzarla con `plan.md`, quindi commit/push autorizzati. Nessuna nuova modifica applicativa o scrittura database prevista da questo intervento.
+> **Richiesta attuale:** proseguire la Fase 8. CSV reale e PC Windows non sono disponibili; l’utente sceglie Google Drive scolastico per archiviare backup del database e gestire manualmente i file del programma; Drive non va collegato dal PC scolastico. I cinque record `synthetic` e la postilla restano per ora.
 
 ## 1. Come usare la checklist
 
@@ -357,9 +357,11 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### OPS-01 — Scegliere e provare il backup indipendente
 
-- [ ] **Stato: procedura preliminare documentata; destinazione e restore ancora da concordare/provare.**
+- [ ] **Stato: destinazione indicata (Google Drive scolastico per backup DB); dispositivo/processo export-upload, custode e target RPO/RTO da definire; esportazione e restore non eseguiti.**
 - [x] Documentare perimetro e criteri in `docs/operations.md`, includendo tipo `synthetic`, metadati, migrazioni, CSV e identità/outbox.
-- [ ] Confermare storage indipendente a costo approvato, custode, frequenza, retention/cifratura e RPO/RTO.
+- [x] L’utente sceglie Google Drive scolastico per i backup del database e la gestione manuale dei file del programma; non dal PC scolastico.
+- [ ] Definire un dispositivo amministrativo autorizzato per esportare il database Supabase, cifrare il pacchetto e caricarlo nella cartella Drive; verificare spazio, permessi, custode e versionamento. Non inserire credenziali Google nell’Arduino o nel repository.
+- [ ] Approvare o correggere i target proposti: RPO massimo 24 ore e RTO massimo un giorno lavorativo. Sono ipotesi operative, non decisioni già assunte.
 - [ ] Esportare fuori da Git e ripristinare in ambiente separato autorizzato, senza sovrascrivere produzione.
 - [ ] Confrontare conteggi, UUID, tipo/provenienza, valori, null temporali, schema/RLS e replay sicuro degli eventi già confermati dall’uploader; registrare durata ed esito.
 - **Criterio di completamento:** copia separata e restore provato. Git, screenshot, database operativo e CSV sul medesimo PC non sono automaticamente backup.
@@ -377,11 +379,12 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### OPS-03 — Gestire i campioni di prova e il passaggio alla stazione reale
 
-- [ ] **Stato: provenienza applicativa implementata e verificata; gestione del batch e transizione reale da concordare.**
+- [ ] **Stato: provenienza applicativa implementata e verificata; decisione attuale dell’utente (22 ottobre): mantenere per ora i cinque campioni e la postilla. Il passaggio reale resta in attesa del PC/CSV.**
 - [x] Tipo distinto `synthetic`, vincoli SQL, campo API/client, ingestione sensori che rifiuta il tipo, data fisica NULL e postilla pubblica verificati.
 - [x] Registrare batch `ui-preview-20261022-five-half-hour`, cinque record a distanza di 1800 secondi ed evidenze pubbliche in `docs/data-preview.md`.
+- [x] Mantenere per ora invariati i cinque record e la postilla; nessuna cancellazione o modifica richiesta.
 - [ ] Alla disponibilità della prima misura vera verificare priorità di `live` in `latest`, provenienza dello storico e chiarezza delle curve; non confondere lo scenario di prova con il trend della stazione.
-- [ ] Concordare conservazione identificata o rimozione esatta del batch; per eventuale cancellazione verificare UUID e copia necessaria e ottenere richiesta esplicita. Nessuna cancellazione per sola sorgente.
+- [ ] Dopo il primo collaudo reale, concordare se mantenere identificato o rimuovere il batch; per eventuale cancellazione verificare UUID e copia necessaria e ottenere una richiesta esplicita. Nessuna cancellazione per sola sorgente.
 - [ ] Dopo l’eventuale rimozione verificare API/UI e aggiornare documenti; rimuovere/modificare la postilla soltanto con decisione esplicita e dopo aver verificato che i campioni di prova non siano più esposti.
 - **Criterio di completamento:** passaggio alla stazione reale documentato, senza rietichettare dati inventati come `live`, perdere misure o lasciare provenienza ambigua. Questo task non autorizza altre scritture.
 - **Riferimento:** [plan.md Fase 8](plan.md#fase-8--backup-gestione-e-rilascio), [contratto](docs/data-preview.md), [guida](docs/operations.md#cinque-campioni-e-passaggio-ai-dati-reali).
@@ -430,6 +433,7 @@ La Fase 5 è completata tecnicamente sul contratto v1 nel progetto Supabase scel
 |---|---|---|---|
 | 22 ottobre 2026 | Documentazione design e istruzioni | `design.md` consolidato nella root, principi dell’allegato e adattamenti distinti; `AGENTS.md` con mappa dei file e regole di aggiornamento | Nessun codice o dato modificato; il vecchio percorso Factory resta un rimando |
 | 22 ottobre 2026 | Fase 8 · revisione documentale | README, frontend/design, QA, servizi e guida operativa consolidati sul rilascio `bce39e2`; OPS-03 aggiunto e roadmap sincronizzata | Documentazione soltanto: backup, avvisi, transizione alla stazione e MVP reale restano aperti; commit/push richiesti |
+| 22 ottobre 2026 | Fase 8 · decisioni e proposta backup | CSV/PC Windows non disponibili; batch `synthetic` e postilla da mantenere per ora; Drive scolastico scelto per backup DB e gestione manuale del programma, senza collegarlo al PC scolastico | Dispositivo per export/upload, cartella/capienza e RPO/RTO ancora da definire; nessun backup esportato o dato remoto modificato |
 | 21 ottobre 2026 | SET-00 | Baseline iniziale e successivo setup: stato Git, configurazioni e strumenti ricontrollati | Documenti locali preesistenti preservati; niente commit/push |
 | 21 ottobre 2026 | SET-01 | Regole ambiente corrette; esempi versionabili, nomi ambiente reali ancora ignorati | COR-001 risolto dopo controlli basati sui soli nomi |
 | 21 ottobre 2026 | SET-02 | README, esempi vuoti e guida backend creati; nessun `.env.local` letto o sovrascritto | Il template non usa ancora un client Supabase |

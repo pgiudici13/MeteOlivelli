@@ -548,7 +548,7 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 
 | Task in `tasks.md` | Stato acquisito | Cosa resta per completarlo |
 |---|---|---|
-| OPS-01 — Backup | Perimetro e criteri nella guida operativa | Destinazione indipendente, frequenza, custode, RPO/RTO, esportazione e restore separato verificato |
+| OPS-01 — Backup | Perimetro e criteri nella guida operativa | Drive scolastico scelto come archivio DB; dispositivo/processo di export-upload, frequenza, custode, RPO/RTO e restore separato ancora da definire/verificare |
 | OPS-02 — Gestione e avvisi | Target e runbook iniziale, diagnosi di API/UI/PC e segreti per scopo | Custodia PC, revoca/rotazione provate, canale email e consegna, diagnosi/quote reali |
 | OPS-03 — Campioni e transizione | Tipo distinto, batch identificato, API/client e postilla verificati | Prima misura reale, convivenza/curve, decisione di conservazione o rimozione esatta e gestione della postilla |
 | REL-01 — Collaudo MVP | Suite locali, 13 scenari browser e flusso pubblico sintetico | CSV/writer/Windows, Arduino → pagina, clock/cadenza/latenza, volume, dispositivi reali, backup/avvisi e WX |
@@ -557,7 +557,7 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 
 #### Backup, migrazione e ripristino
 
-I tre livelli restano database operativo, sorgente CSV locale e copia indipendente autorizzata. Versionamento Git e screenshot non sostituiscono il backup dei dati. La copia deve preservare tipo/provenienza (`live`, `historical`, `synthetic`), metadati e tempi separati, schema/migrazioni, CSV e identità/outbox necessarie al replay sicuro. Destinazione, responsabile del restore, frequenza/retention/cifratura e RPO/RTO restano decisioni aperte.
+I tre livelli restano database operativo, sorgente CSV locale e copia indipendente autorizzata. Versionamento Git e screenshot non sostituiscono il backup dei dati. La copia deve preservare tipo/provenienza (`live`, `historical`, `synthetic`), metadati e tempi separati, schema/migrazioni, CSV e identità/outbox necessarie al replay sicuro. Google Drive scolastico è indicato dall’utente come archivio dei backup DB; dispositivo/processo di export-upload, responsabile del restore, frequenza/retention/cifratura e RPO/RTO restano aperti.
 
 Il restore va provato in ambiente separato senza sovrascrivere produzione; confrontare conteggi, UUID, valori, null temporali, provenienza, schema e permessi. File presente o job riuscito non bastano. Nessuna esportazione, pulizia o attivazione di servizio deriva dalla sola revisione documentale.
 
@@ -740,7 +740,7 @@ Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ott
 | D3 | Identità eventi | Scelta tecnica delegata: UUID per evento persistito in SQLite insieme a generazione file e posizione | Vincolo DB sorgente + ID; nessuna nuova identità nei retry; riconciliazione dopo perdita stato |
 | D4 | Lettura dati | Scelta tecnica delegata: endpoint di lettura a parametri fissi e risultati limitati; pubblico read-only | Query parametrizzate, privilegi/RLS e cache da implementare/provare; niente tabelle interne esposte per comodità |
 | D5 | Sensori e validità | Parziale: °C, %, hPa confermati (U) | Modelli, collocazione/schermatura, taratura, precisione, sentinelle e pressione assoluta/corretta mancanti |
-| D6 | Backup | Approvato il 22 ottobre: backup automatico cifrato indipendente e prova di ripristino; proposta tecnica di esportazione notturna in §18 | Destinazione/permessi, capacità, frequenza e obiettivi concreti da definire; nessun job o upload eseguito |
+| D6 | Backup | Approvato il 22 ottobre: backup automatico cifrato indipendente e prova di ripristino. L’utente indica Drive scolastico per i backup del database e gestione manuale dei file del programma; non dal PC scolastico | Definire un processo di export Supabase e upload cifrato verso Drive da un dispositivo amministrativo autorizzato; frequenza e target RPO/RTO da approvare; nessun job o upload eseguito |
 | D7 | Responsabile credenziali/PC | Deciso (U): utente responsabile e custode | Custodia concreta, procedura revoca e diritti tecnici Windows da verificare |
 | D8 | Ritardo | U: oltre atteso +20 minuti; delegata la tecnica. Configurazione iniziale proposta: 60 minuti, ancora non verificati | Stato dell’acquisizione PC con `captured_at` quando ammesso; freschezza fisica sconosciuta senza ora misura; backlog escluso e cadenza da verificare |
 | D9 | Budget/quote | Deciso (U): 0 € | Quote attuali, volumi, tolleranza ai fermi e comportamento a limite esaurito ancora aperti |
@@ -869,7 +869,7 @@ La baseline locale della fase 3 è completata nei limiti della sezione 4. L’MV
 
 Prima di parser e schema definitivi serve il campione reale, oggi non disponibile, e una breve osservazione del writer/seriale. La disponibilità a modificare il PC permette di progettare un timestamp locale per le nuove righe, ma non rende automaticamente noto l’orario delle misure storiche. La UI con stati vuoti può procedere indipendentemente, senza inventare misure.
 
-Dipendenze residue prioritarie: campione CSV/writer, qualità temporale e serie idonee per il modello locale, destinazione della copia indipendente e procedura minima di recupero; canale delle notifiche. Le scelte del 22 ottobre e le proposte correnti sono nella sezione 18. Trattamento storico senza date scelto tecnicamente su delega; chiusura a dicembre da confermare solo quando concreta. Se non noti, diventano attività esplicite, non default approvati. Migrazioni, installazioni, pubblicazione e altre modifiche remote richiedono comunque richiesta esplicita.
+Dipendenze residue prioritarie: campione CSV/writer, qualità temporale e serie idonee per il modello locale, procedura per esportare il DB in copia indipendente e provarne il restore; canale delle notifiche. Google Drive scolastico è la destinazione indicata, ma dispositivo/processo e dettagli operativi restano da decidere. Le scelte del 22 ottobre e le proposte correnti sono nella sezione 18. Trattamento storico senza date scelto tecnicamente su delega; chiusura a dicembre da confermare solo quando concreta. Se non noti, diventano attività esplicite, non default approvati. Migrazioni, installazioni, pubblicazione e altre modifiche remote richiedono comunque richiesta esplicita.
 
 ## 17. Risposte dell’utente e chiarimenti residui
 
@@ -1025,6 +1025,14 @@ Fonte: risposte dell’utente ai punti 1–20 dell’analisi. U indica dichiaraz
 5. Provare un restore separato prima del rilascio, riconciliando eventi già confermati dall’uploader; registrare esito e rilevare backup mancati. Verificare periodicamente capacità e possibilità di migrare per sostenere la conservazione permanente.
 
 Supabase raccomanda ai progetti Free esportazioni regolari e copie fuori sede; non assumere backup giornalieri gestiti inclusi nel piano gratuito. [Documentazione ufficiale backup](https://supabase.com/docs/guides/platform/backups), consultata il 22 ottobre 2026. Nessun billing effettivo dell’account verificato in questa revisione.
+
+**Aggiornamento decisionale — 22 ottobre 2026:** l’utente indica Google Drive scolastico per archiviare backup del database e conferma che gestirà manualmente i file del programma. Drive non va collegato dal PC scolastico. Il flusso proposto è export Supabase cifrato e upload da un dispositivo amministrativo autorizzato; restano da definire cartella, permessi, custode e periodicità. Nessun collegamento o upload è stato effettuato. La documentazione Supabase per il piano Free raccomanda esportazioni regolari via CLI e copie fuori sede; non assumere backup automatici giornalieri gestiti. [Documentazione backup Supabase](https://supabase.com/docs/guides/platform/backups).
+
+Restano **proposte da approvare**, non obiettivi concordati: esportazione cifrata giornaliera, 30 copie giornaliere e 12 mensili, RPO massimo 24 ore e RTO massimo un giorno lavorativo. In particolare il RPO non promette assenza di perdita: una copia giornaliera può perdere fino a un giorno di scritture se CSV/outbox non sono disponibili o non recuperabili. Il ripristino va misurato in una destinazione separata prima di presentare questi target come raggiunti.
+
+**Aggiornamento operativo — 22 ottobre 2026:** l’utente segnala che CSV reale e accesso al PC Windows non sono disponibili; quindi DATA-01/UP-01–UP-04, il ripristino delle copie CSV/outbox e REL-01 sul flusso fisico restano bloccati in attesa della macchina. L’utente chiede di mantenere per ora il batch pubblico `ui-preview-20261022-five-half-hour` e la postilla: non cancellare né modificare i cinque record; rivalutare il destino solo dopo la prima misura reale. Questo aggiorna lo stato provvisorio di OPS-03 senza chiudere la verifica di provenienza e delle curve con dati reali.
+
+**Aggiornamento del ruolo Drive — 22 ottobre 2026:** l’utente chiarisce che Drive serve per archiviare i backup del database e che i file del programma saranno gestiti manualmente; non deve essere collegato dal PC scolastico. Il flusso di backup non è ancora verificato e richiederà un dispositivo amministrativo autorizzato diverso da quel PC, export cifrato, upload alla cartella scolastica e prova di restore separata.
 
 ### Soluzioni concordate per le criticità 21–36
 
