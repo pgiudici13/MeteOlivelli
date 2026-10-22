@@ -1,8 +1,8 @@
-# Dati simulati
+# Fixture sintetica per test browser
 
-`simulazioni_demo.csv` contiene esclusivamente valori sintetici creati a scopo
-dimostrativo e di prova. Non sono misurazioni della stazione MeteOlivelli e non
-devono essere importati o presentati come dati reali.
+`frontend_synthetic.csv` contiene valori inventati esclusivamente per i test
+browser. Non è incluso nell'applicazione, non viene caricato nel database e non
+è una misurazione della stazione MeteOlivelli.
 
 Le colonne seguono l'ordine dichiarato per il controllo locale: secondi
 dall'accensione Arduino, temperatura in °C, umidità in percentuale e pressione

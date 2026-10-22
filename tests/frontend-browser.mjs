@@ -28,9 +28,9 @@ let fixtureRows = records
 let failure = false
 let waitForResponse = null
 let historyCalls = 0
-const markDemo = async page => page.evaluate(() => {
-  document.querySelector('.notice p').textContent = 'VERIFICA LOCALE · DEMO · tutti i valori sono sintetici, non provengono dalla stazione.'
-  document.querySelectorAll('h2, .metric-source').forEach(element => { if (!element.textContent.includes('DEMO')) element.textContent += ' · DEMO' })
+const markSynthetic = async page => page.evaluate(() => {
+  document.querySelector('.notice p').textContent = 'VERIFICA LOCALE · DATI SINTETICI · tutti i valori sono sintetici, non provengono dalla stazione.'
+  document.querySelectorAll('h2, .metric-source').forEach(element => { if (!element.textContent.includes('TEST SINTETICO')) element.textContent += ' · TEST SINTETICO' })
 })
 try {
   const liveContext = await browser.newContext({ viewport: { width: 1280, height: 900 } })
@@ -58,14 +58,14 @@ try {
   const page = await context.newPage()
   attachErrors(page)
   await page.clock.install()
-  await check('fixture DEMO: tre grafici, unità e tabella accessibile', async () => {
+  await check('fixture sintetica: tre grafici, unità e tabella accessibile', async () => {
     await page.goto(base)
     await page.locator('.chart svg').first().waitFor()
     assert.equal(await page.locator('.chart svg').count(), 3)
     assert.equal(await page.locator('.history-table tbody tr').count(), 6)
     assert.match(await page.locator('.metric-value').first().textContent(), /19,4/)
     assert.equal(await page.getByRole('status').first().textContent(), 'Freschezza non determinabile')
-    await markDemo(page)
+    await markSynthetic(page)
   })
   await check('reflow 320, 390, 768, 1280 px e font Inter locale', async () => {
     for (const width of [320, 390, 768, 1280]) {
@@ -78,8 +78,8 @@ try {
         await capture.goto(base)
         await capture.locator('.chart svg').first().waitFor()
         await capture.evaluate(() => document.fonts.ready)
-        await markDemo(capture)
-        await capture.screenshot({ path: `${output}/${width === 390 ? 'mobile' : 'desktop'}-demo.png`, fullPage: true, animations: 'disabled' })
+        await markSynthetic(capture)
+        await capture.screenshot({ path: `${output}/${width === 390 ? 'mobile' : 'desktop'}-synthetic-test.png`, fullPage: true, animations: 'disabled' })
         await capture.close()
       }
     }
@@ -128,7 +128,7 @@ try {
     assert.equal(await page.getByRole('alert').count(), 0)
   })
   await check('campi assenti e probabili errati preservati e separati dalla linea', async () => {
-    latest = record(7, { humidity_pct: null, temperature_c: 999, quality_flags: [{ field: 'temperature_c', code: 'outside_configured_range', label: 'probabile errato', reason: 'Fixture DEMO fuori intervallo' }, { field: 'humidity_pct', code: 'missing_value', label: 'dato assente', reason: 'Fixture DEMO assente' }] })
+    latest = record(7, { humidity_pct: null, temperature_c: 999, quality_flags: [{ field: 'temperature_c', code: 'outside_configured_range', label: 'probabile errato', reason: 'fixture sintetica fuori intervallo' }, { field: 'humidity_pct', code: 'missing_value', label: 'dato assente', reason: 'fixture sintetica assente' }] })
     fixtureRows = [records[0], latest, records[5]]
     await page.clock.fastForward(15001)
     await page.getByText('Probabile errato', { exact: true }).first().waitFor()
@@ -164,5 +164,5 @@ try {
     await nojs.close()
   })
   assert.deepEqual(errors, [])
-  await writeFile(`${output}/results.json`, `${JSON.stringify({ date: '2026-10-22', backend: 'GET pubblico vuoto; tutti i casi positivi sono fixture DEMO intercettate nel browser, nessuna scrittura remota', browser: await browser.version(), results, pageErrors: errors }, null, 2)}\n`)
+  await writeFile(`${output}/results.json`, `${JSON.stringify({ date: '2026-10-22', backend: 'GET pubblico vuoto; tutti i casi positivi sono fixture sintetiche intercettate nel browser, nessuna scrittura remota', browser: await browser.version(), results, pageErrors: errors }, null, 2)}\n`)
 } finally { await browser.close() }

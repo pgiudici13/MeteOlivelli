@@ -11,7 +11,7 @@ import { promisify } from 'node:util'
 const { chromium } = await import(process.argv[2] ?? 'playwright')
 const base = new URL(process.argv[4])
 assert.equal(base.protocol, 'https:')
-const csvPath = 'data/simulazioni/simulazioni_demo.csv'
+const csvPath = 'tests/fixtures/frontend_synthetic.csv'
 const projectRoot = fileURLToPath(new URL('../', import.meta.url))
 const csv = await readFile(resolve(projectRoot, csvPath), 'utf8')
 const [header, ...lines] = csv.trim().split(/\r?\n/)
@@ -80,10 +80,10 @@ function watch(page) {
     }
   })
 }
-async function markDemo(page) {
+async function markSynthetic(page) {
   await page.evaluate(() => {
-    document.querySelector('.notice p').textContent = 'COLLAUDO ONLINE · DEMO · dati sintetici dal CSV, date virtuali solo di prova. Nessuna misura reale.'
-    document.querySelectorAll('h2, .metric-source').forEach(element => { element.textContent += ' · DEMO' })
+    document.querySelector('.notice p').textContent = 'COLLAUDO ONLINE · DATI SINTETICI · dati di prova dal CSV, date virtuali solo di prova. Nessuna misura reale.'
+    document.querySelectorAll('h2, .metric-source').forEach(element => { element.textContent += ' · TEST SINTETICO' })
   })
 }
 try {
@@ -152,7 +152,7 @@ try {
       assert.equal(await page.locator('.chart').first().locator('circle').count(), 50)
     }
   })
-  await check('online desktop/mobile: reflow 320/390/768/1280 px, screenshot DEMO', async () => {
+  await check('online desktop/mobile: reflow 320/390/768/1280 px, screenshot di prova sintetici', async () => {
     for (const width of [320, 390, 768, 1280]) {
       const capture = await context.newPage()
       watch(capture)
@@ -161,7 +161,7 @@ try {
       await capture.locator('.chart svg').first().waitFor()
       await capture.evaluate(() => document.fonts.ready)
       assert.equal(await capture.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
-      await markDemo(capture)
+      await markSynthetic(capture)
       if (width === 390 || width === 1280) await capture.screenshot({ path: `${output}/online-csv-${width}.png`, fullPage: true, animations: 'disabled' })
       await capture.close()
     }
@@ -188,5 +188,5 @@ try {
   assert.ok([...assets].some(path => path.endsWith('.js')))
   assert.ok([...assets].some(path => path.endsWith('.css')))
   assert.ok(assets.has('/fonts/InterVariable.woff2'))
-  await writeFile(`${output}/results.json`, `${JSON.stringify({ deployment: base.origin, sourceCommit, date: '2026-10-22', csv: csvPath, csvSha256: createHash('sha256').update(csv).digest('hex'), samples: 50, lastValues: samples.at(-1).slice(1), virtualTime: 'Solo fixture browser: 2026-10-22T00:00:00Z + uptime. Nessuna data fisica dedotta.', scope: 'Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o DEMO pubblica.', access: cliAccess ? 'HTML, JS, CSS e font dal preview tramite vercel curl autenticato; stessi byte renderizzati nel browser di prova' : process.env.VERCEL_OIDC_TOKEN ? 'Header OIDC limitato all origine del preview' : 'HTTPS diretto', browser: await browser.version(), results, assets: [...assets].sort(), pageErrors, assetFailures }, null, 2)}\n`)
+  await writeFile(`${output}/results.json`, `${JSON.stringify({ deployment: base.origin, sourceCommit, date: '2026-10-22', csv: csvPath, csvSha256: createHash('sha256').update(csv).digest('hex'), samples: 50, lastValues: samples.at(-1).slice(1), virtualTime: 'Solo fixture browser: 2026-10-22T00:00:00Z + uptime. Nessuna data fisica dedotta.', scope: 'Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o fixture sintetica servita al pubblico.', access: cliAccess ? 'HTML, JS, CSS e font dal preview tramite vercel curl autenticato; stessi byte renderizzati nel browser di prova' : process.env.VERCEL_OIDC_TOKEN ? 'Header OIDC limitato all origine del preview' : 'HTTPS diretto', browser: await browser.version(), results, assets: [...assets].sort(), pageErrors, assetFailures }, null, 2)}\n`)
 } finally { await browser.close() }

@@ -110,10 +110,20 @@ applicativo preesistente modificato.
 Migrazione 20261022125448 station_backend_v1 applicata; tabella
 public.station_measurements con RLS, due RPC invoker e indici. Edge Function ingest
 e read ACTIVE v3. Segreti stazione configurati tramite CLI senza pubblicarne i
-valori. Sorgente definitiva meteolivelli; zero eventi dopo pulizia delle sole fixture.
+valori. Sorgente definitiva meteolivelli.
 
 Prove SQL/HTTP, concorrenza e permessi effettivi superati. Advisor prestazioni
 senza avvisi; sicurezza solo INFO RLS senza policy, coerente con accessi pubblici
 revocati. Evidenze e limiti in [backend-verification.md](backend-verification.md).
 Nessuna modifica GitHub/Vercel, frontend o piano a pagamento. CSV e PC reali non
 verificati da questo intervento; inventario precedente conservato come storico.
+
+## Pulizia successiva dei dati e della funzione dimostrativa — 22 ottobre 2026
+
+Su richiesta esplicita dell'utente, nel progetto MeteOlivelli sono state eliminate
+50 righe `historical` della sorgente isolata `meteolivelli-demo-20261022` e 6 righe
+storiche identificate come test dell'uploader nella sorgente `meteolivelli`.
+`DELETE ... RETURNING` ha confermato 50 e 6 righe. La query finale non restituisce
+righe per nessuna delle due sorgenti. È stata rimossa anche la Edge Function
+`read-demo-measurements`; l'inventario corrente mostra solo `ingest-measurement`
+e `read-measurements`, entrambe ACTIVE v3. Schema, RPC e funzioni reali conservati.

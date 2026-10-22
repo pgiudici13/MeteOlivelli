@@ -1,7 +1,12 @@
 # Pubblicazione del branch e collaudo CSV online — 22 ottobre 2026
 
+**Verbale storico:** il prodotto non ha più una modalità DEMO. Le righe sintetiche
+furono intercettate solo nel browser di QA; il lettore DEMO e i dati sintetici nel
+database sono stati rimossi il 22 ottobre 2026. Il fixture browser resta confinato
+in `tests/fixtures/`.
+
 Richiesta dell'utente: commit e push dell'intero frontend, poi prova della pagina
-online con il CSV simulato esistente. Chiarimento esplicito: **solo collaudo con
+online con il fixture CSV sintetica esistente. Chiarimento esplicito: **solo collaudo con
 dati simulati**, nessuna modalità DEMO pubblica o importazione nel database.
 
 ## Target verificati e pubblicazione
@@ -31,7 +36,7 @@ file ambiente locali. Non è una prova di accesso anonimo al preview protetto.
 
 ## Dati di prova e limiti temporali
 
-Fonte: [simulazioni_demo.csv](../data/simulazioni/simulazioni_demo.csv), 50 righe,
+Fonte: [frontend_synthetic.csv](../tests/fixtures/frontend_synthetic.csv), 50 righe,
 separatore virgola e punto decimale specifici di questa fixture. SHA-256:
 `6b18a57a17e4ee4646a460e18e6dcc64e02150f5976936396467d0886ec934ca`.
 
@@ -44,8 +49,8 @@ Il GET pubblico reale è stato provato senza sostituzioni e restituisce archivio
 vuoto, correttamente reso dalla pagina. Nei casi positivi soltanto il GET
 `read-measurements` viene intercettato nel browser: i valori derivano dal CSV
 originale. Nessun POST di ingestione, SQL o inserimento Supabase eseguito.
-Gli screenshot dei casi sintetici sono marcati DEMO; chi apre normalmente il
-preview non vede quelle misure.
+Gli screenshot archiviati sono marcati come dati sintetici di collaudo; chi apre
+normalmente il preview non vede quelle misure.
 
 ## Risultati
 
@@ -75,8 +80,8 @@ Evidenze:
 
 - [Risultati macchina](frontend-online-verification/results.json).
 - [Pagina online con API reale vuota](frontend-online-verification/online-empty.png).
-- [Desktop online con CSV intercettato, DEMO](frontend-online-verification/online-csv-1280.png).
-- [Mobile online con CSV intercettato, DEMO](frontend-online-verification/online-csv-390.png).
+- [Desktop online con CSV intercettato per il collaudo](frontend-online-verification/online-csv-1280.png).
+- [Mobile online con CSV intercettato per il collaudo](frontend-online-verification/online-csv-390.png).
 
 ## Ripetere il collaudo
 
@@ -109,7 +114,7 @@ Git o modifiche applicative; deploy di produzione automatico della stessa
 integrazione Git nel progetto/scope già verificati. Dominio pubblico confermato:
 [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
 
-Restano validi i limiti del collaudo: CSV simulato solo nel browser di prova,
+Restano validi i limiti del collaudo: fixture CSV sintetica solo nel browser di prova,
 archivio reale attualmente vuoto e stime indisponibili. Il rilascio del frontend
 non certifica il completamento della pipeline fisica o dell'intero MVP. Prima
 della consegna del collegamento controllare stato READY, commit del deploy e

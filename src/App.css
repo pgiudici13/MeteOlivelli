@@ -106,9 +106,3 @@ button:disabled { cursor: default; opacity: .45; }
   .metric-card h3 { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
-
-/* Selettore DEMO: separazione visibile dalle misure scolastiche */
-.mode-picker { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 10px; }
-.mode-picker button { cursor:pointer; padding:11px 17px; border-radius:14px; background:#182331; color:#dbe5ef; border:1px solid #3e4b5b; font:inherit; }
-.mode-picker button[aria-pressed="true"] { background:#6be0bd; color:#071a18; border-color:#6be0bd; font-weight:700; }
-.demo-disclaimer { margin:0 0 16px; padding:13px 16px; border:1px solid #8b6b3d; border-radius:12px; background:#251f19; color:#ffdfac; font-size:0.9rem; line-height:1.5; }

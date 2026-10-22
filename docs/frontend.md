@@ -6,7 +6,7 @@ viste desktop `7:3` e mobile `7:4`, lette tramite il plugin Figma con contesto
 e screenshot. Il file Figma non è stato modificato. Branch locale:
 `codex/frontend-phase-7`. Successivamente, su richiesta esplicita, frontend
 pubblicato con commit/push `0af54b8` e deploy Git preview verificato online con il
-CSV simulato: [verbale, screenshot e limiti](frontend-online.md). La successiva
+fixture CSV sintetica: [verbale, screenshot e limiti](frontend-online.md). La successiva
 richiesta esplicita autorizza il rilascio del frontend tramite `main` su
 [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
 
@@ -94,11 +94,13 @@ WCAG o una prova manuale di zoom/lettore di schermo su dispositivo fisico.
 Screenshot ispezionati:
 
 - [Desktop con API reale vuota](frontend-verification/desktop-empty.png).
-- [Desktop con fixture DEMO](frontend-verification/desktop-demo.png).
-- [Mobile con fixture DEMO](frontend-verification/mobile-demo.png).
+- [Desktop con fixture sintetica](frontend-verification/desktop-demo.png) (evidenza storica del collaudo).
+- [Mobile con fixture sintetica](frontend-verification/mobile-demo.png) (evidenza storica del collaudo).
 
-I numeri negli screenshot DEMO sono fixture intercettate solo nel browser di
-prova e marcate nelle evidenze; non sono nel bundle applicativo né nel database.
+I numeri negli screenshot di prova sintetici sono fixture intercettate solo nel browser di
+prova; non sono nel bundle applicativo né nel database. La modalità DEMO del prodotto
+e il relativo lettore backend sono stati rimossi il 22 ottobre 2026; le schermate
+archiviate documentano il collaudo precedente e non fanno parte dell'applicazione attuale.
 Le evidenze verificano l'interazione locale, non osservazioni meteorologiche.
 
 ## Limiti ancora aperti

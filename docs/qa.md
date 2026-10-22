@@ -8,14 +8,14 @@
 
 Ogni prova indica **quando farla**, **cosa serve**, **passaggi**, **risultato atteso** ed **evidenza da salvare**. Per ogni passaggio segnare `PASS` se il risultato atteso si verifica, `FAIL` se non si verifica, oppure `BLOCCATO` se manca un prerequisito. Non inserire segreti, token o dati personali nelle note e negli screenshot.
 
-Per “dati di prova” si intendono valori inventati e chiaramente marcati `DEMO`, oppure copie reali depurate e autorizzate. Non pubblicare valori inventati come misure della stazione.
+Per “dati di prova” si intendono fixture sintetiche chiaramente marcate e confinate ai test, oppure copie reali depurate e autorizzate. Non pubblicare valori inventati come misure della stazione.
 
 ## 0. Preparazione di ogni sessione QA
 
 1. Annotare data, versione/commit del codice, persona che prova e ambiente: locale, ambiente di prova separato o produzione.
 2. Elencare quali funzioni esistono davvero. Non segnare prove future come superate solo perché il codice compila.
 3. Verificare di avere il permesso e l'ambiente corretti prima di inviare dati, creare record o provare credenziali. Non fare prove di scrittura/cancellazione sul database di produzione.
-4. Preparare input sintetici etichettati `DEMO`; preparare un risultato atteso per ciascun input.
+4. Preparare input sintetici confinati ai test e un risultato atteso per ciascun input.
 5. Aprire la scheda di registrazione in fondo al documento. Per un `FAIL`, conservare messaggio, orario e passaggi minimi per riprodurlo; oscurare dati sensibili.
 6. Ripetere dopo ogni correzione la prova fallita e le prove vicine che potrebbero essere state influenzate.
 
@@ -28,7 +28,7 @@ Per “dati di prova” si intendono valori inventati e chiaramente marcati `DEM
 3. **Campi mancanti e sentinelle** — Provare campo vuoto, sentinella osservata, testo e colonna mancante. Atteso: ciascun caso è rifiutato o marcato secondo una regola scritta; mai trasformato silenziosamente in zero o misura normale.
 4. **Riga in scrittura** — Osservare il file mentre il writer produce una riga. Leggere prima della fine e dopo il completamento. Atteso: la riga parziale non viene accodata come misura; quella completa viene elaborata una sola volta.
 5. **Riavvio del programma/PC** — Interrompere e riavviare l'uploader su una copia di prova del file. Atteso: nessuna riga già elaborata viene persa o inviata di nuovo come evento nuovo; la coda riparte.
-6. **Reset Arduino e contatore** — Usare evidenza di reset o una simulazione `DEMO` con contatore che torna indietro. Atteso: l'uptime non viene interpretato come data assoluta e gli eventi distinti non vengono fusi solo perché i valori coincidono.
+6. **Reset Arduino e contatore** — Usare evidenza di reset o una fixture di test con contatore che torna indietro. Atteso: l'uptime non viene interpretato come data assoluta e gli eventi distinti non vengono fusi solo perché i valori coincidono.
 7. **File sostituito, troncato o ruotato** — In ambiente locale di prova, sostituire/troncare una copia del file e riprendere la lettura. Atteso: il cursore rileva il cambio e non salta righe né riusa identità; gli originali sono conservati secondo la regola approvata.
 8. **Timestamp PC** — Confrontare l'orologio del PC con una fonte di riferimento senza modificare i record. Provare sospensione/riavvio e ritardo di rete. Atteso: `captured_at` è l'istante della cattura, `measured_at` resta nullo se ignoto, `received_at` è assegnato dal server; un retry non riscrive gli istanti originari.
 
@@ -82,7 +82,7 @@ Per “dati di prova” si intendono valori inventati e chiaramente marcati `DEM
 
 ## 5. Dashboard, grafici e stime
 
-**Quando:** quando UI e API di lettura sono collegate. Usare fixture dichiarate `DEMO` e poi dati reali autorizzati in ambiente appropriato.
+**Quando:** quando UI e API di lettura sono collegate. Usare fixture dichiarate sintetiche solo nei test e poi dati reali autorizzati in ambiente appropriato.
 
 1. **Ultima misura** — Preparare record con valori noti e timestamp distinti. Atteso: temperatura °C, umidità %, pressione hPa corretti; ora di misura e ora di ricezione non confuse.
 2. **Nessun dato** — API restituisce insieme vuoto. Atteso: messaggio “nessuna misura disponibile”; niente zero, trattino ambiguo o numero inventato.
@@ -93,7 +93,7 @@ Per “dati di prova” si intendono valori inventati e chiaramente marcati `DEM
 7. **Dati insufficienti** — Restituire serie vuota o troppo corta per il modello. Atteso: stima dichiarata indisponibile, non inventata.
 8. **Stime** — Per ogni stima mostrare chiaramente che è calcolata dal progetto, orizzonte (+30 minuti, +1 ora, giornata), dati d'origine e validità/versione del metodo. Atteso: mai confusa con osservazione o previsione di fonte esterna; metodo approvato confrontato su dati storici prima della pubblicazione.
 9. **Aggiornamento automatico** — Aggiungere un record nuovo tramite ambiente di prova e misurare il ritardo fino alla UI. Atteso: aggiornamento senza ricaricare manualmente entro la soglia concordata; dati storici arretrati non fanno apparire fresca la stazione.
-10. **Etichetta DEMO** — Cercare ogni schermata e grafico con dati sintetici. Atteso: etichetta `DEMO` sempre visibile e non rimossa da responsive, caricamento o cambio intervallo.
+10. **Isolamento fixture** — Cercare ogni schermata di produzione per verificare che non mostri fixture o valori sintetici. Nei test browser, indicare chiaramente i dati sintetici nelle sole evidenze.
 
 **Superamento della fase:** risultati UI confrontati con fixture attese per tutte le finestre e stati; unità, provenienza e qualità leggibili.
 
@@ -170,7 +170,7 @@ Data e ora:
 Versione/commit:
 Ambiente (locale / prova separata / produzione):
 Persona:
-Input usato (DEMO / reale depurato):
+Input usato (fixture sintetica / reale depurato):
 Passaggi eseguiti:
 Risultato atteso:
 Risultato osservato:

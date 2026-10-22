@@ -8,14 +8,14 @@ Il frontend implementa la dashboard italiana dal design Figma **Obsidian UI v5**
 ultime misure, grafici 24h/7g/30g, cronologia e dettagli temporali/qualità, layout
 desktop/mobile e aggiornamento ogni 15 secondi a pagina visibile. Legge soltanto
 l'endpoint pubblico BE-06, senza chiavi o file ambiente. Il backend al momento
-restituisce un archivio vuoto; nessun dato DEMO viene mostrato al pubblico.
+restituisce un archivio vuoto; la dashboard mostra soltanto misure reali ricevute.
 Le stime sono esplicitamente indisponibili e la freschezza resta sconosciuta
 finché ora di misura e cadenza reali non saranno verificate.
 [Implementazione, prove e limiti frontend](docs/frontend.md).
-[Push del branch e collaudo CSV sul preview online](docs/frontend-online.md):
-50 campioni verificati soltanto nel browser di prova; nessuna DEMO pubblica o
-importazione DB. Su successiva richiesta esplicita, pubblicazione del frontend
-tramite `main` su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
+[Pubblicazione e collaudo CSV sul preview online](docs/frontend-online.md):
+50 campioni verificati soltanto nel browser di prova; nessuna fixture è servita
+all'utente o mantenuta nel database. Su successiva richiesta esplicita è stato
+pubblicato il frontend tramite `main` su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/).
 Il backend TypeScript/Deno include
 il controllo dati locale v1 (contratto JSON, validazione e flag qualità per campo),
 gli handler di ingestione/lettura e una migrazione SQL preparata con prove database.
@@ -34,17 +34,16 @@ di backup in [plan.md §18](plan.md#18-revisione-delle-criticità-e-scelte-deleg
 Il sito previsto è pubblico, con misure e grafici, senza account, profilazione o download.
 Requisiti e decisioni sono in [plan.md](plan.md); attività, dipendenze e verifiche sono
 in [tasks.md](tasks.md). Leggere [AGENTS.md](AGENTS.md) prima di intervenire.
-Le prove residue sono descritte in [docs/qa.md](docs/qa.md); il CSV dimostrativo
-dell'altro lavoro è conservato in [data/simulazioni/](data/simulazioni/README.md),
-distinto dalla fixture usata nella prova HTTP del backend.
+Le prove residue sono descritte in [docs/qa.md](docs/qa.md). L'unica fixture CSV
+visuale si trova sotto `tests/fixtures/` e viene usata solo dai test browser.
 
 ## Collaborazione e progettazione UI
 
-**Stato documentato al 22 ottobre 2026:** file Figma accessibile e mockup desktop/mobile arrivato alla revisione **Obsidian v5 · DEMO**. Il design resta statico, con dati sintetici etichettati; revisione con il compagno, interazioni e QA completo restano aperti. La sessione congiunta prevista a scuola per circa due ore non è dichiarata svolta. [Riferimento Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e [storia delle revisioni](docs/design-review/README.md).
+**Stato documentato al 22 ottobre 2026:** file Figma accessibile e mockup desktop/mobile arrivato alla revisione **Obsidian v5**. Il mockup era statico; revisione con il compagno, interazioni e QA completo restano aperti. La sessione congiunta prevista a scuola per circa due ore non è dichiarata svolta. [Riferimento Figma](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e [storia delle revisioni](docs/design-review/README.md).
 
 Divisione del lavoro proposta: **backend/dati e integrazione** all'utente, **design UI/UX e QA** al compagno. La dashboard React è ora realizzata sulla base Obsidian v5; resta la revisione con il compagno, oltre alle prove sui dispositivi e sulla stazione reale. Per lavorare in parallelo preferire branch dedicati e pull request verso `main`.
 
-Le fixture dei test visuali sono **sempre etichettate DEMO** nelle evidenze e non vengono incluse nella dashboard reale. Le prove visuali e responsive non sostituiscono quelle della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
+Il prodotto non espone modalità o dati dimostrativi. Le fixture sintetiche dei test browser sono confinate in `tests/fixtures/` e marcate come dati di prova nelle sole evidenze. Le prove visuali e responsive non sostituiscono quelle della pipeline Arduino → database. Vedere [plan.md](plan.md#sessione-di-progettazione-ui-con-il-compagno--22-ottobre-2026-programmata) e il task [UI-00 in tasks.md](tasks.md#ui-00--preparare-figma-e-il-primo-design-con-il-compagno-22-ottobre-2026).
 
 ## Requisiti locali
 

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-22",
-  "backend": "GET pubblico vuoto; tutti i casi positivi sono fixture DEMO intercettate nel browser, nessuna scrittura remota",
+  "backend": "GET pubblico vuoto; tutti i casi positivi sono fixture sintetiche intercettate nel browser, nessuna scrittura remota",
   "browser": "155.0.8059.85",
   "results": [
     {
@@ -8,7 +8,7 @@
       "passed": true
     },
     {
-      "name": "fixture DEMO: tre grafici, unità e tabella accessibile",
+      "name": "fixture sintetica: tre grafici, unità e tabella accessibile",
       "passed": true
     },
     {

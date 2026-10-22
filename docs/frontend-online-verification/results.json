@@ -2,7 +2,7 @@
   "deployment": "https://meteolivelli-dyq0vqzkt-pedro13-projects.vercel.app",
   "sourceCommit": "0af54b811dc9c6a076ab2a68241c6a9041f9ee0a",
   "date": "2026-10-22",
-  "csv": "data/simulazioni/simulazioni_demo.csv",
+  "csv": "tests/fixtures/frontend_synthetic.csv",
   "csvSha256": "6b18a57a17e4ee4646a460e18e6dcc64e02150f5976936396467d0886ec934ca",
   "samples": 50,
   "lastValues": [
@@ -11,7 +11,7 @@
     1008.3
   ],
   "virtualTime": "Solo fixture browser: 2026-10-22T00:00:00Z + uptime. Nessuna data fisica dedotta.",
-  "scope": "Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o DEMO pubblica.",
+  "scope": "Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o fixture sintetica servita al pubblico.",
   "access": "HTML, JS, CSS e font dal preview tramite vercel curl autenticato; stessi byte renderizzati nel browser di prova",
   "browser": "155.0.8059.85",
   "results": [
@@ -36,7 +36,7 @@
       "passed": true
     },
     {
-      "name": "online desktop/mobile: reflow 320/390/768/1280 px, screenshot DEMO",
+      "name": "online desktop/mobile: reflow 320/390/768/1280 px, screenshot di prova sintetici",
       "passed": true
     },
     {

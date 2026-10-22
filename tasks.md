@@ -1,8 +1,8 @@
 # Attività operative — MeteOlivelli
 
-> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo implementazione e QA locale del frontend della Fase 7.
+> **Versione:** checklist operativa, aggiornata il 22 ottobre 2026 dopo rimozione della modalità dimostrativa e pulizia dei relativi record.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
-> **Richiesta attuale:** pubblicare rapidamente il frontend su Vercel in produzione e tutto il lavoro su GitHub, come richiesto esplicitamente dopo il collaudo preview. Avanzamento di main e deploy Git automatico sul dominio meteolivelli.vercel.app; nessuna modifica applicativa o importazione DB. Il precedente collaudo CSV online ha superato otto scenari e 50/50 righe. [Verbale](docs/frontend-online.md). UI-02, WX e rilascio MVP completo restano aperti.
+> **Richiesta attuale:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
 
 ## 1. Come usare la checklist
 
@@ -451,14 +451,17 @@ Verifica storica del setup: `npm run check` superato su copia senza `.env` con e
 Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 attività su 29; 16 restano non completate, incluse DATA-01–DATA-03, UP-01–UP-04, UI-00 e UI-02 parziali. La Fase 6 resta aperta per campione/writer e prova Windows. La Fase 7 ha frontend verificato localmente, ma non modello validato o collaudo della catena fisica. Il rilascio complessivo resta aperto. Inserire qui gli esiti futuri senza segreti; lasciare requisiti e decisioni nel piano e bug nel registro correzioni.
 
 
-## Fase 7 — Correzione DEMO del 22 ottobre 2026
+## Fase 7 — Rimozione versione dimostrativa e pulizia — 22 ottobre 2026
 
-- [x] Confermata via SQL l'esistenza di 50 record `meteolivelli-demo-20261022` con timestamp assoluti nulli.
-- [x] Preparata in PR #3 una modalità DEMO distinta dai dati reali, senza riscrivere i record.
-- [x] Distribuita Edge Function di sola lettura `read-demo-measurements` (ACTIVE); preview Vercel del branch READY.
-- [ ] Verificare risposta API con 50 elementi, qualità e ordine, senza divulgare metadati interni.
-- [ ] Eseguire build, lint, test backend/frontend e test di integrazione in browser, incluso cambio modalità, grafici e cronologia.
-- [ ] Correggere eventuali difetti; riesaminare la semantica dei timestamp sintetici e la gestione dei filtri DEMO.
-- [ ] Solo dopo QA e revisione, integrare la PR #3 e verificare il deploy di produzione.
+- [x] Rimossi il selettore e il client DEMO dalla dashboard; eliminati `src/demo.ts` e la funzione Edge locale `read-demo-measurements`.
+- [x] Rimosse da Supabase le 50 righe della sorgente isolata `meteolivelli-demo-20261022` e le 6 righe esatte del test uploader nella sorgente `meteolivelli`.
+- [x] Eliminata la funzione Edge remota `read-demo-measurements` dal progetto MeteOlivelli; endpoint reale e schema conservati.
+- [x] Spostato il CSV browser sintetico sotto `tests/fixtures/`; nessun dato sintetico è caricato dalla UI di produzione.
+- [x] `npm run check` superato: lint/build, 16 test frontend, check/lint backend, 39 test Deno e 21 test uploader. La UI locale legge la API reale e mostra archivio vuoto; SQL finale restituisce zero righe per entrambe le sorgenti e l'inventario elenca solo le due funzioni reali.
+- [ ] Pubblicare la versione finale su `main`/Vercel dopo verifica dei controlli e diff.
 
-**Non confondere:** READY indica che il deploy è stato completato, non che la funzionalità sia stata collaudata. La pagina pubblica su main resta invariata.
+**Esito atteso:** la dashboard legge solo misure reali. Le fixture sintetiche rimangono confinate alle prove e sono etichettate solo nelle evidenze di test.
+
+**Decisione utente del 22 ottobre 2026:** non mantenere un database o una modalità separati per i dati fittizi. Gli eventuali futuri test d'integrazione dovranno scrivere nello stesso database/tabella finali, usando una provenienza sintetica distinguibile e un percorso di lettura che non li presenti come osservazioni della stazione. La protezione di provenienza va implementata e verificata prima di caricare tali righe; le fixture locali restano ammesse per i test unitari.
+
+**Prova uploader precedente:** il programma CLI Python è stato eseguito su macOS contro il fixture sintetico: 6 righe storiche confermate nel database e 1 riga malformata in quarantena. L'esito ha verificato il percorso uploader → endpoint → DB; la prova Windows con Arduino e writer reali resta aperta. Le 6 righe del test sono state poi rimosse nella pulizia qui sopra.

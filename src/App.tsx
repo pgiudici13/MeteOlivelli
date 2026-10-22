@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { readDemoMeasurements } from './demo.ts'
+import { useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { useWeather } from './use-weather.ts'
@@ -46,25 +45,15 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 function App() {
   const [period, setPeriod] = useState<Period>('24h')
   const data = useWeather(period)
-  const [demoMode, setDemoMode] = useState(true)
-  const [demoRows, setDemoRows] = useState<Measurement[]>([])
-  const [demoError, setDemoError] = useState(false)
-  useEffect(() => {
-    const controller = new AbortController()
-    readDemoMeasurements(controller.signal).then(rows => {
-      if (!controller.signal.aborted) { setDemoRows(rows); setDemoError(false) }
-    }).catch(() => { if (!controller.signal.aborted) setDemoError(true) })
-    return () => controller.abort()
-  }, [])
-  const latest = demoMode ? (demoRows.at(-1) ?? null) : data.latest
-  const historyLoading = demoMode ? !demoRows.length && !demoError : data.period !== period || !data.historyLoaded
-  const rows = demoMode ? demoRows : data.period === period ? data.history : []
-  const latestLoaded = demoMode ? Boolean(demoRows.length) || demoError : data.latestLoaded
-  const latestError = demoMode ? demoError : data.latestError
-  const historyError = demoMode ? demoError : data.historyError
-  // Cadenza e ancoraggio reali non ancora verificati: nessuna deduzione dai dati DEMO di Figma.
-  const freshness = demoMode ? 'unknown' : getFreshness(latest, data.checkedAt ?? 0, null)
-  const stationStatus = demoMode ? (demoError ? 'Dati DEMO non disponibili' : demoRows.length ? 'Modalità DEMO · 50 misurazioni simulate' : 'Caricamento dei dati DEMO…') : !data.latestLoaded ? 'Caricamento delle misure…' : data.latestError ? 'Aggiornamento non riuscito' :
+  const latest = data.latest
+  const historyLoading = data.period !== period || !data.historyLoaded
+  const rows = data.period === period ? data.history : []
+  const latestLoaded = data.latestLoaded
+  const latestError = data.latestError
+  const historyError = data.historyError
+  // Cadenza e ancoraggio non sono ancora verificati, quindi la freschezza resta sconosciuta.
+  const freshness = getFreshness(latest, data.checkedAt ?? 0, null)
+  const stationStatus = !data.latestLoaded ? 'Caricamento delle misure…' : data.latestError ? 'Aggiornamento non riuscito' :
     freshness === 'empty' ? 'Nessuna misura disponibile' : freshness === 'delayed' ? 'Stazione in ritardo' :
       freshness === 'current' ? 'Misure aggiornate' : 'Freschezza non determinabile'
 
@@ -75,11 +64,6 @@ function App() {
       <p>La stazione della nostra scuola</p>
     </header>
     <main id="contenuto" tabIndex={-1}>
-      <div className="mode-picker" role="group" aria-label="Seleziona la fonte dei dati">
-        <button type="button" aria-pressed={demoMode} onClick={() => setDemoMode(true)}>DEMO · simulazioni</button>
-        <button type="button" aria-pressed={!demoMode} onClick={() => setDemoMode(false)}>Misure reali</button>
-      </div>
-      {demoMode && <p className="demo-disclaimer" role="note">DATI SIMULATI — non sono osservazioni della stazione. Gli orari visualizzati sono ricostruiti soltanto per questa dimostrazione; il database originale non viene modificato.</p>}
       <div className="notice"><span className="notice-dot" aria-hidden="true" /><p>Progetto in sviluppo · osservazioni della stazione, quando disponibili.</p></div>
       <section className="intro" aria-labelledby="page-title">
         <p className="eyebrow">Stazione scolastica / MeteOlivelli</p>
@@ -108,7 +92,7 @@ function App() {
       </section>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <h2 id="history-title">Andamento delle misure</h2>
-        <p className="secondary">{rows.length ? `${rows.length} campioni disponibili nel periodo selezionato.` : 'Lo storico mostra i campioni disponibili per la modalità scelta.'} {demoMode ? 'Orari simulati' : 'Orari di acquisizione sul PC'} · Europe/Rome.</p>
+        <p className="secondary">{rows.length ? `${rows.length} campioni disponibili nel periodo selezionato.` : 'Lo storico mostra i campioni disponibili per il periodo selezionato.'} Orari di acquisizione sul PC · Europe/Rome.</p>
         <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={period === item.value} onClick={() => setPeriod(item.value)}>{item.label}</button>)}</div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${periods.find(item => item.value === period)?.label}: ${rows.length} campioni.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
         <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
