@@ -1,6 +1,6 @@
 # Design MeteOlivelli — riferimento corrente
 
-La pagina quiz `/gioca` usa gli stessi token, testata, footer e temi del sito. Le risposte corrette e sbagliate hanno superfici verdi e rosse semantiche, con contrasto adattato al tema chiaro. Entrate sfalsate, feedback animato e punteggio in rilievo aggiungono movimento senza distrarre; `prefers-reduced-motion` riduce tutte le animazioni. Il quiz è responsive.
+La pagina quiz `/gioca` usa gli stessi token, testata, footer e temi del sito. Le risposte corrette e sbagliate hanno superfici verdi e rosse semantiche, con contrasto adattato al tema chiaro. Il ripple nasce nel punto di clic e resta sul pulsante scelto; domanda, opzioni e feedback hanno ingressi circoscritti, mentre la barra avanza con passo lineare. `prefers-reduced-motion` riduce le animazioni. Il quiz è responsive.
 
 Aggiornato il 22 ottobre 2026. Per ogni modifica visiva consultare questo file insieme ad `AGENTS.md`. Requisiti e priorità restano in `plan.md`; l’esecuzione è in `tasks.md`. Questo documento specifica il design e non autorizza modifiche o pubblicazioni ulteriori.
 

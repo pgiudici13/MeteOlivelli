@@ -1,6 +1,6 @@
 # Piano di progetto — MeteOlivelli
 
-> **Aggiornamento locale — 23 ottobre 2026:** il branch `gioca-con-il-meteo` aggiunge una pagina quiz `/gioca` con 10 domande casuali da una raccolta di 20 curiosità meteo. Risposte corrette/errate evidenziate e risultato finale su 10. Non pubblicato.
+> **Aggiornamento — 23 ottobre 2026:** quiz `/gioca` pubblicato su `main`: 10 domande casuali da 20, opzioni rimescolate, spiegazioni per ogni risposta, ripple localizzato sul pulsante e barra di avanzamento lineare; movimento ridotto rispettato.
 
 > **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap/metadati distinti, tema chiaro/scuro e logo scolastico nell’intestazione e nel footer. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 

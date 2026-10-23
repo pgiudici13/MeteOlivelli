@@ -100,6 +100,8 @@ test('le animazioni restano confinate alla domanda, alle risposte e al feedback'
   assert.match(styles, /\.quiz-question legend\s*\{[^}]*animation:/)
   assert.match(styles, /\.quiz-answer\s*\{[^}]*animation:/)
   assert.match(styles, /\.quiz-feedback\s*\{[^}]*animation:/)
+  assert.match(styles, /\.quiz-progress span\s*\{[^}]*transition:\s*width 500ms linear/)
+  assert.match(styles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/)
   assert.doesNotMatch(styles, /\.quiz-card\s*\{[^}]*animation:/)
   assert.doesNotMatch(styles, /\.quiz-page \.quiz-hero\s*\{[^}]*animation:/)
 })

@@ -11,7 +11,7 @@
 .quiz-score-live { color: var(--secondary); font: 11px ui-monospace, monospace; }
 .quiz-score-live strong { color: var(--text); }
 .quiz-progress { height: 3px; margin-top: 16px; overflow: hidden; background: var(--border); }
-.quiz-progress span { display: block; height: 100%; background: var(--accent); transition: width 250ms ease; }
+.quiz-progress span { display: block; height: 100%; background: var(--accent); transition: width 500ms linear; }
 .quiz-question { min-width: 0; margin: 40px 0 0; padding: 0; border: 0; }
 .quiz-question legend { width: 100%; margin-bottom: 24px; font-size: clamp(22px, 3vw, 32px); line-height: 1.3; letter-spacing: -.035em; animation: quiz-enter 420ms ease-out both; }
 .quiz-answers { display: grid; gap: 10px; }
