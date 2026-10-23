@@ -112,6 +112,8 @@ test('le animazioni restano confinate alla domanda, alle risposte e al feedback'
   assert.match(styles, /scale\(0\)/)
   assert.match(styles, /scale\(1\)/)
   assert.match(styles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/)
+  assert.match(styles, /touch-action:\s*manipulation/)
+  assert.match(styles, /\.quiz-answer\.is-correct::after, \.quiz-answer\.is-wrong::after\s*\{\s*animation:\s*none !important; opacity: 0;/)
   assert.doesNotMatch(styles, /\.quiz-card\s*\{[^}]*animation:/)
   assert.doesNotMatch(styles, /\.quiz-page \.quiz-hero\s*\{[^}]*animation:/)
 })

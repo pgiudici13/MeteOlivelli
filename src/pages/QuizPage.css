@@ -15,7 +15,7 @@
 .quiz-question { min-width: 0; margin: 40px 0 0; padding: 0; border: 0; }
 .quiz-question legend { width: 100%; margin-bottom: 24px; font-size: clamp(22px, 3vw, 32px); line-height: 1.3; letter-spacing: -.035em; animation: quiz-enter 420ms ease-out both; }
 .quiz-answers { display: grid; gap: 10px; }
-.quiz-answer { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-raised); color: var(--text); text-align: left; font: inherit; font-size: 14px; line-height: 1.5; cursor: pointer; transition: border-color 150ms, background-color 150ms, color 150ms, translate 150ms; animation: quiz-answer-enter 420ms cubic-bezier(.2,.7,.2,1) both; }
+.quiz-answer { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-raised); color: var(--text); text-align: left; font: inherit; font-size: 14px; line-height: 1.5; cursor: pointer; touch-action: manipulation; transition: border-color 150ms, background-color 150ms, color 150ms, translate 150ms; animation: quiz-answer-enter 420ms cubic-bezier(.2,.7,.2,1) both; }
 .quiz-answer > * { position: relative; z-index: 1; }
 .quiz-answer.is-correct::after, .quiz-answer.is-wrong::after { position: absolute; z-index: 0; left: var(--quiz-ripple-x, 50%); top: var(--quiz-ripple-y, 50%); width: calc(var(--quiz-ripple-radius, 150px) * 2); height: calc(var(--quiz-ripple-radius, 150px) * 2); border-radius: 50%; content: ""; pointer-events: none; transform: translate(-50%, -50%) scale(0); animation: quiz-answer-ripple 780ms cubic-bezier(.18,.72,.28,1) both; }
 .quiz-answer:nth-child(2) { animation-delay: 55ms; }
@@ -54,6 +54,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .quiz-page *, .quiz-page *::before, .quiz-page *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  .quiz-answer.is-correct::after, .quiz-answer.is-wrong::after { animation: none !important; opacity: 0; }
 }
 
 @keyframes quiz-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
