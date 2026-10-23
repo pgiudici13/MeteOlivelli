@@ -32,6 +32,13 @@
 .info-periods article { min-height: 130px; padding: 18px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 7px; }
 .info-periods span { display: block; color: var(--text); font-size: 13px; font-weight: 500; }
 .info-periods p { margin-top: 12px !important; font-size: 11px; line-height: 1.65 !important; }
+.info-transparency { grid-column: 1 / -1; }
+.info-trust-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.info-trust-grid article { padding: 18px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 7px; }
+.info-trust-grid h3 { font-size: 12px; font-weight: 500; }
+.info-trust-grid p { margin-top: 10px !important; font-size: 11px; line-height: 1.65 !important; }
+.info-links { display: flex; flex-wrap: wrap; gap: 14px 26px; margin-top: 23px; }
+.info-links a { display: inline-flex; gap: 14px; color: var(--text); font-size: 12px; text-underline-offset: 4px; }
 .info-team .reflection { margin-top: 24px !important; font-size: 13px; }
 .info-block .hero-link { margin-top: 24px; }
 @media (max-width: 760px) {
@@ -47,6 +54,7 @@
   .info-flow small { font-size: 9px; }
   .info-periods { grid-template-columns: 1fr; gap: 8px; }
   .info-periods article { min-height: 0; padding: 15px; }
+  .info-trust-grid { grid-template-columns: 1fr; }
   .info-grid { grid-template-columns: 1fr; gap: 0; }
   .info-block { padding-block: 28px 32px; }
 }

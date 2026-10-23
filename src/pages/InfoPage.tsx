@@ -46,7 +46,8 @@ export function InfoPage() {
       <nav className="info-toc" aria-label="In questa pagina">
         <span className="eyebrow">Esplora</span>
         <a href="#project">Il progetto</a><a href="#station">La stazione</a>
-        <a href="#reading">Come leggere i dati</a><a href="#team">Il team</a>
+        <a href="#reading">Come leggere i dati</a><a href="#transparency">Trasparenza</a>
+        <a href="#team">Il team</a>
       </nav>
 
       <div className="info-grid">
@@ -92,8 +93,20 @@ export function InfoPage() {
           <a className="hero-link" href="/home#history-title">Esplora grafici e cronologia <span aria-hidden="true">↗</span></a>
         </section>
 
+        <section className="info-block info-transparency" id="transparency" aria-labelledby="transparency-title">
+          <p className="eyebrow section-index">04 / Trasparenza</p>
+          <h2 id="transparency-title">Anche i limiti fanno parte dei dati.</h2>
+          <div className="info-trust-grid">
+            <article><h3>Valori assenti o anomali</h3><p>Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.</p></article>
+            <article><h3>Prove e misure</h3><p>Il sito avvisa che possono essere presenti dati fittizi. I campioni sintetici servono a provare il funzionamento e non descrivono il tempo a Pavia né le letture dei sensori.</p></article>
+            <article><h3>Freschezza</h3><p>L’aggiornamento della pagina non conferma che il sensore abbia appena misurato. Finché orologio, cadenza e catena di acquisizione non sono verificati, la freschezza resta non determinabile.</p></article>
+            <article><h3>Stime sperimentali</h3><p>Le stime, quando disponibili, sono calcoli statistici basati sulle osservazioni ammesse. Non provengono da un servizio meteorologico e non dichiarano pioggia, sole o certezza del tempo.</p></article>
+          </div>
+          <div className="info-links"><a href="/home">Vai alla Home <span aria-hidden="true">↗</span></a><a href="/privacy">Leggi l’informativa privacy <span aria-hidden="true">↗</span></a></div>
+        </section>
+
         <section className="info-block info-team" id="team" aria-labelledby="team-title">
-          <p className="eyebrow section-index">04 / Il team</p>
+          <p className="eyebrow section-index">05 / Il team</p>
           <h2 id="team-title">Un progetto realizzato a scuola.</h2>
           <p>MeteOlivelli è realizzato da <strong>Pietro Giudici</strong> e <strong>Nicholas Borin</strong>, studenti del Liceo Teresio Olivelli di Pavia.</p>
           <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
