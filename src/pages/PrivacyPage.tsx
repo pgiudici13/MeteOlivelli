@@ -27,7 +27,7 @@ export function PrivacyPage() {
       <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 03</span></a>
       <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
       <div className="header-actions">
-        <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info">Informazioni</a><a href="/privacy" aria-current="page">Privacy</a></nav>
+        <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info">Informazioni</a><a href="/gioca">Gioca</a><a href="/privacy" aria-current="page">Privacy</a></nav>
         <ThemeToggle />
       </div>
     </header>
@@ -98,6 +98,6 @@ export function PrivacyPage() {
         </section>
       </div>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info">Informazioni</a> · <a href="/privacy" aria-current="page">Privacy</a></p></footer>
+    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info">Informazioni</a> · <a href="/gioca">Gioca</a> · <a href="/privacy" aria-current="page">Privacy</a></p></footer>
   </div>
 }
