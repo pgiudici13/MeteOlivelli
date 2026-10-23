@@ -12,6 +12,7 @@ import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
 import { readFreshChartData } from '../src/pdf-chart-data.ts'
 import { buildHistoryDocument } from '../src/pdf-history-document.ts'
 import { downloadPdfBlob } from '../src/pdf-download.ts'
+import { createFreshHistoryPdf } from '../src/pdf-history-export.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -189,6 +190,38 @@ test('PDF cronologia: il motore genera un documento tabellare scaricabile', asyn
   assert.equal(blob.type, 'application/pdf')
   assert.ok(blob.size > 1500)
   assert.equal(new TextDecoder().decode(new Uint8Array(await blob.slice(0, 5).arrayBuffer())), '%PDF-')
+})
+
+test('PDF cronologia: un errore a pagina successiva impedisce la generazione parziale', async () => {
+  let calls = 0
+  let generated = false
+  const reader = async () => {
+    calls++
+    if (calls === 1) return page([row(1)], 'second-page')
+    throw new Error('seconda pagina non disponibile')
+  }
+  await assert.rejects(createFreshHistoryPdf(signal(), reader, async () => {
+    generated = true
+    return new Blob(['%PDF'], { type: 'application/pdf' })
+  }), /seconda pagina non disponibile/)
+  assert.equal(calls, 2)
+  assert.equal(generated, false)
+})
+
+test('PDF cronologia: genera solo dopo aver raccolto tutte le pagine e fissa l’ora del report', async () => {
+  let calls = 0
+  const generatedAt = new Date('2026-10-23T12:00:00.000Z')
+  const result = await createFreshHistoryPdf(signal(), async () => {
+    calls++
+    return calls === 1 ? page([row(2)], 'second-page') : page([row(1)])
+  }, async definition => {
+    const table = definition.content.find(item => item.table)?.table.body
+    assert.equal(table.length, 3)
+    return new Blob(['%PDF'], { type: 'application/pdf' })
+  }, () => generatedAt)
+  assert.equal(result.rows.length, 2)
+  assert.equal(result.generatedAt, generatedAt)
+  assert.equal(calls, 2)
 })
 
 test('PDF download: usa il nome atteso e revoca l’URL temporaneo dopo il click', () => {

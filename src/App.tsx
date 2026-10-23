@@ -3,15 +3,15 @@ import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
-import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods, readAllHistory } from './weather.ts'
+import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { readFreshChartData } from './pdf-chart-data.ts'
 import { buildGraphsDocument } from './pdf-graphs-document.ts'
 import { createPdfBlob } from './pdf-runtime.ts'
-import { buildHistoryDocument } from './pdf-history-document.ts'
 import { downloadPdfBlob } from './pdf-download.ts'
+import { createFreshHistoryPdf } from './pdf-history-export.ts'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -134,9 +134,7 @@ function App() {
     setHistoryPdfBusy(true)
     setHistoryPdfMessage('Rilettura di tutte le pagine e preparazione del PDF…')
     try {
-      const rows = await readAllHistory(new AbortController().signal)
-      const generatedAt = new Date()
-      const blob = await createPdfBlob(buildHistoryDocument(rows, generatedAt))
+      const { blob, rows, generatedAt } = await createFreshHistoryPdf(new AbortController().signal)
       downloadPdfBlob(blob, 'cronologia', generatedAt)
       setHistoryPdfMessage(`PDF scaricato con ${rows.length} campioni.`)
     } catch {
