@@ -23,7 +23,8 @@
 .quiz-answer:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-soft); translate: 3px 0; }
 .quiz-answer:disabled { opacity: 1; cursor: default; }
 .quiz-answer-letter { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--secondary); font: 11px ui-monospace, monospace; }
-.quiz-answer-result { font: 10px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .05em; }
+.quiz-answer-result { display: inline-flex; align-items: center; gap: 6px; font: 10px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .05em; }
+.quiz-answer-result-mark { font: 700 18px/1 Inter, ui-sans-serif, sans-serif; }
 .quiz-answer.is-correct, .quiz-feedback.is-correct { border-color: var(--quiz-green-border); background: var(--quiz-green-bg); color: var(--quiz-green-text); }
 .quiz-answer.is-correct::after { background: var(--quiz-ripple-correct); }
 .quiz-answer.is-correct { animation: quiz-correct 420ms ease-out both; }

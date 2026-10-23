@@ -99,8 +99,8 @@ export function QuizPage() {
               } as CSSProperties : undefined
               return <button key={answer} type="button" className={`quiz-answer ${answerClass}`} style={answerStyle} aria-pressed={selectedAnswer === index} disabled={answered} onClick={event => chooseAnswer(index, event)}>
                 <span className="quiz-answer-letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span><span>{answer}</span>
-                {answered && correct && <span className="quiz-answer-result">Corretta</span>}
-                {wrongSelected && <span className="quiz-answer-result">La tua risposta</span>}
+                {answered && correct && <span className="quiz-answer-result"><span className="quiz-answer-result-mark" aria-hidden="true">✓</span> Corretta</span>}
+                {wrongSelected && <span className="quiz-answer-result"><span className="quiz-answer-result-mark" aria-hidden="true">×</span> La tua risposta</span>}
               </button>
             })}</div>
           </fieldset>

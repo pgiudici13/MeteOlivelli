@@ -97,12 +97,16 @@ test('il ripple da tastiera parte dal centro e i clic fuori dal banner restano c
 
 test('le animazioni restano confinate alla domanda, alle risposte e al feedback', () => {
   const styles = readFileSync(new URL('../src/pages/QuizPage.css', import.meta.url), 'utf8')
+  const page = readFileSync(new URL('../src/pages/QuizPage.tsx', import.meta.url), 'utf8')
   assert.match(styles, /\.quiz-question legend\s*\{[^}]*animation:/)
   assert.match(styles, /\.quiz-answer\s*\{[^}]*animation:/)
   assert.match(styles, /\.quiz-feedback\s*\{[^}]*animation:/)
   assert.match(styles, /\.quiz-progress span\s*\{[^}]*transition:\s*width 500ms linear/)
   assert.match(styles, /--quiz-ripple-correct:\s*rgb\(166 255 180 \/ 72%\)/)
   assert.match(styles, /--quiz-ripple-wrong:\s*rgb\(255 126 111 \/ 76%\)/)
+  assert.match(styles, /\.quiz-answer-result-mark\s*\{[^}]*18px/)
+  assert.match(page, /aria-hidden="true">✓/)
+  assert.match(page, /aria-hidden="true">×/)
   assert.match(styles, /width:\s*calc\(var\(--quiz-ripple-radius[^)]*\) \* 2\); height:\s*calc\(var\(--quiz-ripple-radius/)
   assert.match(styles, /@keyframes quiz-answer-ripple/)
   assert.match(styles, /scale\(0\)/)
