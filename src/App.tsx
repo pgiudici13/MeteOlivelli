@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
-import { useWeather } from './use-weather.ts'
+import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
@@ -57,10 +57,10 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   return <>
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
-      <caption className="sr-only">Campioni in ordine dal più recente, orari di acquisizione sul PC, Europe/Rome. Valori sospetti segnalati per campo.</caption>
-      <thead><tr><th scope="col">Acquisizione PC</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
+      <caption className="sr-only">Tutti i campioni in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione e indicati come tali. Valori sospetti segnalati per campo.</caption>
+      <thead><tr><th scope="col">Acquisizione / ricezione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
-        <th scope="row"><time dateTime={row.captured_at ?? undefined}>{formatTime(row.captured_at)}</time></th>
+        <th scope="row">{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
         {metrics.map(metric => <td key={metric.key} data-label={metric.name}><Value row={row} metric={metric} /></td>)}
         <td className="sample-details" data-label="Tempi e qualità"><details><summary>Dettagli campione</summary>
           <p>Misura: {formatTime(row.measured_at)}.</p>
@@ -89,6 +89,7 @@ function App() {
   const [period, setPeriod] = useState<ChartMode>('auto')
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
+  const completeHistory = useCompleteHistory()
   const latest = data.latest
   const matchingHistory = data.period === queryPeriod && data.anchorToLatest === (period === 'auto')
   const historyLoading = !matchingHistory || !data.historyLoaded
@@ -169,9 +170,8 @@ function App() {
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
-        <p className="secondary">{period === 'auto' ? 'Campioni originali dei 30 giorni caricati prima dell’ultima misura' : 'Campioni del periodo selezionato'}, dal più recente. Unità: °C, %, hPa.</p>
-        {historyError && !historyLoading && <p className="warning">Aggiornamento dello storico non riuscito. Eventuali campioni conservati dall’ultima lettura.</p>}
-        {historyLoading ? <p className="empty-state">Caricamento dei campioni…</p> : rows.length ? <HistoryTable key={period} rows={rows} /> : <p className="empty-state">{historyError ? 'Cronologia temporaneamente non disponibile.' : 'Nessun campione da mostrare per questo periodo.'}</p>}
+        <p className="secondary">Tutti i campioni registrati finora, dal più recente. Le date di acquisizione e ricezione sono indicate separatamente. Unità: °C, %, hPa.</p>
+        {completeHistory.loading ? <p className="empty-state" role="status">Caricamento di tutta la cronologia…</p> : completeHistory.error ? <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile.</p><button onClick={completeHistory.retry}>Riprova</button></div> : completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
       <Reveal><ForecastSection /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">

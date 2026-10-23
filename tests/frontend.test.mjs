@@ -1,7 +1,7 @@
 import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parsePage, readPage, readHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
+import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 
@@ -66,6 +66,19 @@ test('storico: tutte le pagine, deduplica ID e ordinamento temporale', async () 
     return page([row(2), row(3)])
   })
   assert.deepEqual(result.map(item => item.ingestion_id), [row(1), row(2), row(3)].map(item => item.ingestion_id))
+})
+test('cronologia completa: pagina tutto lo storico, include date mancanti e ordina quelle per ricezione', async () => {
+  let calls = 0
+  const undated = row(2, { captured_at: null, received_at: '2026-10-22T09:00:00.000Z' })
+  const result = await readAllHistory(signal(), async params => {
+    calls++
+    assert.equal(params.get('period'), 'all')
+    assert.equal(params.get('basis'), 'captured_at')
+    if (calls === 1) return page([row(3)], 'next')
+    assert.equal(params.get('cursor'), 'next')
+    return page([undated, row(1)])
+  })
+  assert.deepEqual(result.map(item => item.ingestion_id), [row(1), row(3), undated].map(item => item.ingestion_id))
 })
 test('storico: cursore ripetuto rifiutato senza loop', async () => {
   await assert.rejects(() => readHistory('7g', signal(), async () => page([row()], 'ripetuto')), /ripetuto/)

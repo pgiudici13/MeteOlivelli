@@ -89,6 +89,30 @@ export async function readPage(params: URLSearchParams, signal: AbortSignal, req
 }
 export type PageReader = typeof readPage
 
+/** Cronologia completa, inclusi i record senza ora di acquisizione. */
+export async function readAllHistory(signal: AbortSignal, reader: PageReader = readPage): Promise<Measurement[]> {
+  const items = new Map<string, Measurement>()
+  const cursors = new Set<string>()
+  let cursor: string | null = null
+  let until: string | null = null
+  for (;;) {
+    const params = new URLSearchParams({ view: 'history', period: 'all', basis: 'captured_at', limit: '500' })
+    if (cursor) params.set('cursor', cursor)
+    const result = await reader(params, signal)
+    if (result.time_basis !== 'captured_at') throw new Error('Base temporale dello storico incoerente')
+    if (until !== null && result.until !== until) throw new Error('Finestra dello storico incoerente')
+    until = result.until
+    for (const item of result.items) items.set(item.ingestion_id, item)
+    if (!result.next_cursor) break
+    if (cursors.has(result.next_cursor)) throw new Error('Cursore ripetuto')
+    cursor = result.next_cursor
+    cursors.add(cursor)
+  }
+  return [...items.values()].sort((a, b) =>
+    Date.parse(a.captured_at ?? a.received_at) - Date.parse(b.captured_at ?? b.received_at) ||
+    a.ingestion_id.localeCompare(b.ingestion_id))
+}
+
 export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage, basis: 'captured_at' | 'measured_at' = 'captured_at'): Promise<Measurement[]> {
   const items = new Map<string, Measurement>()
   const cursors = new Set<string>()

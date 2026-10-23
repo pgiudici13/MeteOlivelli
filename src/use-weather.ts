@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createWeatherFeed, initialWeatherState } from './weather-feed.ts'
-import type { Period } from './weather.ts'
+import { readAllHistory } from './weather.ts'
+import type { Measurement, Period } from './weather.ts'
 
 export function useWeather(period: Period, anchorToLatest = false) {
   const [state, setState] = useState(() => initialWeatherState(period, anchorToLatest))
@@ -19,4 +20,21 @@ export function useWeather(period: Period, anchorToLatest = false) {
     }
   }, [period, anchorToLatest])
   return state
+}
+
+export function useCompleteHistory() {
+  const [state, setState] = useState<{ rows: Measurement[]; loading: boolean; error: boolean }>({ rows: [], loading: true, error: false })
+  const [attempt, setAttempt] = useState(0)
+  useEffect(() => {
+    const controller = new AbortController()
+    void readAllHistory(controller.signal).then(
+      rows => setState({ rows, loading: false, error: false }),
+      () => { if (!controller.signal.aborted) setState(previous => ({ ...previous, loading: false, error: true })) },
+    )
+    return () => controller.abort()
+  }, [attempt])
+  return { ...state, retry: () => {
+    setState(previous => ({ ...previous, loading: true, error: false }))
+    setAttempt(value => value + 1)
+  } }
 }
