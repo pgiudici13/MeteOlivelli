@@ -217,6 +217,16 @@ test('cronologia completa: pagina tutto lo storico, include date mancanti e ordi
   })
   assert.deepEqual(result.map(item => item.ingestion_id), [row(1), row(3), undated].map(item => item.ingestion_id))
 })
+test('cronologia completa: non applica finestre o limiti a cento pagine', async () => {
+  let calls = 0
+  const result = await readAllHistory(signal(), async params => {
+    calls++
+    assert.equal(params.get('period'), 'all')
+    return page([row(calls, { captured_at: new Date(Date.parse('2026-10-22T00:00:00.000Z') + calls * 3600000).toISOString() })], calls < 101 ? `cursor-${calls}` : null)
+  })
+  assert.equal(calls, 101)
+  assert.equal(result.length, 101)
+})
 test('storico: cursore ripetuto rifiutato senza loop', async () => {
   await assert.rejects(() => readHistory('7g', signal(), async () => page([row()], 'ripetuto')), /ripetuto/)
 })

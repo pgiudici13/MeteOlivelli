@@ -3,7 +3,7 @@ import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
-import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
+import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods, readAllHistory } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
@@ -11,6 +11,7 @@ import { readFreshChartData } from './pdf-chart-data.ts'
 import { buildGraphsDocument } from './pdf-graphs-document.ts'
 import { createPdfBlob } from './pdf-runtime.ts'
 import { reportFilename } from './pdf-export.ts'
+import { buildHistoryDocument } from './pdf-history-document.ts'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -93,6 +94,8 @@ function App() {
   const [period, setPeriod] = useState<ChartMode>('auto')
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfMessage, setPdfMessage] = useState('')
+  const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
+  const [historyPdfMessage, setHistoryPdfMessage] = useState('')
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory()
@@ -128,6 +131,28 @@ function App() {
       setPdfMessage('PDF non disponibile: aggiornamento o generazione non riusciti. Riprova.')
     } finally {
       setPdfBusy(false)
+    }
+  }
+
+  async function downloadHistoryPdf() {
+    if (historyPdfBusy) return
+    setHistoryPdfBusy(true)
+    setHistoryPdfMessage('Rilettura di tutte le pagine e preparazione del PDF…')
+    try {
+      const rows = await readAllHistory(new AbortController().signal)
+      const generatedAt = new Date()
+      const blob = await createPdfBlob(buildHistoryDocument(rows, generatedAt))
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = reportFilename('cronologia', generatedAt)
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setHistoryPdfMessage(`PDF scaricato con ${rows.length} campioni.`)
+    } catch {
+      setHistoryPdfMessage('PDF non disponibile: la cronologia completa non è stata letta o generata. Riprova.')
+    } finally {
+      setHistoryPdfBusy(false)
     }
   }
 
@@ -203,6 +228,10 @@ function App() {
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
         <p className="secondary">Tutti i campioni registrati finora, dal più recente. Le date di acquisizione e ricezione sono indicate separatamente. Unità: °C, %, hPa.</p>
+        <div className="pdf-export-controls">
+          <button type="button" onClick={() => void downloadHistoryPdf()} disabled={historyPdfBusy || completeHistory.loading || completeHistory.error} aria-busy={historyPdfBusy}>{historyPdfBusy ? 'Preparazione PDF…' : 'Scarica PDF della cronologia completa'}</button>
+          <p role="status" aria-live="polite">{historyPdfMessage}</p>
+        </div>
         {completeHistory.loading ? <p className="empty-state" role="status">Caricamento di tutta la cronologia…</p> : completeHistory.error ? <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile.</p><button onClick={completeHistory.retry}>Riprova</button></div> : completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
       <Reveal><ForecastSection /></Reveal>
