@@ -63,9 +63,9 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
         <th scope="row">{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
         {metrics.map(metric => <td key={metric.key} data-label={metric.name}><Value row={row} metric={metric} /></td>)}
         <td className="sample-details" data-label="Tempi e qualità"><details><summary>Dettagli campione</summary>
-          <p>Misura: {formatTime(row.measured_at)}.</p>
+          <p>{row.measured_at ? `Misura: ${formatTime(row.measured_at)}.` : 'Orario della misura non disponibile.'}</p>
           <p>Ricezione: {formatTime(row.received_at)}.</p>
-          {row.quality_flags.length ? row.quality_flags.map((flag, index) => <p key={index}>{metrics.find(metric => metric.key === flag.field)?.name}: {flag.label} · {flag.reason}</p>) : <p>Nessuna anomalia segnalata dal backend.</p>}
+          {row.quality_flags.map((flag, index) => <p key={index}>{metrics.find(metric => metric.key === flag.field)?.name}: {flag.label} · {flag.reason}</p>)}
         </details></td>
       </tr>)}</tbody>
     </table>
