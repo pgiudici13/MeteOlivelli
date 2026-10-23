@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { drawQuizQuestions, getQuizAnswerFeedback, quizQuestions, shuffleQuizAnswers } from '../src/quiz.ts'
 import { getQuizRippleGeometry } from '../src/quiz-motion.ts'
 
@@ -92,4 +93,13 @@ test('il ripple da tastiera parte dal centro e i clic fuori dal banner restano c
   const rect = { left: 100, top: 50, width: 300, height: 60 }
   assert.deepEqual(getQuizRippleGeometry(rect), { x: 150, y: 30, radius: 153 })
   assert.deepEqual(getQuizRippleGeometry(rect, { clientX: -40, clientY: 500 }), { x: 0, y: 60, radius: 306 })
+})
+
+test('le animazioni restano confinate alla domanda, alle risposte e al feedback', () => {
+  const styles = readFileSync(new URL('../src/pages/QuizPage.css', import.meta.url), 'utf8')
+  assert.match(styles, /\.quiz-question legend\s*\{[^}]*animation:/)
+  assert.match(styles, /\.quiz-answer\s*\{[^}]*animation:/)
+  assert.match(styles, /\.quiz-feedback\s*\{[^}]*animation:/)
+  assert.doesNotMatch(styles, /\.quiz-card\s*\{[^}]*animation:/)
+  assert.doesNotMatch(styles, /\.quiz-page \.quiz-hero\s*\{[^}]*animation:/)
 })
