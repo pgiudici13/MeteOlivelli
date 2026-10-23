@@ -90,6 +90,33 @@ test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti
   assert.ok(averages.pointCount > 0)
 })
 
+test('PDF grafici: punti, minimi, massimi e aggregazioni corrispondono alla UI in ogni periodo', () => {
+  const start = Date.parse('2026-10-01T08:00:00.000Z')
+  const rows = Array.from({ length: 90 }, (_, index) => {
+    const day = Math.floor(index / 3)
+    const hour = [0, 4, 7][index % 3]
+    const capturedAt = new Date(start + day * 86400000 + hour * 3600000).toISOString()
+    return row(index + 1, {
+      acquisition_kind: 'live', captured_at: capturedAt,
+      temperature_c: 10 + index / 10,
+      quality_flags: index === 4 ? [{ field: 'temperature_c', code: 'outside_configured_range', label: 'probabile errato', reason: 'fixture' }] : [],
+    })
+  })
+  const until = '2026-10-31T00:00:00.000Z'
+  for (const mode of ['24h', '7g', '14g', '30g', 'auto']) {
+    const windowHours = mode === '24h' ? 24 : mode === '7g' ? 168 : mode === '14g' ? 336 : 720
+    const periodUntil = mode === 'auto' ? rows.at(-1).captured_at : until
+    const periodRows = mode === 'auto' ? rows : rows.filter(item => Date.parse(item.captured_at) >= Date.parse(until) - windowHours * 3600000)
+    const expected = prepareChart(periodRows, 'temperature_c', mode, periodUntil)
+    const actual = buildPdfChart(periodRows, 'temperature_c', mode, periodUntil)
+    const values = expected.segments.flat().map(point => point.value)
+    assert.equal(actual.pointCount, values.length, `${mode}: conteggio punti`)
+    assert.equal(actual.minimum, values.length ? Math.min(...values) : null, `${mode}: minimo`)
+    assert.equal(actual.maximum, values.length ? Math.max(...values) : null, `${mode}: massimo`)
+    assert.match(actual.svg, /<svg[^>]+viewBox="0 0 820 330"/)
+  }
+})
+
 test('PDF grafici: documento completo per il periodo selezionato e metadati di generazione', () => {
   const until = '2026-10-22T12:00:00.000Z'
   const document = buildGraphsDocument([row(1), row(2)], '24h', until, new Date(until))
