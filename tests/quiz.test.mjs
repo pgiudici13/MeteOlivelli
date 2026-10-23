@@ -7,6 +7,7 @@ test('il quiz contiene venti domande con tre opzioni e una risposta corretta val
   for (const question of quizQuestions) {
     assert.equal(question.answers.length, 3)
     assert.ok(question.correctIndex >= 0 && question.correctIndex < question.answers.length)
+    assert.ok(question.explanation.trim().length > 0)
   }
 })
 
