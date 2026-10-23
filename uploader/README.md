@@ -86,6 +86,13 @@ puramente illustrativo, non quello della stazione, e un endpoint `.invalid`.
    py -3 -m uploader --config "C:\PERCORSO_CONFIG_VERIFICATO\config.json" --status
    ```
 
+   **Attenzione:** l'inizializzazione parte dall'offset zero. Al primo ciclo
+   vengono quindi lette e inviate tutte le righe complete già presenti nel CSV,
+   non soltanto quelle aggiunte dopo l'installazione. Prima di inizializzare,
+   concordare se importare l'intero storico. Non eseguire il comando sul CSV
+   originale per fare una prova: usare una copia isolata e un target di prova.
+   La procedura attuale non offre un'opzione per iniziare dalla fine del file.
+
 6. Dopo aver verificato destinazione e contratto, avviare un ciclo oppure la
    modalità continua. Il ciclo può acquisire fino a 100 righe e inviare fino a 20
    eventi pronti; il lavoro rimanente persiste per i cicli successivi:
