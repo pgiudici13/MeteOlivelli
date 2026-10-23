@@ -118,7 +118,7 @@ La dashboard è servita su `/home`; `/info` contiene introduzione al progetto sc
 
 La build produce `dist/home/index.html` e `dist/info/index.html` con title, description e canonical specifici. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca solo `/home` e `/info`. Verifica e invio in Google Search Console non sono stati eseguiti: richiedono che la modifica sia pubblicata sul dominio e poi verificata nel pannello.
 
-La pagina Informazioni distingue esplicitamente i campioni di prova dalle osservazioni della stazione e chiarisce che il polling a 15 secondi è frequenza di lettura del sito, non cadenza della stazione.
+La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dati, guida alla lettura di periodi/medie, limiti e provenienza, stime sperimentali e team. L’indice interno conduce a tutte le cinque sezioni. È dichiarato che i campioni sintetici non sono osservazioni e che il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
 
 ## Quiz “Gioca con il meteo”
 

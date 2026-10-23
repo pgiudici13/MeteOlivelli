@@ -111,3 +111,9 @@ Il logo trasparente fornito dall’utente compare al centro della barra superior
 ## Paginazione della cronologia — 23 ottobre 2026
 
 Al cambio pagina le righe correnti escono in sequenza con dissolvenza e breve spostamento; dopo l’uscita, le nuove righe entrano con una sequenza analoga. I controlli sono disabilitati durante il passaggio, lo stato comunica l’intervallo visibile e il totale, e la tabella espone `aria-busy`. Con `prefers-reduced-motion` il cambio è immediato. Su mobile le righe diventano schede compatte con etichette dei campi, data in testa e dettagli qualità separati; su desktop restano una tabella accessibile con numeri allineati e intestazioni discrete. Nessun contenuto o dato viene interpolato.
+
+## Pagina Informazioni — revisione del 23 ottobre 2026
+
+La route `/info` accompagna il lettore in cinque tappe: progetto, stazione e percorso previsto dei dati, guida ai grafici, trasparenza e team. Un indice interno usa link semantici con destinazioni esplicite. L’apertura ha titolo editoriale, introduzione e tre fatti essenziali; la chiusura propone il ritorno alla Home.
+
+Il percorso dei dati è una sequenza numerata di sensori, Arduino, archivio e sito; resta dichiarato come percorso previsto finché writer e cadenza reale non sono verificati. Una legenda testuale distingue misura fisica, acquisizione sul PC e ricezione server. Le viste 24 ore, 7/14/30 giorni e Auto sono spiegate senza far passare le medie per nuove misure. Sezioni in superfici neutre, bordi sottili e tipografia del sito; griglie a due colonne su desktop e a colonna singola su mobile. Il flusso tecnico diventa una griglia 2×2 sugli schermi stretti. Colori semantici seguono entrambi i temi, link restano sottolineabili/focalizzabili e non sono introdotte animazioni aggiuntive.

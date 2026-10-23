@@ -58,10 +58,10 @@
   .info-highlights span { font-size: 10px; }
   .info-toc { gap: 14px 18px; margin-bottom: 36px; }
   .info-toc .eyebrow { width: 100%; }
-  .info-flow { gap: 6px; padding: 12px 9px; }
-  .info-flow > div { flex: 1 1 0; }
-  .info-flow-arrow { font-size: 10px; }
-  .info-flow small { font-size: 9px; }
+  .info-flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 9px; }
+  .info-flow > div { padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; }
+  .info-flow-arrow { display: none; }
+  .info-flow small { font-size: 10px; }
   .info-periods { grid-template-columns: 1fr; gap: 8px; }
   .info-periods article { min-height: 0; padding: 15px; }
   .info-trust-grid { grid-template-columns: 1fr; }

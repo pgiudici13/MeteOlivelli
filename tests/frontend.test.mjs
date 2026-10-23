@@ -34,6 +34,16 @@ test('Prova misure: fixture sintetica, completa per 30 giorni e a intervalli CES
   assert.match(readme, /non\s+sono osservazioni della stazione/)
 })
 
+test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente', () => {
+  const page = readFileSync(new URL('../src/pages/InfoPage.tsx', import.meta.url), 'utf8')
+  const ids = new Set([...page.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]))
+  const links = [...page.matchAll(/<a href="#([^"]+)"/g)].map((match) => match[1])
+  assert.ok(links.length >= 5)
+  assert.ok(links.every((id) => ids.has(id)), `Destinazioni dell’indice non trovate: ${links.filter((id) => !ids.has(id)).join(', ')}`)
+  assert.match(page, /aria-label="In questa pagina"/)
+  assert.match(page, /aria-label="In breve"/)
+})
+
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
   const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
   const originalNow = Date.now
