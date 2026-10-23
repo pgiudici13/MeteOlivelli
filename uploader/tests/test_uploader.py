@@ -76,6 +76,28 @@ class UploaderTest(unittest.TestCase):
         self.assertIsNone(data["captured_at"])
         self.assertEqual(data["acquisition_kind"], "historical")
 
+    def test_explicit_synthetic_mode_sets_provenance_and_separate_times(self):
+        config = dict(self.config, acquisition_kind="synthetic")
+        validate_config(config)
+        data, reason = parse_row(b"1;20;50;1010", config, str(uuid.uuid4()), None)
+        self.assertIsNone(reason)
+        self.assertEqual(data["acquisition_kind"], "synthetic")
+        self.assertEqual(data["_provenance"], {"kind": "synthetic"})
+        self.assertIsNotNone(data["captured_at"])
+        self.assertIsNone(data["measured_at"])
+        with self.assertRaises(Halt):
+            validate_config(dict(config, live_verified=True))
+
+    def test_synthetic_capture_freezes_provenance_in_durable_outbox(self):
+        self.config["acquisition_kind"] = "synthetic"
+        store = self.store()
+        self.assertEqual(store.capture(), 1)
+        payload = json.loads(self.events(store)[0]["payload"])
+        self.assertEqual(payload["acquisition_kind"], "synthetic")
+        self.assertEqual(payload["_provenance"], {"kind": "synthetic"})
+        self.assertIsNotNone(payload["captured_at"])
+        self.assertIsNone(payload["measured_at"])
+
     def test_parser_rejects_non_numeric_bom_quotes_and_underflow(self):
         for raw in (b"1;NaN;2;3", b"-1;2;3;4", b"1;2;3", b"1;2;3;4;5", b"1;2;;4",
                     b"1;1e309;3;4", b"1;1e-999;3;4", b'1;"2"x;3;4', b'1;2";3;4',

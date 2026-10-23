@@ -28,7 +28,7 @@ def utc_now():
 def validate_config(config):
     required = {"csv_path", "state_dir", "source_id", "endpoint", "delimiter",
                 "decimal_separator", "encoding", "empty_measurement", "header", "live_verified"}
-    if set(config) != required:
+    if not required.issubset(config) or set(config) - required - {"acquisition_kind"}:
         raise Halt("Configurazione incompleta o con campi sconosciuti.")
     if not all(isinstance(config[k], str) for k in required - {"header", "live_verified"}):
         raise Halt("Tipo di configurazione non valido.")
@@ -38,6 +38,11 @@ def validate_config(config):
         raise Halt("Encoding o gestione campi vuoti non supportati.")
     if type(config["live_verified"]) is not bool:
         raise Halt("Conferma temporale non valida.")
+    kind = config.get("acquisition_kind", "historical")
+    if kind not in ("live", "historical", "synthetic"):
+        raise Halt("Tipo di acquisizione non valido.")
+    if kind == "synthetic" and config["live_verified"]:
+        raise Halt("Le misure sintetiche non possono essere marcate come live verificato.")
     if config["header"] is not None and (not isinstance(config["header"], list) or
             len(config["header"]) != 4 or not all(isinstance(v, str) for v in config["header"])):
         raise Halt("Intestazione esplicita di quattro campi richiesta, oppure null.")
@@ -89,12 +94,19 @@ def parse_row(raw, config, ingestion_id, captured_at):
             raise ValueError
     except (UnicodeError, ValueError, csv.Error, StopIteration):
         return None, "csv_non_valido"
-    return {
+    kind = config.get("acquisition_kind", "historical")
+    if kind == "synthetic":
+        captured_at = captured_at or utc_now()
+    payload = {
         "schema_version": 1, "source_id": config["source_id"], "ingestion_id": ingestion_id,
         "arduino_seconds": values[0], "temperature_c": values[1], "humidity_pct": values[2],
-        "pressure_hpa": values[3], "acquisition_kind": "live" if captured_at else "historical",
+        "pressure_hpa": values[3], "acquisition_kind": kind if kind == "synthetic" else
+            ("live" if captured_at else "historical"),
         "captured_at": captured_at, "measured_at": None,
-    }, None
+    }
+    if kind == "synthetic":
+        payload["_provenance"] = {"kind": "synthetic"}
+    return payload, None
 
 
 class InstanceLock:

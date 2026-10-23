@@ -8,5 +8,6 @@
   "encoding": "utf-8",
   "empty_measurement": "reject",
   "header": null,
-  "live_verified": false
+  "live_verified": false,
+  "acquisition_kind": "historical"
 }

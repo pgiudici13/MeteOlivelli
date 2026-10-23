@@ -288,20 +288,33 @@ Deno.test('adapter read proietta colonne pubbliche e non propaga payload interno
   assert(!('raw_payload' in rows[0]) && !('payload' in rows[0]) && !('arduino_seconds' in rows[0]))
 })
 
-Deno.test('ingest non accetta campioni sintetici tramite il canale dei sensori', async () => {
-  let saved = false
+Deno.test('ingest conserva i campioni sintetici e richiede il marcatore di provenienza', async () => {
+  const saved: unknown[] = []
+  const savedMeasurements = () => [...saved]
   const handler = createIngestHandler({
     token,
     source: 'test',
     store: store({
-      save: () => {
-        saved = true
+      save: (measurement) => {
+        saved.push(measurement)
         return Promise.resolve(receipt)
       },
     }),
   })
-  const result = await handler(request({ ...fixture, acquisition_kind: 'synthetic' }))
-  assert(result.status === 422 && !saved)
+  const withoutProvenance = await handler(request({
+    ...fixture,
+    acquisition_kind: 'synthetic',
+    captured_at: '2026-10-23T10:00:00.000Z',
+  }))
+  assert(withoutProvenance.status === 422 && saved.length === 0)
+  const validSynthetic = await handler(request({
+    ...fixture,
+    acquisition_kind: 'synthetic',
+    captured_at: '2026-10-23T10:00:00.000Z',
+    _provenance: { kind: 'synthetic' },
+  }))
+  assert(validSynthetic.status === 201 && savedMeasurements().length === 1)
+  assert((savedMeasurements()[0] as { acquisition_kind: string }).acquisition_kind === 'synthetic')
 })
 
 Deno.test('read conserva il tipo sintetico senza esporre i metadati interni', async () => {

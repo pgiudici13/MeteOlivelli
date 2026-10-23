@@ -28,9 +28,12 @@ L'originale non viene corretto o modificato.
 ## Ora di acquisizione e limiti del monitor
 
 `measured_at` resta sempre null: il CSV dichiarato non contiene un'ora assoluta.
-Per impostazione iniziale `live_verified: false`, ogni riga viene inviata come
-`historical`, con `captured_at: null`. Non apparirà quindi come ultima misura live
-o punto dei grafici datati: è una protezione contro date inventate.
+Senza `acquisition_kind`, o con `historical`, ogni riga ha `captured_at: null`.
+La modalità `synthetic` deve essere richiesta esplicitamente nella configurazione:
+assegna `captured_at` sul PC, mantiene `measured_at: null` e aggiunge
+`_provenance.kind: synthetic`, validato anche dall'endpoint e dal vincolo DB.
+Non rappresenta un'ora di misura della stazione. La modalità `live` resta soggetta
+alla verifica del writer descritta sotto.
 
 Impostare `live_verified: true` solo dopo DATA-01–DATA-03: writer append verificato,
 clock UTC corretto, latenza/buffering noti e completamento riga osservabile. In

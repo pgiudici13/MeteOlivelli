@@ -209,6 +209,32 @@ Deno.test('ora PC obbligatoria per nuove righe, import storico senza data invent
   assert(result.measurement.captured_at === null && result.measurement.measured_at === null)
 })
 
+Deno.test('campione sintetico richiede provenienza e data di acquisizione ma non data fisica', () => {
+  const capturedAt = '2026-10-23T10:00:00.000Z'
+  hasIssue(
+    validateMeasurement(fixture({ acquisition_kind: 'synthetic', captured_at: capturedAt })),
+    '_provenance',
+    'invalid_provenance',
+  )
+  hasIssue(
+    validateMeasurement(fixture({
+      acquisition_kind: 'synthetic',
+      captured_at: capturedAt,
+      _provenance: { kind: 'synthetic', extra: true },
+    })),
+    '_provenance',
+    'invalid_provenance',
+  )
+  const result = valid(validateMeasurement(fixture({
+    acquisition_kind: 'synthetic',
+    captured_at: capturedAt,
+    _provenance: { kind: 'synthetic' },
+  })))
+  assert(result.measurement.acquisition_kind === 'synthetic')
+  assert(result.measurement._provenance?.kind === 'synthetic')
+  assert(result.measurement.measured_at === null)
+})
+
 Deno.test('gli istanti UTC restano distinti durante il ritorno all’ora solare Europe/Rome', () => {
   const first = valid(validateMeasurement(fixture({ captured_at: '2026-10-25T00:30:00Z' })))
   const second = valid(validateMeasurement(fixture({ captured_at: '2026-10-25T01:30:00Z' })))

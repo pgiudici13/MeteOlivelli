@@ -169,6 +169,14 @@ La tabella precedente resta la baseline storica: questi fatti la aggiornano dove
 - **Verifica:** test sintetici Python e compatibilità del payload con validatore/handler Deno v1; esiti finali nel registro di tasks.md. I test di errore SQLite e risposta persa non sostituiscono power loss, disco pieno reale o prove Windows.
 - **Aperto:** DATA-01–DATA-03 e chiusura UP-01–UP-04 sul CSV/PC reale, custodia token nel processo pianificato, clock/buffering, rotazioni del writer e autonomia offline. Guida e limiti in [uploader/README.md](uploader/README.md). Monitor indipendente/email e backup operativo restano Fase 8.
 
+### Modalità sintetica esplicita per l’uploader — 23 ottobre 2026
+
+- **U:** richiesta di provare dal programma locale il caricamento di una misurazione fittizia al database; dopo il blocco iniziale, richiesta di adattare il flusso perché funzioni correttamente.
+- **F locale:** aggiunta configurazione opzionale `acquisition_kind: synthetic` compatibile con configurazioni/stati esistenti. L’uploader assegna `captured_at` locale, lascia `measured_at` null e congela `_provenance.kind: synthetic` nell’outbox. Validatore e handler locale accettano solo tale forma e il vincolo DB esistente la supporta.
+- **Verifica:** `npm run check` superato dopo l’adattamento; test Deno e Python aggiornati. Il progetto remoto verificato contiene 10 righe, tutte `synthetic`; nessuna nuova riga inserita in questa sessione.
+- **Blocco remoto:** la distribuzione aggiornata di `ingest-measurement` al progetto `pvtzncseisbxaaseqfvo` è stata respinta da auto-review perché sostituisce immediatamente una funzione pubblica e richiede approvazione esplicita. Inoltre `STATION_INGEST_TOKEN` non è presente nell’ambiente locale, senza leggerne altri percorsi o valori. Non è quindi dimostrato l’upload remoto dal programma locale; attendere approvazione esplicita del deploy e predisposizione locale protetta del token.
+- **Limite:** il percorso CSV/writer/Windows reale resta non verificato; la modalità sintetica non chiude DATA-01–DATA-03 né UP-01–UP-04.
+
 ### Verifica backend con CSV sintetico — 22 ottobre 2026
 
 - **U:** richiesta esplicita di testare backend Supabase con un CSV fittizio.

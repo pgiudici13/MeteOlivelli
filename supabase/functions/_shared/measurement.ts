@@ -9,9 +9,10 @@ export interface Measurement {
   temperature_c: number | null
   humidity_pct: number | null
   pressure_hpa: number | null
-  acquisition_kind: 'live' | 'historical'
+  acquisition_kind: 'live' | 'historical' | 'synthetic'
   captured_at: string | null
   measured_at: string | null
+  _provenance?: { kind: 'synthetic' }
 }
 
 export interface QualityFlag {
@@ -34,6 +35,7 @@ export interface ValidationIssue {
     | 'invalid_timestamp'
     | 'invalid_acquisition_kind'
     | 'inconsistent_time'
+    | 'invalid_provenance'
 }
 
 export type ValidationResult =
@@ -53,6 +55,7 @@ const fields = [
   'captured_at',
   'measured_at',
 ]
+const knownFields = [...fields, '_provenance']
 
 /** Solo UTC esplicito, precisione massima al millisecondo; niente rollover di date invalide. */
 function normalizeTimestamp(value: unknown): string | null | undefined {
@@ -125,7 +128,7 @@ export function validateMeasurement(input: unknown, ranges: QualityRanges = {}):
     if (!Object.hasOwn(data, field)) issue(field, 'missing_field')
   }
   // Non riportare nomi arbitrari inviati dal client nei messaggi diagnostici.
-  if (Object.keys(data).some((field) => !fields.includes(field))) issue('$', 'unknown_field')
+  if (Object.keys(data).some((field) => !knownFields.includes(field))) issue('$', 'unknown_field')
   if (data.schema_version !== 1) issue('schema_version', 'unsupported_version')
   if (typeof data.source_id !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,63}$/.test(data.source_id)) {
     issue('source_id', 'invalid_identifier')
@@ -146,8 +149,23 @@ export function validateMeasurement(input: unknown, ranges: QualityRanges = {}):
       issue(field, 'invalid_number')
     }
   }
-  if (data.acquisition_kind !== 'live' && data.acquisition_kind !== 'historical') {
+  if (
+    data.acquisition_kind !== 'live' && data.acquisition_kind !== 'historical' &&
+    data.acquisition_kind !== 'synthetic'
+  ) {
     issue('acquisition_kind', 'invalid_acquisition_kind')
+  }
+  const provenance = data._provenance
+  if (data.acquisition_kind === 'synthetic') {
+    if (
+      provenance === null || typeof provenance !== 'object' || Array.isArray(provenance) ||
+      Object.keys(provenance).length !== 1 ||
+      (provenance as Record<string, unknown>).kind !== 'synthetic'
+    ) {
+      issue('_provenance', 'invalid_provenance')
+    }
+  } else if (provenance !== undefined) {
+    issue('_provenance', 'invalid_provenance')
   }
   const capturedAt = normalizeTimestamp(data.captured_at)
   const measuredAt = normalizeTimestamp(data.measured_at)
@@ -158,6 +176,12 @@ export function validateMeasurement(input: unknown, ranges: QualityRanges = {}):
   }
   // v1 importa lo storico senza una provenienza verificata dell'ora originale sul PC.
   if (data.acquisition_kind === 'historical' && typeof capturedAt === 'string') {
+    issue('captured_at', 'inconsistent_time')
+  }
+  if (
+    data.acquisition_kind === 'synthetic' &&
+    (typeof capturedAt !== 'string' || measuredAt !== null)
+  ) {
     issue('captured_at', 'inconsistent_time')
   }
   if (issues.length > 0) return { ok: false, issues }
@@ -173,6 +197,9 @@ export function validateMeasurement(input: unknown, ranges: QualityRanges = {}):
     acquisition_kind: data.acquisition_kind as Measurement['acquisition_kind'],
     captured_at: capturedAt as string | null,
     measured_at: measuredAt as string | null,
+    ...(data.acquisition_kind === 'synthetic'
+      ? { _provenance: { kind: 'synthetic' as const } }
+      : {}),
   }
   return { ok: true, measurement, quality_flags: classifyQuality(measurement, ranges) }
 }
@@ -189,5 +216,6 @@ export function parseMeasurementJson(body: string, ranges: QualityRanges = {}): 
 
 /** Da usare solo su eventi validati. Non implementa persistenza o unicità nel DB. */
 export function canonicalMeasurementContent(measurement: Measurement): string {
-  return JSON.stringify(fields.map((field) => measurement[field as keyof Measurement]))
+  const contentFields = measurement.acquisition_kind === 'synthetic' ? knownFields : fields
+  return JSON.stringify(contentFields.map((field) => measurement[field as keyof Measurement]))
 }
