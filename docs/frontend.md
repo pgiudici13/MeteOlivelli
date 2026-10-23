@@ -80,6 +80,8 @@ La selezione iniziale è Auto. Il feed usa la lettura 30g con `until` ancorato a
 
 In `src/chart.ts`, lo storico caricato di durata ≤7 giorni resta grezzo e l’asse ne segue l’estensione; oltre sette giorni viene derivata l’ultima settimana di calendario con tre medie aritmetiche per giorno: 00–12, 12–17, 17–24. Sono usati solo i valori validi per campo; nessuna fascia vuota viene interpolata o trasformata in zero. Campioni live e di prova non contribuiscono alla stessa media. Se sono disponibili live, Auto li privilegia. La cronologia resta quella originale dei 30 giorni letti; nessuna media diventa una misura o viene inviata al database. Tooltip con fascia e numero di contributi, titolo “Ultima media” e riepilogo accessibile dichiarano l’aggregazione.
 
+Nelle viste manuali, 24 ore mantiene tutti i campioni originali. 7, 14 e 30 giorni mostrano una media giornaliera dei campioni validi acquisiti dalle 09:00 incluse alle 18:00 escluse in Europe/Rome. Una giornata senza valori validi interrompe la linea; la cronologia conserva sempre i campioni originali. L’API non espone una finestra 14g: la UI legge 30g e limita localmente la serie agli ultimi 14 giorni ancorati all’orario server.
+
 Dati raw e medie hanno punti del grafico distinti dal tipo `Measurement`. I centri delle fasce servono al posizionamento sul grafico e non sono orari di misura. Le sette date e le fasce rispettano Europe/Rome e il cambio d’ora. Maschera lineare accelerata a 700 ms dopo 60 ms; ingressi generali a 420 ms.
 
 **Verifica Auto locale:** `npm run check` superato (26 Node, 41 Deno, 21 Python), 14 scenari browser superati, inclusi Auto predefinito, 21 medie per fascia su serie lunga e cronologia originale. Resta una modifica locale non pubblicata.

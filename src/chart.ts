@@ -12,14 +12,14 @@ export interface TimeTick { time: number; label: string; major: boolean }
 export function chartTimeline(period: Period, until: string, range?: { start: number; end: number }) {
   const end = range?.end ?? Date.parse(until)
   if (!Number.isFinite(end)) throw new Error('Fine della finestra non valida')
-  const start = range?.start ?? end - (period === '24h' ? 24 : period === '7g' ? 168 : 720) * hour
+  const start = range?.start ?? end - (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * hour
   const ticks: TimeTick[] = []
   let day = 0
   for (let instant = Math.ceil(start / hour) * hour; instant < end; instant += hour) {
     if (instant <= start) continue
     const localHour = Number(clock.format(instant))
     if (period === '24h' ? localHour % 6 !== 0 : localHour !== 0) continue
-    const major = period !== '30g' || weekday.format(instant) === 'Mon'
+    const major = !['14g', '30g'].includes(period) || weekday.format(instant) === 'Mon'
     // Le linee giornaliere restano presenti, le etichette hanno spazio per respirare.
     const show = period === '24h' || (period === '7g' ? day++ % 2 === 0 : major)
     const awayFromEdges = (instant - start) / (end - start) > 0.19 && (end - instant) / (end - start) > 0.19
@@ -47,11 +47,6 @@ function zonedTime(day: string, hours: number) {
   }
   return guess
 }
-export const dayBands = [
-  { name: 'Mattina', hours: '00–12', middle: 6 },
-  { name: 'Primo pomeriggio', hours: '12–17', middle: 14.5 },
-  { name: 'Sera', hours: '17–24', middle: 20.5 },
-] as const
 export interface ChartPoint { id: string; time: number; value: number; count: number; label: string }
 
 /** I punti medi sono derivati per il grafico: non diventano eventi nella cronologia. */
@@ -60,7 +55,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   const dated = mode === 'auto' && candidates.some(row => row.acquisition_kind === 'live') ? candidates.filter(row => row.acquisition_kind === 'live') : candidates
   const first = dated.length ? Date.parse(dated[0].captured_at!) : Date.parse(until)
   const last = dated.length ? Date.parse(dated[dated.length - 1].captured_at!) : Date.parse(until)
-  const averaged = mode === 'auto' && last - first > 7 * 24 * hour
+  const averaged = mode === 'auto' ? last - first > 7 * 24 * hour : mode !== '24h'
   if (!averaged) {
     const segments = chartSegments(dated, metric).map(segment => segment.map(row => ({
       id: row.ingestion_id, time: Date.parse(row.captured_at!), value: row[metric] as number, count: 1, label: formatTime(row.captured_at),
@@ -70,9 +65,11 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
     const basis = mode === 'auto' ? (span <= 24 * hour ? '24h' : '7g') : mode
     return { segments, timeline: chartTimeline(basis, until, range), averaged, note: mode === 'auto' ? 'Auto · campioni originali · intervallo adattato ai dati' : '' }
   }
-  const finalDay = dayKey(last)
+  const finalDay = dayKey(mode === 'auto' ? last : Date.parse(until))
   const shiftDay = (offset: number) => new Date(Date.parse(`${finalDay}T00:00:00Z`) + offset * 24 * hour).toISOString().slice(0, 10)
-  const start = zonedTime(shiftDay(-6), 0)
+  const days = mode === 'auto' ? 7 : mode === '7g' ? 7 : mode === '14g' ? 14 : 30
+  const firstOffset = 1 - days
+  const start = zonedTime(shiftDay(firstOffset), 0)
   const end = zonedTime(shiftDay(1), 0)
   // Le medie della stazione non incorporano il batch di prova quando sono presenti misure live.
   const live = dated.some(row => row.acquisition_kind === 'live')
@@ -86,28 +83,42 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
     if (row[metric] === null || isSuspect(row, metric)) continue
     const local = localParts(time)
     const localHour = Number(local.hour)
-    const band = localHour < 12 ? 0 : localHour < 17 ? 1 : 2
-    const key = `${local.year}-${local.month}-${local.day}/${band}`
-    const bucket = buckets.get(key) ?? { sum: 0, count: 0 }
-    bucket.sum += row[metric] as number
-    bucket.count++
-    buckets.set(key, bucket)
+    if (mode !== 'auto' && (localHour < 9 || localHour >= 18)) continue
+    if (mode === 'auto') {
+      const band = localHour < 12 ? 0 : localHour < 17 ? 1 : 2
+      const key = `${local.year}-${local.month}-${local.day}/${band}`
+      const bucket = buckets.get(key) ?? { sum: 0, count: 0 }
+      bucket.sum += row[metric] as number
+      bucket.count++
+      buckets.set(key, bucket)
+    } else {
+      const key = `${local.year}-${local.month}-${local.day}`
+      const bucket = buckets.get(key) ?? { sum: 0, count: 0 }
+      bucket.sum += row[metric] as number
+      bucket.count++
+      buckets.set(key, bucket)
+    }
   }
   const segments: ChartPoint[][] = []
   let segment: ChartPoint[] = []
-  for (let offset = -6; offset <= 0; offset++) {
+  for (let offset = firstOffset; offset <= 0; offset++) {
     const day = shiftDay(offset)
-    dayBands.forEach((band, index) => {
-      const key = `${day}/${index}`
+    const keys = mode === 'auto' ? ['0', '1', '2'] : ['day']
+    keys.forEach((bandIndex) => {
+      const key = mode === 'auto' ? `${day}/${bandIndex}` : day
       const bucket = buckets.get(key)
       if (!bucket) {
         if (segment.length) segments.push(segment)
         segment = []
         return
       }
-      segment.push({ id: key, time: zonedTime(day, band.middle), value: bucket.sum / bucket.count, count: bucket.count, label: `${day.split('-').reverse().join('/')} · ${band.name} ${band.hours} · media di ${bucket.count} campioni` })
+      const label = mode === 'auto' ? ['Mattina 00–12', 'Primo pomeriggio 12–17', 'Sera 17–24'][Number(bandIndex)] : '09:00–18:00'
+      const middle = mode === 'auto' ? [6, 14.5, 20.5][Number(bandIndex)] : 13.5
+      segment.push({ id: key, time: zonedTime(day, middle), value: bucket.sum / bucket.count, count: bucket.count, label: `${day.split('-').reverse().join('/')} · ${label} · media di ${bucket.count} campioni` })
     })
   }
   if (segment.length) segments.push(segment)
-  return { segments, timeline: chartTimeline('7g', until, { start, end }), averaged, note: 'Auto · ultime 7 giornate disponibili · medie 00–12 / 12–17 / 17–24' }
+  const timelinePeriod = mode === 'auto' ? '7g' : mode
+  const note = mode === 'auto' ? 'Auto · ultime 7 giornate disponibili · medie per fascia 00–12 / 12–17 / 17–24' : `Media giornaliera 09:00–18:00 · ${days} giorni`
+  return { segments, timeline: chartTimeline(timelinePeriod, until, { start, end }), averaged, note }
 }

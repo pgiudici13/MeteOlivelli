@@ -184,6 +184,17 @@ test('grafici: linee giornaliere a mezzanotte italiana anche al cambio ora', () 
   assert.throws(() => chartTimeline('24h', 'invalid'))
 })
 
+test('14 giorni usa la finestra API da 30g e ritaglia localmente gli ultimi 14 giorni', async () => {
+  const records = [row(1, { captured_at: '2026-10-01T10:00:00Z' }), row(2, { captured_at: '2026-10-15T10:00:00Z' }), row(3, { captured_at: '2026-10-22T10:00:00Z' })]
+  let requestedPeriod
+  const result = await readHistory('14g', signal(), async params => {
+    requestedPeriod = params.get('period')
+    return page(records)
+  })
+  assert.equal(requestedPeriod, '30g')
+  assert.deepEqual(result.map(item => item.ingestion_id), [records[1].ingestion_id, records[2].ingestion_id])
+})
+
 test('Auto: due giorni mantengono i campioni e la loro estensione temporale', () => {
   const records = [row(1, { captured_at: '2026-10-20T10:00:00Z' }), row(2, { captured_at: '2026-10-22T10:00:00Z' })]
   const chart = prepareChart(records, 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
@@ -222,6 +233,27 @@ test('Auto: una misura singola ha spazio e le medie vere non includono sintetici
   const mixed = prepareChart([row(1, { acquisition_kind: 'synthetic', captured_at: '2026-10-01T10:00:00Z', temperature_c: 999 }), row(2, { acquisition_kind: 'live', captured_at: '2026-10-22T10:00:00Z', temperature_c: 20 })], 'temperature_c', 'auto', '2026-10-22T20:00:00Z')
   assert.equal(mixed.averaged, false)
   assert.deepEqual(mixed.segments.flat().map(point => point.value), [20])
+})
+
+test('7, 14 e 30 giorni mostrano una media al giorno limitata alle 09:00–18:00 locali', () => {
+  // In ottobre Europe/Rome è UTC+2: 06:59Z è 08:59, 07:00Z è 09:00, 15:59Z è 17:59 e 16:00Z è 18:00.
+  const records = [
+    row(1, { captured_at: '2026-10-22T06:59:00Z', temperature_c: 1 }),
+    row(2, { captured_at: '2026-10-22T07:00:00Z', temperature_c: 10 }),
+    row(3, { captured_at: '2026-10-22T15:59:00Z', temperature_c: 30 }),
+    row(4, { captured_at: '2026-10-22T16:00:00Z', temperature_c: 100 }),
+    row(5, { captured_at: '2026-10-23T08:00:00Z', temperature_c: 50 }),
+  ]
+  for (const mode of ['7g', '14g', '30g']) {
+    const chart = prepareChart(records, 'temperature_c', mode, '2026-10-23T12:00:00Z')
+    assert.equal(chart.averaged, true)
+    const points = chart.segments.flat()
+    assert.deepEqual(points.map(point => [point.value, point.count]), [[20, 2], [50, 1]])
+    assert.ok(points[0].label.includes('09:00–18:00'))
+  }
+  const day = prepareChart(records, 'temperature_c', '24h', '2026-10-23T12:00:00Z')
+  assert.equal(day.averaged, false)
+  assert.equal(day.segments.flat().length, 5)
 })
 
 test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma da mesi', async () => {

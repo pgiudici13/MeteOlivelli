@@ -86,7 +86,7 @@ Auto è la selezione iniziale per tutti e quattro i grafici. Per contenere il tr
 
 Nella vista aggregata, per ogni giorno si calcola la media aritmetica dei valori validi disponibili in tre fasce concordate: **mattina 00–12, primo pomeriggio 12–17, sera 17–24**. La notte è inclusa nella mattina su indicazione dell’utente. Ogni campo esclude i propri null/sospetti; una fascia senza valori validi interrompe la curva. Non si mescolano campioni di prova e live nelle medie: Auto privilegia le letture live quando disponibili. Le medie sono derivate in memoria e non inserite nel database né nella cronologia; tooltip con fascia e numero di contributi, dicitura “Ultima media” e minimo/massimo delle medie. Le posizioni temporali sono i centri delle fasce, non nuovi timestamp di misura.
 
-Le viste manuali 24h/7g/30g rimangono disponibili con campioni originali e finestra completa. La cronologia Auto conserva i campioni originali dei 30 giorni caricati. I pulsanti sono quattro e devono restare utilizzabili a 320 px. La maschera lineare e gli ingressi sono stati accelerati ai tempi della tabella; movimento ridotto e assenza di lampeggi restano obbligatori.
+Le viste manuali comprendono 24h/7g/14g/30g: 24h mostra i campioni originali; 7g/14g/30g mostrano una media per giorno fra le 09:00 incluse e le 18:00 escluse in Europe/Rome. La cronologia Auto conserva i campioni originali dei 30 giorni caricati. I pulsanti sono cinque e devono restare utilizzabili a 320 px. La maschera lineare e gli ingressi sono stati accelerati ai tempi della tabella; movimento ridotto e assenza di lampeggi restano obbligatori.
 
 
 ## Misure compatte nel pannello iniziale — 23 ottobre 2026

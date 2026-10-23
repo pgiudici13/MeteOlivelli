@@ -1,5 +1,5 @@
 // Contratto pubblico BE-06. Nessun import del runtime server nel browser.
-export type Period = '24h' | '7g' | '30g'
+export type Period = '24h' | '7g' | '14g' | '30g'
 export type ChartMode = Period | 'auto'
 export type Metric = 'temperature_c' | 'humidity_pct' | 'pressure_hpa'
 export interface QualityFlag {
@@ -31,7 +31,7 @@ export const metrics = [
   { key: 'pressure_hpa', name: 'Pressione', unit: 'hPa', tone: 'lilac' },
 ] as const
 export const periods: { value: ChartMode; label: string }[] = [
-  { value: 'auto', label: 'Auto' }, { value: '24h', label: '24 ore' }, { value: '7g', label: '7 giorni' }, { value: '30g', label: '30 giorni' },
+  { value: 'auto', label: 'Auto' }, { value: '24h', label: '24 ore' }, { value: '7g', label: '7 giorni' }, { value: '14g', label: '14 giorni' }, { value: '30g', label: '30 giorni' },
 ]
 // URL pubblico già verificato in BE-07; non richiede chiavi o token client.
 export const READ_ENDPOINT = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements'
@@ -96,7 +96,9 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
   let until: string | null = null
   // Limite conservativo: oltre 50.000 eventi fallire esplicitamente, mai mostrare una serie troncata come completa.
   for (let page = 0; page < 100; page++) {
-    const params = new URLSearchParams({ view: 'history', period, basis, limit: '500' })
+    // L'API ha finestre 24h/7g/30g; 14g riusa la lettura 30g e viene tagliata localmente.
+    const apiPeriod = period === '14g' ? '30g' : period
+    const params = new URLSearchParams({ view: 'history', period: apiPeriod, basis, limit: '500' })
     if (cursor) params.set('cursor', cursor)
     const result = await reader(params, signal)
     if (result.time_basis !== basis) throw new Error('Base temporale dello storico incoerente')
@@ -106,7 +108,12 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
       if (!item[basis]) throw new Error('Acquisizione non datata nello storico')
       items.set(item.ingestion_id, item)
     }
-    if (!result.next_cursor) return [...items.values()].sort((a, b) => Date.parse(a[basis]!) - Date.parse(b[basis]!) || a.ingestion_id.localeCompare(b.ingestion_id))
+    if (!result.next_cursor) {
+      const sorted = [...items.values()].sort((a, b) => Date.parse(a[basis]!) - Date.parse(b[basis]!) || a.ingestion_id.localeCompare(b.ingestion_id))
+      if (period !== '14g') return sorted
+      const cutoff = Date.parse(until!) - 336 * 3600000
+      return sorted.filter(item => Date.parse(item[basis]!) >= cutoff)
+    }
     if (cursors.has(result.next_cursor)) throw new Error('Cursore ripetuto')
     cursor = result.next_cursor
     cursors.add(cursor)
@@ -118,7 +125,7 @@ export function compareMeasurements(a: Measurement, b: Measurement): number {
   return Date.parse(a.captured_at ?? '') - Date.parse(b.captured_at ?? '') || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 export function trimHistory(rows: Measurement[], period: Period, serverUntil: string): Measurement[] {
-  const duration = (period === '24h' ? 24 : period === '7g' ? 168 : 720) * 3600000
+  const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000
   const start = Date.parse(serverUntil) - duration
   return rows.filter(row => row.captured_at !== null && Date.parse(row.captured_at) >= start)
 }
