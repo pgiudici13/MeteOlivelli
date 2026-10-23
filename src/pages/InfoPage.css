@@ -1,6 +1,15 @@
-.info-page .info-hero { padding: 76px 0 64px; max-width: 820px; }
+.info-page .info-hero { padding: 76px 0 48px; max-width: 900px; }
 .info-page h1 { margin-top: 28px; }
 .info-lead { max-width: 650px; font-size: 18px; line-height: 1.6; color: var(--secondary); }
+.info-highlights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; max-width: 760px; margin-top: 38px; border-top: 1px solid var(--border); }
+.info-highlights p { display: grid; gap: 5px; padding-top: 15px; }
+.info-highlights strong { font-size: 13px; font-weight: 500; }
+.info-highlights span { color: var(--secondary); font-size: 11px; line-height: 1.5; }
+.info-toc { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 26px; padding: 18px 0; margin-bottom: 52px; border-block: 1px solid var(--border); }
+.info-toc .eyebrow { color: var(--secondary); margin-right: 4px; }
+.info-toc a { color: var(--secondary); font-size: 12px; text-decoration: none; text-underline-offset: 5px; }
+.info-toc a:hover, .info-toc a:focus-visible { color: var(--text); text-decoration: underline; }
+.info-page [id] { scroll-margin-top: 24px; }
 .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 64px; border-top: 1px solid var(--border); }
 .info-block { padding: 36px 0 42px; border-bottom: 1px solid var(--border); }
 .info-block h2 { max-width: 520px; margin-bottom: 20px; }
@@ -12,6 +21,10 @@
 @media (max-width: 760px) {
   .info-page .info-hero { padding: 52px 0 44px; }
   .info-lead { font-size: 16px; }
+  .info-highlights { gap: 12px; margin-top: 30px; }
+  .info-highlights span { font-size: 10px; }
+  .info-toc { gap: 14px 18px; margin-bottom: 36px; }
+  .info-toc .eyebrow { width: 100%; }
   .info-grid { grid-template-columns: 1fr; gap: 0; }
   .info-block { padding-block: 28px 32px; }
 }

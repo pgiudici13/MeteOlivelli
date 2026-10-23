@@ -34,26 +34,37 @@ export function InfoPage() {
     <main id="info-content" tabIndex={-1}>
       <section className="info-hero" aria-labelledby="info-title">
         <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Progetto scolastico</p>
-        <h1 id="info-title">Il meteo,<br />osservato insieme<span className="title-stop">.</span></h1>
-        <p className="info-lead">MeteOlivelli racconta il lavoro sulla stazione meteorologica della scuola e rende consultabili le sue osservazioni quando sono disponibili.</p>
+        <h1 id="info-title">La stazione,<br />vista da vicino<span className="title-stop">.</span></h1>
+        <p className="info-lead">Un progetto scolastico per osservare i dati meteo, capire da dove arrivano e imparare a leggerli con attenzione.</p>
+        <div className="info-highlights" aria-label="In breve">
+          <p><strong>Pavia</strong><span>Il territorio osservato</span></p>
+          <p><strong>3 grandezze</strong><span>Temperatura, umidità, pressione</span></p>
+          <p><strong>Un progetto</strong><span>Scienza e tecnologia a scuola</span></p>
+        </div>
       </section>
 
+      <nav className="info-toc" aria-label="In questa pagina">
+        <span className="eyebrow">Esplora</span>
+        <a href="#project">Il progetto</a><a href="#station">La stazione</a>
+        <a href="#reading">Come leggere i dati</a><a href="#team">Il team</a>
+      </nav>
+
       <div className="info-grid">
-        <section className="info-block" aria-labelledby="project-title">
+        <section className="info-block" id="project" aria-labelledby="project-title">
           <p className="eyebrow section-index">01 / Il progetto</p>
           <h2 id="project-title">Imparare guardando i dati.</h2>
           <p>MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Unisce una stazione scolastica e un sito per esplorare come cambiano temperatura, umidità e pressione nel tempo.</p>
           <p>Il sito presenta le osservazioni e il loro storico, con gli orari e le informazioni di qualità disponibili. Una misura viene mostrata come dato della stazione solo quando la sua provenienza è nota.</p>
         </section>
 
-        <section className="info-block info-station" aria-labelledby="station-title">
+        <section className="info-block info-station" id="station" aria-labelledby="station-title">
           <p className="eyebrow section-index">02 / La stazione</p>
           <h2 id="station-title">Una stazione a scuola.</h2>
           <p>La stazione si basa su Arduino GIGA R1 e sensori per temperatura, umidità e pressione. Il sito distingue l’ora della misura, l’acquisizione sul PC e la ricezione sul backend quando questi orari sono presenti.</p>
           <p>La pagina Home si aggiorna automaticamente ogni 15 secondi mentre è visibile. Questo intervallo descrive la lettura del sito, non la frequenza con cui la stazione effettua una misura.</p>
         </section>
 
-        <section className="info-block" aria-labelledby="data-title">
+        <section className="info-block" id="reading" aria-labelledby="data-title">
           <p className="eyebrow section-index">03 / Dati e trasparenza</p>
           <h2 id="data-title">Osservazioni con la loro provenienza.</h2>
           <p>I campioni disponibili possono includere dati di prova chiaramente contrassegnati. Questi servono a verificare il funzionamento del sito e non sono osservazioni reali della stazione.</p>
@@ -61,7 +72,7 @@ export function InfoPage() {
           <a className="hero-link" href="/home">Vai alle misure <span aria-hidden="true">↗</span></a>
         </section>
 
-        <section className="info-block info-team" aria-labelledby="team-title">
+        <section className="info-block info-team" id="team" aria-labelledby="team-title">
           <p className="eyebrow section-index">04 / Il team</p>
           <h2 id="team-title">Un progetto realizzato a scuola.</h2>
           <p>MeteOlivelli è realizzato da <strong>Pietro Giudici</strong> e <strong>Nicholas Borin</strong>, studenti del Liceo Teresio Olivelli di Pavia.</p>
