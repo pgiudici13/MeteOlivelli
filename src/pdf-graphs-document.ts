@@ -23,7 +23,7 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
         stack: [
           { text: `${chart.metric.name} · ${chart.metric.unit}`, style: 'heading', margin: [0, 5, 0, 1] },
           { svg: chart.svg, width: 735, height: 296, margin: [0, 0, 0, 0] },
-          { text: chart.pointCount ? `${chart.pointCount} ${period === '7g' || period === '14g' || period === '30g' || (period === 'auto' && chart.note) ? 'valori tracciati' : 'campioni validi'} · ${chart.minimum === null ? 'nessun valore' : `min ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.minimum)} ${chart.metric.unit} · max ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.maximum!)} ${chart.metric.unit}`}` : 'Nessun valore valido da tracciare nel periodo.', style: 'caption' },
+          { text: chart.pointCount ? `${chart.averaged ? `${chart.pointCount} ${period === 'auto' ? 'medie per fascia' : 'medie giornaliere'} da ${chart.sampleCount} campioni validi` : `${chart.pointCount} campioni validi`} · ${chart.minimum === null ? 'nessun valore' : `min ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.minimum)} ${chart.metric.unit} · max ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.maximum!)} ${chart.metric.unit}`}` : 'Nessun valore valido da tracciare nel periodo.', style: 'caption' },
           ...(chart.note ? [{ text: chart.note, style: 'caption' }] : []),
         ],
         unbreakable: true,

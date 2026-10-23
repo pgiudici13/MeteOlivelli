@@ -80,6 +80,7 @@ test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti
   const rows = [row(1), row(2), row(3, { temperature_c: null }), row(4), row(5)]
   const chart = buildPdfChart(rows, 'temperature_c', '24h', until)
   assert.equal(chart.pointCount, 4)
+  assert.equal(chart.sampleCount, 4)
   assert.match(chart.svg, /Temperatura · °C · 24 ore/)
   assert.equal((chart.svg.match(/stroke="#A5481A"/g) ?? []).length, 2)
   assert.doesNotMatch(chart.svg, /NaN|undefined/)
@@ -90,6 +91,7 @@ test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti
   const averages = buildPdfChart(averageRows, 'humidity_pct', '7g', until)
   assert.match(averages.note, /09:00–18:00/)
   assert.ok(averages.pointCount > 0)
+  assert.equal(averages.sampleCount, 2)
 })
 
 test('PDF grafici: punti, minimi, massimi e aggregazioni corrispondono alla UI in ogni periodo', () => {
@@ -115,6 +117,7 @@ test('PDF grafici: punti, minimi, massimi e aggregazioni corrispondono alla UI i
     assert.equal(actual.pointCount, values.length, `${mode}: conteggio punti`)
     assert.equal(actual.minimum, values.length ? Math.min(...values) : null, `${mode}: minimo`)
     assert.equal(actual.maximum, values.length ? Math.max(...values) : null, `${mode}: massimo`)
+    assert.equal(actual.sampleCount, expected.segments.flat().reduce((sum, point) => sum + point.count, 0), `${mode}: campioni di origine`)
     assert.match(actual.svg, /<svg[^>]+viewBox="0 0 820 330"/)
   }
 })
@@ -127,6 +130,12 @@ test('PDF grafici: documento completo per il periodo selezionato e metadati di g
   assert.equal(document.content.filter(item => item.stack).length, 3)
   assert.ok(document.content.some(item => item.text?.includes('Generato il 22/10/2026')))
   assert.ok(document.content.some(item => item.text?.includes('non vengono interpolati')))
+  const weeklyRows = [
+    row(1, { captured_at: '2026-10-20T10:00:00.000Z' }),
+    row(2, { captured_at: '2026-10-21T10:00:00.000Z' }),
+  ]
+  const weekly = buildGraphsDocument(weeklyRows, '7g', until, new Date(until))
+  assert.ok(weekly.content.some(item => item.stack?.some(child => child.text?.includes('2 medie giornaliere da 2 campioni validi'))))
 })
 
 test('PDF grafici: il motore produce un PDF valido con le serie vettoriali', async () => {

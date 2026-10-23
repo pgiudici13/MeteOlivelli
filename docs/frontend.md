@@ -128,7 +128,7 @@ Verifiche locali: `npm run build`, `npm run lint`, 41 test frontend e `git diff 
 
 ## Esportazione PDF
 
-La sezione Archivio offre “Scarica PDF dei grafici” per il periodo selezionato. Al clic il browser rilegge lo storico aggiornato; Auto legge prima l’ultimo campione e ancora i dati al suo `captured_at`. Il documento usa `prepareChart`, come la UI: tre grafici vettoriali con unità e finestre coerenti, medie 09:00–18:00 per 7/14/30 giorni e interruzioni sui dati null/sospetti. Il PDF annota istante di generazione, periodo e regole di lettura.
+La sezione Archivio offre “Scarica PDF dei grafici” per il periodo selezionato. Al clic il browser rilegge lo storico aggiornato; Auto legge prima l’ultimo campione e ancora i dati al suo `captured_at`. Il documento usa `prepareChart`, come la UI: tre grafici vettoriali con unità e finestre coerenti, medie 09:00–18:00 per 7/14/30 giorni e interruzioni sui dati null/sospetti. Per i grafici aggregati dichiara sia il numero delle medie disegnate sia i campioni validi da cui derivano. Il PDF annota istante di generazione, periodo e regole di lettura.
 
 La sezione Cronologia offre “Scarica PDF della cronologia completa”. Al clic ripete `readAllHistory`, completa tutte le pagine `period=all` e rifiuta errori o cursori incoerenti prima di creare il file. La tabella A4 orizzontale contiene una riga per campione, intestazione ripetuta, acquisizione sul PC, misura fisica, ricezione server e temperatura/umidità/pressione. Null, probabili errori e campioni `SINTETICO` sono indicati; i campioni senza acquisizione usano la ricezione solo per l’ordinamento e non la presentano come ora di misura. La generazione avviene nel browser sul contenuto appena letto; nessun file è salvato sul server.
 

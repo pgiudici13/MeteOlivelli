@@ -14,6 +14,8 @@ export interface PdfChart {
   minimum: number | null
   maximum: number | null
   pointCount: number
+  sampleCount: number
+  averaged: boolean
 }
 
 export function buildPdfChart(rows: Measurement[], field: Metric, mode: ChartMode, until: string): PdfChart {
@@ -51,5 +53,5 @@ export function buildPdfChart(rows: Measurement[], field: Metric, mode: ChartMod
   }).join('')
   const periodLabel = mode === 'auto' ? 'Auto' : mode === '24h' ? '24 ore' : mode === '7g' ? '7 giorni' : mode === '14g' ? '14 giorni' : '30 giorni'
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" fill="#FFFFFF"/><text x="${plot.left}" y="15" font-family="Roboto, sans-serif" font-size="13" fill="#68625D">${xml(metric.name)} · ${xml(metric.unit)} · ${xml(periodLabel)}</text>${vertical}${horizontal}${series}<text x="${plot.left}" y="${height - 4}" font-size="11" fill="#68625D">${xml(prepared.timeline.startLabel)}</text><text x="${plot.left + plot.width}" y="${height - 4}" text-anchor="end" font-size="11" fill="#68625D">${xml(prepared.timeline.endLabel)}</text></svg>`
-  return { svg, metric, note: prepared.note, minimum, maximum, pointCount: points.length }
+  return { svg, metric, note: prepared.note, minimum, maximum, pointCount: points.length, sampleCount: points.reduce((sum, point) => sum + point.count, 0), averaged: prepared.averaged }
 }
