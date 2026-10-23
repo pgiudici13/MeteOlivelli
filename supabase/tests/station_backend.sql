@@ -88,6 +88,18 @@ begin
   end if;
   items := public.read_station_measurements('fixture-sintetica-be05', 'history', '24h', 'measured_at', '2026-10-22T09:00:00Z', 100, null, null);
   if items <> '[]'::jsonb then raise exception 'Date di misura inventate'; end if;
+  items := public.read_station_measurements('fixture-sintetica-be05', 'history', 'all', 'captured_at', '2026-10-22T09:00:00Z', 500, null, null);
+  if jsonb_array_length(items) <> 3 or not exists (
+    select 1 from jsonb_array_elements(items) item
+    where item->>'ingestion_id' = '32345678-1234-4234-8234-123456789abc'
+      and item->'captured_at' = 'null'::jsonb
+  ) then raise exception 'Cronologia completa senza i campioni non datati'; end if;
+  items := public.read_station_measurements('fixture-sintetica-be05', 'history', 'all', 'captured_at', '2026-10-22T09:00:00Z', 500, null, null);
+  if jsonb_array_length(items) <> 3 or not exists (
+    select 1 from jsonb_array_elements(items) item
+    where item->>'ingestion_id' = '32345678-1234-4234-8234-123456789abc'
+      and item->'captured_at' = 'null'::jsonb
+  ) then raise exception 'Cronologia completa senza i campioni non datati'; end if;
   begin
     perform public.ingest_station_measurement(fixture || '{"ingestion_id":"42345678-1234-4234-8234-123456789abc","captured_at":null}', '[]', '{}');
     raise exception 'Vincolo tempo non applicato';

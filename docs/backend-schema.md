@@ -57,7 +57,7 @@ nei documenti o con comandi che li stampano.
 GET `read-measurements?view=latest`: ultimo evento live ordinato per captured_at e
 UUID, tutte e tre le schede appartengono allo stesso evento (null e sospetti inclusi).
 
-GET `read-measurements?view=history&period=24h|7g|30g&basis=captured_at|measured_at`:
+GET `read-measurements?view=history&period=24h|7g|30g&basis=captured_at|measured_at` per le serie temporali; `period=all&basis=captured_at` è riservato alla cronologia completa e include anche i record privi di `captured_at`.
 serie cronologica, limiti [inizio, fine], `limit` 1–500 (default 100), `until` UTC
 opzionale, `cursor` opaco restituito dal server. Default basis captured_at, con
 etichetta «ora di acquisizione sul PC»; measured_at è una serie distinta. Le righe
@@ -66,13 +66,13 @@ escluderle dalla linea principale per campo e renderle consultabili. Colonne
 pubbliche: ingestion_id, tre valori/unità implicite nei nomi, captured_at,
 measured_at, received_at, qualità; mai raw_payload, payload o uptime.
 
-Il cursore incorpora periodo, base, fine finestra e coppia (tempo, UUID), quindi
-non può essere riusato per un'altra query. La finestra non scorre durante la
+Il cursore incorpora periodo, base, fine finestra e coppia (tempo, UUID); per `all` il tempo è `captured_at` oppure, solo per ordinare record senza acquisizione, `received_at`. Il valore ricevuto non viene presentato come ora della misura. Non può essere riusato per un'altra query. La finestra non scorre durante la
 paginazione. Non è uno snapshot MVCC tra richieste: acquisizioni concorrenti con
 orario arretrato possono comparire solo nella rilettura completa della finestra.
 Nessun cursore di polling su received_at è promesso: l'ordine di commit può essere
 diverso dall'ordine dei timestamp. UI-02 dovrà rileggere la finestra per riconciliare
-le novità. Nessun endpoint di esportazione o accesso allo storico non datato.
+le novità. `period=all` consente la lettura paginata dello storico completo senza
+limite temporale; non è un endpoint di esportazione.
 
 Il server fissa source_id dalla configurazione; query sconosciute, ripetute,
 periodi/limiti/cursori invalidi sono rifiutati. Risposte vuote esplicite; errori 503

@@ -250,6 +250,38 @@ Deno.test('paginazione conserva finestra, base e spareggio UUID senza usare rece
   assert(parseReadQuery(url, now()) === null)
 })
 
+Deno.test('paginazione completa usa received_at solo come chiave per record senza captured_at', async () => {
+  const row: PublicMeasurement = {
+    ingestion_id: fixture.ingestion_id,
+    temperature_c: 21,
+    humidity_pct: 50,
+    pressure_hpa: 1013,
+    captured_at: null,
+    measured_at: null,
+    received_at: '2026-10-22T08:00:01.000Z',
+    quality_flags: [],
+  }
+  const handler = createReadHandler({
+    source: 'test',
+    now,
+    store: store({
+      read: () =>
+        Promise.resolve([row, { ...row, ingestion_id: '22345678-1234-4234-8234-123456789abc' }]),
+    }),
+  })
+  const response = await handler(
+    new Request('https://example.test/?view=history&period=all&basis=captured_at&limit=1'),
+  )
+  const result = await response.json()
+  assert(response.status === 200 && result.next_cursor)
+  const params = new URLSearchParams(
+    new URL('https://example.test/?view=history&period=all&basis=captured_at&limit=1').search,
+  )
+  params.set('cursor', result.next_cursor)
+  const next = parseReadQuery(new URL(`https://example.test/?${params}`), now())
+  assert(next?.after_time === row.received_at && next.period === 'all')
+})
+
 Deno.test('adapter RPC usa solo URL e credenziale server, fallisce su conferma ambigua', async () => {
   const calls: string[] = []
   const database = createRestStore(

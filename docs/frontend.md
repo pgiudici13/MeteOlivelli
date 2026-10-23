@@ -44,7 +44,7 @@ Il batch corrente contiene **dieci campioni di prova** ogni sei ore (aggiornamen
 
 Polling latest ogni 15 secondi solo a pagina visibile, tentativo al ritorno in primo piano/online, timeout per richiesta di 10 secondi, annullamento allo smontaggio e nessun ciclo sovrapposto. Lo storico si aggiorna all’apertura, al cambio periodo, al nuovo ultimo evento e al recupero da errore. Cache pubblica server di 10 secondi. Risposte invalide/errori HTTP non diventano archivi vuoti; un errore mantiene gli ultimi dati riusciti con avviso.
 
-Paginazione API con cursore e finestra `until` coerenti, deduplica UUID e ordinamento. Limite esplicito di 100 pagine/50.000 eventi, senza presentare serie parziali come complete. Le finestre scadute sono eliminate anche senza nuove misure usando l’ora server. Un inserimento storico che non cambia l’ultimo evento può richiedere cambio periodo o riapertura per essere riletto; non è promesso il rilevamento completo dei backfill.
+Il feed dei grafici e delle previsioni usa paginazione API con cursore e finestra `until` coerenti, deduplica UUID e limite conservativo di 100 pagine/50.000 eventi; non presenta serie parziali come complete. La tabella Cronologia usa una lettura separata `period=all`, continua fino all’ultimo cursore senza limite temporale o numero massimo di pagine e include record senza `captured_at`; questi ultimi sono ordinati per `received_at`, mostrato separatamente e mai come ora di misura. Le finestre dei grafici scadute sono eliminate anche senza nuove misure usando l’ora server.
 
 ## Animazioni e interazioni
 
@@ -78,7 +78,7 @@ Correzione locale del glitch al refresh segnalato dall’utente: rivelazione SVG
 
 ## Auto e aggregazione locale
 
-La selezione iniziale è Auto. Il feed usa la lettura 30g con `until` ancorato all’ultima acquisizione disponibile, per rendere consultabili anche i campioni di una stazione ferma da mesi senza dichiararne freschezza. Il caricamento Auto legge prima latest e poi lo storico ancorato; il polling invariato non ricarica la serie. Le viste manuali mantengono la finestra server attuale e le richieste iniziali indipendenti.
+La selezione iniziale è Auto. Il feed grafici usa la lettura 30g con `until` ancorato all’ultima acquisizione disponibile, per rendere consultabili anche i campioni di una stazione ferma da mesi senza dichiararne freschezza. La cronologia completa è caricata da `useCompleteHistory`, indipendente dai filtri e dal polling dei grafici. Il caricamento Auto legge prima latest e poi lo storico ancorato; il polling invariato non ricarica la serie. Le viste manuali mantengono la finestra server attuale e le richieste iniziali indipendenti.
 
 In `src/chart.ts`, lo storico caricato di durata ≤7 giorni resta grezzo e l’asse ne segue l’estensione; oltre sette giorni viene derivata l’ultima settimana di calendario con tre medie aritmetiche per giorno: 00–12, 12–17, 17–24. Sono usati solo i valori validi per campo; nessuna fascia vuota viene interpolata o trasformata in zero. Campioni live e di prova non contribuiscono alla stessa media. Se sono disponibili live, Auto li privilegia. La cronologia resta quella originale dei 30 giorni letti; nessuna media diventa una misura o viene inviata al database. Tooltip con fascia e numero di contributi, titolo “Ultima media” e riepilogo accessibile dichiarano l’aggregazione.
 

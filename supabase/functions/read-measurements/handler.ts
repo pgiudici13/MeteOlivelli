@@ -94,7 +94,9 @@ export function createReadHandler(config: {
       if (query.view === 'history' && rows.length > query.limit) {
         const last = items[items.length - 1]
         // PostgreSQL può restituire +00:00: il cursore usa sempre UTC normalizzato.
-        const time = last[query.basis]
+        const time = query.period === 'all'
+          ? last.captured_at ?? last.received_at
+          : last[query.basis]
         if (!time || !Number.isFinite(Date.parse(time)) || !uuid(last.ingestion_id)) {
           throw new Error('Cursore database non valido')
         }
