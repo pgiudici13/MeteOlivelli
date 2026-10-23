@@ -3,7 +3,7 @@ import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import './InfoPage.css'
 
 const title = 'Informazioni su MeteOlivelli — progetto e stazione meteo'
-const description = 'Scopri il progetto MeteOlivelli del Liceo Teresio Olivelli di Pavia, la stazione meteorologica scolastica, i dati e il team.'
+const description = 'Scopri MeteOlivelli: il progetto meteo scolastico del Liceo Teresio Olivelli di Pavia, la stazione, i grafici, la provenienza dei dati e il team.'
 
 function setMetadata() {
   document.title = title
@@ -107,11 +107,19 @@ export function InfoPage() {
 
         <section className="info-block info-team" id="team" aria-labelledby="team-title">
           <p className="eyebrow section-index">05 / Il team</p>
-          <h2 id="team-title">Un progetto realizzato a scuola.</h2>
-          <p>MeteOlivelli è realizzato da <strong>Pietro Giudici</strong> e <strong>Nicholas Borin</strong>, studenti del Liceo Teresio Olivelli di Pavia.</p>
-          <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
+          <h2 id="team-title">Dati, domande, curiosità.</h2>
+          <p>MeteOlivelli è ideato e realizzato da due studenti del Liceo Teresio Olivelli di Pavia.</p>
+          <div className="info-people">
+            <article><span>01</span><strong>Pietro Giudici</strong><small>Studente · Liceo Teresio Olivelli</small></article>
+            <article><span>02</span><strong>Nicholas Borin</strong><small>Studente · Liceo Teresio Olivelli</small></article>
+          </div>
+          <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e capire quanto ci sia ancora da esplorare.</p>
         </section>
       </div>
+      <section className="info-closing" aria-label="Esplora MeteOlivelli">
+        <div><p className="eyebrow">Dalla scuola, un’occhiata al cielo</p><h2>Le osservazioni cominciano da qui.</h2></div>
+        <a className="hero-link" href="/home">Vai alle misure <span aria-hidden="true">↗</span></a>
+      </section>
     </main>
     <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info" aria-current="page">Informazioni</a> · <a href="/gioca">Gioca</a> · <a href="/privacy">Privacy</a></p></footer>
   </div>
