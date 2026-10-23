@@ -10,6 +10,7 @@ import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
 import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
 import { readFreshChartData } from '../src/pdf-chart-data.ts'
+import { buildHistoryDocument } from '../src/pdf-history-document.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -122,6 +123,33 @@ test('PDF grafici: aggiorna dati al clic e ancora Auto all’ultima acquisizione
   assert.equal(calls[1].get('until'), latest.captured_at)
   assert.equal(result.rows[0].ingestion_id, latest.ingestion_id)
   assert.equal(result.until, latest.captured_at)
+})
+
+test('PDF cronologia: include ogni riga, distingue gli orari e marca null, qualità e sintetici', () => {
+  const earlier = row(1, {
+    captured_at: null,
+    measured_at: null,
+    received_at: '2026-10-20T10:00:00.000Z',
+    temperature_c: null,
+    quality_flags: [{ field: 'humidity_pct', code: 'outside_configured_range', label: 'probabile errato', reason: 'fuori intervallo' }],
+  })
+  const later = row(2, { acquisition_kind: 'synthetic', captured_at: '2026-10-21T10:00:00.000Z' })
+  const document = buildHistoryDocument([later, earlier], new Date('2026-10-22T12:00:00.000Z'))
+  const table = document.content.find(item => item.table)?.table.body
+  assert.equal(table.length, 3)
+  assert.match(table[1][1], /Senza acquisizione/)
+  assert.match(table[1][1], /Ricevuto:/)
+  assert.match(table[1][4], /Dato assente/)
+  assert.match(table[1][5], /†/)
+  assert.match(table[2][1], /SINTETICO/)
+  assert.equal(table[0][2].text, 'Misura fisica')
+})
+
+test('PDF cronologia: il motore genera un documento tabellare scaricabile', async () => {
+  const blob = await createPdfBlob(buildHistoryDocument([row(1), row(2)], new Date('2026-10-22T12:00:00.000Z')))
+  assert.equal(blob.type, 'application/pdf')
+  assert.ok(blob.size > 1500)
+  assert.equal(new TextDecoder().decode(new Uint8Array(await blob.slice(0, 5).arrayBuffer())), '%PDF-')
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
