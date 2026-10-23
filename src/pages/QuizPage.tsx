@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { drawQuizQuestions, type QuizQuestion } from '../quiz.ts'
+import { getQuizRippleGeometry, type QuizRippleGeometry } from '../quiz-motion.ts'
 import './QuizPage.css'
 
 type QuizState = 'intro' | 'playing' | 'complete'
@@ -19,6 +20,7 @@ export function QuizPage() {
   const [questionIndex, setQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [score, setScore] = useState(0)
+  const [ripple, setRipple] = useState<QuizRippleGeometry | null>(null)
 
   useEffect(updateMetadata, [])
 
@@ -29,12 +31,15 @@ export function QuizPage() {
     setQuestionIndex(0)
     setSelectedAnswer(null)
     setScore(0)
+    setRipple(null)
     setState('playing')
   }
 
-  function chooseAnswer(answerIndex: number) {
+  function chooseAnswer(answerIndex: number, event: MouseEvent<HTMLButtonElement>) {
     if (selectedAnswer !== null || !currentQuestion) return
     setSelectedAnswer(answerIndex)
+    const point = event.detail === 0 ? undefined : { clientX: event.clientX, clientY: event.clientY }
+    setRipple(getQuizRippleGeometry(event.currentTarget.getBoundingClientRect(), point))
     if (answerIndex === currentQuestion.correctIndex) setScore(value => value + 1)
   }
 
@@ -46,6 +51,7 @@ export function QuizPage() {
     }
     setQuestionIndex(index => index + 1)
     setSelectedAnswer(null)
+    setRipple(null)
   }
 
   return <div className="site-shell quiz-page">
@@ -83,7 +89,12 @@ export function QuizPage() {
               const correct = index === currentQuestion.correctIndex
               const wrongSelected = selectedAnswer === index && !correct
               const answerClass = answered && correct ? 'is-correct' : wrongSelected ? 'is-wrong' : ''
-              return <button key={answer} type="button" className={`quiz-answer ${answerClass}`} aria-pressed={selectedAnswer === index} disabled={answered} onClick={() => chooseAnswer(index)}>
+              const answerStyle = ripple && selectedAnswer === index ? {
+                '--quiz-ripple-x': `${ripple.x}px`,
+                '--quiz-ripple-y': `${ripple.y}px`,
+                '--quiz-ripple-radius': `${ripple.radius}px`,
+              } as CSSProperties : undefined
+              return <button key={answer} type="button" className={`quiz-answer ${answerClass}`} style={answerStyle} aria-pressed={selectedAnswer === index} disabled={answered} onClick={event => chooseAnswer(index, event)}>
                 <span className="quiz-answer-letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span><span>{answer}</span>
                 {answered && correct && <span className="quiz-answer-result">Corretta</span>}
                 {wrongSelected && <span className="quiz-answer-result">La tua risposta</span>}
