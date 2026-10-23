@@ -1,10 +1,10 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato più recente — 22 ottobre:** rilasci `fab71cb` e `bce39e2` pubblicati su `main` e verificati in produzione; UI Factory, postilla e cinque campioni con tipo distinto `synthetic` a intervalli di 30 minuti. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
+> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap e metadati SEO distinti. Nessuna pubblicazione di questa modifica; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 
 > **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 22 ottobre 2026, dopo pubblicazione Factory, cinque campioni con tipo distinto e consolidamento della documentazione/Fase 8.
+> **Ultimo aggiornamento:** 23 ottobre 2026, dopo la separazione locale fra Home (`/home`) e Informazioni (`/info`), con sitemap e metadati per route. Nessuna pubblicazione di questa modifica.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
 > **Ambito storico prima del batch autorizzato (superato dallo stato corrente sopra):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
 
@@ -479,6 +479,8 @@ in §4 e nel registro esecuzioni di tasks.md; non sostituisce la prova della sta
 ### Fase 7 — Previsioni e collegamento al frontend
 
 **Esito attuale UI-01:** versione Factory pubblicata e verificata con `bce39e2`; contratto con provenienza distinta, cinque campioni di prova e postilla. Le funzionalità elencate sotto restano i requisiti: stime e collaudo reale UI-02 non sono completati dal solo frontend. [Specifiche correnti](docs/frontend.md).
+
+**Struttura pagine aggiornata localmente (U, 23 ottobre 2026):** la dashboard esistente diventa `/home`; `/info` raccoglie progetto, stazione, provenienza/limiti dei dati e team. `/` reindirizza a `/home`. Sitemap e metadati canonical descrivono solo le due pagine. La preparazione per Google Search Console è locale; la richiesta di indicizzazione e lo stato dell'indice richiedono accesso alla Search Console dopo una pubblicazione autorizzata.
 
 **Esito frontend verificato (F, 22 ottobre 2026):** UI-01 implementata sul branch locale `codex/frontend-phase-7`, usando il contesto e gli screenshot delle viste Figma Obsidian v5 desktop 7:3/mobile 7:4. Schede, grafici SVG dinamici 24h/7g/30g, cronologia paginata, dettagli qualità e tre tempi distinti, font Inter locale, pannelli satinati e motion con movimento ridotto. GET pubblico BE-06 collegato senza credenziali; l'API reale risponde vuota e la UI non inserisce numeri dimostrativi. Fixture positive solo nei test browser e confinate alla directory test. `npm run check` superato senza file ambiente: 16 test frontend, 39 Deno, 21 Python oltre build/lint. QA browser: 11 scenari e viste 320/390/768/1280 px; nessun errore JavaScript non gestito. [Specifiche, prove e limiti](docs/frontend.md).
 

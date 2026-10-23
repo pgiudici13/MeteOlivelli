@@ -163,7 +163,6 @@ button:disabled { cursor: default; opacity: .45; }
   .brand-symbol { gap: 10px; }
   .site-header nav { gap: 16px; }
   .site-header nav a { font-size: 11px; }
-  .site-header nav a:first-child { display: none; }
   h1 { font-size: 52px; }
   h2 { font-size: 28px; }
   .hero-instrument { padding: 20px; }

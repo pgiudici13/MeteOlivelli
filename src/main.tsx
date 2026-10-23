@@ -4,13 +4,13 @@ import { inject } from '@vercel/analytics'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AnalyticsConsent } from './components/AnalyticsConsent.tsx'
 import './index.css'
-import App from './App.tsx'
+import { SiteRoute } from './SiteRoute.tsx'
 
 inject()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <SiteRoute />
     <AnalyticsConsent />
     <SpeedInsights />
   </StrictMode>,

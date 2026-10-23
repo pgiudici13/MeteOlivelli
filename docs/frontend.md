@@ -102,3 +102,14 @@ Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove 
 
 
 **Esito finale del 23 ottobre:** `npm run check` superato: build, lint, 41 test Node (27 frontend + 14 modello/feed), 42 Deno e 21 Python. Sette scenari browser previsionali e 14 scenari di regressione frontend superati. API fisica reale vuota e nove stime indisponibili verificati separatamente. Nessuna validazione meteorologica o pubblicazione attestata.
+
+
+## Pagine e indicizzazione — 23 ottobre 2026
+
+La dashboard è servita su `/home`; `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. La radice reindirizza a `/home` nella configurazione Vercel; il router locale applica lo stesso comportamento. La navigazione collega entrambe le pagine.
+
+La build produce `dist/home/index.html` e `dist/info/index.html` con title, description e canonical specifici. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca solo `/home` e `/info`. Verifica e invio in Google Search Console non sono stati eseguiti: richiedono che la modifica sia pubblicata sul dominio e poi verificata nel pannello.
+
+La pagina Informazioni distingue esplicitamente i campioni di prova dalle osservazioni della stazione e chiarisce che il polling a 15 secondi è frequenza di lettura del sito, non cadenza della stazione.
+
+Verifiche locali: `npm run build`, `npm run lint`, 41 test frontend e `git diff --check` superati; controllati i due HTML compilati, i canonical/title/description, robots e sitemap. La preview browser non è stata possibile: il container ha negato l'apertura del server locale (`EPERM`). Nessuna pubblicazione o invio alla Search Console eseguiti.

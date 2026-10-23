@@ -1,12 +1,12 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — 22 ottobre:** rilasci `fab71cb` e `bce39e2` pubblicati su `main` e verificati in produzione; UI Factory, postilla e cinque campioni con tipo distinto `synthetic` a intervalli di 30 minuti. [Contratto ed esiti](docs/data-preview.md). Nessun dato Arduino reale attestato; UI-02 reale, CSV/Windows e WX restano aperti.
+> **Stato più recente — 23 ottobre:** struttura locale `/home` e `/info` implementata con metadati SEO, sitemap e robots. Non pubblicata; la richiesta d'indicizzazione in Google Search Console resta da eseguire dopo il rilascio.
 
-> **Versione:** checklist aggiornata il 22 ottobre 2026 dopo release Factory, provenienza sintetica distinta e collaudo pubblico; Fase 8 riallineata.
+> **Versione:** checklist aggiornata il 23 ottobre 2026 dopo la preparazione locale delle pagine `/home` e `/info`.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
 > **Richiesta precedente:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
 
-> **Richiesta attuale:** proseguire la Fase 8. CSV reale e PC Windows non sono disponibili; l’utente sceglie Google Drive scolastico per archiviare backup del database e gestire manualmente i file del programma; Drive non va collegato dal PC scolastico. I cinque record `synthetic` e la postilla restano per ora.
+> **Richiesta attuale — 23 ottobre:** tenere la dashboard su `/home` e aggiungere `/info` per progetto, stazione e team; preparare le pagine perché siano consultabili da Google Search Console. Solo queste due pagine per ora.
 
 ## 1. Come usare la checklist
 
@@ -350,6 +350,15 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Risultato:** niente reload manuale e niente attesa fino al prossimo ciclo orario della stazione. Target proposto nell'ordine di 30 secondi dal commit DB in condizioni normali, da misurare; non è uno SLA approvato né latenza nulla.
 - **Verifica:** due browser aperti, inserimento nuovo, retry, offline e riconnessione; soglia appena prima/al/dopo il limite; arrivo di storico vecchio che non fa risultare la stazione aggiornata. Se l'ora misura è ignota, freschezza dichiarata sconosciuta.
 - **Riferimento:** [plan.md §8](plan.md#8-contratti-e-comportamenti-da-definire), RF8, D8 e D24.
+
+### UI-03 — Separare Home e informazioni del progetto
+
+- [x] **Stato: implementato localmente il 23 ottobre 2026; pubblicazione non eseguita.**
+- **Esito:** la dashboard attuale è disponibile su `/home`; `/info` presenta progetto, stazione, dati e team. La radice reindirizza a `/home`. Navigazione condivisa, metadati e canonical distinti, pagine statiche generate nella build, `robots.txt` e sitemap limitata alle due pagine.
+- **Contenuti:** descrizione basata sulle informazioni già presenti nel README e nella UI. Chiarito che i dati di prova eventualmente mostrati non sono osservazioni reali, e che il polling del sito non definisce la cadenza di misura della stazione.
+- **Verifica:** `npm run build`, `npm run lint`, 41 test frontend e `git diff --check` superati; dist controllato: entrambe le route hanno title, description e canonical distinti, sitemap include solo le due pagine. Preview browser non avviabile nell'ambiente: bind locale negato (`EPERM`). Nessuna modifica a GitHub, Vercel remoto o Search Console.
+- **File principali:** `src/main.tsx`, `src/SiteRoute.tsx`, `src/App.tsx`, `src/pages/InfoPage.tsx`, `scripts/create-static-routes.mjs`, `public/robots.txt`, `public/sitemap.xml`, `vercel.json`.
+- **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend).
 
 ## 8. Fase 8 — Backup, gestione e rilascio
 

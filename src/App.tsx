@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
@@ -45,6 +45,12 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 }
 
 function App() {
+  useEffect(() => {
+    document.title = 'MeteOlivelli — Il meteo a scuola'
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    if (canonical) canonical.href = 'https://meteolivelli.vercel.app/home'
+  }, [])
+
   useBorderLight()
   const [period, setPeriod] = useState<ChartMode>('auto')
   const queryPeriod = period === 'auto' ? '30g' : period
@@ -65,8 +71,8 @@ function App() {
   return <div className="site-shell">
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
-      <a className="brand" href="#contenuto"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
-      <nav aria-label="Navigazione principale"><a href="#latest-title">La stazione</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
+      <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
+      <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
     </header>
     <main id="contenuto" tabIndex={-1}>
       <p className="development-notice">Work in progress · Possibili dati presenti fittizi</p>
@@ -137,7 +143,7 @@ function App() {
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
     </main>
-    <footer className="site-footer"><p>MeteOlivelli · Il meteo, visto da scuola.</p><p>Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
+    <footer className="site-footer"><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
   </div>
 }
 export default App

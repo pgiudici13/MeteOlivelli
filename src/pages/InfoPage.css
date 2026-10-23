@@ -1,0 +1,17 @@
+.info-page .info-hero { padding: 76px 0 64px; max-width: 820px; }
+.info-page h1 { margin-top: 28px; }
+.info-lead { max-width: 650px; font-size: 18px; line-height: 1.6; color: var(--secondary); }
+.info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 64px; border-top: 1px solid #3d3a39; }
+.info-block { padding: 36px 0 42px; border-bottom: 1px solid #3d3a39; }
+.info-block h2 { max-width: 520px; margin-bottom: 20px; }
+.info-block p:not(.eyebrow) { max-width: 570px; color: var(--secondary); line-height: 1.75; }
+.info-block p + p { margin-top: 14px; }
+.info-block strong { color: var(--text); font-weight: 500; }
+.info-team .reflection { margin-top: 24px !important; font-size: 13px; }
+.info-block .hero-link { margin-top: 24px; }
+@media (max-width: 760px) {
+  .info-page .info-hero { padding: 52px 0 44px; }
+  .info-lead { font-size: 16px; }
+  .info-grid { grid-template-columns: 1fr; gap: 0; }
+  .info-block { padding-block: 28px 32px; }
+}
