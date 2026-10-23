@@ -17,7 +17,7 @@
 .quiz-answers { display: grid; gap: 10px; }
 .quiz-answer { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-raised); color: var(--text); text-align: left; font: inherit; font-size: 14px; line-height: 1.5; cursor: pointer; transition: border-color 150ms, background-color 150ms, color 150ms, translate 150ms; animation: quiz-answer-enter 420ms cubic-bezier(.2,.7,.2,1) both; }
 .quiz-answer > * { position: relative; z-index: 1; }
-.quiz-answer.is-correct::after, .quiz-answer.is-wrong::after { position: absolute; z-index: 0; inset: 0; border-radius: inherit; content: ""; pointer-events: none; animation: quiz-answer-ripple 650ms cubic-bezier(.16,1,.3,1) both; }
+.quiz-answer.is-correct::after, .quiz-answer.is-wrong::after { position: absolute; z-index: 0; left: var(--quiz-ripple-x, 50%); top: var(--quiz-ripple-y, 50%); width: calc(var(--quiz-ripple-radius, 150px) * 2); height: calc(var(--quiz-ripple-radius, 150px) * 2); border-radius: 50%; content: ""; pointer-events: none; transform: translate(-50%, -50%) scale(0); animation: quiz-answer-ripple 780ms cubic-bezier(.18,.72,.28,1) both; }
 .quiz-answer:nth-child(2) { animation-delay: 55ms; }
 .quiz-answer:nth-child(3) { animation-delay: 110ms; }
 .quiz-answer:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-soft); translate: 3px 0; }
@@ -60,4 +60,4 @@
 @keyframes quiz-feedback-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes quiz-correct { 50% { transform: scale(1.012); } }
 @keyframes quiz-wrong { 25%, 75% { transform: translateX(-3px); } 50%, 100% { transform: translateX(0); } }
-@keyframes quiz-answer-ripple { to { clip-path: circle(var(--quiz-ripple-radius, 150%) at var(--quiz-ripple-x, 50%) var(--quiz-ripple-y, 50%)); } }
+@keyframes quiz-answer-ripple { 0% { opacity: .92; transform: translate(-50%, -50%) scale(0); } 72% { opacity: .62; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
