@@ -4,6 +4,9 @@ const reportTime = new Intl.DateTimeFormat('it-IT', {
   timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit', year: 'numeric',
   hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'short',
 })
+const reportDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
+})
 
 export function formatReportTime(value: string | null): string {
   if (value === null || !Number.isFinite(Date.parse(value))) return 'Orario sconosciuto'
@@ -16,6 +19,6 @@ export function formatReportValue(value: number | null, unit: string): string {
 
 export function reportFilename(kind: 'grafici' | 'cronologia', generatedAt: Date): string {
   if (!Number.isFinite(generatedAt.getTime())) throw new Error('Data di generazione non valida')
-  const date = generatedAt.toISOString().slice(0, 10)
+  const date = reportDate.format(generatedAt)
   return `MeteOlivelli-${kind}-${date}.pdf`
 }
