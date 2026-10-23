@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { drawQuizQuestions, getQuizAnswerFeedback, quizQuestions, shuffleQuizAnswers } from '../src/quiz.ts'
+import { getQuizRippleGeometry } from '../src/quiz-motion.ts'
 
 test('il quiz contiene venti domande con tre opzioni e una risposta corretta valida', () => {
   assert.equal(quizQuestions.length, 20)
@@ -79,4 +80,10 @@ test('il feedback distingue la scelta corretta da quella errata e restituisce la
   assert.equal(correct.correctAnswer, question.answers[question.correctIndex])
   assert.equal(wrong.correctAnswer, correct.correctAnswer)
   assert.equal(wrong.explanation, question.explanation)
+})
+
+test('il ripple parte dalle coordinate del clic e copre anche l’angolo più lontano', () => {
+  const rect = { left: 100, top: 50, width: 300, height: 60 }
+  const ripple = getQuizRippleGeometry(rect, { clientX: 125, clientY: 70 })
+  assert.deepEqual(ripple, { x: 25, y: 20, radius: 278 })
 })
