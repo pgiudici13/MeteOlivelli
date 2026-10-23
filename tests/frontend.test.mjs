@@ -1,6 +1,7 @@
 import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
@@ -14,6 +15,24 @@ const row = (number = 1, overrides = {}) => ({
 })
 const page = (items = [], next_cursor = null) => ({ items, next_cursor, until: '2026-10-22T12:00:00.000Z', time_basis: 'captured_at' })
 const signal = () => new AbortController().signal
+
+test('Prova misure: fixture sintetica, completa per 30 giorni e a intervalli CEST di sei ore', () => {
+  const contents = readFileSync(new URL('./fixtures/Prova misure.csv', import.meta.url), 'utf8').trimEnd()
+  const lines = contents.split('\n')
+  assert.equal(lines[0], 'ora;temperatura;umidità;pressione')
+  assert.equal(lines.length, 122)
+  const rows = lines.slice(1).map(line => line.split(';'))
+  assert.ok(rows.every(row => row.length === 4))
+  const timestamps = rows.map(([time]) => Date.parse(time))
+  assert.equal(timestamps.at(-1) - timestamps[0], 30 * 24 * 60 * 60 * 1000)
+  assert.ok(timestamps.every(value => Number.isFinite(value)))
+  assert.ok(timestamps.every((value, index) => index === 0 || value - timestamps[index - 1] === 6 * 60 * 60 * 1000))
+  assert.ok(rows.every(([time, temperature, humidity, pressure]) =>
+    /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\+02:00$/.test(time) &&
+    [temperature, humidity, pressure].every(value => /^-?\d+,\d$/.test(value))))
+  const readme = readFileSync(new URL('./fixtures/README.md', import.meta.url), 'utf8')
+  assert.match(readme, /non\s+sono osservazioni della stazione/)
+})
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
   const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
