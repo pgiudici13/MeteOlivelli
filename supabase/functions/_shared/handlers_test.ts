@@ -182,6 +182,19 @@ Deno.test('query read ammette solo periodi, basi, limiti e parametri unici', () 
       )?.limit === 500,
     )
   }
+  assert(
+    parseReadQuery(
+      new URL('https://example.test/?view=history&period=all&basis=captured_at&limit=500'),
+      now(),
+    )?.period === 'all',
+  )
+  assert(parseReadQuery(new URL('https://example.test/?view=latest&period=all'), now()) === null)
+  assert(
+    parseReadQuery(
+      new URL('https://example.test/?view=history&period=all&basis=measured_at'),
+      now(),
+    ) === null,
+  )
 })
 
 Deno.test('read vuota esplicita, CORS e rifiuto scritture', async () => {

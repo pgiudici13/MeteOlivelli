@@ -21,7 +21,7 @@ export interface PublicMeasurement {
 }
 export interface ReadQuery {
   view: 'latest' | 'history'
-  period: '24h' | '7g' | '30g'
+  period: '24h' | '7g' | '30g' | 'all'
   basis: 'captured_at' | 'measured_at'
   until: string
   limit: number

@@ -20,7 +20,8 @@ export function parseReadQuery(url: URL, now: Date): ReadQuery | null {
   const basis = url.searchParams.get('basis') ?? 'captured_at'
   const limitText = url.searchParams.get('limit') ?? '100'
   if (
-    !['latest', 'history'].includes(view) || !['24h', '7g', '30g'].includes(period) ||
+    !['latest', 'history'].includes(view) || !['24h', '7g', '30g', 'all'].includes(period) ||
+    (period === 'all' && (view !== 'history' || basis !== 'captured_at')) ||
     !['captured_at', 'measured_at'].includes(basis) || !/^[1-9]\d{0,2}$/.test(limitText) ||
     Number(limitText) > 500
   ) return null
@@ -49,7 +50,9 @@ export function parseReadQuery(url: URL, now: Date): ReadQuery | null {
   if (!timestamp(until) || Date.parse(until) > now.getTime()) return null
   const hours = period === '24h' ? 24 : period === '7g' ? 168 : 720
   if (
-    afterTime && (Date.parse(afterTime) < Date.parse(until) - hours * 3600000 || afterTime > until)
+    afterTime &&
+    (period !== 'all' && Date.parse(afterTime) < Date.parse(until) - hours * 3600000 ||
+      afterTime > until)
   ) return null
   return {
     view: view as ReadQuery['view'],
