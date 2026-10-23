@@ -87,3 +87,9 @@ test('il ripple parte dalle coordinate del clic e copre anche l’angolo più lo
   const ripple = getQuizRippleGeometry(rect, { clientX: 125, clientY: 70 })
   assert.deepEqual(ripple, { x: 25, y: 20, radius: 278 })
 })
+
+test('il ripple da tastiera parte dal centro e i clic fuori dal banner restano contenuti', () => {
+  const rect = { left: 100, top: 50, width: 300, height: 60 }
+  assert.deepEqual(getQuizRippleGeometry(rect), { x: 150, y: 30, radius: 153 })
+  assert.deepEqual(getQuizRippleGeometry(rect, { clientX: -40, clientY: 500 }), { x: 0, y: 60, radius: 306 })
+})
