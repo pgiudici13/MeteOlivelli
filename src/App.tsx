@@ -7,6 +7,10 @@ import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } fr
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
+import { readFreshChartData } from './pdf-chart-data.ts'
+import { buildGraphsDocument } from './pdf-graphs-document.ts'
+import { createPdfBlob } from './pdf-runtime.ts'
+import { reportFilename } from './pdf-export.ts'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -87,6 +91,8 @@ function App() {
 
   useBorderLight()
   const [period, setPeriod] = useState<ChartMode>('auto')
+  const [pdfBusy, setPdfBusy] = useState(false)
+  const [pdfMessage, setPdfMessage] = useState('')
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory()
@@ -102,6 +108,28 @@ function App() {
   const stationStatus = !data.latestLoaded ? 'Caricamento delle misure…' : data.latestError ? 'Aggiornamento non riuscito' :
     freshness === 'empty' ? 'Nessuna misura disponibile' : freshness === 'delayed' ? 'Stazione in ritardo' :
       freshness === 'current' ? 'Misure aggiornate' : 'Freschezza non determinabile'
+
+  async function downloadGraphsPdf() {
+    if (pdfBusy) return
+    setPdfBusy(true)
+    setPdfMessage('Aggiornamento dei dati e preparazione del PDF…')
+    try {
+      const { rows: freshRows, until } = await readFreshChartData(period, new AbortController().signal)
+      const generatedAt = new Date()
+      const blob = await createPdfBlob(buildGraphsDocument(freshRows, period, until, generatedAt))
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = reportFilename('grafici', generatedAt)
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setPdfMessage('PDF dei grafici scaricato.')
+    } catch {
+      setPdfMessage('PDF non disponibile: aggiornamento o generazione non riusciti. Riprova.')
+    } finally {
+      setPdfBusy(false)
+    }
+  }
 
   return <div className="site-shell">
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
@@ -163,6 +191,10 @@ function App() {
         <h2 id="history-title">Andamento delle misure</h2>
         <p className="secondary">{rows.length ? `${rows.length} campioni disponibili nel periodo selezionato.` : 'Lo storico mostra i campioni disponibili per il periodo selezionato.'} Orari di acquisizione sul PC · Europe/Rome.</p>
         <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={period === item.value} onClick={() => setPeriod(item.value)}>{item.label}</button>)}</div>
+        <div className="pdf-export-controls">
+          <button type="button" onClick={() => void downloadGraphsPdf()} disabled={pdfBusy} aria-busy={pdfBusy}>{pdfBusy ? 'Preparazione PDF…' : `Scarica PDF dei grafici · ${periods.find(item => item.value === period)?.label}`}</button>
+          <p role="status" aria-live="polite">{pdfMessage}</p>
+        </div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${periods.find(item => item.value === period)?.label}: ${rows.length} campioni.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
         <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
         <p className="small">24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano la media giornaliera dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome). In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. La cronologia conserva i campioni originali. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>

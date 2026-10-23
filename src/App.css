@@ -77,6 +77,9 @@ button { min-height: 44px; padding: 12px 18px; border-radius: 3px; border: 1px s
 button:hover:not(:disabled) { color: var(--text); }
 .period-picker button { min-width: 100px; }
 .period-picker button[aria-pressed="true"] { color: var(--contrast-text); background: var(--contrast-bg); border-color: var(--contrast-bg); }
+.pdf-export-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
+.pdf-export-controls p { min-height: 1em; margin: 0; color: var(--secondary); font-size: 12px; }
+.pdf-export-controls button { min-height: 42px; }
 button:disabled { cursor: default; opacity: .45; }
 .history-feedback { color: var(--secondary); font-size: 12px; }
 .chart { border: 1px solid var(--border); background: var(--chart-bg); border-radius: 10px; padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }

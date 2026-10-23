@@ -9,6 +9,7 @@ import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-
 import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
 import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
+import { readFreshChartData } from '../src/pdf-chart-data.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -104,6 +105,23 @@ test('PDF grafici: il motore produce un PDF valido con le serie vettoriali', asy
   assert.ok(blob.size > 1500)
   const bytes = new Uint8Array(await blob.slice(0, 5).arrayBuffer())
   assert.equal(new TextDecoder().decode(bytes), '%PDF-')
+})
+
+test('PDF grafici: aggiorna dati al clic e ancora Auto all’ultima acquisizione', async () => {
+  const calls = []
+  const latest = row(1, { acquisition_kind: 'live', captured_at: '2026-10-22T11:00:00.000Z' })
+  const result = await readFreshChartData('auto', signal(), async params => {
+    calls.push(new URLSearchParams(params))
+    return params.get('view') === 'latest'
+      ? page([latest])
+      : { ...page([latest]), until: params.get('until') }
+  })
+  assert.equal(calls.length, 2)
+  assert.equal(calls[0].get('view'), 'latest')
+  assert.equal(calls[1].get('period'), '30g')
+  assert.equal(calls[1].get('until'), latest.captured_at)
+  assert.equal(result.rows[0].ingestion_id, latest.ingestion_id)
+  assert.equal(result.until, latest.captured_at)
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
