@@ -181,7 +181,7 @@ function App() {
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
+    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · <a href="/privacy">Privacy</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
   </div>
 }
 export default App

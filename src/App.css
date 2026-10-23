@@ -147,8 +147,6 @@ button:disabled { cursor: default; opacity: .45; }
 .analytics-consent p { max-width: 580px; margin: 10px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.6; }
 .analytics-consent-actions { display: flex; flex: 0 0 auto; gap: 8px; }
 .analytics-consent-actions button { min-width: 94px; }
-.analytics-consent-actions .consent-accept { color: var(--contrast-text); background: var(--contrast-bg); border-color: var(--contrast-bg); }
-.analytics-consent-actions .consent-accept:hover { background: var(--contrast-hover); }
 @media (max-width: 1000px) {
   .site-shell { padding-inline: 32px; }
   .hero { gap: 32px; }

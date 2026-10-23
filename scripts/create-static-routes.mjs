@@ -14,6 +14,11 @@ const routes = [
     title: 'Informazioni su MeteOlivelli — progetto e stazione meteo',
     description: 'Scopri il progetto MeteOlivelli del Liceo Teresio Olivelli di Pavia, la stazione meteorologica scolastica, i dati e il team.',
   },
+  {
+    path: 'privacy',
+    title: 'Privacy e dati — MeteOlivelli',
+    description: 'Informativa privacy di MeteOlivelli: dati tecnici, preferenze, strumenti statistici e dati meteorologici pubblici.',
+  },
 ]
 
 for (const route of routes) {

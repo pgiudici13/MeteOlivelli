@@ -378,13 +378,20 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### OPS-02 — Completare gestione segreti, avvisi e diagnosi minima
 
-- [ ] **Stato: runbook iniziale pronto; avvisi, rotazione e verifiche operative ancora aperti.**
+- [ ] **Stato: informativa locale `/privacy` aggiornata con titolare, finalità, consenso statistico, retention verificata e destinatari; approvazione finale e controlli operativi restano aperti.**
 - [x] Registrare target, diagnosi API vuota/errore, dati vecchi, uploader e stime indisponibili in `docs/operations.md`; nessun valore segreto documentato.
+- [x] Preparare la pagina accessibile `/privacy` da Home e Informazioni e collegare una scelta unica a tutti gli strumenti statistici facoltativi.
+- [x] Titolare e contatto privacy indicati dall’utente: Pietro Giudici, Pietro.giudici@hotmail.com.
+- [x] Indicare consenso per le statistiche facoltative e servizio/sicurezza per i dati tecnici necessari; rifiuto e revoca arrestano tutti gli strumenti statistici nel codice. La scelta viene conservata localmente per sei mesi di calendario e poi richiesta di nuovo.
+- [x] Verificare Google Analytics: eventi 2 mesi, dati utente 14 mesi, reset su nuova attività attivo; Vercel Hobby: Web Analytics 1 mese, Speed Insights 7 giorni e log 1 ora; Supabase Free: log API/Database 1 giorno.
+- [ ] Verificare ruoli, configurazioni contrattuali applicabili e trasferimenti di ciascun fornitore; determinare la visibilità dei log Vercel per le richieste statiche.
 - [ ] Confermare custodia/revoca delle credenziali del PC e provare il comportamento con credenziale revocata nell’ambito autorizzato.
 - [ ] Definire recapito email e meccanismo gratuito; attivare e verificare l’avviso soltanto su richiesta specifica, senza dedurre l’autorizzazione all’invio da questa checklist.
 - [ ] Provare diagnosi di stazione/uploader fermo, rete, DB, spazio/quote; fissare soglie dopo la verifica di clock e cadenza. Controllare anche console e accessibilità di motion/focus su dispositivi reali.
-- **Criterio di completamento:** responsabile e procedure trasferibili, segreti esclusi da client/log/Git, avviso realmente osservato. Nessun allarme o backup dichiarato attivo per la sola presenza del documento.
+- **Criterio di completamento:** informativa approvata dal titolare effettivo, dati e periodi di conservazione verificati, responsabile e procedure trasferibili, segreti esclusi da client/log/Git, avviso realmente osservato. Nessun allarme o backup dichiarato attivo per la sola presenza del documento.
 - **Riferimento:** [plan.md §9](plan.md#9-sicurezza-e-privacy), D7, D19 e D21; [guida](docs/operations.md).
+
+**Esito locale 23 ottobre 2026:** pagina `/privacy` aggiornata con i dati del titolare comunicati dall’utente; tutte le statistiche facoltative (Google Analytics, Vercel Web Analytics, Speed Insights) partono solo dopo accettazione, il rifiuto è memorizzato e la revoca ricarica senza riattivarle. La scelta locale scade dopo sei mesi di calendario; controlli di storage falliti restano fail-closed. In sola lettura verificati piano Vercel Hobby e Supabase Free; finestre: GA eventi 2 mesi/utenti 14 mesi, Vercel Analytics 1 mese/Speed Insights 7 giorni/log 1 ora, Supabase API/Database logs 1 giorno. Browser locale: rifiuto chiude il banner senza caricare script Google/Vercel; route privacy, contatto, diritti e link verificati nel DOM. `npm run check` superato: lint/build, 44 test frontend, controlli e 43 test Deno, 23 test Python; `git diff --check` pulito. Segnalato un ResourceWarning Python su una connessione SQLite, test comunque passato. Restano ruoli e condizioni contrattuali/trasferimenti applicabili e visibilità dei log statici Vercel. Nessun pannello modificato, nessuna pubblicazione.
 
 ### OPS-03 — Gestire i campioni di prova e il passaggio alla stazione reale
 

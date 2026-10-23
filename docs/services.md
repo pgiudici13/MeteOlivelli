@@ -66,6 +66,16 @@ la raggiungibilità della produzione e il piano billing dell'account restano da
 verificare nei task di rilascio. Il runtime locale provato è Node 26.12.0: la build
 non costituisce ancora una prova sul runtime Node 24 del deployment.
 
+## Verifica privacy dei servizi — 23 ottobre 2026
+
+**Vercel:** la dashboard del progetto `meteolivelli` nel team `Pedro13 Projects` mostra il piano Hobby. Le finestre di reporting verificate nella documentazione del piano sono 1 mese per Web Analytics e 7 giorni per Speed Insights; i runtime log delle funzioni Hobby sono consultabili per 1 ora. Il frontend corrente è statico e non usa funzioni Vercel. La conservazione dei registri per richieste statiche/CDN non è stata determinata.
+
+**Google Analytics:** nella proprietà attualmente integrata, l’interfaccia Amministrazione → Conservazione dei dati mostra 2 mesi per i dati evento, 14 mesi per i dati a livello utente e il reset del periodo utente dopo nuova attività abilitato. Consultazione in sola lettura; nessuna impostazione cambiata.
+
+**Supabase:** verifica read-only del progetto e dell’organizzazione: regione `eu-west-1`, piano Free. La pagina ufficiale dei piani indica 1 giorno di retention per i log API e Database sul piano Free; nessun log drain è incluso. Non confondere retention del database, query dei log e trasferimenti dei dati di account/telemetria.
+
+Questi riscontri sono riferiti al 23 ottobre 2026 e sostengono la pagina locale [privacy](/privacy); condizioni e impostazioni possono cambiare. Fonti: [retention Vercel runtime logs](https://vercel.com/docs/logs/runtime), [piani e retention Supabase](https://supabase.com/pricing). [Frontend e comportamento del consenso](frontend.md).
+
 ## Quote e condizioni consultate: offerte, non piano effettivo dell'account
 
 **Aggiornamento documentale del 22 ottobre:** Open-Meteo resta qui come consultazione

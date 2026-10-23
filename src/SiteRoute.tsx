@@ -1,17 +1,19 @@
 import { useEffect } from 'react'
 import App from './App.tsx'
 import { InfoPage } from './pages/InfoPage.tsx'
+import { PrivacyPage } from './pages/PrivacyPage.tsx'
 
 export function SiteRoute() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
 
   useEffect(() => {
     if (pathname === '/') window.location.replace('/home')
-    else if (pathname !== '/home' && pathname !== '/info') document.title = 'Pagina non trovata — MeteOlivelli'
+    else if (pathname !== '/home' && pathname !== '/info' && pathname !== '/privacy') document.title = 'Pagina non trovata — MeteOlivelli'
   }, [pathname])
 
   if (pathname === '/') return null
   if (pathname === '/info') return <InfoPage />
+  if (pathname === '/privacy') return <PrivacyPage />
   if (pathname === '/home') return <App />
 
   return <main className="route-not-found"><h1>Pagina non trovata</h1><p>La pagina richiesta non è disponibile.</p><a href="/home">Torna alla Home</a></main>

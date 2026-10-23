@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { parsePage, readPage, readHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
+import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -13,6 +14,25 @@ const row = (number = 1, overrides = {}) => ({
 })
 const page = (items = [], next_cursor = null) => ({ items, next_cursor, until: '2026-10-22T12:00:00.000Z', time_basis: 'captured_at' })
 const signal = () => new AbortController().signal
+
+test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const originalNow = Date.now
+  const store = new Map()
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { localStorage: { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value), removeItem: key => store.delete(key) } } })
+  Date.now = () => Date.parse('2026-10-23T12:00:00.000Z')
+  try {
+    assert.equal(readAnalyticsConsent(), null)
+    assert.equal(saveAnalyticsConsent('denied'), true)
+    assert.equal(readAnalyticsConsent(), 'denied')
+    Date.now = () => Date.parse('2027-04-23T12:00:00.000Z')
+    assert.equal(readAnalyticsConsent(), null)
+  } finally {
+    Date.now = originalNow
+    if (descriptor) Object.defineProperty(globalThis, 'window', descriptor)
+    else delete globalThis.window
+  }
+})
 
 test('contratto: archivio vuoto, null e UTC PostgreSQL sono validi', () => {
   assert.deepEqual(parsePage(page()).items, [])
