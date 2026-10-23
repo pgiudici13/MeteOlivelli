@@ -8,6 +8,7 @@ import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
+import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -84,6 +85,25 @@ test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti
   const averages = buildPdfChart(averageRows, 'humidity_pct', '7g', until)
   assert.match(averages.note, /09:00–18:00/)
   assert.ok(averages.pointCount > 0)
+})
+
+test('PDF grafici: documento completo per il periodo selezionato e metadati di generazione', () => {
+  const until = '2026-10-22T12:00:00.000Z'
+  const document = buildGraphsDocument([row(1), row(2)], '24h', until, new Date(until))
+  assert.equal(document.pageOrientation, 'landscape')
+  assert.match(document.info.title, /24 ore/)
+  assert.equal(document.content.filter(item => item.stack).length, 3)
+  assert.ok(document.content.some(item => item.text?.includes('Generato il 22/10/2026')))
+  assert.ok(document.content.some(item => item.text?.includes('non vengono interpolati')))
+})
+
+test('PDF grafici: il motore produce un PDF valido con le serie vettoriali', async () => {
+  const until = '2026-10-22T12:00:00.000Z'
+  const blob = await createPdfBlob(buildGraphsDocument([row(1), row(2)], '24h', until, new Date(until)))
+  assert.equal(blob.type, 'application/pdf')
+  assert.ok(blob.size > 1500)
+  const bytes = new Uint8Array(await blob.slice(0, 5).arrayBuffer())
+  assert.equal(new TextDecoder().decode(bytes), '%PDF-')
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
