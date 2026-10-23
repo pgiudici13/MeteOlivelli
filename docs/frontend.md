@@ -120,4 +120,8 @@ La build produce `dist/home/index.html` e `dist/info/index.html` con title, desc
 
 La pagina Informazioni distingue esplicitamente i campioni di prova dalle osservazioni della stazione e chiarisce che il polling a 15 secondi è frequenza di lettura del sito, non cadenza della stazione.
 
+## Quiz “Gioca con il meteo” — branch locale
+
+La route `/gioca` contiene 20 curiosità fornite dall’utente e ne estrae 10 diverse a ogni partita con Fisher–Yates. Dopo la scelta blocca le opzioni, evidenzia la risposta corretta in verde e un’eventuale risposta errata in rosso; al termine mostra il punteggio corrette/10. Il quiz è autonomo, non legge né modifica dati meteorologici. Navigazione, metadati statici e sitemap includono la nuova route. Stato: implementazione locale nel branch `gioca-con-il-meteo`, non pubblicata.
+
 Verifiche locali: `npm run build`, `npm run lint`, 41 test frontend e `git diff --check` superati; controllati i due HTML compilati, i canonical/title/description, robots e sitemap. La preview browser non è stata possibile: il container ha negato l'apertura del server locale (`EPERM`). Nessuna pubblicazione o invio alla Search Console eseguiti.
