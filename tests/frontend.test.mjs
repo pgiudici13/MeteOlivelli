@@ -224,6 +224,22 @@ test('PDF cronologia: genera solo dopo aver raccolto tutte le pagine e fissa lâ€
   assert.equal(calls, 2)
 })
 
+test('PDF vuoti: cronologia e grafici restano validi senza inventare campioni', async () => {
+  const generatedAt = new Date('2026-10-23T12:00:00.000Z')
+  const history = buildHistoryDocument([], generatedAt)
+  const table = history.content.find(item => item.table)?.table.body
+  assert.equal(table.length, 1)
+  assert.equal(table[0][0].text, 'N.')
+  const emptyGraphs = buildGraphsDocument([], '24h', generatedAt.toISOString(), generatedAt)
+  assert.ok(emptyGraphs.content.filter(item => item.stack).every(item => item.stack.some(child => child.text?.includes('Nessun valore valido'))))
+  for (const definition of [history, emptyGraphs]) {
+    const blob = await createPdfBlob(definition)
+    assert.equal(blob.type, 'application/pdf')
+    assert.ok(blob.size > 1500)
+    assert.equal(new TextDecoder().decode(new Uint8Array(await blob.slice(0, 5).arrayBuffer())), '%PDF-')
+  }
+})
+
 test('PDF download: usa il nome atteso e revoca lâ€™URL temporaneo dopo il click', () => {
   const events = []
   let deferred

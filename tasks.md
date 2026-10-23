@@ -596,3 +596,5 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **23 ottobre 2026 — Esportazione PDF, checkpoint 17/20:** prova Node del documento cronologico con 5.000 righe sintetiche: generazione in circa 1,7 s, PDF 1,6 MB; PDFKit legge 173 pagine, un’intestazione per pagina e l’ultima riga con tutti e tre i valori. È un benchmark Node, non una misura dei browser mobili. Evidenza e limite registrati in `docs/frontend.md`.
 
 **23 ottobre 2026 — Esportazione PDF, checkpoint 18/20:** estratto il flusso in `createFreshHistoryPdf`; testato l’errore sulla seconda pagina (il generatore non viene chiamato) e il completamento positivo (tutte le pagine precedono la composizione e l’istante del report è fissato). `npm run check`: 71 test frontend, 44 Deno, 23 Python; build/lint e diff superati.
+
+**23 ottobre 2026 — Esportazione PDF, checkpoint 19/20:** verificati i limiti senza dati: cronologia vuota mantiene la sola intestazione e grafici vuoti dichiarano nessun valore; entrambi producono blob con MIME e firma PDF corretti. Nessuna misura/zero sintetico aggiunto. `npm run check`: 72 test frontend, 44 Deno, 23 Python; build/lint e diff superati.
