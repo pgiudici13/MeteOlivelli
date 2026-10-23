@@ -73,7 +73,7 @@ export function QuizPage() {
           <button className="quiz-primary" onClick={startQuiz}>Inizia il quiz <span aria-hidden="true">↗</span></button>
         </div>}
 
-        {state === 'playing' && currentQuestion && <div className="quiz-playing">
+        {state === 'playing' && currentQuestion && <div className="quiz-playing" key={questionIndex}>
           <div className="quiz-progress-line"><p className="eyebrow section-index">02 / Domanda {questionIndex + 1} di {questions.length}</p><p className="quiz-score-live">Punteggio <strong>{score}</strong></p></div>
           <div className="quiz-progress" role="progressbar" aria-label="Avanzamento quiz" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1}><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
           <fieldset className="quiz-question">
