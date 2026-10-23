@@ -7,6 +7,7 @@ import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 import { createPdfBlob } from '../src/pdf-runtime.ts'
+import { buildPdfChart } from '../src/pdf-chart.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -66,6 +67,23 @@ test('PDF: il runtime lazy genera un blob valido con font e testo italiano', asy
   const end = new TextDecoder().decode(bytes.subarray(bytes.length - 16))
   assert.match(start, /^%PDF-/)
   assert.match(end, /%%EOF/)
+})
+
+test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti', () => {
+  const until = '2026-10-22T12:00:00.000Z'
+  const rows = [row(1), row(2), row(3, { temperature_c: null }), row(4), row(5)]
+  const chart = buildPdfChart(rows, 'temperature_c', '24h', until)
+  assert.equal(chart.pointCount, 4)
+  assert.match(chart.svg, /Temperatura · °C · 24 ore/)
+  assert.equal((chart.svg.match(/stroke="#A5481A"/g) ?? []).length, 2)
+  assert.doesNotMatch(chart.svg, /NaN|undefined/)
+  const averageRows = [
+    row(1, { captured_at: '2026-10-20T10:00:00.000Z' }),
+    row(2, { captured_at: '2026-10-21T10:00:00.000Z' }),
+  ]
+  const averages = buildPdfChart(averageRows, 'humidity_pct', '7g', until)
+  assert.match(averages.note, /09:00–18:00/)
+  assert.ok(averages.pointCount > 0)
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
