@@ -27,11 +27,24 @@ export const quizQuestions: QuizQuestion[] = [
   { question: 'Le gocce di pioggia hanno davvero la forma di una lacrima?', answers: ['Sì, tutte le gocce hanno la punta rivolta verso l’alto', 'Sì, ma soltanto quando piove forte', 'No, le gocce piccole sono quasi sferiche, mentre quelle più grandi possono appiattirsi'], correctIndex: 2 },
 ]
 
+export function shuffleQuizAnswers(question: QuizQuestion, random: () => number = Math.random): QuizQuestion {
+  const answers = [...question.answers]
+  for (let index = answers.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1))
+    ;[answers[index], answers[target]] = [answers[target], answers[index]]
+  }
+  return {
+    ...question,
+    answers: answers as QuizQuestion['answers'],
+    correctIndex: answers.indexOf(question.answers[question.correctIndex]),
+  }
+}
+
 export function drawQuizQuestions(random: () => number = Math.random): QuizQuestion[] {
   const pool = [...quizQuestions]
   for (let index = pool.length - 1; index > 0; index -= 1) {
     const target = Math.floor(random() * (index + 1))
     ;[pool[index], pool[target]] = [pool[target], pool[index]]
   }
-  return pool.slice(0, 10)
+  return pool.slice(0, 10).map(question => shuffleQuizAnswers(question, random))
 }

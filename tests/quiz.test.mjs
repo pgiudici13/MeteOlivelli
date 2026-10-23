@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { drawQuizQuestions, quizQuestions } from '../src/quiz.ts'
+import { drawQuizQuestions, quizQuestions, shuffleQuizAnswers } from '../src/quiz.ts'
 
 test('il quiz contiene venti domande con tre opzioni e una risposta corretta valida', () => {
   assert.equal(quizQuestions.length, 20)
@@ -47,4 +47,24 @@ test('estrazioni casuali differenti possono selezionare domande diverse', () => 
   const first = drawQuizQuestions(() => 0)
   const second = drawQuizQuestions(() => 0.99)
   assert.notDeepEqual(first, second)
+})
+
+test('le tre opzioni vengono mescolate e la risposta corretta resta associata al testo', () => {
+  for (const question of quizQuestions) {
+    const shuffled = shuffleQuizAnswers(question, () => 0)
+    assert.notDeepEqual(shuffled.answers, question.answers)
+    assert.deepEqual([...shuffled.answers].sort(), [...question.answers].sort())
+    assert.equal(shuffled.answers[shuffled.correctIndex], question.answers[question.correctIndex])
+  }
+})
+
+test('l’estrazione del quiz restituisce anche opzioni rimescolate senza perdere la risposta corretta', () => {
+  const selected = drawQuizQuestions(() => 0)
+  assert.equal(selected.length, 10)
+  assert.equal(new Set(selected.map(question => question.question)).size, 10)
+  for (const question of selected) {
+    const original = quizQuestions.find(item => item.question === question.question)
+    assert.ok(original)
+    assert.equal(question.answers[question.correctIndex], original.answers[original.correctIndex])
+  }
 })
