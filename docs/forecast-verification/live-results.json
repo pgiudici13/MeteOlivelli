@@ -1,0 +1,24 @@
+{
+  "source": "Frontend locale con API pubblica reale; nessun measured_at disponibile, sintetici esclusi",
+  "forecastValues": 0,
+  "charts": 4,
+  "requests": [
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=latest",
+      "status": 200
+    },
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=latest",
+      "status": 200
+    },
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=history&period=30g&basis=captured_at&limit=500&until=2026-10-23T04%3A00%3A00.000Z",
+      "status": 200
+    },
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=history&period=30g&basis=measured_at&limit=500",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

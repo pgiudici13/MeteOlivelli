@@ -23,7 +23,7 @@ const record = (index, overrides = {}) => ({
   received_at: '2026-10-22T18:00:00.000Z', quality_flags: [], ...overrides,
 })
 const records = Array.from({ length: 6 }, (_, index) => record(index))
-const pageData = items => ({ items, next_cursor: null, until: '2026-10-22T20:00:00.000Z', time_basis: 'captured_at' })
+const pageData = (items, basis = 'captured_at') => ({ items, next_cursor: null, until: '2026-10-22T20:00:00.000Z', time_basis: basis })
 let latest = records.at(-1)
 let fixtureRows = records
 let failure = false
@@ -42,7 +42,7 @@ const markSynthetic = async page => page.evaluate(() => {
 })
 try {
   const liveContext = await browser.newContext({ viewport: { width: 1280, height: 900 } })
-  await liveContext.route('**/functions/v1/read-measurements?*', route => route.fulfill({ json: pageData([]) }))
+  await liveContext.route('**/functions/v1/read-measurements?*', route => route.fulfill({ json: pageData([], new URL(route.request().url()).searchParams.get('basis') ?? 'captured_at') }))
   const live = await liveContext.newPage()
   attachErrors(live)
   await check('risposta vuota intercettata → dashboard senza misure inventate', async () => {
@@ -60,6 +60,7 @@ try {
     if (failure) return route.abort('internetdisconnected')
     const url = new URL(route.request().url())
     const history = url.searchParams.get('view') === 'history'
+    if (url.searchParams.get('basis') === 'measured_at') return route.fulfill({ json: pageData([], 'measured_at') })
     if (history) historyCalls++
     const items = history ? url.searchParams.get('period') === '7g' ? [] : fixtureRows : [latest]
     await route.fulfill({ json: pageData(items) })

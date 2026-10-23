@@ -95,3 +95,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** la progressione grafica sembrava introdurre buchi assenti nella serie.
 - **Correzione:** unica maschera SVG che scopre curva, area e punti da sinistra a destra a velocità costante, senza dash; assi e testi restano separati.
 - **Verifica:** test browser mette la maschera a metà durata, controlla il 50% della larghezza ed easing lineare e conferma l’assenza di tratteggio. Conservati riduzione movimento e ingressi senza lampeggio. Verifiche su scale e fuso con test Node dedicati.
+
+
+## COR-008 — Auto rifiutato per formato del timestamp PostgreSQL
+
+- **Stato:** risolto localmente il 23 ottobre 2026; frontend non ancora pubblicato.
+- **Prova:** segnalazione utente e GET pubblico con `until=2026-10-22T19:43:00+00:00` (correttamente URL-encoded) restituisce HTTP 400 `invalid_query`; latest restituisce proprio quel formato. I precedenti mock non applicavano il validatore API.
+- **Impatto/priorità:** media; Auto non carica storico e grafici.
+- **Correzione:** normalizzazione UTC canonica, inclusione dei microsecondi con arrotondamento superiore e conservazione della finestra storica nei polling invariati.
+- **Verifica:** 27 test Node, 42 Deno (incluso feed contro validatore reale), 21 Python, build/lint e 14 scenari browser superati. Browser locale con API reale mostra quattro grafici e dieci campioni sintetici senza HTTP 400; evidenze in `docs/auto-verification/`.

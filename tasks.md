@@ -292,7 +292,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato: studio possibile; verifica dipendente da DATA-01–DATA-02 e storico datato idoneo.**
+- [ ] **Stato: motore locale v1 e backtest implementati il 23 ottobre; verifica meteorologica reale dipendente da DATA-01–DATA-02 e storico datato idoneo.**
 - **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
 - **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
 - **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
@@ -302,7 +302,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-02 — Implementare stime sperimentali e stato indisponibile
 
-- [ ] **Stato: dipendenza WX-01, SET-03 e contratto dei dati ammessi.**
+- [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente il 23 ottobre; restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
 - **Scopo:** calcolare e servire le sole stime supportate dalla verifica, separandole dalle misure.
 - **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
 - **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
@@ -525,3 +525,15 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **Verifica Auto locale:** `npm run check` superato (26 Node, 41 Deno, 21 Python), 14 scenari browser superati, inclusi Auto predefinito, 21 medie per fascia su serie lunga e cronologia originale. Resta una modifica locale non pubblicata.
 
 **Pubblicazione revisione grafici/Auto — 22 ottobre 2026:** l’utente richiede commit e push su `main` delle modifiche locali già verificate: maschera lineare, scala temporale, Auto predefinito e medie per fascia. Ultimi controlli: `npm run check` (26 Node, 41 Deno, 21 Python), 14 scenari browser e diff senza errori. Target Git confermato, branch allineato prima del commit; deploy automatico Vercel da verificare dopo il push. Le precedenti note “locale/non pubblicata” descrivono lo stato prima di questa richiesta.
+
+
+**23 ottobre 2026 — Fase 7 / UI-01 e batch sintetico:** su richiesta utente corretta localmente la richiesta Auto: normalizzazione UTC di `until` da timestamp PostgreSQL, arrotondamento in alto dei microsecondi per includere l’ultimo campione e conservazione della finestra fra polling invariati. Umidità e pressione compatte accanto alla temperatura iniziale. Nel database autorizzato aggiornati i cinque sintetici e aggiunti altri cinque: batch `ui-preview-20261023-ten-six-hour`, 10 record ogni 21600 secondi dal 21 ottobre 00:00 al 23 ottobre 06:00 Europe/Rome. Questa decisione supera il precedente vincolo di mantenere invariati i cinque campioni. Tutti restano `synthetic`, senza data fisica; postilla conservata. `npm run check` superato (27 Node, 42 Deno, 21 Python); 14 scenari browser di regressione superati. Nessun commit, push o deploy frontend eseguito. Dettagli in `docs/data-preview.md` e `docs/frontend.md`.
+
+
+**23 ottobre 2026 — Fase 7 / WX-01–WX-02, prima implementazione:** motore statistico v1 con persistenza, trend smorzato e ciclo 24h; selezione temporale separata dalla verifica, ammissione solo di date fisiche reali e stati indisponibili per singolo campo/orizzonte. Orizzonti +30m, +1h, giornata definita esplicitamente come punto a +24h. Worker browser, storico fisico 30g indipendente dai filtri, cache per input, scadenza/errori/cleanup e metodo/MAE/provenienza in UI. Specifica e parametri in `docs/backend.md`. Nessun modello meteorologicamente validato: i dieci sintetici rimangono esclusi. Nessuna spunta completa per WX-01/WX-02; server condiviso, archivio e valutazione su osservazioni reali restano aperti. Nessuna operazione remota.
+
+
+**Verifica WX locale — 23 ottobre:** `npm run check` (41 Node, 42 Deno, 21 Python), sette scenari browser del modello/worker e 14 regressioni frontend superati. API reale `measured_at` senza campioni; nove stime indisponibili e quattro grafici osservativi verificati. Esiti e schermate in `docs/forecast-verification/`. Attendibilità reale e pubblicazione restano non completate.
+
+
+**Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.

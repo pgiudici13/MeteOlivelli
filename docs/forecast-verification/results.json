@@ -1,0 +1,34 @@
+{
+  "source": "Collaudo locale con fixture simulate e worker reale; nessuna scrittura remota",
+  "results": [
+    {
+      "name": "worker reale: tre orizzonti e nove stime da 30 giorni simulati, con paginazione",
+      "passed": true
+    },
+    {
+      "name": "filtri dei grafici indipendenti dal modello",
+      "passed": true
+    },
+    {
+      "name": "reflow a 390/320 px con dettagli metodo aperti",
+      "passed": true
+    },
+    {
+      "name": "errore rete ritira i numeri; riconnessione recupera il risultato",
+      "passed": true
+    },
+    {
+      "name": "ultimo dato nullo/sospetto ritira soltanto le grandezze interessate",
+      "passed": true
+    },
+    {
+      "name": "scadenza anche senza nuovi campioni: nessuna stima passata resta attuale",
+      "passed": true
+    },
+    {
+      "name": "dieci sintetici pubblicabili nei grafici non producono previsioni",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

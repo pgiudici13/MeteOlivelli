@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
+import { ForecastSection } from './components/ForecastSection.tsx'
 import { useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
@@ -81,7 +82,13 @@ function App() {
         <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>
           <p className="instrument-caption">Ultima lettura della stazione</p>
-          <p className="hero-temperature">{latestLoaded && latest && latest.temperature_c !== null ? <Value row={latest} metric={metrics[0]} /> : <><span>—</span><span className="temperature-unit"> °C</span></>}</p>
+          <div className="hero-readings">
+            <p className="hero-temperature">{latestLoaded && latest && latest.temperature_c !== null ? <Value row={latest} metric={metrics[0]} /> : <><span>—</span><span className="temperature-unit"> °C</span></>}</p>
+            <dl className="hero-secondary-readings">{metrics.slice(1).map(metric => <div key={metric.key}>
+              <dt>{metric.name}</dt>
+              <dd>{latestLoaded && latest ? <Value row={latest} metric={metric} /> : `— ${metric.unit}`}</dd>
+            </div>)}</dl>
+          </div>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'In attesa del primo campione'}</p>
           <HistoryChart period={period} until={data.windowUntil} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
@@ -122,14 +129,7 @@ function App() {
         {historyError && !historyLoading && <p className="warning">Aggiornamento dello storico non riuscito. Eventuali campioni conservati dall’ultima lettura.</p>}
         {historyLoading ? <p className="empty-state">Caricamento dei campioni…</p> : rows.length ? <HistoryTable key={period} rows={rows} /> : <p className="empty-state">{historyError ? 'Cronologia temporaneamente non disponibile.' : 'Nessun campione da mostrare per questo periodo.'}</p>}
       </section></Reveal>
-      <Reveal><section className="panel forecast-section" aria-labelledby="forecast-title">
-        <p className="eyebrow section-index">04 / Ricerca in corso</p>
-        <h2 id="forecast-title">Stime sperimentali MeteOlivelli</h2>
-        <p className="secondary">Separate dalle osservazioni della stazione. Il modello locale deve ancora essere valutato su uno storico datato idoneo.</p>
-        <div className="forecast-grid">{['+30 minuti', '+1 ora', 'Giornata'].map(horizon => <article className="forecast-card" key={horizon}>
-          <h3>{horizon}</h3><p>Stima non disponibile</p><p className="small">Orizzonte non validato · nessuna previsione generata.</p>
-        </article>)}</div>
-      </section></Reveal>
+      <Reveal><ForecastSection /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>
         <h2 id="about-title">Un progetto per osservare e imparare.</h2>

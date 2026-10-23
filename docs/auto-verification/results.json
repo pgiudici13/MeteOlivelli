@@ -1,0 +1,25 @@
+{
+  "source": "frontend locale con API pubblica reale; campioni synthetic",
+  "charts": 4,
+  "samples": 10,
+  "widths": [
+    1440,
+    390,
+    320
+  ],
+  "requests": [
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=latest",
+      "status": 200
+    },
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=history&period=30g&basis=captured_at&limit=500&until=2026-10-23T04%3A00%3A00.000Z",
+      "status": 200
+    },
+    {
+      "url": "https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-measurements?view=latest",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

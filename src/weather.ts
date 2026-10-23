@@ -23,7 +23,7 @@ export interface ReadPage {
   items: Measurement[]
   next_cursor: string | null
   until: string
-  time_basis: 'captured_at'
+  time_basis: 'captured_at' | 'measured_at'
 }
 export const metrics = [
   { key: 'temperature_c', name: 'Temperatura', unit: '°C', tone: 'mint' },
@@ -48,7 +48,7 @@ function isTimestamp(value: unknown): value is string {
 
 export function parsePage(value: unknown): ReadPage {
   if (!isObject(value) || !Array.isArray(value.items) || value.items.length > 500 ||
-    value.time_basis !== 'captured_at' || !isTimestamp(value.until) ||
+    !['captured_at', 'measured_at'].includes(String(value.time_basis)) || !isTimestamp(value.until) ||
     !(value.next_cursor === null || (typeof value.next_cursor === 'string' && value.next_cursor.length > 0 && value.next_cursor.length <= 512))) {
     throw new Error('Risposta non valida')
   }
@@ -73,7 +73,7 @@ export function parsePage(value: unknown): ReadPage {
       quality_flags: row.quality_flags as QualityFlag[],
     }
   })
-  return { items, next_cursor: value.next_cursor, until: value.until, time_basis: 'captured_at' }
+  return { items, next_cursor: value.next_cursor, until: value.until, time_basis: value.time_basis as ReadPage['time_basis'] }
 }
 
 export async function readPage(params: URLSearchParams, signal: AbortSignal, request: typeof fetch = fetch): Promise<ReadPage> {
@@ -89,23 +89,24 @@ export async function readPage(params: URLSearchParams, signal: AbortSignal, req
 }
 export type PageReader = typeof readPage
 
-export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage): Promise<Measurement[]> {
+export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage, basis: 'captured_at' | 'measured_at' = 'captured_at'): Promise<Measurement[]> {
   const items = new Map<string, Measurement>()
   const cursors = new Set<string>()
   let cursor: string | null = null
   let until: string | null = null
   // Limite conservativo: oltre 50.000 eventi fallire esplicitamente, mai mostrare una serie troncata come completa.
   for (let page = 0; page < 100; page++) {
-    const params = new URLSearchParams({ view: 'history', period, basis: 'captured_at', limit: '500' })
+    const params = new URLSearchParams({ view: 'history', period, basis, limit: '500' })
     if (cursor) params.set('cursor', cursor)
     const result = await reader(params, signal)
+    if (result.time_basis !== basis) throw new Error('Base temporale dello storico incoerente')
     if (until !== null && result.until !== until) throw new Error('Finestra dello storico incoerente')
     until = result.until
     for (const item of result.items) {
-      if (!item.captured_at) throw new Error('Acquisizione non datata nello storico')
+      if (!item[basis]) throw new Error('Acquisizione non datata nello storico')
       items.set(item.ingestion_id, item)
     }
-    if (!result.next_cursor) return [...items.values()].sort(compareMeasurements)
+    if (!result.next_cursor) return [...items.values()].sort((a, b) => Date.parse(a[basis]!) - Date.parse(b[basis]!) || a.ingestion_id.localeCompare(b.ingestion_id))
     if (cursors.has(result.next_cursor)) throw new Error('Cursore ripetuto')
     cursor = result.next_cursor
     cursors.add(cursor)

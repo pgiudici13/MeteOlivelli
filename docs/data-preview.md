@@ -1,4 +1,29 @@
-# Cinque campioni di prova — 22 ottobre 2026
+# Campioni di prova — stato al 23 ottobre 2026
+
+## Batch corrente: dieci campioni ogni sei ore
+
+Su richiesta esplicita del 23 ottobre, aggiornati i cinque record sintetici precedenti e aggiunti altri cinque nel progetto Supabase MeteOlivelli `pvtzncseisbxaaseqfvo`. Nuovo batch `ui-preview-20261023-ten-six-hour`; il precedente `ui-preview-20261022-five-half-hour` non contiene più righe. UUID e `received_at` dei cinque record aggiornati conservati; payload e raw aggiornati coerentemente ai valori di scenario. Nessun record live/historical modificato, nessuna migrazione o modifica dei privilegi.
+
+SQL verifica 10 record, intervalli minimo e massimo 21600 secondi, tutti `synthetic`, `measured_at` NULL e provenienza sintetica. Orari **di scenario**, in Europe/Rome:
+
+| Data e ora | °C | % | hPa |
+|---|---:|---:|---:|
+| 21 ottobre 00:00 | 13,8 | 78,0 | 1014,2 |
+| 21 ottobre 06:00 | 12,6 | 81,5 | 1014,5 |
+| 21 ottobre 12:00 | 18,1 | 64,2 | 1014,8 |
+| 21 ottobre 18:00 | 20,4 | 57,8 | 1014,4 |
+| 22 ottobre 00:00 | 14,2 | 76,3 | 1015,0 |
+| 22 ottobre 06:00 | 12,9 | 80,1 | 1015,4 |
+| 22 ottobre 12:00 | 18,7 | 62,4 | 1015,7 |
+| 22 ottobre 18:00 | 21,1 | 55,6 | 1015,3 |
+| 23 ottobre 00:00 | 14,6 | 74,8 | 1015,9 |
+| 23 ottobre 06:00 | 13,2 | 79,2 | 1016,2 |
+
+Postilla pubblica conservata. Prove del frontend locale con API reale in [auto-verification/results.json](auto-verification/results.json). La modifica del database è remota; la correzione del frontend resta locale, senza nuovo commit/push/deploy.
+
+## Verbale storico: cinque campioni del 22 ottobre
+
+Le sezioni seguenti descrivono il batch precedente, ora sostituito.
 
 ## Autorizzazione e destinazione
 

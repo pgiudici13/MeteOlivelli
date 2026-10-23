@@ -6,15 +6,17 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/), pubblicato da `main` tramite GitHub → Vercel. La UI corrente adotta il design Factory: tema scuro, titolo grande e pannello temperatura a destra su desktop, layout a colonna su mobile, marchio `MO. | MeteOlivelli`, ingressi allo scroll, grafici che si disegnano e riflessi locali sui bordi. Stack React/TypeScript/Vite conservato.
 
-La dashboard mostra temperatura, umidità e pressione, grafici 24h/7g/30g e cronologia con qualità e orari. Legge soltanto l’endpoint pubblico, senza chiavi client; polling ogni 15 secondi a pagina visibile. I tempi fisici, PC e server restano distinti. Freschezza reale e stime previsionali non sono ancora verificabili: le stime sono indisponibili.
+La dashboard mostra temperatura, umidità e pressione, grafici 24h/7g/30g e cronologia con qualità e orari. Legge soltanto l’endpoint pubblico, senza chiavi client; polling ogni 15 secondi a pagina visibile. I tempi fisici, PC e server restano distinti. Freschezza reale e attendibilità meteorologica restano da verificare. Il modello statistico locale per +30m/+1h/+24h è implementato: oggi le stime restano indisponibili perché mancano osservazioni reali con data fisica; i sintetici non lo alimentano.
 
-**Dati presenti nell’ultimo collaudo del 22 ottobre:** cinque campioni di prova ogni 30 minuti, inseriti su autorizzazione nel database finale con tipo applicativo `synthetic` e metadati distinti. Il sito mostra la postilla **Work in progress · Possibili dati presenti fittizi**. Non sono osservazioni Arduino e non attestano la pipeline scolastica; non esiste un selettore DEMO o un database separato. [Contratto, valori ed evidenze](docs/data-preview.md).
+**Dati aggiornati il 23 ottobre:** dieci campioni di prova ogni sei ore, inseriti su autorizzazione nel database finale con tipo applicativo `synthetic` e metadati distinti. Il sito mostra la postilla **Work in progress · Possibili dati presenti fittizi**. Non sono osservazioni Arduino e non attestano la pipeline scolastica; non esiste un selettore DEMO o un database separato. [Contratto, valori ed evidenze](docs/data-preview.md).
 
 Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. L’ingestione sensori rifiuta il tipo sintetico; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Nessuna previsione dedotta dai sensori o fonte esterna integrata.
 
 Rilasci applicativi verificati: `fab71cb` (UI/postilla), `bce39e2` (provenienza e dati). Git e deploy non sostituiscono il backup. La **Fase 8** distingue pubblicazione corrente completata da backup/restore, avvisi e collaudo reale ancora aperti.
 
 **Revisione grafici successiva, pubblicazione richiesta il 22 ottobre:** Auto predefinito, scala adattiva e medie per fascia nell’ultima settimana disponibile; disegno lineare più rapido. Le viste manuali rimangono. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
+
+**Correzione locale del 23 ottobre:** Auto normalizza gli orari PostgreSQL prima della richiesta API; umidità e pressione compatte affiancano la temperatura iniziale. Verificato con API reale e browser desktop/mobile; frontend non ancora pubblicato.
 
 ## Documentazione e collaborazione
 

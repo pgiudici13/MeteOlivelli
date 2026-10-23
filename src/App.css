@@ -32,6 +32,11 @@ h3 { font-size: 14px; font-weight: 400; line-height: 1.4; }
 .instrument-caption { font-size: 12px; color: var(--secondary); margin-top: 24px; }
 .hero-temperature { font-size: clamp(48px, 5.7vw, 78px); line-height: 1.15; letter-spacing: -.07em; margin-block: 4px; font-variant-numeric: tabular-nums; }
 .temperature-unit { font-size: .5em; letter-spacing: -.04em; color: var(--secondary); }
+.hero-readings { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.hero-secondary-readings { display: grid; gap: 10px; margin: 0; }
+.hero-secondary-readings dt { color: var(--secondary); font: 10px/1.4 ui-monospace, monospace; }
+.hero-secondary-readings dd { margin: 2px 0 0; font-size: 16px; font-variant-numeric: tabular-nums; }
+.hero-secondary-readings .quality-warning { display: block; font-size: 10px; }
 .instrument-time { font: 10px/1.5 ui-monospace, monospace; color: var(--secondary); }
 .hero-instrument .chart { border: 0; background: transparent; padding: 0; margin-top: 24px; --tone: #ee6018; gap: 0; }
 .hero-instrument .chart h3, .hero-instrument .chart-value { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
@@ -85,9 +90,19 @@ button:disabled { cursor: default; opacity: .45; }
 .sample-details { color: var(--secondary); font-size: 12px; }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; }
 .pagination p { text-align: center; color: var(--secondary); }
-.forecast-card { border: 1px solid #3d3a39; border-radius: 10px; padding: 24px; display: grid; gap: 16px; }
+.forecast-card { border: 1px solid #3d3a39; border-radius: 10px; padding: 24px; display: grid; gap: 16px; align-content: start; }
 .forecast-card h3 { font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; color: var(--secondary); }
 .forecast-card > p:not(.small) { font-size: 20px; letter-spacing: -.03em; }
+.forecast-estimates { margin: 0; }
+.forecast-estimate + .forecast-estimate { border-top: 1px solid #3d3a39; margin-top: 20px; padding-top: 20px; }
+.forecast-estimate dt { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
+.forecast-estimate dd { margin: 0; }
+.forecast-value { display: block; font-size: 28px; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.forecast-value > span { font-size: 16px; color: var(--secondary); }
+.forecast-estimate .small { margin-top: 8px; }
+.forecast-unavailable { font-size: 14px; }
+.forecast-evidence, .forecast-method { margin-top: 12px; color: var(--secondary); font-size: 12px; line-height: 1.6; }
+.forecast-evidence p { overflow-wrap: anywhere; }
 .about-section { margin-top: 96px; padding: 48px; background: #1d1a18; }
 .about-section h2 { max-width: 600px; font-size: 44px; }
 .about-section p:not(.eyebrow) { margin-top: 24px; max-width: 710px; }

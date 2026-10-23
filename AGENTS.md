@@ -38,7 +38,7 @@ Leggere prima queste regole e `git status`, poi soltanto i documenti necessari a
 |---|---|
 | [docs/frontend.md](docs/frontend.md) | UI, lettura/polling, qualità, provenienza, test e limiti |
 | [docs/operations.md](docs/operations.md) | Target, diagnosi senza scritture, rilascio, batch, backup e avvisi ancora aperti |
-| [docs/data-preview.md](docs/data-preview.md) | Cinque campioni autorizzati, tipo `synthetic`, batch e verifiche SQL/API/UI |
+| [docs/data-preview.md](docs/data-preview.md) | Campioni autorizzati, tipo `synthetic`, batch corrente e verifiche SQL/API/UI |
 | [docs/backend.md](docs/backend.md) | Contratto dati, validazione, integrazione CSV e limiti |
 | [docs/backend-schema.md](docs/backend-schema.md) | Schema, ruoli, RLS, RPC e migrazioni; leggere anche l’aggiornamento sintetici |
 | [docs/services.md](docs/services.md) | Target e inventario dei servizi; distinguere stato aggiornato e sessioni storiche |
@@ -59,6 +59,7 @@ Leggere prima queste regole e `git status`, poi soltanto i documenti necessari a
 | [src/main.tsx](src/main.tsx), [index.html](index.html) | Avvio React, integrazioni Vercel, metadati e fallback senza JS |
 | [src/App.tsx](src/App.tsx) | Struttura pagina, ultime misure, filtri, cronologia e postilla |
 | [src/index.css](src/index.css), [src/App.css](src/App.css) | Font/base e presentazione responsive, stati e riflessi |
+| `src/forecast.ts`, `forecast.worker.ts`, `forecast-feed.ts`, `use-forecast.ts`, `components/ForecastSection.tsx` | Modello statistico locale, ammissione/verifica, worker, lettura fisica indipendente e UI delle stime; specifica in `docs/backend.md` |
 | [src/chart.ts](src/chart.ts) | Finestre, Auto adattivo, medie per fascia e separatori di calendario in Europe/Rome |
 | [src/weather.ts](src/weather.ts) | Contratto pubblico, provenienza, formati, serie e freschezza |
 | [src/weather-feed.ts](src/weather-feed.ts), [src/use-weather.ts](src/use-weather.ts) | Letture, paginazione, recupero, finestre e ciclo polling/visibilità |

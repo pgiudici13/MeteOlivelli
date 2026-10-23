@@ -241,3 +241,27 @@ test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma d
   assert.equal(calls, 1)
   feed.stop()
 })
+
+test('Auto: timestamp PostgreSQL normalizzati, inclusi microsecondi e paginazione', async () => {
+  for (const captured of ['2026-08-01T10:00:00+00:00', '2026-08-01T10:00:00.123456+00:00']) {
+    const old = row(1, { captured_at: captured })
+    const anchor = captured.includes('.') ? '2026-08-01T10:00:00.124Z' : '2026-08-01T10:00:00.000Z'
+    let published
+    let calls = 0
+    const feed = createWeatherFeed('30g', state => { published = state }, async params => {
+      if (params.get('view') === 'latest') return parsePage(page([old]))
+      calls++
+      assert.equal(params.get('until'), anchor)
+      const cursor = btoa(JSON.stringify(['30g', 'captured_at', anchor, new Date(captured).toISOString(), old.ingestion_id]))
+      return parsePage({ ...page([old], calls === 1 ? cursor : null), until: anchor })
+    }, { anchorToLatest: true })
+    await feed.refresh()
+    assert.equal(published.historyError, false)
+    assert.equal(published.history.length, 1)
+    assert.equal(published.windowUntil, anchor)
+    await feed.refresh()
+    assert.equal(published.windowUntil, anchor)
+    assert.equal(calls, 2)
+    feed.stop()
+  }
+})

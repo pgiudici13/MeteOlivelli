@@ -32,7 +32,11 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
       const updateHistory = async () => {
         historyStarted = true
         try {
-          const anchor = options.anchorToLatest ? state.latest?.captured_at : null
+          const capturedAt = options.anchorToLatest ? state.latest?.captured_at : null
+          // L'API richiede UTC canonico; PostgreSQL può restituire +00:00 e microsecondi.
+          // Arrotondare in alto evita di escludere l'ultimo campione sub-millisecondo.
+          const fraction = capturedAt?.match(/\.(\d+)/)?.[1] ?? ''
+          const anchor = capturedAt ? new Date(Date.parse(capturedAt) + (/[1-9]/.test(fraction.slice(3)) ? 1 : 0)).toISOString() : null
           let windowUntil: string | null = null
           const history = await readHistory(period, controller.signal, async (params, signal) => {
             if (anchor) params.set('until', anchor)
@@ -50,10 +54,10 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
         if (response.items.length > 1 || response.next_cursor) throw new Error('Ultima misura incoerente')
         const latest = response.items[0] ?? null
         const nextSignature = JSON.stringify(latest)
-        state = { ...state, latest, latestLoaded: true, latestError: false, checkedAt: Date.now(), windowUntil: response.until }
+        state = { ...state, latest, latestLoaded: true, latestError: false, checkedAt: Date.now() }
         if ((nextSignature !== signature || !state.historyLoaded || state.historyError) && !historyStarted) await updateHistory()
         // Anche senza nuovi campioni la finestra deve avanzare, senza nuove letture di serie.
-        const windowUntil = options.anchorToLatest ? latest?.captured_at ?? response.until : response.until
+        const windowUntil = options.anchorToLatest ? state.windowUntil ?? response.until : response.until
         state = { ...state, windowUntil, history: trimHistory(state.history, period, windowUntil) }
         signature = nextSignature
       } catch {

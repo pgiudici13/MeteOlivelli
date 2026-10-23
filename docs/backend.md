@@ -320,3 +320,37 @@ Le prove locali verificano trasformazioni, confronto e handler con store simulat
 autenticazione e conferme HTTP. Le prove BE-07 aggiungono privilegi/RLS,
 unicità e invii HTTP concorrenti nel DB reale. La riconciliazione dell’outbox e
 la catena fisica rimangono UP-02/UP-03; i dettagli sono nel verbale BE-07.
+
+## Modello previsionale locale v1 — 23 ottobre 2026
+
+Richiesta esplicita di implementazione del modello del progetto, senza provider esterno o LLM. Il motore puro è in `src/forecast.ts`, eseguito da `src/forecast.worker.ts`. In questa versione il calcolo avviene nel browser per rendere la funzione verificabile senza introdurre endpoint, credenziali o modifiche remote: non è un nuovo backend pubblicato. Cache per sessione/input, non cache condivisa fra visitatori; archivio dei run e valutazione continuativa sul server restano aperti in WX-02. Nessun risultato viene scritto nel database.
+
+### Contratto e ammissione
+
+- Versione `station-statistical-v1`, generazione con riferimento server, campioni considerati, tre orizzonti (+30 minuti, +1 ora, +24 ore), risultati distinti per temperatura/umidità/pressione.
+- Ogni risultato disponibile contiene valore/unità (unità dal contratto della metrica), metodo, origine fisica, UUID dell’ultima osservazione, istante previsto, scadenza, MAE del periodo di verifica, MAE della persistenza sugli stessi casi, numerosità di selezione/verifica. Un indisponibile contiene una ragione esplicita e nessun numero sostitutivo.
+- Sono ammessi soltanto `live`/`historical` con `measured_at` finito, non futuro e non successivo a `received_at`; anche la ricezione deve essere già avvenuta. Il campo è assunto conforme al contratto fisico: il codice non certifica l’orologio/sensore. Tempi reali, writer e stazione restano da verificare. `captured_at` e uptime non ricostruiscono date fisiche. Tipo assente o `synthetic` esclusi.
+- Serie dedicata di 30 giorni in base `measured_at`, paginata sull’API pubblica esistente, massimo 50.000 eventi; superamento/errore non produce una serie parziale. Duplicati temporali con UUID diversi esclusi come ambigui. Un null/sospetto nell’ultima osservazione fisica ritira la sola grandezza interessata; non si recupera un vecchio valore per farla sembrare attuale.
+- “Giornata” è definita qui come **valore a +24 ore**, non media, massima/minima del giorno o calendario fino a mezzanotte. Durata fisica di 24 ore anche al cambio DST. Una traiettoria dell’intera giornata e gli estremi richiedono ulteriori verifiche; questa prima funzione non li produce.
+
+### Metodi e valutazione senza anticipare i risultati
+
+Confronto statistico, non regole arbitrarie pressione → pioggia. Metodi candidati:
+
+1. Persistenza: ultimo valore valido.
+2. Tendenza: regressione lineare sulle ultime tre ore contigue (almeno quattro campioni e un’ora coperta), incremento smorzato `pendenza × 3 × (1 − exp(−orizzonte/3))`. Nessuna retta prolungata per un giorno.
+3. Ciclo di 24 ore: valore osservato al tempo previsto meno 24 ore, con metà della differenza fra livello attuale e livello di 24 ore prima. Nessun dato futuro o sintetico.
+
+Backtest a origini mobili, dopo almeno 24 ore iniziali di training, con al massimo circa 96 origini distribuite e distanziate almeno quanto l’orizzonte. Ogni fit usa solo misure antecedenti all’origine e già ricevute a quell’istante; archivi caricati successivamente non consentono di inventare una disponibilità passata. Il target è un’osservazione reale vicina all’istante richiesto, senza interpolazione; tolleranza massima `min(cadenza passata/4, orizzonte/10, 5 minuti)`. La cadenza di ogni fit è stimata solo dai suoi dati passati, non dall’intero dataset. Una cadenza oraria non valida automaticamente +30 minuti.
+
+Lo storico viene diviso temporalmente a metà. I target usati per selezionare devono essere già ricevuti prima del confine; le origini del periodo di verifica iniziano dopo il confine. Servono almeno 12 casi per ciascuna parte, per metrica/orizzonte: è un limite operativo minimo, **non una certificazione di sufficienza meteorologica**. Un candidato deve essere calcolabile sugli stessi casi e migliorare il MAE di selezione di almeno il 5% per sostituire il riferimento. Il metodo scelto resta fisso nel periodo separato di verifica: se lì peggiora rispetto alla persistenza, viene ritirato, senza scegliere un altro metodo usando quegli esiti. La persistenza può restare la scelta migliore.
+
+Il MAE mostrato è un errore storico in unità fisiche, non una percentuale di affidabilità o intervallo probabilistico. Non si calcolano probabilità di pioggia, sole, vento, né massime/minime giornaliere da soli tre sensori. Parametri (3 ore, correzione 0,5, 12 casi, 5%) sono scelte tecniche v1 da rivalutare su dati reali, non parametri meteorologici già validati. Riferimento metodologico: [Hyndman e Athanasopoulos, metodi di base e validazione temporale](https://otexts.com/fpppy/05-toolbox.html); il riferimento non valida la stazione o questa configurazione.
+
+### Scadenza e limiti operativi
+
+Scadenza al primo fra istante previsto e `ultima misura + cadenza recente + 20 minuti`. La cadenza è una mediana recente, non una proprietà verificata del writer. La UI ricontrolla la scadenza ogni 15 secondi a pagina visibile e subito al ritorno; errore di rete/calcolo ritira i valori. Il worker ha un timeout di 10 secondi e viene terminato allo smontaggio. Nessuna dipendenza nuova.
+
+Le letture dello storico avvengono al cambiamento di latest, dopo un errore e comunque ogni cinque minuti per recuperare aggiornamenti storici che non cambiano latest. Input uguali non riavviano il modello. Il riferimento è il tempo dell’API; l’orologio locale serve soltanto ad avanzarlo fra le letture. Cambiare il periodo dei grafici non cambia training o risultati. La lettura previsionale è separata e non può bloccare osservazioni/grafici.
+
+**Stato:** implementazione e verifica funzionale con fixture simulate completate; validazione meteorologica reale assente. API fisica pubblica verificata il 23 ottobre: `items: []`. I dieci sintetici non alimentano il modello, quindi oggi non ci sono previsioni reali disponibili. WX-01/WX-02 restano parziali per dati/clock reali, calibrazione, cache/archivio condivisi e valutazione prospettica. Nessun nuovo commit/push/deploy o intervento remoto in questo lavoro.

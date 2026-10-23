@@ -43,20 +43,20 @@ curl --fail --silent --show-error 'https://pvtzncseisbxaaseqfvo.supabase.co/func
 - Controllare dal dominio principale UI, API, dati/provenienza, postilla, grafici e console. Registrare commit, target, esiti e limiti; non confondere la pubblicazione WIP con REL-01 completato.
 - Per incidenti scegliere rollback/revert solo nell’ambito autorizzato. Un rollback frontend non ripristina il database e non elimina i campioni.
 
-## Cinque campioni e passaggio ai dati reali
+## Campioni sintetici e passaggio ai dati reali
 
-Batch pubblico `ui-preview-20261022-five-half-hour`, cinque record `synthetic` nel database finale. [Contratto e prove](data-preview.md). La sola postilla concordata deve rimanere visibile finché sono esposti. Non cambiare il tipo in `live` né assegnare loro una data fisica.
+Batch corrente `ui-preview-20261023-ten-six-hour`, dieci record `synthetic` ogni sei ore nel database finale (richiesta del 23 ottobre). [Contratto e prove](data-preview.md). La sola postilla concordata deve rimanere visibile finché sono esposti. Non cambiare il tipo in `live` né assegnare loro una data fisica.
 
 Per l’ispezione amministrativa in sola lettura, senza segreti:
 
 ```sql
 select ingestion_id, acquisition_kind, captured_at, measured_at
 from public.station_measurements
-where payload->'_provenance'->>'batch_id' = 'ui-preview-20261022-five-half-hour'
+where payload->'_provenance'->>'batch_id' = 'ui-preview-20261023-ten-six-hour'
 order by captured_at;
 ```
 
-OPS-03 deve definire se conservarli identificati o rimuoverli su richiesta. Prima di una cancellazione: confermare batch e cinque UUID contro l’evidenza, concordare l’eventuale copia, preparare una transazione limitata a quei record e richiedere l’autorizzazione. Nessun `DELETE` è eseguito da questa guida. Non usare `source_id = meteolivelli` come criterio di pulizia: è condiviso con i futuri campioni reali.
+OPS-03 deve definire se conservarli identificati o rimuoverli su richiesta. Prima di una cancellazione: confermare batch e dieci UUID contro l’evidenza, concordare l’eventuale copia, preparare una transazione limitata a quei record e richiedere l’autorizzazione. Nessun `DELETE` è eseguito da questa guida. Non usare `source_id = meteolivelli` come criterio di pulizia: è condiviso con i futuri campioni reali.
 
 Alla prima misura reale verificare che `latest` privilegi `live`, controllare che le curve non inducano a confondere campioni reali e di prova e decidere il destino del batch. Solo dopo la verifica della rimozione dall’esposizione pubblica valutare una modifica della postilla, separatamente autorizzata. Aggiornare la documentazione nello stesso intervento.
 
@@ -68,7 +68,7 @@ Per Supabase Free, la documentazione raccomanda esportazioni regolari via CLI e 
 
 Come base da approvare: esportazione cifrata giornaliera, 30 copie giornaliere e 12 mensili; RPO massimo 24 ore e RTO massimo un giorno lavorativo. Sono proposte, non valori confermati. Il RPO giornaliero può lasciare a rischio fino a una giornata di dati; il RTO è il tempo desiderato per ripristinare. La copia dovrà preservare misure e provenienza, schema/migrazioni e gli elementi necessari al recupero. Git e screenshot non sono backup dei dati. Non mettere dump in questo repository. Il restore separato con confronto di conteggi, tipo, null temporali, duplicati e permessi resta necessario prima di dichiarare il backup operativo. Nessun export o upload è stato eseguito.
 
-**Dati reali e batch pubblico — aggiornamento 22 ottobre:** CSV reale e PC Windows non sono ancora disponibili. I cinque record `synthetic` del batch `ui-preview-20261022-five-half-hour` e la postilla pubblica restano invariati per decisione dell’utente. Non cancellarli o modificarli; dopo la prima misura reale confrontare priorità `live` e chiarezza dello storico, poi chiedere la decisione successiva sul batch. La postilla resta finché i campioni sono esposti.
+**Dati reali e batch pubblico — nota storica del 22 ottobre, superata per il batch dalla richiesta del 23 ottobre:** CSV reale e PC Windows non sono ancora disponibili. I cinque record `synthetic` del batch `ui-preview-20261022-five-half-hour` e la postilla pubblica restano invariati per decisione dell’utente. Non cancellarli o modificarli; dopo la prima misura reale confrontare priorità `live` e chiarezza dello storico, poi chiedere la decisione successiva sul batch. La postilla resta finché i campioni sono esposti.
 
 **OPS-02:** l’utente resta il referente del progetto; il recapito email, il meccanismo gratuito di avviso e la prova di consegna sono aperti. Avvisi, rotazione/revoca credenziali, quote e incidenti PC devono essere provati prima di dichiararli operativi. Nessun monitor o invio email è stato attivato in questo lavoro. Non fissare soglie di allarme freschezza prima di verificare clock e cadenza.
 

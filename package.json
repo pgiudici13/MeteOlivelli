@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "frontend:test": "node --test tests/frontend.test.mjs",
+    "frontend:test": "node --test tests/frontend.test.mjs tests/forecast.test.mjs",
     "backend:check": "deno task --config supabase/functions/deno.json check",
     "backend:lint": "deno task --config supabase/functions/deno.json lint",
     "backend:test": "deno task --config supabase/functions/deno.json test",
