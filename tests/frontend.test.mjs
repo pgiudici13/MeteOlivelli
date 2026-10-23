@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
+import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -42,6 +43,17 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   assert.ok(links.every((id) => ids.has(id)), `Destinazioni dell’indice non trovate: ${links.filter((id) => !ids.has(id)).join(', ')}`)
   assert.match(page, /aria-label="In questa pagina"/)
   assert.match(page, /aria-label="In breve"/)
+})
+
+test('PDF: formatta tempi in Europe/Rome, null espliciti e nomi file datati', () => {
+  assert.equal(formatReportTime('2026-10-25T00:30:00.000Z'), '25/10/2026, 02:30 CEST')
+  assert.equal(formatReportTime('2026-10-25T01:30:00.000Z'), '25/10/2026, 02:30 CET')
+  assert.equal(formatReportTime(null), 'Orario sconosciuto')
+  assert.equal(formatReportTime('data non valida'), 'Orario sconosciuto')
+  assert.equal(formatReportValue(null, '°C'), 'Dato assente')
+  assert.equal(formatReportValue(0, '°C'), '0,0 °C')
+  assert.equal(reportFilename('grafici', new Date('2026-10-23T22:30:00.000Z')), 'MeteOlivelli-grafici-2026-10-23.pdf')
+  assert.throws(() => reportFilename('cronologia', new Date('invalid')))
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
