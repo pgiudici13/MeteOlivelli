@@ -344,6 +344,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - [x] **Stato: implementato su `main` e pubblicato; animazione ripple e spiegazioni verificate il 23 ottobre 2026.**
 - **Risultato:** route `/gioca` con 20 curiosità; ogni partita seleziona 10 domande diverse e mescola le tre opzioni mantenendo l’associazione alla risposta corretta. Il ripple del colore corretto/errato parte dal punto di clic e resta sul pulsante scelto. Il feedback spiega il motivo e rivela la risposta corretta se serve; progressione lineare e movimento ridotto rispettato.
 - **Verifica:** `npm run check` superato a ogni checkpoint; test mirati per chiavi, spiegazioni, estrazione casuale, origine/estensione ripple, tastiera e ambito animazioni. Route pubblica verificata HTTP 200 dopo deploy. Prova interattiva browser non eseguita: Playwright non disponibile.
+- **Collaudo finale — 23 ottobre 2026:** build, lint, 54 test frontend, 43 test Deno e 23 test uploader superati; `git diff --check` pulito. `prefers-reduced-motion`, percorso da tastiera, spiegazione di tutte le 20 domande e copertura completa del ripple verificati nei test pertinenti.
 - **Riferimento:** [plan.md](plan.md) e [documentazione frontend](docs/frontend.md).
 
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
