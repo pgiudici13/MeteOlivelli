@@ -1,5 +1,7 @@
 # Piano di progetto — MeteOlivelli
 
+> **Aggiornamento locale — 23 ottobre 2026:** il branch `gioca-con-il-meteo` aggiunge una pagina quiz `/gioca` con 10 domande casuali da una raccolta di 20 curiosità meteo. Risposte corrette/errate evidenziate e risultato finale su 10. Non pubblicato.
+
 > **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap/metadati distinti, tema chiaro/scuro e logo scolastico nell’intestazione e nel footer. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 
 > **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.

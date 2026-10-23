@@ -339,6 +339,13 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Limiti:** revisione con il compagno e dispositivi reali ancora aperti; Figma Obsidian v5 non è stato riallineato al restyling Factory. Freschezza reale e UI-02/WX non sono chiusi dalla pubblicazione.
 - **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), [Fase 8](#8-fase-8--backup-gestione-e-rilascio).
 
+### GAME-01 — Aggiungere il quiz “Gioca con il meteo”
+
+- [x] **Stato: implementato nel branch locale `gioca-con-il-meteo`, senza pubblicazione.**
+- **Risultato:** route `/gioca` con 20 curiosità fornite dall’utente; ogni partita seleziona 10 domande distinte casualmente. Feedback immediato con risposta corretta verde e risposta errata rossa, risultato finale corrette/10 e possibilità di rigiocare.
+- **Verifica:** build, lint e test frontend inclusi i casi della selezione casuale; controllare anche route statica, metadati, sitemap, navigazione, temi e viewport mobile.
+- **Riferimento:** [plan.md](plan.md) e [documentazione frontend](docs/frontend.md).
+
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
 
 - [ ] **Stato: implementazione locale provvisoria verificata; cadenza/ancoraggio e prova con inserimento reale ancora necessari.**
