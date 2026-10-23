@@ -79,12 +79,17 @@ export function InfoPage() {
           <p>La Home rilegge l’ultimo dato ogni 15 secondi mentre la pagina è visibile. È l’intervallo di aggiornamento del sito: non indica ogni quanto il sensore effettua una misura.</p>
         </section>
 
-        <section className="info-block" id="reading" aria-labelledby="data-title">
-          <p className="eyebrow section-index">03 / Dati e trasparenza</p>
-          <h2 id="data-title">Osservazioni con la loro provenienza.</h2>
-          <p>I campioni disponibili possono includere dati di prova chiaramente contrassegnati. Questi servono a verificare il funzionamento del sito e non sono osservazioni reali della stazione.</p>
-          <p>Quando una misura manca o la sua freschezza non è verificabile, il sito lo segnala: non sostituisce valori assenti con numeri inventati e non attribuisce una data assoluta a un contatore Arduino.</p>
-          <a className="hero-link" href="/home">Vai alle misure <span aria-hidden="true">↗</span></a>
+        <section className="info-block info-guide" id="reading" aria-labelledby="reading-title">
+          <p className="eyebrow section-index">03 / Leggere la Home</p>
+          <h2 id="reading-title">Ogni grafico racconta un intervallo preciso.</h2>
+          <p>Il valore in evidenza è l’ultima lettura disponibile nell’archivio. Non è una promessa che la misura sia stata raccolta in questo momento: la freschezza dipende dagli orari e dalla cadenza verificabili.</p>
+          <div className="info-periods">
+            <article><span>24 ore</span><p>Mostra i singoli campioni, senza medie.</p></article>
+            <article><span>7, 14 e 30 giorni</span><p>Mostrano la media giornaliera dei valori validi raccolti fra le 09:00 e le 18:00, ora di Roma.</p></article>
+            <article><span>Auto</span><p>Adatta l’asse allo storico breve; oltre sette giorni riassume le ultime sette date in tre fasce: 00–12, 12–17 e 17–24.</p></article>
+          </div>
+          <p>Le medie servono a leggere l’andamento: non sono nuove misurazioni e non sostituiscono le righe originali della cronologia.</p>
+          <a className="hero-link" href="/home#history-title">Esplora grafici e cronologia <span aria-hidden="true">↗</span></a>
         </section>
 
         <section className="info-block info-team" id="team" aria-labelledby="team-title">

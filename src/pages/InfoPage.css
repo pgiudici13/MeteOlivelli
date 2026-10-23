@@ -27,6 +27,11 @@
 .info-time-definitions > div { padding: 13px 15px; background: var(--surface); }
 .info-time-definitions dt { color: var(--text); font-size: 12px; font-weight: 500; }
 .info-time-definitions dd { margin: 5px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.6; }
+.info-guide { grid-column: 1 / -1; }
+.info-periods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 25px 0; }
+.info-periods article { min-height: 130px; padding: 18px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 7px; }
+.info-periods span { display: block; color: var(--text); font-size: 13px; font-weight: 500; }
+.info-periods p { margin-top: 12px !important; font-size: 11px; line-height: 1.65 !important; }
 .info-team .reflection { margin-top: 24px !important; font-size: 13px; }
 .info-block .hero-link { margin-top: 24px; }
 @media (max-width: 760px) {
@@ -40,6 +45,8 @@
   .info-flow > div { flex: 1 1 0; }
   .info-flow-arrow { font-size: 10px; }
   .info-flow small { font-size: 9px; }
+  .info-periods { grid-template-columns: 1fr; gap: 8px; }
+  .info-periods article { min-height: 0; padding: 15px; }
   .info-grid { grid-template-columns: 1fr; gap: 0; }
   .info-block { padding-block: 28px 32px; }
 }
