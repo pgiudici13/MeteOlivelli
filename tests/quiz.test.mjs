@@ -117,3 +117,13 @@ test('le animazioni restano confinate alla domanda, alle risposte e al feedback'
   assert.doesNotMatch(styles, /\.quiz-card\s*\{[^}]*animation:/)
   assert.doesNotMatch(styles, /\.quiz-page \.quiz-hero\s*\{[^}]*animation:/)
 })
+
+test('il feedback del quiz mantiene colori distinti e visibili nei due temi', () => {
+  const styles = readFileSync(new URL('../src/pages/QuizPage.css', import.meta.url), 'utf8')
+  assert.match(styles, /--quiz-green-bg:\s*#1b4c28/)
+  assert.match(styles, /--quiz-red-bg:\s*#59211d/)
+  assert.match(styles, /:root\[data-theme="light"\]\s*\{[^}]*--quiz-green-bg:\s*#d8f1dc/)
+  assert.match(styles, /:root\[data-theme="light"\]\s*\{[^}]*--quiz-red-bg:\s*#f6d9d6/)
+  assert.match(styles, /@keyframes quiz-answer-ripple/)
+  assert.match(styles, /quiz-ripple-radius/)
+})
