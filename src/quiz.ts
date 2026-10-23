@@ -41,6 +41,14 @@ export function shuffleQuizAnswers(question: QuizQuestion, random: () => number 
   }
 }
 
+export function getQuizAnswerFeedback(question: QuizQuestion, answerIndex: number) {
+  return {
+    isCorrect: answerIndex === question.correctIndex,
+    correctAnswer: question.answers[question.correctIndex],
+    explanation: question.explanation,
+  }
+}
+
 export function drawQuizQuestions(random: () => number = Math.random): QuizQuestion[] {
   const pool = [...quizQuestions]
   for (let index = pool.length - 1; index > 0; index -= 1) {

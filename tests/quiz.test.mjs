@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { drawQuizQuestions, quizQuestions, shuffleQuizAnswers } from '../src/quiz.ts'
+import { drawQuizQuestions, getQuizAnswerFeedback, quizQuestions, shuffleQuizAnswers } from '../src/quiz.ts'
 
 test('il quiz contiene venti domande con tre opzioni e una risposta corretta valida', () => {
   assert.equal(quizQuestions.length, 20)
@@ -68,4 +68,15 @@ test('l’estrazione del quiz restituisce anche opzioni rimescolate senza perder
     assert.ok(original)
     assert.equal(question.answers[question.correctIndex], original.answers[original.correctIndex])
   }
+})
+
+test('il feedback distingue la scelta corretta da quella errata e restituisce la spiegazione', () => {
+  const question = quizQuestions[0]
+  const correct = getQuizAnswerFeedback(question, question.correctIndex)
+  const wrong = getQuizAnswerFeedback(question, (question.correctIndex + 1) % question.answers.length)
+  assert.equal(correct.isCorrect, true)
+  assert.equal(wrong.isCorrect, false)
+  assert.equal(correct.correctAnswer, question.answers[question.correctIndex])
+  assert.equal(wrong.correctAnswer, correct.correctAnswer)
+  assert.equal(wrong.explanation, question.explanation)
 })
