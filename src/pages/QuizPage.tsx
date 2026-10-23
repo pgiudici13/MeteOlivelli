@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
-import { drawQuizQuestions, type QuizQuestion } from '../quiz.ts'
+import { drawQuizQuestions, getQuizAnswerFeedback, type QuizQuestion } from '../quiz.ts'
 import { getQuizRippleGeometry, type QuizRippleGeometry } from '../quiz-motion.ts'
 import './QuizPage.css'
 
@@ -25,6 +25,9 @@ export function QuizPage() {
   useEffect(updateMetadata, [])
 
   const currentQuestion = questions[questionIndex]
+  const answerFeedback = currentQuestion && selectedAnswer !== null
+    ? getQuizAnswerFeedback(currentQuestion, selectedAnswer)
+    : null
 
   function startQuiz() {
     setQuestions(drawQuizQuestions())
@@ -101,8 +104,11 @@ export function QuizPage() {
               </button>
             })}</div>
           </fieldset>
-          {selectedAnswer !== null && <div className={`quiz-feedback ${selectedAnswer === currentQuestion.correctIndex ? 'is-correct' : 'is-wrong'}`} role="status">
-            <p>{selectedAnswer === currentQuestion.correctIndex ? 'Esatto! Bella intuizione.' : 'Non proprio: la risposta giusta è evidenziata in verde.'}</p>
+          {answerFeedback && <div className={`quiz-feedback ${answerFeedback.isCorrect ? 'is-correct' : 'is-wrong'}`} role="status">
+            <div className="quiz-feedback-message">
+              <p>{answerFeedback.isCorrect ? 'Risposta corretta.' : `Risposta non corretta. La risposta giusta è: ${answerFeedback.correctAnswer}.`}</p>
+              <p className="quiz-explanation">{answerFeedback.explanation}</p>
+            </div>
             <button className="quiz-primary" onClick={continueQuiz}>{questionIndex === questions.length - 1 ? 'Vedi il risultato' : 'Prossima domanda'} <span aria-hidden="true">→</span></button>
           </div>}
         </div>}
