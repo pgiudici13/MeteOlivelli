@@ -97,3 +97,7 @@ Temperatura principale affiancata da umidità e pressione dello stesso ultimo ca
 ## Sezione stime sperimentali — 23 ottobre 2026
 
 Tre schede +30 minuti, +1 ora, Giornata · +24 ore. Ogni scheda presenta temperatura/umidità/pressione in una lista di definizioni, con divisori discreti, valori da 28 px, unità da 16 px e istante previsto. Ogni campo può essere indisponibile separatamente e ne dichiara il motivo. Dettagli nativi da tastiera per metodo/errore storico e scadenza; metodologia generale sotto le schede. Palette e reflow della griglia esistenti, nessuna icona sole/pioggia o affidabilità percentuale. Spiegazione esplicita del significato +24 ore e dei limiti; nessun mix con le osservazioni.
+
+## Tema chiaro e preferenza di sistema — 23 ottobre 2026
+
+La palette scura resta disponibile come variante. Il tema iniziale segue `prefers-color-scheme` e si aggiorna se il sistema cambia finché non viene scelta manualmente una modalità; lo switch nell’intestazione è presente sia in Home sia in Informazioni. La scelta manuale viene salvata localmente. Uno script iniziale imposta il tema prima del render per evitare il flash. La palette chiara usa fondo avorio, superfici chiare, testo antracite, bordi grigi e accento arancio; grafici, stati, controlli, overlay e `theme-color` seguono il tema. Il controllo resta utilizzabile a 320 px.

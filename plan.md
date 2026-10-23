@@ -1,10 +1,10 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap e metadati SEO distinti. Nessuna pubblicazione di questa modifica; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
+> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap e metadati SEO distinti; tema chiaro/scuro locale con preferenza di sistema e switch persistente. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 
 > **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 23 ottobre 2026, dopo la separazione locale fra Home (`/home`) e Informazioni (`/info`), con sitemap e metadati per route. Nessuna pubblicazione di questa modifica.
+> **Ultimo aggiornamento:** 23 ottobre 2026, dopo la separazione locale fra Home (`/home`) e Informazioni (`/info`), sitemap/metadati per route e tema chiaro/scuro. Nessuna pubblicazione delle modifiche locali.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
 > **Ambito storico prima del batch autorizzato (superato dallo stato corrente sopra):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
 
@@ -1121,3 +1121,5 @@ Restano **proposte da approvare**, non obiettivi concordati: esportazione cifrat
 
 
 **Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.
+
+**23 ottobre 2026 — Fase 7 / UI-01, tema:** aggiunti tema chiaro e switch in Home e Informazioni. Senza scelta manuale segue e osserva `prefers-color-scheme`; la scelta esplicita è persistita in `localStorage`. Il tema viene impostato prima del primo render e aggiorna `color-scheme` e `theme-color`. Specifica in `design.md`; revisione locale non pubblicata.

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import './InfoPage.css'
 
 const title = 'Informazioni su MeteOlivelli — progetto e stazione meteo'
@@ -24,7 +25,10 @@ export function InfoPage() {
     <a className="skip-link" href="#info-content">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 02</span></a>
-      <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a></nav>
+      <div className="header-actions">
+        <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a></nav>
+        <ThemeToggle />
+      </div>
     </header>
     <main id="info-content" tabIndex={-1}>
       <section className="info-hero" aria-labelledby="info-title">

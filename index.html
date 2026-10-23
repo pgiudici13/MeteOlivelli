@@ -9,6 +9,19 @@
     <link rel="canonical" href="https://meteolivelli.vercel.app/home" />
     <meta name="google-site-verification" content="nzz3_3WRLIPG23GhjXi26u2bCu-Y3KpMqKkaeZAmH-A" />
     <meta name="theme-color" content="#05080e" />
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('meteolivelli-theme')
+        const systemTheme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        const theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : systemTheme
+        document.documentElement.dataset.theme = theme
+        document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f7f5f2' : '#101010'
+      } catch {
+        const theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = theme
+        document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f7f5f2' : '#101010'
+      }
+    </script>
     <title>MeteOlivelli — Il meteo a scuola</title>
   </head>
   <body>

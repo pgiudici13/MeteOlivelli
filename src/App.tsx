@@ -6,6 +6,7 @@ import { useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
+import { ThemeToggle } from './components/ThemeToggle.tsx'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -72,7 +73,10 @@ function App() {
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
-      <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
+      <div className="header-actions">
+        <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
+        <ThemeToggle />
+      </div>
     </header>
     <main id="contenuto" tabIndex={-1}>
       <p className="development-notice">Work in progress · Possibili dati presenti fittizi</p>
