@@ -19,12 +19,44 @@ function Value({ row, metric }: { row: Measurement; metric: typeof metrics[numbe
 
 function HistoryTable({ rows }: { rows: Measurement[] }) {
   const [page, setPage] = useState(0)
+  const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
+  const [nextPage, setNextPage] = useState(0)
+  const [direction, setDirection] = useState<'older' | 'newer'>('older')
   const ordered = [...rows].reverse()
   const pages = Math.ceil(ordered.length / 6)
   const current = Math.min(page, Math.max(0, pages - 1))
   const visible = ordered.slice(current * 6, current * 6 + 6)
+  const firstVisible = current * 6 + 1
+  const lastVisible = Math.min((current + 1) * 6, ordered.length)
+
+  useEffect(() => {
+    if (transition === 'idle') return
+    const duration = transition === 'exiting' ? 360 : 470
+    const timer = window.setTimeout(() => {
+      if (transition === 'exiting') {
+        setPage(nextPage)
+        setTransition('entering')
+      } else {
+        setTransition('idle')
+      }
+    }, duration)
+    return () => window.clearTimeout(timer)
+  }, [nextPage, transition])
+
+  function changePage(target: number) {
+    if (transition !== 'idle' || target < 0 || target >= pages || target === current) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setPage(target)
+      return
+    }
+    setDirection(target > current ? 'older' : 'newer')
+    setNextPage(target)
+    setTransition('exiting')
+  }
+
   return <>
-    <table className="history-table">
+    <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
+    <table className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
       <caption className="sr-only">Campioni in ordine dal più recente, orari di acquisizione sul PC, Europe/Rome. Valori sospetti segnalati per campo.</caption>
       <thead><tr><th scope="col">Acquisizione PC</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
@@ -37,10 +69,11 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
         </details></td>
       </tr>)}</tbody>
     </table>
+    </div>
     {pages > 1 && <nav className="pagination" aria-label="Pagine dei campioni">
-      <button disabled={current === 0} onClick={() => setPage(current - 1)}>Più recenti</button>
-      <p aria-live="polite">Pagina {current + 1} di {pages}</p>
-      <button disabled={current + 1 === pages} onClick={() => setPage(current + 1)}>Precedenti</button>
+      <button disabled={current === 0 || transition !== 'idle'} onClick={() => changePage(current - 1)}>Più recenti</button>
+      <p aria-live="polite">Pagina {current + 1} di {pages}<span className="pagination-range"> · Campioni {firstVisible}–{lastVisible} di {ordered.length}</span></p>
+      <button disabled={current + 1 === pages || transition !== 'idle'} onClick={() => changePage(current + 1)}>Precedenti</button>
     </nav>}
   </>
 }

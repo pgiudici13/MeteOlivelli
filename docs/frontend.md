@@ -48,6 +48,8 @@ Paginazione API con cursore e finestra `until` coerenti, deduplica UUID e ordina
 
 Le [specifiche correnti](../design.md) sostituiscono quelle storiche da 220 ms: ingressi individuali, grafici progressivi e riflesso locale sui bordi. `useLayoutEffect` prepara gli elementi nascosti prima del paint; `IntersectionObserver` li rivela all’ingresso in vista. Focus tastiera e movimento ridotto rendono il contenuto immediatamente visibile; nessun blocco dello scroll manuale. Il fallback `noscript` spiega che senza JavaScript non vengono mostrati dati live.
 
+Nella cronologia, il cambio pagina anima le righe a cascata in uscita e poi in ingresso, con direzione legata a “Più recenti”/“Precedenti”; i pulsanti restano disabilitati durante l’animazione e lo stato dichiara intervallo e totale. Con movimento ridotto il cambio avviene subito. Sotto 760 px ogni riga è impaginata come scheda con etichette dei valori e dettagli separati.
+
 ## Verifiche e ripetibilità
 
 Ultima verifica completa prima del rilascio `bce39e2`: `npm run check` superato — build/lint, **18 test Node, 41 Deno, 21 Python**. Nessun segreto necessario ai test automatici locali. Le prove SQL separate non fanno parte di questo comando.
@@ -102,6 +104,8 @@ Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove 
 
 
 **Esito finale del 23 ottobre:** `npm run check` superato: build, lint, 41 test Node (27 frontend + 14 modello/feed), 42 Deno e 21 Python. Sette scenari browser previsionali e 14 scenari di regressione frontend superati. API fisica reale vuota e nove stime indisponibili verificati separatamente. Nessuna validazione meteorologica o pubblicazione attestata.
+
+**Revisione Cronologia del 23 ottobre:** `npm run build`, `npm run lint`, `npm run frontend:test` (41 test) e `git diff --check` superati. La preview browser locale non si è avviata: il sandbox ha negato il bind Vite su 127.0.0.1:4173 (`EPERM`); quindi questa revisione non ha verifica visiva interattiva. Nessuna pubblicazione.
 
 
 ## Pagine e indicizzazione — 23 ottobre 2026

@@ -105,3 +105,7 @@ La palette scura resta disponibile come variante. Il tema iniziale segue `prefer
 ## Logo del Liceo Olivelli — 23 ottobre 2026
 
 Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+
+## Paginazione della cronologia — 23 ottobre 2026
+
+Al cambio pagina le righe correnti escono in sequenza con dissolvenza e breve spostamento; dopo l’uscita, le nuove righe entrano con una sequenza analoga. I controlli sono disabilitati durante il passaggio, lo stato comunica l’intervallo visibile e il totale, e la tabella espone `aria-busy`. Con `prefers-reduced-motion` il cambio è immediato. Su mobile le righe diventano schede compatte con etichette dei campi, data in testa e dettagli qualità separati; su desktop restano una tabella accessibile con numeri allineati e intestazioni discrete. Nessun contenuto o dato viene interpolato.
