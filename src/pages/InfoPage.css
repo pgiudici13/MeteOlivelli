@@ -16,6 +16,17 @@
 .info-block p:not(.eyebrow) { max-width: 570px; color: var(--secondary); line-height: 1.75; }
 .info-block p + p { margin-top: 14px; }
 .info-block strong { color: var(--text); font-weight: 500; }
+.info-flow { display: flex; align-items: center; gap: 9px; margin: 28px 0 20px; padding: 17px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; }
+.info-flow > div { display: grid; gap: 5px; min-width: 0; }
+.info-flow > div > span { color: var(--accent-text); font: 10px/1 ui-monospace, monospace; }
+.info-flow strong { font-size: 12px; }
+.info-flow small { color: var(--secondary); font-size: 10px; line-height: 1.4; }
+.info-flow-arrow { color: var(--secondary); font-size: 13px; }
+.info-note { padding-left: 12px; border-left: 2px solid var(--accent); font-size: 12px; }
+.info-time-definitions { display: grid; gap: 1px; margin: 24px 0; background: var(--border); border: 1px solid var(--border); }
+.info-time-definitions > div { padding: 13px 15px; background: var(--surface); }
+.info-time-definitions dt { color: var(--text); font-size: 12px; font-weight: 500; }
+.info-time-definitions dd { margin: 5px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.6; }
 .info-team .reflection { margin-top: 24px !important; font-size: 13px; }
 .info-block .hero-link { margin-top: 24px; }
 @media (max-width: 760px) {
@@ -25,6 +36,10 @@
   .info-highlights span { font-size: 10px; }
   .info-toc { gap: 14px 18px; margin-bottom: 36px; }
   .info-toc .eyebrow { width: 100%; }
+  .info-flow { gap: 6px; padding: 12px 9px; }
+  .info-flow > div { flex: 1 1 0; }
+  .info-flow-arrow { font-size: 10px; }
+  .info-flow small { font-size: 9px; }
   .info-grid { grid-template-columns: 1fr; gap: 0; }
   .info-block { padding-block: 28px 32px; }
 }

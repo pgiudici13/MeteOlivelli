@@ -52,16 +52,31 @@ export function InfoPage() {
       <div className="info-grid">
         <section className="info-block" id="project" aria-labelledby="project-title">
           <p className="eyebrow section-index">01 / Il progetto</p>
-          <h2 id="project-title">Imparare guardando i dati.</h2>
-          <p>MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Unisce una stazione scolastica e un sito per esplorare come cambiano temperatura, umidità e pressione nel tempo.</p>
-          <p>Il sito presenta le osservazioni e il loro storico, con gli orari e le informazioni di qualità disponibili. Una misura viene mostrata come dato della stazione solo quando la sua provenienza è nota.</p>
+          <h2 id="project-title">Un piccolo osservatorio, costruito a scuola.</h2>
+          <p>MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Mette insieme una stazione scolastica e un sito pubblico per seguire tre grandezze: temperatura, umidità e pressione.</p>
+          <p>L’obiettivo è rendere i dati facili da esplorare e, allo stesso tempo, spiegare con chiarezza come vengono raccolti. Un grafico è utile quando sappiamo che cosa rappresenta ogni punto e quali limiti ha la serie.</p>
         </section>
 
         <section className="info-block info-station" id="station" aria-labelledby="station-title">
           <p className="eyebrow section-index">02 / La stazione</p>
-          <h2 id="station-title">Una stazione a scuola.</h2>
-          <p>La stazione si basa su Arduino GIGA R1 e sensori per temperatura, umidità e pressione. Il sito distingue l’ora della misura, l’acquisizione sul PC e la ricezione sul backend quando questi orari sono presenti.</p>
-          <p>La pagina Home si aggiorna automaticamente ogni 15 secondi mentre è visibile. Questo intervallo descrive la lettura del sito, non la frequenza con cui la stazione effettua una misura.</p>
+          <h2 id="station-title">Dalla rilevazione alla pagina.</h2>
+          <p>La stazione usa una scheda Arduino GIGA R1 e sensori che forniscono temperatura, umidità e pressione. I modelli dei sensori, la loro taratura e il tipo di pressione rappresentato non sono ancora documentati: per questo il sito non dichiara una precisione strumentale.</p>
+          <div className="info-flow" aria-label="Percorso previsto dei dati">
+            <div><span>01</span><strong>Sensori</strong><small>Rilevano le grandezze</small></div>
+            <span className="info-flow-arrow" aria-hidden="true">→</span>
+            <div><span>02</span><strong>Arduino</strong><small>Raccoglie i valori</small></div>
+            <span className="info-flow-arrow" aria-hidden="true">→</span>
+            <div><span>03</span><strong>Archivio</strong><small>Conserva le letture</small></div>
+            <span className="info-flow-arrow" aria-hidden="true">→</span>
+            <div><span>04</span><strong>Sito</strong><small>Mostra serie e dettagli</small></div>
+          </div>
+          <p className="info-note">Questo è il percorso previsto dal progetto. Il funzionamento continuativo del writer e la cadenza effettiva dei sensori sono ancora da verificare sul sistema della stazione.</p>
+          <dl className="info-time-definitions">
+            <div><dt>Ora della misura</dt><dd>Quando il sensore ha effettuato la rilevazione, se l’orario fisico è disponibile e verificato.</dd></div>
+            <div><dt>Acquisizione sul PC</dt><dd>Quando il computer ha osservato la riga del CSV; non prova da sola quando è avvenuta la misura.</dd></div>
+            <div><dt>Ricezione</dt><dd>Quando il server ha ricevuto il record; non rende recente una misura più vecchia.</dd></div>
+          </dl>
+          <p>La Home rilegge l’ultimo dato ogni 15 secondi mentre la pagina è visibile. È l’intervallo di aggiornamento del sito: non indica ogni quanto il sensore effettua una misura.</p>
         </section>
 
         <section className="info-block" id="reading" aria-labelledby="data-title">
