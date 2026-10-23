@@ -1,0 +1,50 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { drawQuizQuestions, quizQuestions } from '../src/quiz.ts'
+
+test('il quiz contiene venti domande con tre opzioni e una risposta corretta valida', () => {
+  assert.equal(quizQuestions.length, 20)
+  for (const question of quizQuestions) {
+    assert.equal(question.answers.length, 3)
+    assert.ok(question.correctIndex >= 0 && question.correctIndex < question.answers.length)
+  }
+})
+
+test('le venti chiavi di risposta corrispondono alle opzioni indicate dall’utente', () => {
+  assert.deepEqual(quizQuestions.map(question => question.answers[question.correctIndex]), [
+    'Perché l’atmosfera diffonde maggiormente la luce blu',
+    'L’aria attraversata dal fulmine',
+    'Perché la luce viaggia molto più velocemente del suono',
+    'Da sostanze liberate dal terreno e da alcuni microrganismi',
+    'No, possono sviluppare forme molto diverse',
+    'Alle tue spalle',
+    'Sono composte soprattutto da minuscole gocce d’acqua o cristalli di ghiaccio',
+    'Perché l’acqua evapora e passa nell’aria',
+    'Perché il sudore evapora più difficilmente',
+    'Perché nei temporali possono esserci zone molto fredde anche quando al suolo fa caldo',
+    'Perché l’Australia si trova nell’emisfero australe, dove le stagioni sono opposte',
+    'Perché il vapore acqueo del respiro si raffredda e forma minuscole gocce',
+    'Perché il vapore acqueo dell’aria si condensa sulle superfici fredde',
+    'Perché in montagna la temperatura può essere molto più bassa',
+    'L’asfalto scuro',
+    'Che l’acqua raggiungerebbe un’altezza di 10 mm su una superficie piana, senza perdite',
+    'Può svilupparsi in altezza fino a raggiungere dimensioni paragonabili a una montagna',
+    'Una nube che si trova a contatto con il suolo o molto vicino ad esso',
+    'Perché il vapore acqueo si condensa sulle superfici raffreddate durante la notte',
+    'No, le gocce piccole sono quasi sferiche, mentre quelle più grandi possono appiattirsi',
+  ])
+})
+
+test('l’estrazione produce dieci domande distinte senza alterare la raccolta', () => {
+  const originalQuestions = [...quizQuestions]
+  const selected = drawQuizQuestions(() => 0.42)
+  assert.equal(selected.length, 10)
+  assert.equal(new Set(selected).size, 10)
+  assert.deepEqual(quizQuestions, originalQuestions)
+})
+
+test('estrazioni casuali differenti possono selezionare domande diverse', () => {
+  const first = drawQuizQuestions(() => 0)
+  const second = drawQuizQuestions(() => 0.99)
+  assert.notDeepEqual(first, second)
+})

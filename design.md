@@ -1,5 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
+La pagina quiz `/gioca` usa gli stessi token, testata, footer e temi del sito. Le risposte corrette e sbagliate hanno superfici verdi e rosse semantiche, con contrasto adattato al tema chiaro; il quiz è responsive e rispetta il movimento ridotto.
+
 Aggiornato il 22 ottobre 2026. Per ogni modifica visiva consultare questo file insieme ad `AGENTS.md`. Requisiti e priorità restano in `plan.md`; l’esecuzione è in `tasks.md`. Questo documento specifica il design e non autorizza modifiche o pubblicazioni ulteriori.
 
 La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e alle successive richieste dell’utente. Gli esempi commerciali Factory non hanno introdotto login, partner o funzionalità commerciali. Il riferimento Figma Obsidian v5 e le sue schermate sono storici; non descrivono la grafica corrente né attestano modifiche al file Figma.

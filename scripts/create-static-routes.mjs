@@ -19,6 +19,11 @@ const routes = [
     title: 'Privacy e dati — MeteOlivelli',
     description: 'Informativa privacy di MeteOlivelli: dati tecnici, preferenze, strumenti statistici e dati meteorologici pubblici.',
   },
+  {
+    path: 'gioca',
+    title: 'Gioca con il meteo — MeteOlivelli',
+    description: 'Dieci domande casuali sulle curiosità del meteo. Mettiti alla prova con MeteOlivelli.',
+  },
 ]
 
 for (const route of routes) {
