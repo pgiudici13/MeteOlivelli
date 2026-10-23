@@ -1,5 +1,11 @@
 # Frontend — stato al 22 ottobre 2026
 
+## Google Analytics — integrazione locale del 23 ottobre 2026
+
+La proprietà usa l’ID `G-F2LRCD93NW`. Il tag viene inserito dinamicamente solo dopo il pulsante “Accetta”; il rifiuto viene memorizzato e non carica lo script. La scelta può essere riaperta da “Preferenze Google Analytics”. La revoca salva il rifiuto, rimuove i cookie `_ga*` accessibili alla pagina e ricarica il sito, così il tag non viene caricato nella nuova sessione. Segnali Google Ads e personalizzazione annunci sono disattivati. La scelta è salvata in `localStorage`; se il browser non consente di conservarla, Analytics non viene avviato automaticamente nelle visite successive. Le integrazioni Vercel Analytics (`inject()`) e Speed Insights sono già attive separatamente e non sono controllate da queste preferenze.
+
+Prima di pubblicare: verificare accettazione/rifiuto/revoca su una distribuzione di prova e controllare con Google Tag Assistant; completare l’informativa privacy del titolare e la descrizione dei destinatari, finalità e conservazione. La schermata Google può segnalare l’assenza di dati fino a 48 ore. Nessuna configurazione della proprietà Analytics o pubblicazione Vercel è stata eseguita da questa modifica locale.
+
 ## Versione pubblicata
 
 [MeteOlivelli](https://meteolivelli.vercel.app/) è pubblicato da `main` attraverso l’integrazione GitHub → Vercel. Rilasci verificati: `fab71cb` (grafica, motion, hover e postilla) e `bce39e2` (contratto con provenienza sintetica distinta). Il secondo deploy è stato verificato READY sul dominio principale, con HTTP 200 e nessun errore JavaScript non gestito. Queste verifiche riguardano la versione applicativa, non il collaudo della stazione reale.

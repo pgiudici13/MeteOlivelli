@@ -536,4 +536,7 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **Verifica WX locale — 23 ottobre:** `npm run check` (41 Node, 42 Deno, 21 Python), sette scenari browser del modello/worker e 14 regressioni frontend superati. API reale `measured_at` senza campioni; nove stime indisponibili e quattro grafici osservativi verificati. Esiti e schermate in `docs/forecast-verification/`. Attendibilità reale e pubblicazione restano non completate.
 
 
+**23 ottobre 2026 — Google Analytics:** su richiesta esplicita aggiunto localmente il tag `G-F2LRCD93NW`, bloccato fino al consenso facoltativo; rifiuto e revoca disponibili, segnali pubblicitari disattivati. Le integrazioni Vercel Analytics/Speed Insights già attive restano indipendenti. Build/lint/test frontend superati; interazioni browser e Tag Assistant da verificare dopo una distribuzione autorizzata. Aggiornare l’informativa privacy prima del rilascio. Nessuna modifica remota o pubblicazione eseguita.
+
+
 **Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.
