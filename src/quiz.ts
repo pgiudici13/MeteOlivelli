@@ -2,6 +2,7 @@ export type QuizQuestion = {
   question: string
   answers: [string, string, string]
   correctIndex: number
+  explanation?: string
 }
 
 export const quizQuestions: QuizQuestion[] = [
