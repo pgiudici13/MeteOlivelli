@@ -10,8 +10,8 @@ import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { readFreshChartData } from './pdf-chart-data.ts'
 import { buildGraphsDocument } from './pdf-graphs-document.ts'
 import { createPdfBlob } from './pdf-runtime.ts'
-import { reportFilename } from './pdf-export.ts'
 import { buildHistoryDocument } from './pdf-history-document.ts'
+import { downloadPdfBlob } from './pdf-download.ts'
 import './App.css'
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
@@ -120,12 +120,7 @@ function App() {
       const { rows: freshRows, until } = await readFreshChartData(period, new AbortController().signal)
       const generatedAt = new Date()
       const blob = await createPdfBlob(buildGraphsDocument(freshRows, period, until, generatedAt))
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = reportFilename('grafici', generatedAt)
-      link.click()
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      downloadPdfBlob(blob, 'grafici', generatedAt)
       setPdfMessage('PDF dei grafici scaricato.')
     } catch {
       setPdfMessage('PDF non disponibile: aggiornamento o generazione non riusciti. Riprova.')
@@ -142,12 +137,7 @@ function App() {
       const rows = await readAllHistory(new AbortController().signal)
       const generatedAt = new Date()
       const blob = await createPdfBlob(buildHistoryDocument(rows, generatedAt))
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = reportFilename('cronologia', generatedAt)
-      link.click()
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      downloadPdfBlob(blob, 'cronologia', generatedAt)
       setHistoryPdfMessage(`PDF scaricato con ${rows.length} campioni.`)
     } catch {
       setHistoryPdfMessage('PDF non disponibile: la cronologia completa non è stata letta o generata. Riprova.')

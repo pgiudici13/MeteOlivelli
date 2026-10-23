@@ -11,6 +11,7 @@ import { buildPdfChart } from '../src/pdf-chart.ts'
 import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
 import { readFreshChartData } from '../src/pdf-chart-data.ts'
 import { buildHistoryDocument } from '../src/pdf-history-document.ts'
+import { downloadPdfBlob } from '../src/pdf-download.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -150,6 +151,23 @@ test('PDF cronologia: il motore genera un documento tabellare scaricabile', asyn
   assert.equal(blob.type, 'application/pdf')
   assert.ok(blob.size > 1500)
   assert.equal(new TextDecoder().decode(new Uint8Array(await blob.slice(0, 5).arrayBuffer())), '%PDF-')
+})
+
+test('PDF download: usa il nome atteso e revoca l’URL temporaneo dopo il click', () => {
+  const events = []
+  let deferred
+  const environment = {
+    createObjectURL: blob => { assert.equal(blob.type, 'application/pdf'); events.push('create'); return 'blob:test' },
+    revokeObjectURL: url => events.push(`revoke:${url}`),
+    createLink: () => ({ href: '', download: '', click() { events.push(`click:${this.href}:${this.download}`) } }),
+    schedule: (callback, delay) => { assert.equal(delay, 1000); deferred = callback },
+  }
+  const filename = downloadPdfBlob(new Blob(['%PDF-test'], { type: 'application/pdf' }), 'cronologia', new Date('2026-10-22T12:00:00Z'), environment)
+  assert.equal(filename, 'MeteOlivelli-cronologia-2026-10-22.pdf')
+  assert.equal(events[1], 'click:blob:test:MeteOlivelli-cronologia-2026-10-22.pdf')
+  deferred()
+  assert.equal(events[2], 'revoke:blob:test')
+  assert.throws(() => downloadPdfBlob(new Blob(['test']), 'grafici', new Date(), environment), /non valido/)
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
