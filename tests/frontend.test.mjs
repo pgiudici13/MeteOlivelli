@@ -6,6 +6,7 @@ import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFre
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
+import { createPdfBlob } from '../src/pdf-runtime.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => ({
@@ -54,6 +55,17 @@ test('PDF: formatta tempi in Europe/Rome, null espliciti e nomi file datati', ()
   assert.equal(formatReportValue(0, '°C'), '0,0 °C')
   assert.equal(reportFilename('grafici', new Date('2026-10-23T22:30:00.000Z')), 'MeteOlivelli-grafici-2026-10-23.pdf')
   assert.throws(() => reportFilename('cronologia', new Date('invalid')))
+})
+
+test('PDF: il runtime lazy genera un blob valido con font e testo italiano', async () => {
+  const blob = await createPdfBlob({ content: [{ text: 'MeteOlivelli · temperatura, umidità e pressione' }] })
+  assert.equal(blob.type, 'application/pdf')
+  assert.ok(blob.size > 500)
+  const bytes = new Uint8Array(await blob.arrayBuffer())
+  const start = new TextDecoder().decode(bytes.subarray(0, 8))
+  const end = new TextDecoder().decode(bytes.subarray(bytes.length - 16))
+  assert.match(start, /^%PDF-/)
+  assert.match(end, /%%EOF/)
 })
 
 test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
