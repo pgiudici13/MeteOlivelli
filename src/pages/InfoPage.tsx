@@ -25,6 +25,7 @@ export function InfoPage() {
     <a className="skip-link" href="#info-content">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 02</span></a>
+      <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a></nav>
         <ThemeToggle />
@@ -68,6 +69,6 @@ export function InfoPage() {
         </section>
       </div>
     </main>
-    <footer className="site-footer"><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info" aria-current="page">Informazioni</a></p></footer>
+    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info" aria-current="page">Informazioni</a></p></footer>
   </div>
 }

@@ -73,6 +73,7 @@ function App() {
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 01</span></a>
+      <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
         <ThemeToggle />
@@ -147,7 +148,7 @@ function App() {
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
     </main>
-    <footer className="site-footer"><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
+    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
   </div>
 }
 export default App

@@ -1,6 +1,6 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — 23 ottobre:** struttura locale `/home` e `/info` con metadati SEO, sitemap e robots; tema chiaro/scuro con switch e preferenza di sistema. Non pubblicata; la richiesta d'indicizzazione in Google Search Console resta da eseguire dopo il rilascio.
+> **Stato più recente — 23 ottobre:** struttura locale `/home` e `/info` con metadati SEO, sitemap e robots; tema chiaro/scuro con switch e preferenza di sistema; logo scolastico nell’intestazione e nel footer. Non pubblicata; la richiesta d'indicizzazione in Google Search Console resta da eseguire dopo il rilascio.
 
 > **Versione:** checklist aggiornata il 23 ottobre 2026 dopo la preparazione locale delle pagine `/home` e `/info`.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
@@ -548,6 +548,8 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **23 ottobre 2026 — Google Analytics:** su richiesta esplicita aggiunto localmente il tag `G-F2LRCD93NW`, bloccato fino al consenso facoltativo; rifiuto e revoca disponibili, segnali pubblicitari disattivati. Le integrazioni Vercel Analytics/Speed Insights già attive restano indipendenti. Build/lint/test frontend superati; interazioni browser e Tag Assistant da verificare dopo una distribuzione autorizzata. Aggiornare l’informativa privacy prima del rilascio. Nessuna modifica remota o pubblicazione eseguita.
 
 **23 ottobre 2026 — Fase 7 / UI-01, tema:** implementati tema chiaro e switch in Home e Informazioni. Default e aggiornamenti seguono `prefers-color-scheme`; una scelta manuale persiste localmente. Bootstrap senza flash, colori semantici aggiornati anche in grafici, controlli e meta `theme-color`. Build, lint e 41 test frontend superati. Verifica browser locale: switch accessibile (stato e descrizione aggiornati), tema chiaro in entrambe le pagine, scelta mantenuta al cambio route e intestazione riadattata a viewport 455 px. Nessuna pubblicazione.
+
+**23 ottobre 2026 — Fase 7 / UI-01, logo scolastico:** copiato l’allegato in `public/logo-liceo-scientifico-stem-olivelli-pavia.png`; inserito al centro della top bar e nel footer sia in Home sia in Informazioni, su base bianca, con alt text descrittivo e layout responsive. Build e lint superati; 41 test frontend superati; `git diff --check` pulito. Controllo browser locale a 455 px: intestazione senza sovrapposizioni, tema chiaro in Home e scuro in Informazioni, logo presente in entrambe le route e file caricato nel footer (1041×359). Nessuna pubblicazione.
 
 
 **Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.

@@ -101,3 +101,7 @@ Tre schede +30 minuti, +1 ora, Giornata · +24 ore. Ogni scheda presenta tempera
 ## Tema chiaro e preferenza di sistema — 23 ottobre 2026
 
 La palette scura resta disponibile come variante. Il tema iniziale segue `prefers-color-scheme` e si aggiorna se il sistema cambia finché non viene scelta manualmente una modalità; lo switch nell’intestazione è presente sia in Home sia in Informazioni. La scelta manuale viene salvata localmente. Uno script iniziale imposta il tema prima del render per evitare il flash. La palette chiara usa fondo avorio, superfici chiare, testo antracite, bordi grigi e accento arancio; grafici, stati, controlli, overlay e `theme-color` seguono il tema. Il controllo resta utilizzabile a 320 px.
+
+## Logo del Liceo Olivelli — 23 ottobre 2026
+
+Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Una base bianca sottile mantiene leggibile il testo blu in entrambi i temi. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.

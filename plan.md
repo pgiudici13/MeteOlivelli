@@ -1,6 +1,6 @@
 # Piano di progetto — MeteOlivelli
 
-> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap e metadati SEO distinti; tema chiaro/scuro locale con preferenza di sistema e switch persistente. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
+> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap/metadati distinti, tema chiaro/scuro e logo scolastico nell’intestazione e nel footer. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 
 > **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
@@ -1123,3 +1123,5 @@ Restano **proposte da approvare**, non obiettivi concordati: esportazione cifrat
 **Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.
 
 **23 ottobre 2026 — Fase 7 / UI-01, tema:** aggiunti tema chiaro e switch in Home e Informazioni. Senza scelta manuale segue e osserva `prefers-color-scheme`; la scelta esplicita è persistita in `localStorage`. Il tema viene impostato prima del primo render e aggiorna `color-scheme` e `theme-color`. Specifica in `design.md`; revisione locale non pubblicata.
+
+**23 ottobre 2026 — Fase 7 / UI-01, identità scolastica:** aggiunto il PNG trasparente fornito dall’utente in posizione centrale nell’intestazione e nel footer di entrambe le pagine. Intestazione responsive a tre colonne su desktop e marchio/logo/azioni su righe distinte sotto i 760 px; base bianca per la leggibilità in entrambi i temi. Build, lint e 41 test frontend superati; controllo browser locale a 455 px in tema chiaro e scuro senza sovrapposizioni, immagine nel footer caricata a 1041×359. Nessuna pubblicazione.

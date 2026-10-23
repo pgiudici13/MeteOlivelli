@@ -1,7 +1,11 @@
 .site-shell { width: min(1328px, 100%); margin-inline: auto; padding: 0 48px; }
 .panel { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-.site-header { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--border); }
+.site-header { min-height: 96px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 500; letter-spacing: -.7px; text-decoration: none; }
+.brand { justify-self: start; }
+.school-logo { display: block; width: min(200px, 58vw); padding: 4px 8px; border-radius: 3px; background: #fff; line-height: 0; justify-self: center; }
+.school-logo img { display: block; width: 100%; height: auto; }
+.header-actions { justify-self: end; }
 .brand-symbol { font-size: inherit; letter-spacing: inherit; display: inline-flex; align-items: center; gap: 12px; }
 .brand-symbol::after { content: ""; width: 1px; height: 1em; background: var(--border-strong); }
 .brand-index { font: 11px ui-monospace, monospace; color: var(--secondary); margin-left: 6px; }
@@ -108,7 +112,8 @@ button:disabled { cursor: default; opacity: .45; }
 .about-section h2 { max-width: 600px; font-size: 44px; }
 .about-section p:not(.eyebrow) { margin-top: 24px; max-width: 710px; }
 .reflection { color: var(--secondary); font-size: 13px; }
-.site-footer { margin-top: 64px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font: 10px/1.5 ui-monospace, monospace; padding-block: 24px 32px; border-top: 1px solid var(--border); }
+.site-footer { margin-top: 64px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; font: 10px/1.5 ui-monospace, monospace; padding-block: 24px 32px; border-top: 1px solid var(--border); }
+.footer-school-logo { width: 180px; }
 .warning, .error-message { color: var(--accent-soft); }
 .error-message { border-left: 2px solid var(--accent); padding: 12px 16px; margin-bottom: 16px; background: var(--surface-soft); }
 .empty-state { padding-block: 32px; color: var(--secondary); }
@@ -175,8 +180,8 @@ button:disabled { cursor: default; opacity: .45; }
 }
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
-  .site-header { flex-wrap: wrap; min-height: 0; padding-block: 16px; }
-  .header-actions { width: 100%; justify-content: space-between; }
+  .site-header { grid-template-columns: minmax(0, 1fr) auto; min-height: 0; padding-block: 16px; }
+  .header-actions { width: auto; justify-content: flex-end; gap: 8px; }
   .site-header nav { gap: 12px; }
   h1 { font-size: 44px; }
   .metric-card { padding: 16px; gap: 6px 8px; }
@@ -263,10 +268,14 @@ button::after, .hero-link::after { padding: 2px; }
 .theme-toggle { width: 44px; min-width: 44px; height: 44px; min-height: 44px; display: grid; place-items: center; padding: 0; border-radius: 50%; color: var(--text); background: var(--surface-raised); border-color: var(--border); font-size: 19px; line-height: 1; }
 .theme-toggle:hover:not(:disabled) { background: var(--surface-soft); color: var(--text); }
 @media (max-width: 450px) { .period-picker { gap: 6px; } .period-picker button { padding-inline: 6px; } }
+@media (max-width: 760px) {
+  .site-header { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 16px; row-gap: 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .school-logo { grid-column: 1; grid-row: 2; }
+  .header-actions { grid-column: 1; grid-row: 3; width: 100%; justify-content: space-between; gap: 8px; }
+  .site-header nav { gap: 12px; }
+}
 @media (max-width: 600px) {
-  .site-header { flex-wrap: wrap; min-height: 0; padding-block: 16px; }
-  .header-actions { width: 100%; justify-content: space-between; gap: 12px; }
-  .site-header nav { gap: 16px; }
   .analytics-consent { inset: auto 12px 12px; align-items: stretch; flex-direction: column; gap: 16px; padding: 18px; }
   .analytics-consent-actions { display: grid; grid-template-columns: 1fr 1fr; }
 }
