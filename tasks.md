@@ -1,12 +1,12 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — 23 ottobre:** struttura locale `/home` e `/info` con metadati SEO, sitemap e robots; tema chiaro/scuro con switch e preferenza di sistema; logo scolastico nell’intestazione e nel footer. Non pubblicata; la richiesta d'indicizzazione in Google Search Console resta da eseguire dopo il rilascio.
+> **Stato più recente — audit locale del 23 ottobre, `6e5f197`:** presenti Home, Informazioni, Privacy, quiz, cronologia completa e PDF. Suite completa superata; COR-009, COR-011 e COR-012 corretti localmente; COR-010 escluso dall’intervento su richiesta utente; COR-013 documentale risolto. [Verbale](docs/project-review/README.md). Correzioni applicative locali successive all’audit, senza pubblicazione; stato remoto non riverificato.
 
-> **Versione:** checklist aggiornata il 23 ottobre 2026 dopo la preparazione locale delle pagine `/home` e `/info`.
+> **Versione:** checklist aggiornata il 23 ottobre 2026 dopo l’audit locale dei commit fino a `6e5f197`.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
 > **Richiesta precedente:** rimuovere la modalità DEMO da codice e produzione; mantenere un solo database finale. Per decisione esplicita dell'utente, i futuri dati sintetici d'integrazione dovranno essere inseriti nella stessa tabella Supabase finale con provenienza distinta; non caricare dati sintetici finché questa distinzione non è implementata e verificata. L'utente ha autorizzato la pubblicazione della correzione su GitHub e il deploy Vercel conseguente. CSV/writer Windows reale, UI-02, WX e rilascio MVP completo restano aperti.
 
-> **Richiesta attuale — 23 ottobre:** tenere la dashboard su `/home` e aggiungere `/info` per progetto, stazione e team; preparare le pagine perché siano consultabili da Google Search Console. Solo queste due pagine per ora.
+> **Richiesta storica, poi ampliata:** dashboard `/home` e pagina `/info`; richieste successive aggiungono `/privacy`, `/gioca` e i PDF. Richiesta successiva all’audit: correggere i problemi individuati, eccetto quello sulla provenienza sintetica dei PDF grafici.
 
 ## 1. Come usare la checklist
 
@@ -37,7 +37,7 @@
 
 ## 2. Perimetro e percorso critico
 
-**Deciso dall'utente:** sito pubblico in italiano per scuola/open day; ultimi valori reali di temperatura °C, umidità % e pressione hPa; grafici 24h/7g/30g; nessun account, profilazione o download. CSV e misure permanenti: i periodi dei grafici non sono retention. Valori sospetti conservati con “probabile errato”. Calcolo delle stime nel progetto, senza provider meteo esterno; +30 minuti/+1 ora/giornata restano richiesti ma da validare. Budget 0 €.
+**Deciso dall'utente:** sito pubblico in italiano per scuola/open day; ultimi valori reali di temperatura °C, umidità % e pressione hPa; grafici 24h/7g/30g; nessun account o profilazione; i PDF pubblici dei grafici e della cronologia sono ammessi dalla successiva richiesta del 23 ottobre. CSV e misure permanenti: i periodi dei grafici non sono retention. Valori sospetti conservati con “probabile errato”. Calcolo delle stime nel progetto, senza provider meteo esterno; +30 minuti/+1 ora/giornata restano richiesti ma da validare. Budget 0 €.
 
 **Tempi:** consegna richiesta per settimana prossima, interpretata nel piano come 26 ottobre–1 novembre 2026; nessun giorno preciso o promessa di completamento. Possibile chiusura a dicembre, ancora incerta e senza autorizzazione a cancellare dati.
 
@@ -600,3 +600,9 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 **23 ottobre 2026 — Esportazione PDF, checkpoint 19/20:** verificati i limiti senza dati: cronologia vuota mantiene la sola intestazione e grafici vuoti dichiarano nessun valore; entrambi producono blob con MIME e firma PDF corretti. Nessuna misura/zero sintetico aggiunto. `npm run check`: 72 test frontend, 44 Deno, 23 Python; build/lint e diff superati.
 
 **23 ottobre 2026 — Esportazione PDF, checkpoint 20/20:** regressione finale `npm run check` (72 frontend, 44 Deno, 23 Python; build/lint) e `git diff --check`; bundle Vercel finale `index-BbrWPwr6.js` confrontato byte per byte con `dist` (316.446 byte). Endpoint pubblico verificato in sola lettura; i dati correnti sono sintetici. Browser automatizzato non disponibile; generazione PDF/artefatti, PDFKit, download helper, paginazione e stati vuoti coperti. Tutti i venti checkpoint committati e pushati su `main`.
+
+
+**23 ottobre 2026 — Audit locale, Fase 7 / UI-01 e BE-06:** completata revisione del checkout `6e5f197`, con priorità ai 68 commit di Nickybo nel range `93ddb98..6e5f197`. `npm run check` superato: build/lint, 72 frontend, 44 Deno, 23 Python. Browser locale con API sintetica intercettata: download PDF riusciti, Home e quiz senza overflow a 320/390/1280 px; riprodotta cronologia ferma a pagina aperta. Riprodotti anche cursore storico con perdita microsecondi, assenza etichetta sintetica nei PDF grafici e bordo PDF fuori pagina. Prove e limiti nel [verbale](docs/project-review/README.md), COR-009–COR-012 ancora aperti; COR-013 documentale risolto. Le verifiche aggiuntive non chiudono UI-02, collaudo reale, backup o validazione WX. Nessun commit/push, deploy o operazione remota.
+
+
+**23 ottobre 2026 — Correzioni locali successive all’audit, Fase 7 / UI-01 e BE-06:** risolti localmente COR-009, COR-011 e COR-012; COR-010 escluso dall’intervento per richiesta esplicita dell’utente, che prevede la futura rimozione dei dati sintetici. Test aggiunti su precisione/paginazione del cursore, ordine sub-millisecondo e layout PDF multipagina; runner browser dedicato per aggiornamento automatico/manuale, polling invariato, conservazione pagina, errore/recupero e visibilità/rete. [Prove finali](docs/project-review/README.md#correzioni-locali-successive-alla-revisione). Nessuna cancellazione dati, migrazione, pubblicazione o modifica remota. UI-02 e prove di stazione/backup restano aperti.

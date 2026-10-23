@@ -4,6 +4,7 @@ import { createRestStore } from './database.ts'
 import { createIngestHandler } from '../ingest-measurement/handler.ts'
 import { createReadHandler, parseReadQuery } from '../read-measurements/handler.ts'
 import { canonicalMeasurementContent, type Measurement } from './measurement.ts'
+import { readAllHistory } from '../../../src/weather.ts'
 
 function assert(value: unknown, message = 'Esito inatteso'): asserts value {
   if (!value) throw new Error(message)
@@ -280,6 +281,103 @@ Deno.test('paginazione completa usa received_at solo come chiave per record senz
   params.set('cursor', result.next_cursor)
   const next = parseReadQuery(new URL(`https://example.test/?${params}`), now())
   assert(next?.after_time === row.received_at && next.period === 'all')
+})
+
+Deno.test('cursore conserva microsecondi e valida calendario e limiti senza arrotondare', async () => {
+  const row: PublicMeasurement = {
+    ingestion_id: fixture.ingestion_id,
+    temperature_c: 21,
+    humidity_pct: 50,
+    pressure_hpa: 1013,
+    captured_at: null,
+    measured_at: null,
+    received_at: '2026-10-22T08:00:01.123456+00:00',
+    quality_flags: [],
+  }
+  const handler = createReadHandler({
+    source: 'test',
+    now,
+    store: store({ read: () => Promise.resolve([row, row]) }),
+  })
+  const url = new URL('https://example.test/?view=history&period=all&limit=1')
+  const result = await (await handler(new Request(url))).json()
+  url.searchParams.set('cursor', result.next_cursor)
+  assert(parseReadQuery(url, now())?.after_time === '2026-10-22T08:00:01.123456Z')
+  for (
+    const time of [
+      null,
+      '2026-02-30T08:00:01.123456Z',
+      '2026-10-22T08:00:01.1234567Z',
+      '2026-10-22T09:00:00.000001Z', // stesso millisecondo di until, ma successivo
+    ]
+  ) {
+    url.searchParams.set(
+      'cursor',
+      btoa(JSON.stringify([
+        'all',
+        'captured_at',
+        now().toISOString(),
+        time,
+        fixture.ingestion_id,
+      ])),
+    )
+    assert(parseReadQuery(url, now()) === null)
+  }
+  url.searchParams.set(
+    'cursor',
+    btoa(JSON.stringify([
+      'all',
+      'captured_at',
+      now().toISOString(),
+      now().toISOString(),
+      fixture.ingestion_id,
+    ])),
+  )
+  assert(parseReadQuery(url, now())?.after_time === now().toISOString())
+})
+
+Deno.test('cronologia completa recupera oltre due pagine nello stesso microsecondo', async () => {
+  const rows: PublicMeasurement[] = Array.from({ length: 1201 }, (_, index) => ({
+    ingestion_id: `00000000-0000-4000-8000-${String(1201 - index).padStart(12, '0')}`,
+    temperature_c: 20,
+    humidity_pct: 60,
+    pressure_hpa: 1015,
+    captured_at: null,
+    measured_at: null,
+    received_at: '2026-10-22T08:00:01.123456+00:00',
+    quality_flags: [],
+  })).sort((a, b) => a.ingestion_id.localeCompare(b.ingestion_id))
+  const instant = (value: string) => {
+    const [seconds, fraction = ''] = value.replace(/(?:Z|\+00:00)$/, '').split('.')
+    return BigInt(Date.parse(`${seconds}Z`)) * 1000n + BigInt(fraction.padEnd(6, '0'))
+  }
+  let requests = 0
+  const handler = createReadHandler({
+    source: 'test',
+    now,
+    store: store({
+      read: (_, query) => {
+        requests++
+        return Promise.resolve(
+          rows.filter((row) =>
+            !query.after_time ||
+            instant(row.received_at) > instant(query.after_time) ||
+            instant(row.received_at) === instant(query.after_time) &&
+              row.ingestion_id > query.after_id!
+          )
+            .slice(0, query.limit + 1),
+        )
+      },
+    }),
+  })
+  const result = await readAllHistory(new AbortController().signal, async (params) => {
+    const response = await handler(new Request(`https://example.test/?${params}`))
+    assert(response.status === 200)
+    return response.json()
+  })
+  assert(requests === 3 && result.length === rows.length)
+  assert(new Set(result.map((row) => row.ingestion_id)).size === rows.length)
+  assert(result.every((row, index) => row.ingestion_id === rows[index].ingestion_id))
 })
 
 Deno.test('adapter RPC usa solo URL e credenziale server, fallisce su conferma ambigua', async () => {

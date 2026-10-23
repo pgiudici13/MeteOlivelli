@@ -1,0 +1,11 @@
+{
+  "fixture": "synthetic",
+  "pages": 16,
+  "pageWidth": 841.89,
+  "rightMargin": 28,
+  "maximumTableX": 813.39,
+  "allTextWithinMargins": true,
+  "headersOnEveryPage": true,
+  "lastValuePresent": true,
+  "CETandCEST": true
+}

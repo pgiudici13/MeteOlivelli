@@ -98,7 +98,7 @@ function App() {
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
-  const completeHistory = useCompleteHistory()
+  const completeHistory = useCompleteHistory(data.latestLoaded ? data.latest?.ingestion_id ?? 'empty' : null)
   const latest = data.latest
   const matchingHistory = data.period === queryPeriod && data.anchorToLatest === (period === 'auto')
   const historyLoading = !matchingHistory || !data.historyLoaded
@@ -217,10 +217,14 @@ function App() {
         <h2 id="chronology-title">Cronologia</h2>
         <p className="secondary">Tutti i campioni registrati finora, dal più recente. Le date di acquisizione e ricezione sono indicate separatamente. Unità: °C, %, hPa.</p>
         <div className="pdf-export-controls">
+          <button type="button" onClick={completeHistory.retry} disabled={completeHistory.loading}>Aggiorna cronologia</button>
           <button type="button" onClick={() => void downloadHistoryPdf()} disabled={historyPdfBusy || completeHistory.loading || completeHistory.error} aria-busy={historyPdfBusy}>{historyPdfBusy ? 'Preparazione PDF…' : 'Scarica PDF della cronologia completa'}</button>
           <p role="status" aria-live="polite">{historyPdfMessage}</p>
         </div>
-        {completeHistory.loading ? <p className="empty-state" role="status">Caricamento di tutta la cronologia…</p> : completeHistory.error ? <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile.</p><button onClick={completeHistory.retry}>Riprova</button></div> : completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : <p className="empty-state">Non risultano campioni registrati.</p>}
+        {completeHistory.checkedAt && <p className="small">Cronologia riletta il {formatTime(completeHistory.checkedAt)} · Europe/Rome. Si aggiorna quando cambia l’ultima lettura e al ritorno alla pagina o online. Per includere importazioni storiche usa “Aggiorna cronologia”.</p>}
+        {completeHistory.loading && <p className="empty-state" role="status">{completeHistory.checkedAt ? 'Aggiornamento della cronologia…' : 'Caricamento di tutta la cronologia…'}</p>}
+        {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Riprova</button></div>}
+        {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
       <Reveal><ForecastSection /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
@@ -230,7 +234,7 @@ function App() {
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · <a href="/gioca">Gioca con il meteo</a> · <a href="/privacy">Privacy</a> · Aggiornamento automatico ogni 15 secondi a pagina visibile.</p></footer>
+    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · <a href="/gioca">Gioca con il meteo</a> · <a href="/privacy">Privacy</a> · Ultime misure verificate ogni 15 secondi a pagina visibile.</p></footer>
   </div>
 }
 export default App

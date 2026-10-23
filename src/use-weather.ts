@@ -22,17 +22,30 @@ export function useWeather(period: Period, anchorToLatest = false) {
   return state
 }
 
-export function useCompleteHistory() {
-  const [state, setState] = useState<{ rows: Measurement[]; loading: boolean; error: boolean }>({ rows: [], loading: true, error: false })
+export function useCompleteHistory(latestId: string | null) {
+  const [state, setState] = useState<{ rows: Measurement[]; loading: boolean; error: boolean; checkedAt: string | null }>({ rows: [], loading: true, error: false, checkedAt: null })
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
+    if (latestId === null) return
     const controller = new AbortController()
+    let active = true
     void readAllHistory(controller.signal).then(
-      rows => setState({ rows, loading: false, error: false }),
-      () => { if (!controller.signal.aborted) setState(previous => ({ ...previous, loading: false, error: true })) },
+      rows => { if (active) setState({ rows, loading: false, error: false, checkedAt: new Date().toISOString() }) },
+      () => { if (active) setState(previous => ({ ...previous, loading: false, error: true })) },
     )
-    return () => controller.abort()
-  }, [attempt])
+    return () => { active = false; controller.abort() }
+  }, [attempt, latestId])
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') setAttempt(value => value + 1)
+    }
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('online', refresh)
+    return () => {
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('online', refresh)
+    }
+  }, [])
   return { ...state, retry: () => {
     setState(previous => ({ ...previous, loading: true, error: false }))
     setAttempt(value => value + 1)

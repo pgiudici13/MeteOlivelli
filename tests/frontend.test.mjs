@@ -192,6 +192,33 @@ test('PDF cronologia: il motore genera un documento tabellare scaricabile', asyn
   assert.equal(new TextDecoder().decode(new Uint8Array(await blob.slice(0, 5).arrayBuffer())), '%PDF-')
 })
 
+test('PDF cronologia: il layout multipagina resta entro entrambi i margini A4', async () => {
+  const [{ default: pdfMake }, { default: fonts }] = await Promise.all([
+    import('pdfmake/build/pdfmake.js'), import('pdfmake/build/vfs_fonts.js'),
+  ])
+  pdfMake.addVirtualFileSystem(fonts)
+  const rows = Array.from({ length: 300 }, (_, index) => row(index + 1, {
+    captured_at: index % 2 ? null : '2026-10-25T01:30:00.000Z',
+    received_at: '2026-10-25T02:30:00.000Z',
+    pressure_hpa: index === 299 ? 123456789012345 : 1015.8,
+  }))
+  const document = buildHistoryDocument(rows, new Date('2026-10-25T03:00:00Z'))
+  const pdf = pdfMake.createPdf(document)
+  const stream = await pdf.getStream()
+  await pdf.getBuffer()
+  assert.ok(stream._pdfMakePages.length > 1)
+  for (const page of stream._pdfMakePages) {
+    const vectors = page.items.filter(item => item.type === 'vector').map(item => item.item)
+    assert.ok(vectors.length > 0)
+    for (const vector of vectors) {
+      const left = vector.x ?? Math.min(vector.x1, vector.x2)
+      const right = vector.x === undefined ? Math.max(vector.x1, vector.x2) : vector.x + vector.w
+      assert.ok(left >= 28, `bordo sinistro ${left}`)
+      assert.ok(right <= 841.89 - 28, `bordo destro ${right}`)
+    }
+  }
+})
+
 test('PDF cronologia: un errore a pagina successiva impedisce la generazione parziale', async () => {
   let calls = 0
   let generated = false
@@ -331,6 +358,17 @@ test('cronologia completa: non applica finestre o limiti a cento pagine', async 
   })
   assert.equal(calls, 101)
   assert.equal(result.length, 101)
+})
+
+test('cronologia e PDF ordinano microsecondi distinti prima dello spareggio UUID', async () => {
+  const later = row(1, { captured_at: null, received_at: '2026-10-22T12:00:00.123457Z', temperature_c: 22 })
+  const earlier = row(2, { captured_at: null, received_at: '2026-10-22T12:00:00.123456+00:00', temperature_c: 21 })
+  const rows = await readAllHistory(signal(), async () => page([later, earlier]))
+  assert.deepEqual(rows.map(row => row.ingestion_id), [earlier.ingestion_id, later.ingestion_id])
+  const document = buildHistoryDocument([later, earlier], new Date('2026-10-22T13:00:00Z'))
+  const body = document.content.find(item => item.table).table.body
+  assert.equal(body[1][4], '21,0 °C')
+  assert.equal(body[2][4], '22,0 °C')
 })
 test('storico: cursore ripetuto rifiutato senza loop', async () => {
   await assert.rejects(() => readHistory('7g', signal(), async () => page([row()], 'ripetuto')), /ripetuto/)

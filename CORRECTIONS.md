@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica documentale: 22 ottobre 2026. Il setup ha corretto COR-001; la revisione delle criticità ha corretto le incoerenze documentali COR-002. Nessuna funzionalità applicativa implementata in questa revisione.
+Ultima verifica: 23 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto. [Perimetro, prove e limiti](docs/project-review/README.md). Nessuna pubblicazione o modifica remota eseguita.
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -104,3 +104,56 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** media; Auto non carica storico e grafici.
 - **Correzione:** normalizzazione UTC canonica, inclusione dei microsecondi con arrotondamento superiore e conservazione della finestra storica nei polling invariati.
 - **Verifica:** 27 test Node, 42 Deno (incluso feed contro validatore reale), 21 Python, build/lint e 14 scenari browser superati. Browser locale con API reale mostra quattro grafici e dieci campioni sintetici senza HTTP 400; evidenze in `docs/auto-verification/`.
+
+## COR-009 — Il cursore della cronologia perde i microsecondi
+
+- **Stato:** risolto localmente il 23 ottobre 2026; produzione non aggiornata in questa sessione.
+- **Area/file:** `supabase/functions/read-measurements/handler.ts`, migrazione `20261023120000_unbounded_measurement_history.sql`; `src/weather.ts` / `readAllHistory`.
+- **Problema/prova:** il fallback `received_at` introdotto da `d09f03b` passa per `Date.toISOString()`, che riduce `.123456` a `.123`. Il confronto SQL conserva invece i microsecondi. Con 501 record storici nello stesso millisecondo, le prime 500 righe e il cursore si ripetono; il lettore fallisce con `Cursore ripetuto`. [Riproduzione eseguibile senza rete/DB](docs/project-review/reproduce-history-cursor.mjs), handler e lettore reali con store simulato preciso al microsecondo.
+- **Impatto/priorità:** media; cronologia e PDF non disponibili nei casi riprodotti, nessuna perdita dei dati persistiti dimostrata. Il troncamento era preesistente; la nuova lettura `all` lo applica anche alla ricezione generata dal database.
+- **Correzione proposta:** preservare la precisione della coppia tempo/UUID in cursore, validatore e query; non arrotondare in alto, perché salterebbe righe.
+- **Verifica richiesta:** recuperare tutti gli UUID di oltre 500 record, anche nello stesso millisecondo, con timestamp/UUID non correlati e fallback senza acquisizione; nessun cursore ripetuto o campione mancante. Aggiungere collaudo SQL dedicato.
+
+- **Esito della correzione:** cursore UTC con precisione fino a sei decimali, calendario e confini confrontati senza troncamento; vecchi cursori a tre decimali ancora validi. Anche l’ordine di tabella e PDF conserva i microsecondi prima dello spareggio UUID. Test Deno: 1.201 record nello stesso microsecondo recuperati in tre richieste, nessun UUID perso o duplicato; regressione dedicata su date invalide e soglia appena successiva a `until`. Test Node sull’ordine di microsecondi distinti. Non servono migrazioni; per la produzione occorre pubblicare l’Edge Function corretta.
+
+## COR-010 — PDF dei grafici privo della provenienza sintetica
+
+- **Stato:** aperto, verificato il 23 ottobre 2026 a `6e5f197`.
+- **Area/file:** `src/pdf-graphs-document.ts`, `src/pdf-chart.ts`; introdotto con `b714d87` / `5dc40a1`.
+- **Problema/prova:** un input `synthetic` genera tre pagine di grafici senza etichetta sintetica o avvertenza equivalente; la postilla della Home non è nel file. Verificati definizione e testo del PDF reale. Lo stesso input è correttamente etichettato nel PDF cronologia. I conteggi delle medie non esprimono provenienza.
+- **Impatto/priorità:** media; il PDF condiviso può far interpretare dati di prova come osservazioni della stazione.
+- **Correzione proposta:** dichiarare permanentemente la provenienza delle serie effettivamente disegnate, distinguendo sintetici/live e casi misti.
+- **Verifica richiesta:** PDF solo sintetici, solo live e misti in Auto/24h/7g/14g/30g; estrazione testo e controllo visivo di ogni pagina pertinente. [Analisi](docs/project-review/README.md#cor-010--provenienza-persa-nel-pdf-dei-grafici).
+
+- **Decisione successiva dell’utente:** escludere questa correzione perché i sintetici non saranno più usati e verranno eliminati in seguito. Difetto non corretto e non dichiarato risolto; nessuna rimozione dati eseguita o automatizzata.
+
+## COR-011 — Cronologia ferma al caricamento iniziale
+
+- **Stato:** risolto localmente il 23 ottobre 2026; produzione non aggiornata in questa sessione.
+- **Area/file:** `src/use-weather.ts` / `useCompleteHistory`, `src/App.tsx`; introdotto da `fe6e314`.
+- **Problema/prova:** l’effetto dipende solo da `attempt`; dopo successo non esiste aggiornamento o comando di refresh della tabella. Chrome locale con API intercettata: passando da una a due righe e avanzando 16 secondi, latest si aggiorna a 22,0 °C ma `period=all` resta a una richiesta e la tabella a un campione. Il PDF rilegge invece due righe.
+- **Impatto/priorità:** media; tabella obsoleta a pagina aperta e possibile divergenza dal PDF appena scaricato. Il footer dichiara genericamente aggiornamento ogni 15 secondi.
+- **Correzione proposta:** riconciliare le novità o consentire un refresh esplicito con data dello snapshot, evitando riletture integrali incontrollate ogni 15 secondi.
+- **Verifica richiesta:** nuovo live e import storico, visibilità/rete, recupero da errore, mantenimento paginazione e coerenza tabella/PDF. [Prova dettagliata](docs/project-review/README.md#cor-011--cronologia-non-aggiornata-a-pagina-aperta).
+
+- **Esito della correzione:** rilettura al cambio dell’ultimo UUID e al ritorno visibile/online; comando “Aggiorna cronologia” disponibile anche dopo successo e istante di rilettura esplicito. Nessuna rilettura integrale al polling invariato. Dati e pagina selezionata conservati durante aggiornamento/errore; richieste superate annullate. Dieci controlli browser locali superati, inclusi import manuale, recupero e reflow. [Risultati](docs/project-review/fixes-browser-results.json).
+
+## COR-012 — Bordo della tabella PDF oltre il foglio
+
+- **Stato:** risolto localmente il 23 ottobre 2026; produzione non aggiornata in questa sessione.
+- **Area/file:** `src/pdf-history-document.ts` / larghezze tabella, introdotto da `91343d7`.
+- **Problema/prova:** larghezze fisse 776 pt più padding/bordi: bordo destro a 867,5 pt su pagina larga 841,89 pt, oltre il margine utile destro di 53,61 pt. PDF reale misurato con pdfplumber e renderizzato con Poppler; [schermata sintetica](docs/project-review/history-table-overflow.png).
+- **Impatto/priorità:** bassa; bordo e parte dell’area della colonna pressione tagliati. Sul valore ordinario testato il testo resta leggibile: nessuna perdita generalizzata dei valori attestata.
+- **Correzione proposta:** dimensionare colonne includendo padding e bordi o usare larghezze flessibili.
+- **Verifica richiesta:** tutte le tabelle entro i margini utili su ogni pagina; valori lunghi/sospetti, null, CET/CEST e intestazioni multipagina.
+
+- **Esito della correzione:** colonne temporali ridimensionate e colonne dei valori flessibili. Prova PDF da 300 fixture/16 pagine con null, valore lungo e CET/CEST: bordo destro massimo 813,39 pt, interamente entro il margine utile a 813,89 pt; testo entro i margini, intestazioni ripetute e ultima riga presenti. Test Node sul layout effettivo multipagina e rendering Poppler ispezionato. [Risultati](docs/project-review/fixes-pdf-results.json), [schermata corretta](docs/project-review/history-table-fixed.png).
+
+## COR-013 — Riepiloghi e vincoli correnti superati
+
+- **Stato:** risolto nella documentazione locale, 23 ottobre 2026.
+- **Area/file:** `README.md`, `plan.md`, `tasks.md`, `docs/frontend.md`.
+- **Problema/prova:** riepiloghi ancora su due pagine non pubblicate e modifiche successive al logo solo locali; RF6/D11 escludevano download pur essendo presente la richiesta PDF; README dichiarava ingestione sintetica rifiutata, contrariamente al validatore e all’uploader esplicito; guida frontend descriveva ancora la cronologia come i 30 giorni del feed.
+- **Impatto/priorità:** bassa; comportamento, autorizzazioni documentate e stato del lavoro descritti in modo contraddittorio.
+- **Correzione:** aggiornati riepiloghi al checkout, RF6/D11 e prevalenza della richiesta PDF; distinti archivio completo e feed, batch storici e conteggi remoti non riverificati. Conservati i verbali storici, dichiarando che questo audit non riconferma i servizi.
+- **Verifica:** confronto con Git, codice e checkpoint PDF; diff e collegamenti locali controllati. Le correzioni ai testi non risolvono COR-009–COR-012 e non chiudono task remoti o collaudi reali.

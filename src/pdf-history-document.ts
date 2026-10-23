@@ -1,5 +1,5 @@
 import { formatReportTime, formatReportValue } from './pdf-export.ts'
-import { metrics } from './weather.ts'
+import { compareHistoryMeasurements, metrics } from './weather.ts'
 import type { Measurement } from './weather.ts'
 
 const text = (value: string, options: Record<string, unknown> = {}) => ({ text: value, ...options })
@@ -12,7 +12,7 @@ function valueCell(row: Measurement, key: typeof metrics[number]['key'], unit: s
 
 export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
   if (!Number.isFinite(generatedAt.getTime())) throw new Error('Data di generazione non valida')
-  const ordered = [...rows].sort((a, b) => Date.parse(a.captured_at ?? a.received_at) - Date.parse(b.captured_at ?? b.received_at) || a.ingestion_id.localeCompare(b.ingestion_id))
+  const ordered = [...rows].sort(compareHistoryMeasurements)
   const body = [
     [text('N.', { style: 'tableHeader' }), text('Acquisizione · PC', { style: 'tableHeader' }), text('Misura fisica', { style: 'tableHeader' }), text('Ricezione', { style: 'tableHeader' }), ...metrics.map(metric => text(`${metric.name} · ${metric.unit}`, { style: 'tableHeader' }))],
     ...ordered.map((row, index) => [
@@ -35,7 +35,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
       { text: 'MeteOlivelli · Cronologia completa', style: 'title' },
       { text: `${ordered.length} campioni · Generato il ${formatReportTime(generatedAt.toISOString())} · Orari in Europe/Rome`, style: 'meta', margin: [0, 2, 0, 9] },
       {
-        table: { headerRows: 1, dontBreakRows: true, widths: [34, 170, 130, 130, 104, 104, 104], body },
+        table: { headerRows: 1, dontBreakRows: true, widths: [28, 155, 118, 118, '*', '*', '*'], body },
         layout: {
           fillColor: (rowIndex: number) => rowIndex === 0 ? '#EEEAE4' : rowIndex % 2 ? '#FFFFFF' : '#F8F6F3',
           hLineColor: () => '#D5D0CA',

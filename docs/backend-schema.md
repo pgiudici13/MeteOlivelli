@@ -108,3 +108,10 @@ Fonti ufficiali consultate: [auth Edge](https://supabase.com/docs/guides/functio
 [concorrenza INSERT](https://www.postgresql.org/docs/17/sql-insert.html).
 L'indice changelog non era recuperabile; è stata consultata la modifica pertinente
 ai grant, oltre alla documentazione attuale tramite il connettore Supabase.
+
+
+## Audit locale 23 ottobre — limite del cursore `all`
+
+**Problema storico riprodotto nell’audit, poi corretto localmente (COR-009):** `received_at` è generato da PostgreSQL con possibili microsecondi, mentre l’handler serializza il tempo nel cursore tramite `Date.toISOString()` al millisecondo. Per record senza `captured_at`, il confronto SQL usa quindi una soglia diversa dalla riga restituita: può ripetere il cursore e bloccare `readAllHistory`/PDF. [Riproduzione senza database o rete](project-review/reproduce-history-cursor.mjs), [analisi e verifica richiesta](project-review/README.md). La normalizzazione già presente per `captured_at` non è sufficiente per il fallback `received_at`; non è stata applicata alcuna migrazione o modifica remota.
+
+**Correzione locale successiva:** il cursore normalizza UTC senza perdere le cifre decimali, fino a sei; il validatore ammette tali cursori e conserva la compatibilità con quelli a tre cifre. Anche il confronto con i confini conserva i microsecondi. `until` resta UTC canonico al millisecondo; query/RPC e migrazioni SQL non cambiano. [Regressione locale positiva](project-review/reproduce-history-cursor.mjs): tutti i 501 record recuperati; suite Deno con 1.201 record e confini sub-millisecondo. Nessuna prova SQL remota o pubblicazione in questa sessione; serve il deploy autorizzato della sola Edge Function per rendere la correzione effettiva in produzione. PostgreSQL documenta precisione fino al microsecondo: [tipi data/ora](https://www.postgresql.org/docs/current/datatype-datetime.html). Il changelog Markdown Supabase non è stato recuperabile dal browser di ricerca; non sono state introdotte nuove API o configurazioni Supabase.

@@ -6,6 +6,19 @@ const timestamp = (value: unknown): value is string =>
   typeof value === 'string' &&
   /^(?!0000)\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) &&
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value
+// La chiave SQL può avere microsecondi: Date serve soltanto a validare il calendario.
+function cursorTimestamp(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const match = /^(?!0000)(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?(?:Z|\+00:00)$/.exec(
+    value,
+  )
+  if (!match || !Number.isFinite(Date.parse(value))) return null
+  const fraction = (match[2] ?? '').padEnd(3, '0')
+  if (new Date(value).toISOString() !== `${match[1]}.${fraction.slice(0, 3)}Z`) return null
+  return `${match[1]}.${fraction}Z`
+}
+const timestampKey = (value: string) =>
+  value.replace(/\.(\d+)Z$/, (_, fraction: string) => `.${fraction.padEnd(6, '0')}Z`)
 const uuid = (value: unknown): value is string =>
   typeof value === 'string' &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value)
@@ -37,11 +50,12 @@ export function parseReadQuery(url: URL, now: Date): ReadQuery | null {
       if (!Array.isArray(values) || values.length !== 5) return null
       if (
         values[0] !== period || values[1] !== basis || !timestamp(values[2]) ||
-        !timestamp(values[3]) || !uuid(values[4])
+        typeof values[3] !== 'string' || cursorTimestamp(values[3]) !== values[3] ||
+        !uuid(values[4])
       ) return null
       if (url.searchParams.has('until') && until !== values[2]) return null
       until = values[2]
-      afterTime = values[3]
+      afterTime = values[3] as string
       afterId = values[4]
     } catch {
       return null
@@ -51,8 +65,9 @@ export function parseReadQuery(url: URL, now: Date): ReadQuery | null {
   const hours = period === '24h' ? 24 : period === '7g' ? 168 : 720
   if (
     afterTime &&
-    (period !== 'all' && Date.parse(afterTime) < Date.parse(until) - hours * 3600000 ||
-      afterTime > until)
+    (period !== 'all' && timestampKey(afterTime) <
+          timestampKey(new Date(Date.parse(until) - hours * 3600000).toISOString()) ||
+      timestampKey(afterTime) > timestampKey(until))
   ) return null
   return {
     view: view as ReadQuery['view'],
@@ -93,11 +108,12 @@ export function createReadHandler(config: {
       let nextCursor: string | null = null
       if (query.view === 'history' && rows.length > query.limit) {
         const last = items[items.length - 1]
-        // PostgreSQL può restituire +00:00: il cursore usa sempre UTC normalizzato.
+        // Normalizzare UTC senza troncare la chiave temporale PostgreSQL.
         const time = query.period === 'all'
           ? last.captured_at ?? last.received_at
           : last[query.basis]
-        if (!time || !Number.isFinite(Date.parse(time)) || !uuid(last.ingestion_id)) {
+        const normalizedTime = cursorTimestamp(time)
+        if (!normalizedTime || !uuid(last.ingestion_id)) {
           throw new Error('Cursore database non valido')
         }
         nextCursor = btoa(
@@ -105,7 +121,7 @@ export function createReadHandler(config: {
             query.period,
             query.basis,
             query.until,
-            new Date(time).toISOString(),
+            normalizedTime,
             last.ingestion_id,
           ]),
         )

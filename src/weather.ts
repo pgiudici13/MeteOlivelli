@@ -89,6 +89,15 @@ export async function readPage(params: URLSearchParams, signal: AbortSignal, req
 }
 export type PageReader = typeof readPage
 
+/** Ordine della cronologia: confrontare i microsecondi prima dello spareggio UUID. */
+export function compareHistoryMeasurements(a: Measurement, b: Measurement): number {
+  const key = (value: string) => value.replace(/\+00:00$/, 'Z')
+    .replace(/(?:\.(\d{1,6}))?Z$/, (_, fraction: string = '') => `.${fraction.padEnd(6, '0')}Z`)
+  const aTime = key(a.captured_at ?? a.received_at)
+  const bTime = key(b.captured_at ?? b.received_at)
+  return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
+}
+
 /** Cronologia completa, inclusi i record senza ora di acquisizione. */
 export async function readAllHistory(signal: AbortSignal, reader: PageReader = readPage): Promise<Measurement[]> {
   const items = new Map<string, Measurement>()
@@ -108,9 +117,7 @@ export async function readAllHistory(signal: AbortSignal, reader: PageReader = r
     cursor = result.next_cursor
     cursors.add(cursor)
   }
-  return [...items.values()].sort((a, b) =>
-    Date.parse(a.captured_at ?? a.received_at) - Date.parse(b.captured_at ?? b.received_at) ||
-    a.ingestion_id.localeCompare(b.ingestion_id))
+  return [...items.values()].sort(compareHistoryMeasurements)
 }
 
 export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage, basis: 'captured_at' | 'measured_at' = 'captured_at'): Promise<Measurement[]> {

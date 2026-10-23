@@ -2,11 +2,11 @@
 
 > **Aggiornamento — 23 ottobre 2026:** quiz `/gioca` pubblicato su `main`: 10 domande casuali da 20, opzioni rimescolate, spiegazioni per ogni risposta, ripple localizzato sul pulsante e barra di avanzamento lineare; movimento ridotto rispettato.
 
-> **Stato più recente — 23 ottobre:** preparate localmente le pagine `/home` e `/info`, sitemap/metadati distinti, tema chiaro/scuro e logo scolastico nell’intestazione e nel footer. Nessuna pubblicazione di queste modifiche; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
+> **Stato più recente — audit locale del 23 ottobre, `6e5f197`:** presenti `/home`, `/info`, `/privacy`, `/gioca`, cronologia completa e download PDF. Suite completa superata; COR-009, COR-011 e COR-012 corretti localmente; COR-010 escluso dall’intervento su richiesta utente; COR-013 documentale risolto. [Verbale e prove](docs/project-review/README.md). I rilasci sono descritti nei verbali storici, non riverificati sui servizi in questo audit; dati Arduino reali, CSV/Windows e validazione WX restano aperti.
 
 > **Stato:** backend Fase 5 verificato sul contratto v1; uploader Fase 6 provvisorio; dashboard Fase 7 implementata e pubblicata e verificata sul dominio principale, aggiornata allo stile Factory su richiesta del 22 ottobre. CSV reale, collaudo della stazione e modello previsionale restano aperti.
 > **Lingua del progetto:** italiano per interfaccia e documentazione; inglese per identificatori e messaggi Git.
-> **Ultimo aggiornamento:** 23 ottobre 2026, dopo la separazione locale fra Home (`/home`) e Informazioni (`/info`), sitemap/metadati per route e tema chiaro/scuro. Nessuna pubblicazione delle modifiche locali.
+> **Ultimo aggiornamento:** 23 ottobre 2026, correzioni locali richieste dopo l’audit dei commit fino a `6e5f197`; nessuna pubblicazione eseguita.
 > **Fonti:** repository locale; piano originale `piano.md` (491 righe, integrato in questa roadmap); richiesta iniziale, risposte Q1–Q35 e successivo chiarimento del 21 ottobre 2026 su scadenza, flusso dati e previsioni. La fonte duplicata è stata rimossa su richiesta Q35 dopo il trasferimento dei contenuti utili.
 > **Ambito storico prima del batch autorizzato (superato dallo stato corrente sopra):** rimuovere la modalità dimostrativa dalla versione pubblica e mantenere un solo progetto/database Supabase finale. Per richiesta esplicita dell'utente, gli eventuali futuri dati sintetici d'integrazione andranno nello stesso database finale, con provenienza distinguibile e senza presentarli come osservazioni della stazione; nessun dato sintetico va caricato ora. Il deploy di produzione deve seguire il branch `main` su GitHub. CSV reale, collaudo Windows e WX restano aperti. [Verbale e stato del rilascio](docs/frontend-online.md).
 
@@ -82,7 +82,7 @@ Questo documento organizza il lavoro e rende esplicite le decisioni ancora apert
 | RF3 | Funzionale | Acquisizione incrementale con conferma per evento e deduplicazione verificata anche dopo risposta persa e retry concorrenti |
 | RF4 | Funzionale | Recupero offline e quarantena: dopo la ripresa ogni riga persistita è confermata, ancora accodata o esplicitamente segnalata, senza scarti silenziosi |
 | RF5 | Funzionale | Lettura secondo la matrice approvata, nessuna scrittura pubblica e nessuna esposizione dei metadati interni |
-| RF6 | Funzionale | Esportazione operativa indipendente e ripristino verificato; download pubblico escluso dall’MVP per scelta dell’utente; esportazioni riservate alla gestione |
+| RF6 | Funzionale | Esportazione operativa indipendente e ripristino verificato; la successiva richiesta PDF del 23 ottobre ammette anche download pubblici di grafici e cronologia, senza sostituire il backup |
 | RF7 | Funzionale | Stime calcolate dal progetto per +30 minuti, +1 ora e giornata, separate dalle osservazioni, con metodo/versione, dati di origine, validità e stato indisponibile; pubblicazione subordinata a verifica del modello, senza formule meteorologiche arbitrarie |
 | RF8 | Funzionale | Il PC trasferisce nuove righe complete come eventi, il backend le persiste e la pagina aperta si aggiorna senza ricaricamento manuale; obiettivo proposto nell’ordine di 30 secondi dal commit DB in condizioni normali, da misurare e confermare |
 | RNF1 | Non funzionale | Integrità: identità e timestamp preservati, transazioni locali/remoto coerenti, originali conservati secondo retention concordata |
@@ -757,7 +757,7 @@ Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ott
 | D8 | Ritardo | U: oltre atteso +20 minuti; delegata la tecnica. Configurazione iniziale proposta: 60 minuti, ancora non verificati | Stato dell’acquisizione PC con `captured_at` quando ammesso; freschezza fisica sconosciuta senza ora misura; backlog escluso e cadenza da verificare |
 | D9 | Budget/quote | Deciso (U): 0 € | Quote attuali, volumi, tolleranza ai fermi e comportamento a limite esaurito ancora aperti |
 | D10 | Retention | Deciso (U): CSV/storico permanenti | Capacità e copie sostenibili; retention log/quarantena/versioni backup aperta |
-| D11 | Download pubblico | Deciso (U): escluso | Esportazioni amministrative per backup ammesse come requisito tecnico, non download per visitatori |
+| D11 | Download pubblico | Aggiornato dalla richiesta PDF del 23 ottobre: ammessi PDF grafici e cronologia | Decisione iniziale di esclusione superata limitatamente a questi PDF; backup amministrativi separati |
 | D12 | Fuso UI | Deciso (U): Europe/Rome; scelta tecnica UTC per gli istanti assoluti | Test DST, clock e provenienza del timestamp |
 | D13 | Sessioni Arduino | Parziale: GIGA R1 dichiarato (U) | Firmware, rollover, reset e riordino da verificare |
 | D14 | Replay/perdita stato | Aperto | Registro identità e procedura di riconciliazione, prima dell’import storico |
@@ -1140,8 +1140,20 @@ Restano **proposte da approvare**, non obiettivi concordati: esportazione cifrat
 
 ## Aggiornamento 23 ottobre 2026 — Esportazione PDF (Fase 7 / UI-01)
 
+**Prevalenza sui requisiti precedenti:** questa richiesta supera le precedenti formulazioni “nessun download pubblico” (Q18), incluse le sezioni storiche e la baseline MVP. Sono ammessi i due PDF descritti qui; non vengono autorizzati ulteriori formati o servizi. RF6 e D11 sono aggiornati di conseguenza.
+
 **Richiesta dell’utente:** rendere scaricabili i grafici nel periodo attivo e tutta la cronologia in righe ordinate; comporre i PDF al momento del clic e procedere in 20 checkpoint con verifiche e commit/push per ciascuno.
 
 **Decisioni:** l’esportazione grafici rilegge i dati e riusa le trasformazioni di `prepareChart`; Auto è ancorato all’ultima acquisizione. L’esportazione cronologia rilegge `period=all`, completa tutte le pagine o fallisce senza produrre un PDF parziale. Nei documenti restano distinti acquisizione PC, misura fisica e ricezione server; null, flag di qualità e provenienza sintetica sono espliciti. I dettagli dei checkpoint e delle verifiche sono in [docs/frontend.md](docs/frontend.md) e [tasks.md](tasks.md).
 
 **Stato al checkpoint 20/20 — completato:** i due percorsi sono stati esercitati end-to-end usando l’endpoint pubblico. La cronologia genera solo dopo aver letto tutte le pagine e il test simula un errore intermedio senza produrre output parziale. PDF vuoti (cronologia senza righe, grafici senza valori validi) restano validi e non inventano dati. Prova pubblica: 11 righe sintetiche in un PDF riaperto con PDFKit. Grafici Auto: 11 righe aggiornate, tre pagine vettoriali, titoli per temperatura/umidità/pressione, periodo e generazione leggibili. Prova multipagina con 300 righe sintetiche: 11 pagine; prova Node con 5.000 righe: 173 pagine, intestazioni ripetute e ultima riga intera. I nomi dei file usano Europe/Rome come la data visualizzata nel report. Il bundle pubblico Vercel è stato confrontato byte per byte con la build finale. I grafici aggregati dichiarano i conteggi delle medie e dei campioni validi d’origine. I tempi Node non sono garanzia sui browser mobili; non è stata disponibile una prova del click in browser automatizzato. Tutti i venti checkpoint hanno verifiche e commit/push; la regressione finale è superata.
+
+
+## Audit locale 23 ottobre 2026 — Fase 7 / UI-01 e BE-06
+
+Analizzati il checkout `6e5f197` e le differenze da `93ddb98` (69 commit raggiungibili: 68 Nickybo, 1 Pietro). Suite locale completa e prove browser/PDF sintetiche superate nei limiti del [verbale](docs/project-review/README.md). Difetti verificati e ancora aperti: precisione cursore per storico senza acquisizione (COR-009), provenienza sintetica persa nei PDF dei grafici (COR-010), cronologia non aggiornata a pagina aperta (COR-011), bordo tabella PDF fuori pagina (COR-012). Prossima priorità proposta: correggere COR-009/COR-010, poi aggiornamento cronologia e layout PDF, con test mirati. Questa proposta non autorizza modifiche applicative o remote. COR-013 riguarda riepiloghi documentali superati, corretti in questo audit. Nessun task di implementazione segnato come completato.
+
+
+## Correzioni locali richieste dopo l’audit — Fase 7 / UI-01 e BE-06
+
+L’utente richiede di correggere tutti i difetti individuati eccetto quello dei sintetici, che dichiara non saranno più usati e verranno cancellati in seguito. COR-010 resta non corretto per questa decisione; nessun record eliminato. Implementati in locale: cursore e ordinamento con microsecondi (COR-009), riconciliazione e aggiornamento manuale della cronologia con mantenimento dati/pagina e data dello snapshot (COR-011), tabella PDF entro i margini (COR-012). La cronologia non scarica nuovamente tutto l’archivio a ogni polling invariato; importazioni senza nuovo latest recuperate tramite comando manuale o ritorno visibile/online. Non servono migrazioni SQL. Per rendere effettive le correzioni in produzione occorreranno pubblicazione frontend e deploy della funzione di lettura; non eseguiti in questa sessione. [Prove e limiti](docs/project-review/README.md#correzioni-locali-successive-alla-revisione). Numerazione delle fasi invariata; UI-02 e collaudi reali non chiusi.

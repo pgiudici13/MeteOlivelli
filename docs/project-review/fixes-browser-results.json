@@ -1,0 +1,17 @@
+{
+  "fixture": "synthetic",
+  "target": "build locale con API intercettata",
+  "results": [
+    "caricamento iniziale completo",
+    "nuova lettura riconcilia la cronologia",
+    "polling invariato non rilegge tutto lo storico",
+    "aggiornamento manuale include importazioni e mantiene la pagina",
+    "errore conserva campioni e pagina, retry recupera",
+    "ritorno online riconcilia anche senza nuovo latest",
+    "pagina nascosta non rilegge; ritorno visibile riconcilia",
+    "reflow 320 px",
+    "reflow 390 px",
+    "reflow 1280 px"
+  ],
+  "errors": []
+}
