@@ -3,8 +3,9 @@
 .site-header { min-height: 96px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 500; letter-spacing: -.7px; text-decoration: none; }
 .brand { justify-self: start; }
-.school-logo { display: block; width: min(200px, 58vw); padding: 4px 8px; border-radius: 3px; background: #fff; line-height: 0; justify-self: center; }
+.school-logo { display: block; width: min(200px, 58vw); line-height: 0; justify-self: center; }
 .school-logo img { display: block; width: 100%; height: auto; }
+:root:not([data-theme="light"]) .school-logo img { filter: brightness(1.55); }
 .header-actions { justify-self: end; }
 .brand-symbol { font-size: inherit; letter-spacing: inherit; display: inline-flex; align-items: center; gap: 12px; }
 .brand-symbol::after { content: ""; width: 1px; height: 1em; background: var(--border-strong); }

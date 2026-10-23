@@ -551,6 +551,8 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 
 **23 ottobre 2026 — Fase 7 / UI-01, logo scolastico:** copiato l’allegato in `public/logo-liceo-scientifico-stem-olivelli-pavia.png`; inserito al centro della top bar e nel footer sia in Home sia in Informazioni, su base bianca, con alt text descrittivo e layout responsive. Build e lint superati; 41 test frontend superati; `git diff --check` pulito. Controllo browser locale a 455 px: intestazione senza sovrapposizioni, tema chiaro in Home e scuro in Informazioni, logo presente in entrambe le route e file caricato nel footer (1041×359). Nessuna pubblicazione.
 
+**23 ottobre 2026 — Correzione logo:** rimossa la base bianca; applicato un lieve aumento di luminosità in tema scuro per la leggibilità. `npm run build`, `npm run lint` e `npm run frontend:test` (41 test) superati; controllo visivo locale conferma il logo trasparente nei temi scuro e chiaro. Commit e push richiesti dall’utente.
+
 
 **Pubblicazione richiesta — 23 ottobre 2026:** l’utente autorizza commit e push di tutte le modifiche locali: correzione Auto, misure secondarie nella hero, motore previsionale sperimentale, test/evidenze e documentazione. Target verificato `main` → `origin/main`, repository `pgiudici13/MeteOlivelli`, allineato dopo fetch. Le note precedenti “locale/non pubblicato” descrivono lo stato prima di questa autorizzazione. Il push avvia il deploy Git Vercel; la validazione meteorologica reale resta aperta e i sintetici restano esclusi dalle previsioni.
 

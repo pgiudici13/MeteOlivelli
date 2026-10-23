@@ -104,4 +104,4 @@ La palette scura resta disponibile come variante. Il tema iniziale segue `prefer
 
 ## Logo del Liceo Olivelli — 23 ottobre 2026
 
-Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Una base bianca sottile mantiene leggibile il testo blu in entrambi i temi. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
