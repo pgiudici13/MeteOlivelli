@@ -6,6 +6,8 @@ Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas 
 
 Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/), pubblicato da `main` tramite GitHub → Vercel. La dashboard è su `/home`; `/info` presenta il progetto, la stazione e la provenienza dei dati. Sono disponibili tema chiaro/scuro, logo scolastico e layout responsive. Il codice conserva lo stack React/TypeScript/Vite.
 
+Nel branch `gioca-con-il-meteo` è in sviluppo la schermata `/gioca`: quiz di dieci domande estratte casualmente da venti curiosità meteo. La pagina non è ancora pubblicata.
+
 La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client e aggiorna ogni 15 secondi mentre la pagina è visibile: è la frequenza di lettura del sito, non quella della stazione. I tempi fisici, PC e server restano distinti. Il modello statistico locale per +30m/+1h/+24h è sperimentale: le stime restano indisponibili in assenza di osservazioni reali datate e validate; i campioni sintetici non lo alimentano.
 
 **Dati aggiornati il 23 ottobre:** dieci campioni di prova ogni sei ore, inseriti su autorizzazione nel database finale con tipo applicativo `synthetic` e metadati distinti. Il sito mostra la postilla **Work in progress · Possibili dati presenti fittizi**. Non sono osservazioni Arduino e non attestano la pipeline scolastica; non esiste un selettore DEMO o un database separato. [Contratto, valori ed evidenze](docs/data-preview.md).
