@@ -1,6 +1,29 @@
-# Campioni di prova — stato al 23 ottobre 2026
+# Campioni di prova — stato al 24 ottobre 2026
 
-## Batch corrente: dieci campioni ogni sei ore
+## Batch corrente: 241 campioni ogni tre ore
+
+Su richiesta esplicita del 24 ottobre sono state sovrascritte tutte le righe
+presenti in `public.station_measurements` del progetto Supabase MeteOlivelli
+`pvtzncseisbxaaseqfvo`. La lettura prima dell’intervento mostrava 11 righe,
+tutte già `synthetic` per la sorgente `meteolivelli`; non erano presenti righe
+`live` o `historical`. Il batch `ui-preview-20261024-thirty-day-three-hour`
+contiene 241 nuovi record, uno ogni 10.800 secondi, dal 24 settembre 2026
+14:08:07 al 24 ottobre 2026 14:08:07 Europe/Rome. Gli istanti sono tempi di
+scenario, ancorati all’istante corrente della sostituzione. Temperature,
+umidità e pressione sono valori generati per il test, non misure osservate.
+
+Ogni record ha `acquisition_kind = synthetic`, `measured_at = NULL`,
+`payload._provenance.kind = synthetic`, `physical_observation = false` e
+mantiene la postilla pubblica esistente. La verifica SQL dopo la scrittura ha
+confermato 241 righe, intervalli minimo e massimo di 10.800 secondi e zero righe
+non conformi. Intervalli dei valori generati: 9,3–22,8 °C, 54,7–78,7% e
+1010,7–1017,6 hPa. Nessuna migrazione o modifica dei privilegi.
+
+La scrittura ha rimosso le 11 righe precedenti e le ha sostituite nel database;
+il vecchio batch `ui-preview-20261023-ten-six-hour` non è più presente. Le
+sezioni sottostanti sono verbali storici dei batch precedenti.
+
+## Verbale storico: dieci campioni ogni sei ore
 
 Su richiesta esplicita del 23 ottobre, aggiornati i cinque record sintetici precedenti e aggiunti altri cinque nel progetto Supabase MeteOlivelli `pvtzncseisbxaaseqfvo`. Nuovo batch `ui-preview-20261023-ten-six-hour`; il precedente `ui-preview-20261022-five-half-hour` non contiene più righe. UUID e `received_at` dei cinque record aggiornati conservati; payload e raw aggiornati coerentemente ai valori di scenario. Nessun record live/historical modificato, nessuna migrazione o modifica dei privilegi.
 

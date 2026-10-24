@@ -11,7 +11,7 @@ export interface ForecastState {
 export const initialForecastState = (): ForecastState => ({ loaded: false, error: false, run: null, serverOffset: 0 })
 export type ForecastRunner = (rows: Measurement[], now: number) => Promise<ForecastRun>
 
-/** Serie fisica indipendente dai filtri grafico; una valutazione per nuovi input. */
+/** Serie previsiva indipendente dai filtri grafico; i sintetici usano una simulazione separata. */
 export function createForecastFeed(publish: (state: ForecastState) => void, compute: ForecastRunner, reader: PageReader = readPage) {
   let state = initialForecastState()
   let signature: string | null = null
@@ -28,6 +28,7 @@ export function createForecastFeed(publish: (state: ForecastState) => void, comp
         const latest = await reader(new URLSearchParams({ view: 'latest' }), controller.signal)
         if (latest.items.length > 1 || latest.next_cursor) throw new Error('Ultima misura incoerente')
         const nextSignature = JSON.stringify(latest.items)
+        const basis = latest.items[0]?.acquisition_kind === 'synthetic' ? 'captured_at' : 'measured_at'
         state = { ...state, serverOffset: Date.parse(latest.until) - Date.now() }
         if (nextSignature !== signature || state.error || !state.loaded || Date.parse(latest.until) - historyCheckedAt >= 5 * 60000) {
           let until = latest.until
@@ -35,7 +36,7 @@ export function createForecastFeed(publish: (state: ForecastState) => void, comp
             const response = await reader(params, signal)
             until = response.until
             return response
-          }, 'measured_at')
+          }, basis)
           if (stopped) return
           const nextInputSignature = JSON.stringify(rows)
           const run = nextInputSignature === inputSignature && state.run ? state.run : await compute(rows, Date.parse(until))

@@ -1,7 +1,7 @@
 import { isSuspect, metrics } from './weather.ts'
 import type { Measurement, Metric } from './weather.ts'
 
-export const FORECAST_VERSION = 'station-statistical-v1'
+export const FORECAST_VERSION = 'station-statistical-v2'
 export const horizons = [
   { hours: 0.5, label: '+30 minuti' },
   { hours: 1, label: '+1 ora' },
@@ -28,10 +28,16 @@ export interface ForecastEstimate {
 }
 export interface ForecastRun {
   version: string
+  dataKind: 'physical' | 'synthetic' | 'none'
   generatedAt: string
   inputCount: number
   horizons: { hours: number; label: string; estimates: ForecastEstimate[] }[]
 }
+const simulationHorizons = [
+  { hours: 3, label: '+3 ore · simulazione' },
+  { hours: 6, label: '+6 ore · simulazione' },
+  { hours: 24, label: 'Giornata · +24 ore · simulazione' },
+] as const
 const hour = 3600000
 const methods: Method[] = ['persistence', 'trend', 'daily']
 const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length
@@ -87,22 +93,22 @@ function unavailable(metric: Metric, reason: string): ForecastEstimate {
   return { metric, value: null, reason, method: null, mae: null, baselineMae: null, cases: 0, selectionCases: 0, origin: null, target: null, validUntil: null, lastObservationId: null }
 }
 
-function estimate(rows: Measurement[], metric: Metric, hours: number, now: number): ForecastEstimate {
-  // L’ultima osservazione fisica governa anche assenze e allarmi del singolo campo.
+function estimate(rows: Measurement[], metric: Metric, hours: number, now: number, basis: 'measured_at' | 'captured_at', minimumCases: number): ForecastEstimate {
+  // L’ultima osservazione ammessa governa anche assenze e allarmi del singolo campo.
   const lastRow = rows.at(-1)
-  if (!lastRow) return unavailable(metric, 'Servono osservazioni reali con un orario di misura fisica. I campioni fittizi sono esclusi.')
+  if (!lastRow) return unavailable(metric, 'Servono campioni ammessi con un timestamp valido.')
   if (lastRow[metric] === null || isSuspect(lastRow, metric) || !physical(metric, lastRow[metric])) {
     return unavailable(metric, 'L’ultima osservazione di questa grandezza è assente o sospetta.')
   }
   const points = rows.filter(row => row[metric] !== null && !isSuspect(row, metric) && physical(metric, row[metric]!))
-    .map(row => ({ time: Date.parse(row.measured_at!), value: row[metric]!, received: Date.parse(row.received_at) }))
+    .map(row => ({ time: Date.parse(row[basis]!), value: row[metric]!, received: Date.parse(row.received_at) }))
   const last = points.at(-1)!
   const gaps = points.slice(-49).slice(1).map((point, index) => point.time - points.slice(-49)[index].time)
   const cadence = median(gaps)
   if (!Number.isFinite(cadence) || cadence <= 0) return unavailable(metric, 'Campioni datati insufficienti per valutare il modello.')
   if (cadence > hours * hour) return unavailable(metric, 'La cadenza dei campioni non consente di verificare questo orizzonte.')
   const expires = Math.min(last.time + cadence + 20 * 60000, last.time + hours * hour)
-  if (now >= expires) return unavailable(metric, 'Osservazioni troppo vecchie: in attesa di nuove misure reali.')
+  if (now >= expires) return unavailable(metric, 'Campioni troppo vecchi: in attesa di nuovi dati.')
   const tolerance = Math.min(hours * hour / 10, 5 * 60000)
   // Al massimo 96 origini distanziate almeno quanto l’orizzonte, senza target sovrapposti.
   const spacing = Math.max(hours * hour, (last.time - points[0].time) / 96)
@@ -130,7 +136,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   // Gli esiti usati per scegliere il metodo devono essere già noti prima dei test.
   const selection = scores.filter(score => score.target < cutoff)
   const holdout = scores.filter(score => score.time >= cutoff)
-  const eligible = methods.filter(method => selection.length >= 12 && holdout.length >= 12 &&
+  const eligible = methods.filter(method => selection.length >= minimumCases && holdout.length >= minimumCases &&
     selection.every(score => score.errors[method] !== undefined) && holdout.every(score => score.errors[method] !== undefined))
   if (!eligible.length) return unavailable(metric, 'Storico insufficiente: servono confronti datati per selezionare e poi verificare il modello.')
   const mae = (method: Method, sample: typeof scores) => mean(sample.map(score => score.errors[method]!))
@@ -151,10 +157,14 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
 /** Valutazione deterministica; i sintetici non sono ammessi come osservazioni fisiche. */
 export function buildForecast(input: Measurement[], now: number): ForecastRun {
   if (!Number.isFinite(now)) throw new Error('Orario di valutazione non valido')
+  const physicalInput = input.some(row => ['live', 'historical'].includes(row.acquisition_kind ?? '') && row.measured_at)
+  const dataKind: ForecastRun['dataKind'] = physicalInput ? 'physical' : input.some(row => row.acquisition_kind === 'synthetic' && row.captured_at) ? 'synthetic' : 'none'
+  const basis = dataKind === 'synthetic' ? 'captured_at' : 'measured_at'
+  const selectedHorizons = dataKind === 'synthetic' ? simulationHorizons : horizons
   const byTime = new Map<number, Measurement | null>()
   for (const row of input) {
-    if (!['live', 'historical'].includes(row.acquisition_kind ?? '') || !row.measured_at) continue
-    const time = Date.parse(row.measured_at)
+    if (dataKind === 'synthetic' ? row.acquisition_kind !== 'synthetic' || !row.captured_at : !['live', 'historical'].includes(row.acquisition_kind ?? '') || !row.measured_at) continue
+    const time = Date.parse(row[basis]!)
     const received = Date.parse(row.received_at)
     if (!Number.isFinite(time) || !Number.isFinite(received) || time > now || received > now || time > received || time < now - 30 * 24 * hour) continue
     const existing = byTime.get(time)
@@ -162,6 +172,6 @@ export function buildForecast(input: Measurement[], now: number): ForecastRun {
     byTime.set(time, existing === undefined ? row : existing?.ingestion_id === row.ingestion_id ? existing : null)
   }
   const rows = [...byTime.entries()].sort(([a], [b]) => a - b).flatMap(([, row]) => row ? [row] : [])
-  return { version: FORECAST_VERSION, generatedAt: iso(now), inputCount: rows.length,
-    horizons: horizons.map(horizon => ({ ...horizon, estimates: metrics.map(({ key }) => estimate(rows, key, horizon.hours, now)) })) }
+  return { version: FORECAST_VERSION, dataKind, generatedAt: iso(now), inputCount: rows.length,
+    horizons: selectedHorizons.map(horizon => ({ ...horizon, estimates: metrics.map(({ key }) => estimate(rows, key, horizon.hours, now, basis, dataKind === 'synthetic' ? 4 : 12)) })) }
 }

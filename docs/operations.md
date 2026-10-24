@@ -45,18 +45,18 @@ curl --fail --silent --show-error 'https://pvtzncseisbxaaseqfvo.supabase.co/func
 
 ## Campioni sintetici e passaggio ai dati reali
 
-Batch corrente `ui-preview-20261023-ten-six-hour`, dieci record `synthetic` ogni sei ore nel database finale (richiesta del 23 ottobre). [Contratto e prove](data-preview.md). La sola postilla concordata deve rimanere visibile finché sono esposti. Non cambiare il tipo in `live` né assegnare loro una data fisica.
+Batch corrente `ui-preview-20261024-thirty-day-three-hour`, 241 record `synthetic` ogni tre ore nel database finale, dal 24 settembre alle 14:08:07 al 24 ottobre alle 14:08:07 Europe/Rome (richiesta del 24 ottobre). Ha sostituito tutte le righe presenti, che erano 11 e tutte sintetiche. [Contratto e prove](data-preview.md). La sola postilla concordata deve rimanere visibile finché sono esposti. Non cambiare il tipo in `live` né assegnare loro una data fisica.
 
 Per l’ispezione amministrativa in sola lettura, senza segreti:
 
 ```sql
 select ingestion_id, acquisition_kind, captured_at, measured_at
 from public.station_measurements
-where payload->'_provenance'->>'batch_id' = 'ui-preview-20261023-ten-six-hour'
+where payload->'_provenance'->>'batch_id' = 'ui-preview-20261024-thirty-day-three-hour'
 order by captured_at;
 ```
 
-OPS-03 deve definire se conservarli identificati o rimuoverli su richiesta. Prima di una cancellazione: confermare batch e dieci UUID contro l’evidenza, concordare l’eventuale copia, preparare una transazione limitata a quei record e richiedere l’autorizzazione. Nessun `DELETE` è eseguito da questa guida. Non usare `source_id = meteolivelli` come criterio di pulizia: è condiviso con i futuri campioni reali.
+OPS-03 deve definire se conservarli identificati o rimuoverli su richiesta. Prima di una cancellazione futura: confermare batch e 241 UUID contro l’evidenza, concordare l’eventuale copia, preparare una transazione limitata a quei record e richiedere l’autorizzazione. La sostituzione del 24 ottobre è già stata eseguita su richiesta esplicita. Non usare `source_id = meteolivelli` come criterio di pulizia: è condiviso con i futuri campioni reali.
 
 Alla prima misura reale verificare che `latest` privilegi `live`, controllare che le curve non inducano a confondere campioni reali e di prova e decidere il destino del batch. Solo dopo la verifica della rimozione dall’esposizione pubblica valutare una modifica della postilla, separatamente autorizzata. Aggiornare la documentazione nello stesso intervento.
 

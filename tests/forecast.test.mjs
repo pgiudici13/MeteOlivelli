@@ -19,11 +19,23 @@ function series(count = 1440, step = hour / 2, value = i => 18 + 5 * Math.sin(i 
 const nowOf = rows => Date.parse(rows.at(-1).received_at) + 1000
 const get = (run, horizon = 0, metric = 0) => run.horizons[horizon].estimates[metric]
 
-test('previsioni: i dieci sintetici, date PC e provenienza ignota non alimentano il modello', () => {
-  for (const transform of [row => ({ ...row, acquisition_kind: 'synthetic' }), row => ({ ...row, measured_at: null }), row => ({ ...row, acquisition_kind: undefined })]) {
+test('previsioni: la simulazione usa captured_at, resta distinta e propone orizzonti compatibili con la cadenza', () => {
+  const rows = series(241, 3 * hour, i => 15 + 4 * Math.sin((i % 8) * Math.PI / 4)).map(row => ({
+    ...row, acquisition_kind: 'synthetic', measured_at: null,
+  }))
+  const run = buildForecast(rows, nowOf(rows))
+  assert.equal(run.dataKind, 'synthetic')
+  assert.ok(run.inputCount >= 240)
+  assert.deepEqual(run.horizons.map(item => item.hours), [3, 6, 24])
+  assert.ok(run.horizons.every(h => h.estimates.every(e => e.value !== null)))
+  assert.ok(run.horizons.every(h => h.estimates.every(e => e.target && e.origin)))
+})
+test('previsioni fisiche: date PC e provenienza ignota non alimentano il modello', () => {
+  for (const transform of [row => ({ ...row, measured_at: null }), row => ({ ...row, acquisition_kind: undefined })]) {
     const rows = series(10, 6 * hour).map(transform)
     const run = buildForecast(rows, nowOf(rows))
     assert.equal(run.inputCount, 0)
+    assert.equal(run.dataKind, 'none')
     assert.ok(run.horizons.every(h => h.estimates.every(e => e.value === null)))
   }
 })
@@ -35,7 +47,7 @@ test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato se
   assert.ok(temperature.mae < temperature.baselineMae)
   assert.ok(temperature.cases >= 12 && temperature.selectionCases >= 12)
   assert.equal(temperature.lastObservationId, rows.at(-1).ingestion_id)
-  assert.equal(run.version, 'station-statistical-v1')
+  assert.equal(run.version, 'station-statistical-v2')
   assert.equal(Date.parse(temperature.target) - Date.parse(temperature.origin), hour / 2)
   assert.ok(get(run, 2).value !== null)
   assert.equal(get(run, 2).target, new Date(Date.parse(rows.at(-1).measured_at) + 24 * hour).toISOString())
@@ -130,6 +142,19 @@ test('feed previsioni: lettura dedicata, cache a input invariati, recupero e sto
   feed.stop()
   await feed.refresh()
   assert.equal(published, before)
+})
+
+test('feed previsioni: i campioni synthetic richiedono lo storico captured_at', async () => {
+  const rows = series(241, 3 * hour).map(row => ({ ...row, acquisition_kind: 'synthetic', measured_at: null }))
+  const bases = []
+  const feed = createForecastFeed(() => {}, async (input, now) => buildForecast(input, now), async params => {
+    const latest = params.get('view') === 'latest'
+    if (!latest) bases.push(params.get('basis'))
+    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: latest ? 'captured_at' : 'captured_at' }
+  })
+  await feed.refresh()
+  assert.deepEqual(bases, ['captured_at'])
+  feed.stop()
 })
 
 
