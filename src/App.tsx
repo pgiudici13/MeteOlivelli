@@ -5,7 +5,7 @@ import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
-import { formatTime, formatValue, getFreshness, isSuspect, metrics, periods } from './weather.ts'
+import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
@@ -30,12 +30,11 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
   const [nextPage, setNextPage] = useState(0)
   const [direction, setDirection] = useState<'older' | 'newer'>('older')
-  const ordered = [...rows].reverse()
-  const pages = Math.ceil(ordered.length / 6)
+  const days = groupHistoryByLocalDay([...rows].reverse())
+  const pages = days.length
   const current = Math.min(page, Math.max(0, pages - 1))
-  const visible = ordered.slice(current * 6, current * 6 + 6)
-  const firstVisible = current * 6 + 1
-  const lastVisible = Math.min((current + 1) * 6, ordered.length)
+  const visibleDay = days[current]
+  const visible = visibleDay?.rows ?? []
 
   useLayoutEffect(() => {
     if (transition === 'idle' || !tableRef.current) return
@@ -76,9 +75,10 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   }
 
   return <>
+    {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} acquisiti in questo giorno</p></div>}
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
-      <caption className="sr-only">Tutti i campioni in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione e indicati come tali. Valori sospetti segnalati per campo.</caption>
+      <caption className="sr-only">Campioni del {visibleDay?.label ?? 'giorno selezionato'} in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione. Valori sospetti segnalati per campo.</caption>
       <thead><tr><th scope="col">Acquisizione / ricezione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
         <th scope="row">{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
@@ -93,7 +93,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
     </div>
     {pages > 1 && <nav className="pagination" aria-label="Pagine dei campioni">
       <button disabled={current === 0 || transition !== 'idle'} onClick={() => changePage(current - 1)}>Più recenti</button>
-      <p aria-live="polite">Pagina {current + 1} di {pages}<span className="pagination-range"> · Campioni {firstVisible}–{lastVisible} di {ordered.length}</span></p>
+      <p aria-live="polite">Giorno {current + 1} di {pages}<span className="pagination-range"> · {visibleDay?.label} · {visible.length} campioni</span></p>
       <button disabled={current + 1 === pages || transition !== 'idle'} onClick={() => changePage(current + 1)}>Precedenti</button>
     </nav>}
   </>

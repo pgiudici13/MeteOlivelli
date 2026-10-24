@@ -2,7 +2,7 @@ import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory } from '../src/weather.ts'
+import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
@@ -348,6 +348,17 @@ test('cronologia completa: pagina tutto lo storico, include date mancanti e ordi
     return page([undated, row(1)])
   })
   assert.deepEqual(result.map(item => item.ingestion_id), [row(1), row(3), undated].map(item => item.ingestion_id))
+})
+test('cronologia: raggruppa ogni pagina per giorno civile Europe/Rome, anche al cambio UTC', () => {
+  const rows = [
+    row(3, { captured_at: '2026-10-24T08:00:00.000Z' }),
+    row(2, { captured_at: '2026-10-24T01:00:00.000Z' }),
+    row(1, { captured_at: '2026-10-23T21:30:00.000Z' }),
+  ]
+  const days = groupHistoryByLocalDay(rows)
+  assert.deepEqual(days.map(day => day.key), ['2026-10-24', '2026-10-23'])
+  assert.deepEqual(days.map(day => day.rows.length), [2, 1])
+  assert.equal(days[0].label, '24 ottobre 2026')
 })
 test('cronologia completa: non applica finestre o limiti a cento pagine', async () => {
   let calls = 0

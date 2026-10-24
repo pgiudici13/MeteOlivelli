@@ -101,7 +101,12 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
     return unavailable(metric, 'L’ultima osservazione di questa grandezza è assente o sospetta.')
   }
   const points = rows.filter(row => row[metric] !== null && !isSuspect(row, metric) && physical(metric, row[metric]!))
-    .map(row => ({ time: Date.parse(row[basis]!), value: row[metric]!, received: Date.parse(row.received_at) }))
+    .map(row => {
+      const time = Date.parse(row[basis]!)
+      // In una simulazione, la ricezione segue il tempo dello scenario: i record
+      // sono stati caricati insieme e received_at descrive solo l'importazione.
+      return { time, value: row[metric]!, received: basis === 'captured_at' ? time : Date.parse(row.received_at) }
+    })
   const last = points.at(-1)!
   const gaps = points.slice(-49).slice(1).map((point, index) => point.time - points.slice(-49)[index].time)
   const cadence = median(gaps)
@@ -154,7 +159,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
     origin: iso(last.time), target: iso(last.time + hours * hour), validUntil: iso(expires), lastObservationId: lastRow.ingestion_id }
 }
 
-/** Valutazione deterministica; i sintetici non sono ammessi come osservazioni fisiche. */
+/** Valutazione deterministica; i sintetici restano una simulazione separata dalle stime fisiche. */
 export function buildForecast(input: Measurement[], now: number): ForecastRun {
   if (!Number.isFinite(now)) throw new Error('Orario di valutazione non valido')
   const physicalInput = input.some(row => ['live', 'historical'].includes(row.acquisition_kind ?? '') && row.measured_at)

@@ -98,6 +98,29 @@ export function compareHistoryMeasurements(a: Measurement, b: Measurement): numb
   return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 
+export interface HistoryDay { key: string; label: string; rows: Measurement[] }
+const romeDayParts = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' })
+const romeDayLabel = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: 'long', day: 'numeric' })
+function localDay(value: string): string {
+  const parts = Object.fromEntries(romeDayParts.formatToParts(new Date(value)).map(part => [part.type, part.value]))
+  return `${parts.year}-${parts.month}-${parts.day}`
+}
+/** Raggruppa le righe per giorno civile di Pavia; usa received_at solo se manca captured_at. */
+export function groupHistoryByLocalDay(rows: Measurement[]): HistoryDay[] {
+  const days: HistoryDay[] = []
+  for (const row of rows) {
+    const timestamp = row.captured_at ?? row.received_at
+    const key = localDay(timestamp)
+    let day = days.at(-1)
+    if (!day || day.key !== key) {
+      day = { key, label: romeDayLabel.format(new Date(timestamp)), rows: [] }
+      days.push(day)
+    }
+    day.rows.push(row)
+  }
+  return days
+}
+
 /** Cronologia completa, inclusi i record senza ora di acquisizione. */
 export async function readAllHistory(signal: AbortSignal, reader: PageReader = readPage): Promise<Measurement[]> {
   const items = new Map<string, Measurement>()

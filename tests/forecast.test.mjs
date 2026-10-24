@@ -20,10 +20,14 @@ const nowOf = rows => Date.parse(rows.at(-1).received_at) + 1000
 const get = (run, horizon = 0, metric = 0) => run.horizons[horizon].estimates[metric]
 
 test('previsioni: la simulazione usa captured_at, resta distinta e propone orizzonti compatibili con la cadenza', () => {
-  const rows = series(241, 3 * hour, i => 15 + 4 * Math.sin((i % 8) * Math.PI / 4)).map(row => ({
-    ...row, acquisition_kind: 'synthetic', measured_at: null,
+  const scenarioStart = Date.parse('2026-09-24T12:08:07Z')
+  const receivedAt = '2026-10-24T12:09:00.000Z'
+  const rows = Array.from({ length: 241 }, (_, i) => ({
+    acquisition_kind: 'synthetic', ingestion_id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
+    captured_at: new Date(scenarioStart + i * 3 * hour).toISOString(), measured_at: null, received_at: receivedAt,
+    temperature_c: 15 + 4 * Math.sin((i % 8) * Math.PI / 4), humidity_pct: 65, pressure_hpa: 1015, quality_flags: [],
   }))
-  const run = buildForecast(rows, nowOf(rows))
+  const run = buildForecast(rows, Date.parse('2026-10-24T12:10:00Z'))
   assert.equal(run.dataKind, 'synthetic')
   assert.ok(run.inputCount >= 240)
   assert.deepEqual(run.horizons.map(item => item.hours), [3, 6, 24])

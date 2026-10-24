@@ -12,7 +12,7 @@ const errors = []
 const check = async (name, run) => { await run(); results.push({ name, passed: true }); console.log(`OK ${name}`) }
 const rows = Array.from({ length: 12 }, (_, index) => ({
   acquisition_kind: 'synthetic', ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
-  captured_at: new Date(Date.UTC(2026, 9, 23, index)).toISOString(), measured_at: null,
+  captured_at: new Date(Date.UTC(2026, 9, 22 + Math.floor(index / 6), index % 6)).toISOString(), measured_at: null,
   received_at: '2026-10-23T12:00:00.000Z', temperature_c: 15 + index / 2,
   humidity_pct: 60 + index, pressure_hpa: 1010 + index, quality_flags: [],
 }))

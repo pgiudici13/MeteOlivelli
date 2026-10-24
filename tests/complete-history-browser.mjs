@@ -15,7 +15,7 @@ const row = index => ({
   acquisition_kind: 'synthetic',
   ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   temperature_c: 20 + index / 10, humidity_pct: 60, pressure_hpa: 1015,
-  captured_at: new Date(Date.UTC(2026, 9, 23, 8, index)).toISOString(),
+  captured_at: new Date(Date.UTC(2026, 9, 21 + Math.floor(index / 6), 8, index % 6)).toISOString(),
   received_at: '2026-10-23T12:00:00.000Z', measured_at: null, quality_flags: [],
 })
 const check = async (name, action) => { await action(); results.push(name); console.log(`OK ${name}`) }
