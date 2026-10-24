@@ -1,4 +1,6 @@
-import { useLayoutEffect, useId, useRef, useMemo } from 'react'
+import { animate } from 'motion/mini'
+import type { AnimationPlaybackControls } from 'motion'
+import { useLayoutEffect, useId, useRef, useMemo, useState } from 'react'
 import { prepareChart } from '../chart.ts'
 import { animateOnEntrance } from '../motion.ts'
 import { formatValue, metrics } from '../weather.ts'
@@ -9,6 +11,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
+  const [selection, setSelection] = useState<{ id: string; series: string } | null>(null)
   const ref = useRef<HTMLElement>(null)
   const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until) : null, [rows, metric.key, period, until])
   const segments = prepared?.segments ?? []
@@ -36,18 +39,32 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
     const plot = element.querySelector('svg')
     if (!plot) return
     return animateOnEntrance(plot, () => {
-      const animations: Animation[] = []
+      const animations: AnimationPlaybackControls[] = []
       const mask = element.querySelector('.chart-reveal-mask')
-      if (mask) animations.push(mask.animate([
-        { width: '0px' }, { width: `${mask.getAttribute('width')}px` },
-      ], { duration: 700, delay: 60, easing: 'linear', fill: 'backwards' }))
+      if (mask) animations.push(animate(mask, { width: ['0px', `${mask.getAttribute('width')}px`] }, { duration: 0.7, delay: 0.06, ease: 'linear' }))
       element.querySelectorAll('.chart-gridline').forEach((line, index) => {
-        animations.push(line.animate([{ opacity: 0 }, { opacity: 1 }],
-          { duration: 220, delay: index * 30, fill: 'backwards' }))
+        animations.push(animate(line, { opacity: [0, 1] },
+          { duration: 0.22, delay: index * 0.03 }))
       })
       return animations
+    }, () => {
+      // Motion conserva lo stile finale: ripristina la larghezza SVG dichiarata
+      // prima di una nuova serie o quando si attiva il movimento ridotto.
+      element.querySelector<SVGElement>('.chart-reveal-mask')?.style.removeProperty('width')
+      element.querySelectorAll<SVGElement>('.chart-gridline').forEach(line => line.style.removeProperty('opacity'))
     })
   }, [seriesKey, period, loading, error])
+  const active = selection?.series === seriesKey ? points.find(point => point.id === selection.id) : undefined
+  function selectPoint(index: number) {
+    const point = points[Math.max(0, Math.min(points.length - 1, index))]
+    if (point) setSelection(previous => previous?.id === point.id && previous.series === seriesKey ? previous : { id: point.id, series: seriesKey })
+  }
+  function selectAt(clientX: number, svg: SVGSVGElement) {
+    const bounds = svg.getBoundingClientRect()
+    const position = (clientX - bounds.left) / bounds.width * 352
+    const nearest = points.reduce((best, point, index) => Math.abs(x(point) - position) < Math.abs(x(points[best]) - position) ? index : best, 0)
+    selectPoint(nearest)
+  }
   return (
     <article ref={ref} className={`chart tone-${metric.tone}`} aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`}>{metric.name} · {metric.unit}</h3>
@@ -55,7 +72,19 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
       {loading || error || !points.length || !timeline ? (
         <div className="chart-empty">{loading ? 'Caricamento del grafico…' : error ? 'Grafico temporaneamente non disponibile.' : rows.length ? 'Nessun valore valido da tracciare. Consulta i campioni nella tabella.' : 'Il grafico apparirà quando saranno disponibili misure in questo periodo.'}</div>
       ) : (
-        <svg viewBox="0 0 352 210" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+        <svg viewBox="0 0 352 210" role="img" tabIndex={0}
+          aria-describedby={`${id}-interaction`}
+          onPointerMove={event => { if (event.pointerType !== 'touch') selectAt(event.clientX, event.currentTarget) }}
+          onPointerDown={event => { if (event.pointerType === 'touch') selectAt(event.clientX, event.currentTarget) }}
+          onPointerLeave={event => { if (document.activeElement !== event.currentTarget) setSelection(null) }}
+          onFocus={() => selectPoint(points.length - 1)} onBlur={() => setSelection(null)}
+          onKeyDown={event => {
+            if (event.key === 'Escape') { setSelection(null); return }
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+            event.preventDefault()
+            const index = active ? points.indexOf(active) : points.length - 1
+            selectPoint(event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1 : index + (event.key === 'ArrowLeft' ? -1 : 1))
+          }} aria-labelledby={`${id}-title ${id}-desc`}>
           <desc id={`${id}-desc`}>{points.length} {prepared?.averaged ? 'medie giornaliere calcolate dai campioni validi' : 'campioni validi'}, minimo {formatValue(min)} e massimo {formatValue(max)} {metric.unit}. {prepared?.averaged ? 'Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.' : 'Asse orizzontale: acquisizione sul PC, Europe/Rome.'} Valori assenti o sospetti interrompono la linea. Da {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start)} a {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end)}. Finestra completa: {period === 'auto' ? 'adattata ai dati' : period === '24h' ? '24 ore' : period === '7g' ? '7 giorni' : period === '14g' ? '14 giorni' : '30 giorni'}. Tutti i campioni sono consultabili sotto.</desc>
           <defs><clipPath id={`${id}-reveal`}><rect className="chart-reveal-mask" x={revealStart} y="12" width={revealWidth} height="168" /></clipPath></defs>
           {timeline.ticks.map(tick => <g key={tick.time}>
@@ -70,10 +99,15 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
             {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
             {segment.map(row => <circle key={row.id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{row.label} · {formatValue(row.value)} {metric.unit}</title></circle>)}
           </g>)}</g>
+          {active && <g className="chart-selection" aria-hidden="true">
+            <line x1={x(active)} x2={x(active)} y1="16" y2="176" />
+            <circle cx={x(active)} cy={y(active)} r="5" />
+          </g>}
           <text x="58" y="202" textAnchor="start">{timeline.startLabel}</text>
           <text x="336" y="202" textAnchor="end">{timeline.endLabel}</text>
         </svg>
       )}
+      {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${metric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
       <p className="small">{points.length ? `${prepared?.averaged ? 'Min medie' : 'Min'} ${formatValue(min)} · max ${formatValue(max)} ${metric.unit}` : 'Nessuna interpolazione dei dati mancanti.'}</p>
       <p className="chart-period-note small">{period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>

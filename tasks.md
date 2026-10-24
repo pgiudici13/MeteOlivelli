@@ -330,6 +330,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-01 — Costruire la dashboard italiana essenziale
 
+- **Revisione locale Motion — 23 ottobre 2026:** dipendenza `motion`, ingressi/titoli per parole, microinterazioni dei controlli e paginazione basata sul completamento effettivo. SVG esplorabili con mouse/tocco e tastiera, mantenendo punti originali e medie dichiarate. Movimento ridotto e cleanup conservati. Build/lint e 74 test frontend superati; cinque scenari Chrome locali con fixture sintetiche, quattro route, temi chiaro/scuro e reflow 320/390/1280 px; nessun errore JavaScript non gestito. [Evidenze](docs/motion-verification/results.json), [specifiche](design.md#motion-e-interazioni--23-ottobre-2026). Nessun commit/push/deploy eseguito.
+
 - [x] **Stato: dashboard implementata, pubblicata e verificata il 22 ottobre 2026; collaudo della stazione reale separato.**
 - **Esito corrente:** UI Factory con titolo grande e pannello temperatura a destra su desktop, tema scuro, Inter locale, marchio `MO. | MeteOlivelli`, postilla, schede, quattro grafici SVG, filtri 24h/7g/30g e cronologia paginata con dettagli qualità/tempi. Solo GET BE-06, nessuna chiave client o dipendenza nuova per grafici/motion.
 - **Interazioni:** ingressi nascosti prima del paint e attivati individualmente in vista; curva/area/punti progressivi, riflesso locale sul bordo con inerzia, nessuna illuminazione del divisore quando si puntano i filtri. Focus tastiera e movimento ridotto rivelano i contenuti immediatamente. [Specifiche](design.md).

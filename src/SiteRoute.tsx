@@ -1,3 +1,4 @@
+import { usePageMotion } from './use-page-motion.ts'
 import { useEffect } from 'react'
 import App from './App.tsx'
 import { InfoPage } from './pages/InfoPage.tsx'
@@ -5,6 +6,7 @@ import { PrivacyPage } from './pages/PrivacyPage.tsx'
 import { QuizPage } from './pages/QuizPage.tsx'
 
 export function SiteRoute() {
+  usePageMotion()
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
 
   useEffect(() => {

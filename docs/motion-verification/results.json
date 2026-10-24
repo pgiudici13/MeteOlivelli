@@ -1,0 +1,26 @@
+{
+  "source": "fixture sintetica locale; nessuna misura della stazione",
+  "results": [
+    {
+      "name": "titolo animato, grafico progressivo e movimento ridotto dinamico",
+      "passed": true
+    },
+    {
+      "name": "grafico: puntatore, frecce, estremi e campione reale della fixture",
+      "passed": true
+    },
+    {
+      "name": "controlli: hover, pressione e annullamento dinamico",
+      "passed": true
+    },
+    {
+      "name": "paginazione Motion completa, inversione e movimento ridotto durante uscita",
+      "passed": true
+    },
+    {
+      "name": "tutte le pagine, entrambi i temi e reflow 320/390/1280 px",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

@@ -50,9 +50,9 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 
 | Elemento | Comportamento corrente |
 |---|---|
-| Header | Dissolvenza e spostamento da −8 px, 350 ms |
+| Header | Motion, dissolvenza e spostamento da −8 px, 420 ms |
 | Hero e sezioni | Dissolvenza e spostamento da +12 px, 420 ms |
-| Elementi intro e schede | Observer individuale, ritardi 0/80/160 ms |
+| Elementi intro e schede | Observer individuale, ritardi 0/60/120 ms; nessuna doppia traslazione del contenitore |
 | Griglia del grafico | Dissolvenza 220 ms, ritardo 30 ms fra linee |
 | Serie (curve, area, punti) | Rivelazione da sinistra a destra con una sola maschera SVG, 700 ms dopo 60 ms, easing lineare |
 
@@ -74,7 +74,7 @@ Rilasci UI `fab71cb`, dati/contratto `bce39e2`, produzione verificata sul domini
 
 Le revisioni intermedie — pannello chiaro, marchi “m.” e “O”, hover uniforme e ingressi senza stato nascosto — sono state sostituite dalla specifica sopra. I problemi verificati sono in [CORRECTIONS.md](CORRECTIONS.md), in particolare COR-005 e COR-006. Gli screenshot precedenti in `docs/design-review/` e `docs/frontend-verification/` restano evidenze storiche, non lo stato corrente.
 
-Il test visuale non certifica WCAG, prestazioni su telefono reale, funzionamento Arduino o freschezza delle misure. Il modello previsionale resta non validato. Nessuna nuova libreria di animazione o grafici introdotta.
+Il test visuale non certifica WCAG, prestazioni su telefono reale, funzionamento Arduino o freschezza delle misure. Il modello previsionale resta non validato. La revisione Motion del 23 ottobre introduce la libreria di animazione; i grafici restano SVG del progetto.
 
 ## Scale temporali e correzione al refresh — 22 ottobre 2026
 
@@ -122,3 +122,16 @@ Il percorso dei dati è una sequenza numerata di sensori, Arduino, archivio e si
 ## Cronologia e PDF — correzioni locali del 23 ottobre 2026
 
 La Cronologia aggiunge il comando “Aggiorna cronologia”, con gli stili dei pulsanti già presenti, e la data di rilettura dello snapshot. La tabella e la pagina selezionata restano visibili durante aggiornamento ed errore; gli avvisi distinguono il caricamento iniziale dai dati precedentemente letti. Nessun cambio di palette o animazione. Il PDF cronologia mantiene A4 orizzontale e margini laterali di 28 pt: colonne degli orari ridimensionate, tre colonne dei valori flessibili e intestazione ripetuta sulle pagine. Verifiche e schermata in [verbale](docs/project-review/README.md#correzioni-locali-successive-alla-revisione).
+
+
+## Motion e interazioni — 23 ottobre 2026
+
+Revisione locale richiesta dall’utente: `motion/mini` gestisce ingressi, disegno SVG, titolo, microinterazioni e paginazione con il motore Web Animations di Motion. Non richiede Motion+ né servizi esterni in esecuzione. I riflessi dei bordi e i riscontri cromatici restano nelle implementazioni esistenti.
+
+- Titolo delle quattro pagine: parole intere in sequenza, dissolvenza e +12 px in 480 ms; ritardo 45 ms limitato a 200 ms. Spazi, a-capo, reflow e semantica del singolo h1 conservati. Nessun effetto macchina da scrivere o lettere casuali sui dati.
+- Informazioni e Privacy: sezioni autonome in ingresso una sola volta, 420 ms e +10 px. La Home conserva observer individuali per le schede; postilla fuori dagli effetti.
+- Pulsanti abilitati e link di navigazione/CTA: hover −2 px, pressione scala 0,97, ritorno in 160 ms. Un solo insieme di listener con cleanup gestisce anche i controlli dinamici. Le risposte quiz conservano il proprio ripple e le animazioni dedicate.
+- Cronologia: uscita e ingresso delle righe in 180 ms per fase, ritardo 25 ms fra righe; la fase successiva segue il completamento effettivo, senza timer a durata stimata. Movimento ridotto anche durante un passaggio completa subito il cambio.
+- Grafici: maschera lineare in 700 ms e griglia in 220 ms conservate, ora tramite Motion. Il puntatore o il tocco selezionano il punto più vicino; focus e frecce scorrono i punti, Home/End raggiungono gli estremi, Escape chiude la selezione. Un cursore verticale e una didascalia mostrano soltanto il valore e l’etichetta del punto esistente, incluse le medie dichiarate. Nessuna curva o misura intermedia creata.
+
+Con movimento ridotto gli ingressi e le microinterazioni sono esclusi e gli effetti in corso vengono cancellati; focus rivela subito il contenuto. Le larghezze applicate alla maschera da Motion vengono ripristinate prima di nuove serie e al cambio preferenza. Scroll manuale nativo e controlli HTML conservati. Evidenze locali con fixture sintetiche in [motion-verification](docs/motion-verification/results.json); nessuna nuova pubblicazione.

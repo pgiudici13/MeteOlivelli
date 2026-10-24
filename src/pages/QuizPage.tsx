@@ -1,3 +1,4 @@
+import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { drawQuizQuestions, getQuizAnswerFeedback, type QuizQuestion } from '../quiz.ts'
@@ -70,7 +71,7 @@ export function QuizPage() {
     <main id="quiz-content" tabIndex={-1}>
       <section className="quiz-hero" aria-labelledby="quiz-title">
         <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> MeteOlivelli · Curiosità meteo</p>
-        <h1 id="quiz-title">Gioca con<br />il meteo<span className="title-stop">.</span></h1>
+        <AnimatedHeading id="quiz-title" lines={["Gioca con", "il meteo"]} />
         <p className="quiz-lead">Dieci domande, venti curiosità e un cielo pieno di sorprese. Quante ne sai?</p>
       </section>
 

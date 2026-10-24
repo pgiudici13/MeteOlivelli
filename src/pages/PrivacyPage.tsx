@@ -1,3 +1,4 @@
+import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import './PrivacyPage.css'
@@ -34,7 +35,7 @@ export function PrivacyPage() {
     <main id="privacy-content" tabIndex={-1}>
       <section className="privacy-hero" aria-labelledby="privacy-title">
         <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Trasparenza · Privacy</p>
-        <h1 id="privacy-title">Privacy e dati<span className="title-stop">.</span></h1>
+        <AnimatedHeading id="privacy-title" lines={["Privacy e dati"]} />
         <p className="info-lead">Qui spieghiamo quali dati tratta il sito, per quali finalità e come gestire le preferenze statistiche.</p>
       </section>
 

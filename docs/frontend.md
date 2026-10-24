@@ -147,3 +147,20 @@ Distribuzione: la route pubblica `/home` serve il bundle con entrambi i pulsanti
 ## Correzioni successive all’audit — 23 ottobre 2026
 
 COR-009, COR-011 e COR-012 corretti localmente su richiesta utente. L’ordine della cronologia e del PDF conserva i microsecondi; il cursore backend mantiene la precisione PostgreSQL e accetta i vecchi cursori millisecondo. Il PDF usa larghezze flessibili per i valori, entro i margini anche con più pagine. La cronologia segue le novità dell’ultima lettura, il ritorno alla pagina/online e il comando manuale; quest’ultimo serve anche per gli import storici che non cambiano latest. La data di rilettura usa l’orologio del browser e non indica né ora fisica né freschezza della stazione. [Prove finali](project-review/README.md#correzioni-locali-successive-alla-revisione). La gestione dei sintetici e COR-010 restano invariati per richiesta esplicita; cancellazione futura non eseguita. Nessun deploy frontend/backend o test remoto eseguito.
+
+
+## Motion — verifica locale del 23 ottobre 2026
+
+Integrata la dipendenza npm `motion`, usando l’importazione ridotta `motion/mini` secondo la [documentazione ufficiale](https://motion.dev/docs/quick-start). `src/motion.ts` conserva il coordinamento di observer, focus, preferenza ridotta e cleanup, delegando l’animazione a Motion. `AnimatedHeading` anima le parole dei titoli senza duplicare il testo accessibile; `usePageMotion` gestisce header, sezioni editoriali e riscontro dei controlli. `Reveal` evita animazioni concorrenti su contenitore e figli. La paginazione passa da keyframe CSS/timer al completamento delle animazioni Motion.
+
+I grafici conservano le serie e le interruzioni originali. Selezione con puntatore/tocco, frecce, Home/End ed Escape; punto evidenziato e didascalia testuale con valore/etichetta esistenti. Nessun conteggio numerico da zero. Hover solo mouse, pressione sui controlli abilitati, movimento ridotto dinamico; le risposte quiz mantengono la propria animazione dedicata. Specifiche correnti in [design.md](../design.md#motion-e-interazioni--23-ottobre-2026).
+
+Verifiche: build e lint superati, 74 test frontend superati; cinque scenari browser dedicati con Chrome headless e fixture esplicitamente sintetiche, senza accessi API remoti. Coperti ingressi e disegno, preferenza ridotta dinamica, esplorazione dei grafici, hover, completamento/inversione della paginazione e interruzione con movimento ridotto. Reflow verificato a 320/390/1280 px sulle route Home/Informazioni/Privacy/Gioca in tema chiaro e scuro; nessun errore JavaScript non gestito. Risultati e schermate in [motion-verification](motion-verification/results.json). Le prove non attestano misurazioni reali, telefono fisico o conformità WCAG complessiva. Build segnala ancora chunk PDF oltre 500 kB.
+
+Ripetibilità, con Vite locale già avviato:
+
+```sh
+node tests/motion-browser.mjs /percorso/playwright/index.mjs /percorso/chrome http://127.0.0.1:5179
+```
+
+Nessun commit, push, deploy o modifica dei servizi remoti eseguiti per questa revisione.

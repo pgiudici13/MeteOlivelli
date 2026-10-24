@@ -1,3 +1,4 @@
+import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import './InfoPage.css'
@@ -34,7 +35,7 @@ export function InfoPage() {
     <main id="info-content" tabIndex={-1}>
       <section className="info-hero" aria-labelledby="info-title">
         <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Progetto scolastico</p>
-        <h1 id="info-title">La stazione,<br />vista da vicino<span className="title-stop">.</span></h1>
+        <AnimatedHeading id="info-title" lines={["La stazione,", "vista da vicino"]} />
         <p className="info-lead">Un progetto scolastico per osservare i dati meteo, capire da dove arrivano e imparare a leggerli con attenzione.</p>
         <div className="info-highlights" aria-label="In breve">
           <p><strong>Pavia</strong><span>Il territorio osservato</span></p>

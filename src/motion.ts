@@ -1,9 +1,14 @@
+import type { AnimationPlaybackControls } from 'motion'
+
 // Preparazione prima del paint; senza supporto o con movimento ridotto resta tutto visibile.
-export function animateOnEntrance(element: Element, play: () => Animation[]) {
+export function animateOnEntrance(element: Element, play: () => AnimationPlaybackControls[], restore?: () => void) {
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
-  let animations: Animation[] = []
+  let animations: AnimationPlaybackControls[] = []
   let observer: IntersectionObserver | undefined
-  const cancel = () => animations.forEach(animation => animation.cancel())
+  const cancel = () => {
+    animations.forEach(animation => animation.cancel())
+    restore?.()
+  }
   const show = () => element.removeAttribute('data-entrance-pending')
   const revealForFocus = () => {
     show()
@@ -42,10 +47,7 @@ export function animateOnEntrance(element: Element, play: () => Animation[]) {
   }
 }
 
-export const entranceFrames: Keyframe[] = [
-  { opacity: 0, transform: 'translateY(12px)' },
-  { opacity: 1, transform: 'translateY(0)' },
-]
-export const entranceTiming: KeyframeAnimationOptions = {
-  duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'backwards',
+export const entranceFrames = { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0px)'] }
+export const entranceTiming = {
+  duration: 0.42, ease: [0.22, 1, 0.36, 1] as const,
 }

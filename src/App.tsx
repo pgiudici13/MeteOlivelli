@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { animate } from 'motion/mini'
+import { AnimatedHeading } from './components/AnimatedHeading.tsx'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
@@ -23,6 +25,7 @@ function Value({ row, metric }: { row: Measurement; metric: typeof metrics[numbe
 }
 
 function HistoryTable({ rows }: { rows: Measurement[] }) {
+  const tableRef = useRef<HTMLTableElement>(null)
   const [page, setPage] = useState(0)
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
   const [nextPage, setNextPage] = useState(0)
@@ -34,19 +37,32 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   const firstVisible = current * 6 + 1
   const lastVisible = Math.min((current + 1) * 6, ordered.length)
 
-  useEffect(() => {
-    if (transition === 'idle') return
-    const duration = transition === 'exiting' ? 360 : 470
-    const timer = window.setTimeout(() => {
+  useLayoutEffect(() => {
+    if (transition === 'idle' || !tableRef.current) return
+    let cancelled = false
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const advance = () => {
+      if (cancelled) return
       if (transition === 'exiting') {
         setPage(nextPage)
-        setTransition('entering')
-      } else {
-        setTransition('idle')
-      }
-    }, duration)
-    return () => window.clearTimeout(timer)
-  }, [nextPage, transition])
+        setTransition(media.matches ? 'idle' : 'entering')
+      } else setTransition('idle')
+    }
+    const sign = direction === 'older' ? 1 : -1
+    const animations = Array.from(tableRef.current.querySelectorAll('tbody tr'), (row, index) => animate(row,
+      transition === 'exiting'
+        ? { opacity: [1, 0], transform: ['translateY(0px)', `translateY(${sign * 6}px)`] }
+        : { opacity: [0, 1], transform: [`translateY(${-sign * 6}px)`, 'translateY(0px)'] },
+      { duration: media.matches ? 0 : 0.18, delay: media.matches ? 0 : index * 0.025, ease: 'easeOut' }))
+    void Promise.all(animations).then(advance)
+    const onPreference = () => { if (media.matches) advance() }
+    media.addEventListener('change', onPreference)
+    return () => {
+      cancelled = true
+      media.removeEventListener('change', onPreference)
+      animations.forEach(animation => animation.cancel())
+    }
+  }, [nextPage, transition, direction])
 
   function changePage(target: number) {
     if (transition !== 'idle' || target < 0 || target >= pages || target === current) return
@@ -61,7 +77,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 
   return <>
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
-    <table className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
+    <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
       <caption className="sr-only">Tutti i campioni in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione e indicati come tali. Valori sospetti segnalati per campo.</caption>
       <thead><tr><th scope="col">Acquisizione / ricezione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
@@ -159,7 +175,7 @@ function App() {
       <div className="hero">
         <Reveal><section className="intro" aria-labelledby="page-title">
           <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Stazione scolastica</p>
-          <h1 id="page-title">Il meteo,<br />qui all’Olivelli<span className="title-stop">.</span></h1>
+          <AnimatedHeading id="page-title" lines={["Il meteo,", "qui all’Olivelli"]} />
           <p className="hero-description">Uno sguardo fuori, un dato alla volta.<br />Temperatura, umidità e pressione, osservate dalla nostra scuola.</p>
           <a className="hero-link" href="#history-title">Esplora le misure <span aria-hidden="true">↗</span></a>
           <p className={`station-status ${latestError ? 'warning' : ''}`} role="status"><span className="status-dot" aria-hidden="true" />{stationStatus}</p>
