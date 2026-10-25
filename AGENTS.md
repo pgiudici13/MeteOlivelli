@@ -26,6 +26,8 @@ Leggere prima queste regole e `git status`, poi soltanto i documenti necessari a
 | File | Responsabilità |
 |---|---|
 | [README.md](README.md) | Ingresso al progetto, stato sintetico, avvio e comandi |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Collaborazione pubblica, PR, qualità e dati di prova |
+| [LICENSE](LICENSE) | Bozza MIT da far approvare ai titolari dei diritti prima del merge |
 | [AGENTS.md](AGENTS.md) | Regole durevoli e questa mappa; non un registro di esecuzioni |
 | [plan.md](plan.md) | Unica roadmap, requisiti, decisioni e limiti; non ricreare `piano.md` |
 | [tasks.md](tasks.md) | Checklist, dipendenze, esiti; “Fase N” = blocco N |
