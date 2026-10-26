@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 23 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto. [Perimetro, prove e limiti](docs/project-review/README.md). Nessuna pubblicazione o modifica remota eseguita.
+Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto; COR-014 in analisi. [Perimetro, prove e limiti](docs/project-review/README.md). Nessuna pubblicazione o modifica remota eseguita.
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -157,3 +157,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** bassa; comportamento, autorizzazioni documentate e stato del lavoro descritti in modo contraddittorio.
 - **Correzione:** aggiornati riepiloghi al checkout, RF6/D11 e prevalenza della richiesta PDF; distinti archivio completo e feed, batch storici e conteggi remoti non riverificati. Conservati i verbali storici, dichiarando che questo audit non riconferma i servizi.
 - **Verifica:** confronto con Git, codice e checkpoint PDF; diff e collegamenti locali controllati. Le correzioni ai testi non risolvono COR-009–COR-012 e non chiudono task remoti o collaudi reali.
+
+## COR-014 — GA4 non mostra eventi del sito
+
+- **Stato:** in analisi (26 ottobre 2026).
+- **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
+- **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Nella sessione corrente Tag Assistant si collega a `meteolivelli.vercel.app`, trova `G-F2LRCD93NW` e la destinazione corrispondente, ma riporta “Nessun hit è stato inviato da questo tag”. Nel pannello Consenso indica che non è configurato uno stato predefinito. L’app carica il tag solo dopo “Accetta”; l’esito non prova ancora se il blocco avviene nel browser o nella richiesta di rete.
+- **Impatto/priorità:** media; Analytics non consente ancora di valutare visite o comportamento. La presenza dello script non dimostra che la richiesta di misurazione sia partita o sia stata accettata.
+- **Correzione proposta:** verificare il caricamento effettivo di `gtag.js` e l’eventuale blocco della richiesta `page_view` lato browser/rete prima di cambiare codice o filtri della proprietà. Non dare consenso per conto dell’utente e non disattivare i controlli di protezione come workaround.
+- **Verifica richiesta:** con consenso esplicito già fornito dall’utente e richiesta GA4 non bloccata, confermare `page_view` in Tag Assistant e in Tempo reale; annotare browser, consenso, ora e risultato. Se l’evento arriva ma i report standard restano vuoti, attendere l’elaborazione e ricontrollare. La sessione del 26 ottobre non ha verificato la richiesta di rete né ha modificato lo stato di consenso.

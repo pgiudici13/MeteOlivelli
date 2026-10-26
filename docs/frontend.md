@@ -16,7 +16,7 @@ Stack conservato: React, TypeScript, Vite, ESLint, npm. Nessuna dipendenza aggiu
 
 ## Struttura e contenuti
 
-1. Intestazione con marchio `MO. | MeteOlivelli` e collegamenti alla stazione e all’archivio.
+1. Intestazione con sole delineato e wordmark `MeteOlivelli`, più collegamenti alla stazione e all’archivio.
 2. Postilla permanente, fuori dalle animazioni: **Work in progress · Possibili dati presenti fittizi**.
 3. Titolo grande a sinistra e pannello scuro della temperatura con grafico a destra; su mobile il pannello segue il titolo. Il numero è l’ultima lettura disponibile, non una temperatura attuale garantita.
 4. Tre schede per temperatura, umidità e pressione, sempre dallo stesso evento.
@@ -114,11 +114,11 @@ Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove 
 **Revisione Cronologia del 23 ottobre:** `npm run build`, `npm run lint`, `npm run frontend:test` (41 test) e `git diff --check` superati. La preview browser locale non si è avviata: il sandbox ha negato il bind Vite su 127.0.0.1:4173 (`EPERM`); quindi questa revisione non ha verifica visiva interattiva. Nessuna pubblicazione.
 
 
-## Pagine e indicizzazione — 23 ottobre 2026
+## Pagine e indicizzazione — aggiornamento 26 ottobre 2026
 
-La dashboard è servita su `/home`; `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. La radice reindirizza a `/home` nella configurazione Vercel; il router locale applica lo stesso comportamento. La navigazione collega entrambe le pagine.
+La dashboard è disponibile alla radice e resta compatibile su `/home`; il router mostra la stessa home in entrambi i percorsi. `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. Il canonical della home indica la radice.
 
-La build produce `dist/home/index.html` e `dist/info/index.html` con title, description e canonical specifici. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca solo `/home` e `/info`. Verifica e invio in Google Search Console non sono stati eseguiti: richiedono che la modifica sia pubblicata sul dominio e poi verificata nel pannello.
+La build produce documenti statici per home, `/info`, `/privacy` e `/gioca` con title, description e canonical specifici. La homepage contiene `WebSite` JSON-LD con nome preferito `MeteOlivelli`, Open Graph e favicon PNG 96×96. Le varianti coordinate scura/chiara del sole seguono il tema iniziale e quello scelto manualmente; il segno nella testata usa le stesse varianti a 128 px. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca la radice e le tre pagine informative. Modifiche locali non pubblicate; verifica di Google Search Console e ricrawl restano da fare dopo il rilascio. Google decide autonomamente nome, titolo, snippet e favicon mostrati.
 
 La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dati, guida alla lettura di periodi/medie, limiti e provenienza, stime sperimentali e team. L’indice interno conduce a tutte le cinque sezioni. È dichiarato che i campioni sintetici non sono osservazioni e che il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
 

@@ -41,7 +41,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 
 - Canvas caldo `#101010`, pannello temperatura e schede scuri `#171615`, testo `#eeeeee`, bordi sottili `#3d3a39`. Superfici piatte senza vetro, sfocatura o ombre.
 - Inter variabile locale con licenza già presente, peso 400 per i titoli, tracking stretto; didascalie monospaziate di sistema. Nessun font scaricato o dipendenza aggiunta.
-- Marchio `MO.` con dimensione ereditata da “MeteOlivelli” e separatore verticale decorativo.
+- Marchio MeteOlivelli: sole delineato con raggi alternati, derivato dal favicon originale e rifinito per la lettura a dimensione ridotta. Varianti coordinate in oro su antracite per dark mode e antracite/oro su avorio per clear mode; intestazione e favicon seguono il tema attivo. Il logo ufficiale del Liceo resta separato e invariato.
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Postilla visibile sopra il contenuto: “Work in progress · Possibili dati presenti fittizi”. Rimane fuori dalle animazioni. [Dati pubblici di prova e vincoli](docs/data-preview.md).

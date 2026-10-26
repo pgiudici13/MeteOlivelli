@@ -1,6 +1,7 @@
 import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
+import { BrandMark } from '../components/BrandMark.tsx'
 import './PrivacyPage.css'
 
 const title = 'Privacy e dati — MeteOlivelli'
@@ -25,7 +26,7 @@ export function PrivacyPage() {
   return <div className="site-shell privacy-page">
     <a className="skip-link" href="#privacy-content">Vai al contenuto</a>
     <header className="site-header">
-      <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 03</span></a>
+      <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 03</span></a>
       <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info">Informazioni</a><a href="/gioca">Gioca</a><a href="/privacy" aria-current="page">Privacy</a></nav>

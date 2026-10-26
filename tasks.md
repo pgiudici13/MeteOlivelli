@@ -1,6 +1,6 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — audit locale del 23 ottobre, `6e5f197`:** presenti Home, Informazioni, Privacy, quiz, cronologia completa e PDF. Suite completa superata; COR-009, COR-011 e COR-012 corretti localmente; COR-010 escluso dall’intervento su richiesta utente; COR-013 documentale risolto. [Verbale](docs/project-review/README.md). Correzioni applicative locali successive all’audit, senza pubblicazione; stato remoto non riverificato.
+> **Stato più recente — 26 ottobre 2026:** audit locale fino a `6e5f197` e aggiornamenti SEO/brand locali. Presenti Home, Informazioni, Privacy, quiz, cronologia completa e PDF. Suite frontend superata; COR-009, COR-011 e COR-012 corretti localmente; COR-010 escluso dall’intervento su richiesta utente; COR-013 documentale risolto. [Verbale](docs/project-review/README.md). Google Search Console, Analytics e stato remoto non aggiornati da questo intervento; nessuna pubblicazione eseguita.
 
 > **Versione:** checklist aggiornata il 23 ottobre 2026 dopo l’audit locale dei commit fino a `6e5f197`.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
@@ -364,11 +364,14 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 ### UI-03 — Separare Home e informazioni del progetto
 
 - [x] **Stato: implementato localmente il 23 ottobre 2026; pubblicazione non eseguita.**
-- **Esito:** la dashboard attuale è disponibile su `/home`; `/info` presenta progetto, stazione, dati e team. La radice reindirizza a `/home`. Navigazione condivisa, metadati e canonical distinti, pagine statiche generate nella build, `robots.txt` e sitemap limitata alle due pagine.
+- **Esito:** la dashboard è disponibile alla radice e su `/home`; `/info` presenta progetto, stazione, dati e team. La radice mostra direttamente la home, mentre `/home` resta compatibile. Navigazione condivisa, metadati e canonical distinti, pagine statiche generate nella build, `robots.txt` e sitemap aggiornata.
 - **Contenuti:** descrizione basata sulle informazioni già presenti nel README e nella UI. Chiarito che i dati di prova eventualmente mostrati non sono osservazioni reali, e che il polling del sito non definisce la cadenza di misura della stazione.
 - **Verifica:** `npm run build`, `npm run lint`, 41 test frontend e `git diff --check` superati; dist controllato: entrambe le route hanno title, description e canonical distinti, sitemap include solo le due pagine. Preview browser non avviabile nell'ambiente: bind locale negato (`EPERM`). Nessuna modifica a GitHub, Vercel remoto o Search Console.
-- **File principali:** `src/main.tsx`, `src/SiteRoute.tsx`, `src/App.tsx`, `src/pages/InfoPage.tsx`, `scripts/create-static-routes.mjs`, `public/robots.txt`, `public/sitemap.xml`, `vercel.json`.
+- **File principali:** `src/main.tsx`, `src/SiteRoute.tsx`, `src/App.tsx`, `src/pages/InfoPage.tsx`, `scripts/create-static-routes.mjs`, `public/robots.txt`, `public/sitemap.xml`.
 - **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend).
+
+- **Aggiornamento SEO e marchio — 26 ottobre 2026:** nome preferito `MeteOlivelli` indicato con JSON-LD `WebSite`, title/description e Open Graph coordinati e homepage canonicale alla radice. Il marchio selezionato è il sole delineato, con palette coordinate per dark e clear mode: PNG 96×96 per favicon dinamica e PNG 128×128 nell’intestazione. Build, lint, 77 test frontend, diff-check e controllo JSON-LD/sitemap superati. Tag Assistant trova il tag GA4 e la destinazione corretti ma non registra hit; causa del mancato invio non ancora verificata. Da pubblicare e poi verificare in Search Console; Google sceglie autonomamente nome e icona nei risultati.
+- **Rifinitura marchio — 26 ottobre 2026:** sostituito il precedente monogramma con la proposta 3 scelta dall’utente, mantenendo lo stesso sole delineato su fondi antracite/oro e avorio/antracite. `BrandMark` seleziona il PNG in base al tema; la favicon cambia sia al caricamento iniziale sia al cambio tema manuale. `npm run build`, `npm run lint`, 77 test frontend e `git diff --check` superati; dist contiene favicon 96×96 e marchi 128×128. Preview browser bloccata da `listen EPERM`, quindi controllo visivo interattivo non eseguito. Nessuna pubblicazione.
 
 ## 8. Fase 8 — Backup, gestione e rilascio
 

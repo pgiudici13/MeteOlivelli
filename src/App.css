@@ -8,6 +8,10 @@
 :root:not([data-theme="light"]) .school-logo img { filter: brightness(1.55); }
 .header-actions { justify-self: end; }
 .brand-symbol { font-size: inherit; letter-spacing: inherit; display: inline-flex; align-items: center; gap: 12px; }
+.brand-mark { display: block; width: 25px; height: 25px; flex: 0 0 auto; border-radius: 7px; }
+.brand-mark-light { display: none; }
+:root[data-theme="light"] .brand-mark-dark { display: none; }
+:root[data-theme="light"] .brand-mark-light { display: block; }
 .brand-symbol::after { content: ""; width: 1px; height: 1em; background: var(--border-strong); }
 .brand-index { font: 11px ui-monospace, monospace; color: var(--secondary); margin-left: 6px; }
 .site-header nav { display: flex; gap: 32px; }
@@ -187,6 +191,7 @@ button:disabled { cursor: default; opacity: .45; }
   .brand { font-size: 16px; gap: 6px; }
   .brand-index { display: none; }
   .brand-symbol { gap: 10px; }
+  .brand-mark { width: 23px; height: 23px; border-radius: 6px; }
   .header-actions { gap: 8px; }
   .site-header nav { gap: 12px; }
   .site-header nav a { font-size: 11px; }

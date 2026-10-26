@@ -10,15 +10,12 @@ export function SiteRoute() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
 
   useEffect(() => {
-    if (pathname === '/') window.location.replace('/home')
-    else if (pathname !== '/home' && pathname !== '/info' && pathname !== '/privacy' && pathname !== '/gioca') document.title = 'Pagina non trovata — MeteOlivelli'
+    if (pathname !== '/' && pathname !== '/home' && pathname !== '/info' && pathname !== '/privacy' && pathname !== '/gioca') document.title = 'Pagina non trovata — MeteOlivelli'
   }, [pathname])
 
-  if (pathname === '/') return null
+  if (pathname === '/' || pathname === '/home') return <App />
   if (pathname === '/info') return <InfoPage />
   if (pathname === '/privacy') return <PrivacyPage />
   if (pathname === '/gioca') return <QuizPage />
-  if (pathname === '/home') return <App />
-
   return <main className="route-not-found"><h1>Pagina non trovata</h1><p>La pagina richiesta non è disponibile.</p><a href="/home">Torna alla Home</a></main>
 }

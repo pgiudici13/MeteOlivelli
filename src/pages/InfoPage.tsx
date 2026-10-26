@@ -1,6 +1,7 @@
 import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
+import { BrandMark } from '../components/BrandMark.tsx'
 import './InfoPage.css'
 
 const title = 'Informazioni su MeteOlivelli — progetto e stazione meteo'
@@ -25,7 +26,7 @@ export function InfoPage() {
   return <div className="site-shell info-page">
     <a className="skip-link" href="#info-content">Vai al contenuto</a>
     <header className="site-header">
-      <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 02</span></a>
+      <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 02</span></a>
       <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a><a href="/gioca">Gioca</a></nav>
