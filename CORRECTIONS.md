@@ -171,9 +171,9 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-015 — Prestazioni mobile da migliorare
 
-- **Stato:** correzioni frontend applicate il 26 ottobre 2026; verifica pubblica post-rilascio pendente.
+- **Stato:** ottimizzazioni pubblicate il 26 ottobre 2026 (`eeb677f`), deploy Production `READY`; LCP 4,1 s ancora da migliorare.
 - **Area/file:** bundle iniziale, logo e presentazione responsive del sito MeteOlivelli.
 - **Problema/prova:** PageSpeed Insights mobile (Lighthouse 13.5, 26 ottobre 2026 alle 12:00) mostra 86/100, LCP 4,1 s, FCP 1,4 s, TBT 0 ms e CLS 0. Il report segnala immagine del logo scolastico sovradimensionata (originale 1041×359 per uno spazio di circa 200 px), assenza di dimensioni dichiarate sulle immagini, circa 310 ms di CSS render-blocking e 68,5 KiB di risparmio potenziale sulle immagini. Nel dettaglio LCP visto nel report precedente, il testo del consenso client-rendered è l’elemento LCP. Search Console non dispone di campioni CrUX sufficienti per classificare i Core Web Vitals di utenti reali; il punteggio è un laboratorio simulato.
 - **Impatto/priorità:** media; LCP oltre 4 s è lento nella simulazione mobile. Accessibilità, best practice e SEO risultano 100 nel medesimo report; CLS è 0, TBT 0 ms.
 - **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
-- **Verifica:** build, lint e 77 test frontend superati. Occorre pubblicare la revisione e ripetere PSI sullo stesso URL/form factor; confrontare LCP e risparmio immagini, non solo il punteggio aggregato. Verifica browser interattiva della build locale non disponibile in questa sessione.
+- **Verifica:** build, lint e 77 test frontend superati. PSI mobile post-rilascio (12:32) sullo stesso URL/form factor: 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms, CLS 0; stima immagini 40 KiB (da 68,5), CSS bloccante 150 ms (da 310), JS inutilizzato 44 KiB (da 52). LCP resta il problema principale e richiede ulteriore intervento; i punteggi singoli oscillano tra run. La preview browser locale era bloccata da `listen EPERM`.
