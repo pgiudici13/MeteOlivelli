@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009–COR-013 risolti localmente; COR-014 aggiornato per tracker attivi di default, con ricezione live ancora da verificare; COR-015 aperto per LCP mobile. [Perimetro, prove e limiti](docs/project-review/README.md).
+Ultima verifica: 26 ottobre 2026, correzioni successive all’audit di `6e5f197`. COR-009–COR-013 risolti; COR-010 e COR-014 inclusi nel commit `775c248`, deploy Production `READY`; ricezione e revoca GA4 restano da verificare live. COR-015 aperto per LCP mobile. [Perimetro, prove e limiti](docs/project-review/README.md).
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -118,7 +118,7 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-010 — PDF dei grafici privo della provenienza sintetica
 
-- **Stato:** risolto nel codice locale il 26 ottobre 2026; rilascio non eseguito.
+- **Stato:** risolto e pubblicato nel commit `775c248` il 26 ottobre 2026; deploy Production `READY`.
 - **Area/file:** `src/pdf-graphs-document.ts`, `src/pdf-chart.ts`; introdotto con `b714d87` / `5dc40a1`.
 - **Problema/prova:** un input `synthetic` genera tre pagine di grafici senza etichetta sintetica o avvertenza equivalente; la postilla della Home non è nel file. Verificati definizione e testo del PDF reale. Lo stesso input è correttamente etichettato nel PDF cronologia. I conteggi delle medie non esprimono provenienza.
 - **Impatto/priorità:** media; il PDF condiviso può far interpretare dati di prova come osservazioni della stazione.
@@ -159,7 +159,7 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-014 — GA4 non mostra eventi del sito
 
-- **Stato:** in analisi (26 ottobre 2026).
+- **Stato:** corretto localmente e pubblicato nel commit `775c248` il 26 ottobre 2026; hit e revoca live da verificare.
 - **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
 - **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Nella sessione corrente Tag Assistant si collega a `meteolivelli.vercel.app`, trova `G-F2LRCD93NW` e la destinazione corrispondente, ma riporta “Nessun hit è stato inviato da questo tag”. Nel pannello Consenso indica che non è configurato uno stato predefinito. L’app carica il tag solo dopo “Accetta”; l’esito non prova ancora se il blocco avviene nel browser o nella richiesta di rete.
 - **Ricontrollo del 26 ottobre 2026:** Home Analytics continua a mostrare zero utenti, eventi e utenti in tempo reale. Nel sito pubblico il tag Google è presente. La richiesta di misurazione e il relativo esito di rete non sono stati osservati; presenza dello script e dashboard vuota non identificano la causa.

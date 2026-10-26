@@ -10,11 +10,13 @@ I PDF dei grafici dichiarano per ogni serie la provenienza dei campioni effettiv
 
 La pagina `/privacy` descrive il comportamento del client, il titolare e il recapito forniti dall’utente, i periodi Analytics osservati e le finestre dei due strumenti Vercel per il piano Hobby verificato in dashboard. I log tecnici hosting/backend dipendono dalle impostazioni e dai termini dei fornitori, non sono configurati dal frontend. Il record Google Analytics mostrava conservazione eventi di 2 mesi, livello utente di 14 mesi e reset del periodo dopo nuova attività abilitato. La pagina resta da approvare dal titolare prima della pubblicazione e i contratti/configurazioni di fornitore vanno verificati per il trattamento effettivo.
 
-Prima di pubblicare: verificare attivazione predefinita/disattivazione su una distribuzione di prova e controllare con Google Tag Assistant; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori; far approvare l’informativa al titolare. La schermata Google può segnalare l’assenza di dati fino a 48 ore. Nessuna configurazione della proprietà Analytics o pubblicazione Vercel è stata eseguita da questa modifica locale.
+Resta da verificare attivazione/disattivazione effettiva con Tag Assistant e in Tempo reale; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori e far approvare l’informativa al titolare. La schermata Google può segnalare l’assenza di dati fino a 48 ore. La proprietà Analytics non è stata modificata. Il commit `775c248` è stato pubblicato su `main`; deploy Vercel Production `READY`, senza verifica browser live in questa sessione.
 
 ## Versione pubblicata
 
 [MeteOlivelli](https://meteolivelli.vercel.app/) è pubblicato da `main` attraverso l’integrazione GitHub → Vercel. Rilasci verificati: `fab71cb` (grafica, motion, hover e postilla) e `bce39e2` (contratto con provenienza sintetica distinta). Il secondo deploy è stato verificato READY sul dominio principale, con HTTP 200 e nessun errore JavaScript non gestito. Queste verifiche riguardano la versione applicativa, non il collaudo della stazione reale.
+
+Aggiornamento del 26 ottobre: `775c248` porta i tracker Analytics attivi per default, il `page_view` esplicito singolo, l’opt-out e la provenienza nei PDF grafici; il deploy Production risulta `READY`. Ricezione GA4 e disattivazione live non sono state verificate.
 
 Stack conservato: React, TypeScript, Vite, ESLint, npm. Nessuna dipendenza aggiunta per grafici, animazioni o riflessi. Il riferimento Figma Obsidian v5 documenta la fase precedente; il sito corrente segue la proposta Factory adattata ai commenti dell’utente, senza aggiornamento del file Figma. [Storia Figma](design-review/README.md), [specifiche grafiche correnti](../design.md).
 
@@ -154,7 +156,7 @@ Distribuzione: la route pubblica `/home` serve il bundle con entrambi i pulsanti
 
 ## Correzioni successive all’audit — 23 ottobre 2026
 
-COR-009, COR-011 e COR-012 sono stati corretti localmente il 23 ottobre. COR-010 è stato corretto localmente il 26 ottobre; GA4 ha ricevuto un percorso esplicito di consenso e `page_view` ma richiede ancora conferma live. La precedente esclusione dei sintetici è superata dalla richiesta del 26 ottobre. La gestione dei dati remoti non è stata cambiata o cancellata; nessun deploy frontend/backend eseguito in questa sessione.
+COR-009, COR-011 e COR-012 sono stati corretti localmente il 23 ottobre. COR-010 è stato corretto nel commit `775c248` del 26 ottobre; GA4 ha un `page_view` esplicito e i tre tracker sono attivi per default. La precedente esclusione dei sintetici è superata dalla richiesta del 26 ottobre. Il deploy Production è `READY`; dati live non verificati e nessuna funzione Edge o schema backend modificati.
 
 
 ## Motion — verifica locale del 23 ottobre 2026
