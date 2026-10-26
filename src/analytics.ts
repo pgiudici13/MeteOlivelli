@@ -36,7 +36,11 @@ export function loadGoogleAnalytics() {
   if (document.querySelector(`script[data-google-analytics="${measurementId}"]`)) return
 
   window.dataLayer = window.dataLayer || []
-  window.gtag = function gtag(...args: unknown[]) { window.dataLayer?.push(args) }
+  window.gtag = function gtag() {
+    // gtag.js elabora l'oggetto Arguments; un array di rest non è equivalente.
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer?.push(arguments)
+  }
   window.gtag('consent', 'default', {
     analytics_storage: 'granted',
     ad_storage: 'denied',
@@ -74,7 +78,7 @@ export function revokeAnalyticsConsent() {
 
 declare global {
   interface Window {
-    dataLayer?: unknown[][]
+    dataLayer?: unknown[]
     gtag?: (...args: unknown[]) => void
   }
 }
