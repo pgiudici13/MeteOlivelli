@@ -88,6 +88,36 @@ class UploaderTest(unittest.TestCase):
         with self.assertRaises(Halt):
             validate_config(dict(config, live_verified=True))
 
+    def test_synthetic_scenario_timestamp_requires_explicit_mode_and_valid_utc(self):
+        config = dict(self.config, acquisition_kind="synthetic", synthetic_timestamp_column=True,
+                      header=["scenario_seconds", "temperature_c", "humidity_pct", "pressure_hpa", "captured_at"])
+        validate_config(config)
+        data, reason = parse_row(b"1;18,5;62;1014,2;2026-10-26T16:00:00.123Z", config,
+                                 str(uuid.uuid4()), None)
+        self.assertIsNone(reason)
+        self.assertEqual(data["captured_at"], "2026-10-26T16:00:00.123Z")
+        self.assertEqual(data["acquisition_kind"], "synthetic")
+        self.assertEqual(data["_provenance"], {"kind": "synthetic"})
+        self.assertIsNone(data["measured_at"])
+        for raw in (b"1;18,5;62;1014,2;2026-10-26T16:00:00+01:00",
+                    b"1;18,5;62;1014,2;2026-02-30T16:00:00Z"):
+            self.assertEqual(parse_row(raw, config, str(uuid.uuid4()), None), (None, "csv_non_valido"))
+        with self.assertRaises(Halt):
+            validate_config(dict(self.config, synthetic_timestamp_column=True))
+        with self.assertRaises(Halt):
+            validate_config(dict(config, header=["wrong", "header", "shape", "only"]))
+
+    def test_timestamped_synthetic_scenario_is_frozen_in_outbox(self):
+        self.config.update(acquisition_kind="synthetic", synthetic_timestamp_column=True)
+        self.csv.write_bytes(b"1;18,5;62;1014,2;2026-10-26T13:00:00.000Z\n")
+        store = self.store()
+        self.assertEqual(store.capture(), 1)
+        payload = json.loads(self.events(store)[0]["payload"])
+        self.assertEqual(payload["captured_at"], "2026-10-26T13:00:00.000Z")
+        self.assertEqual(payload["acquisition_kind"], "synthetic")
+        self.assertEqual(payload["_provenance"], {"kind": "synthetic"})
+        self.assertIsNone(payload["measured_at"])
+
     def test_synthetic_capture_freezes_provenance_in_durable_outbox(self):
         self.config["acquisition_kind"] = "synthetic"
         store = self.store()

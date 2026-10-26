@@ -90,8 +90,9 @@ try {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto(`${base}/home`)
     await page.locator('.history-table tbody tr').first().waitFor()
-    const reject = page.getByRole('button', { name: 'Rifiuta', exact: true })
-    if (await reject.isVisible()) await reject.click()
+    await page.getByRole('button', { name: 'Preferenze statistiche', exact: true }).click()
+    const disable = page.getByRole('button', { name: 'Disattiva statistiche', exact: true })
+    if (await disable.isVisible()) await disable.click()
     await page.evaluate(() => {
       const label = document.createElement('p')
       label.textContent = 'TEST LOCALE — FIXTURE SINTETICA, NON DATI DELLA STAZIONE'

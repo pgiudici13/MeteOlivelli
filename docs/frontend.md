@@ -1,12 +1,16 @@
-# Frontend — revisione locale al 23 ottobre 2026
+# Frontend — stato e verifiche locali al 26 ottobre 2026
 
-## Preferenze statistiche e privacy — verifica locale del 23 ottobre 2026
+## Preferenze statistiche e privacy — comportamento locale aggiornato il 26 ottobre 2026
 
-La proprietà Google usa l’ID `G-F2LRCD93NW`. Google Analytics, Vercel Analytics (`inject()`) e Speed Insights sono avviati solo con scelta salvata `granted`. “Rifiuta” memorizza `denied` e impedisce l’avvio di tutti e tre; la scelta può essere riaperta da “Preferenze statistiche”. La revoca dopo l’accettazione salva il rifiuto, rimuove i cookie `_ga*` accessibili alla pagina e ricarica il sito. Segnali Google Ads e personalizzazione annunci sono disattivati. La scelta è salvata in `localStorage` con istante della decisione e scade dopo sei mesi di calendario; se il browser non consente di conservarla, gli strumenti restano spenti. Vercel Analytics è senza cookie secondo la documentazione del fornitore; Speed Insights viene montato solo dopo il consenso.
+La proprietà Google usa l’ID `G-F2LRCD93NW`. Google Analytics, Vercel Analytics (`inject()`) e Speed Insights sono attivi per impostazione predefinita, secondo la verifica delle condizioni applicabili comunicata dall’utente; una scelta salvata `denied` li disattiva. “Preferenze statistiche” consente di disattivarli o riattivarli e la scelta resta in `localStorage` finché non viene cambiata o cancellata. La disattivazione aggiorna GA4, rimuove i cookie `_ga*` accessibili alla pagina e ricarica il sito. Segnali Google Ads e personalizzazione annunci sono disattivati. Vercel Analytics è senza cookie secondo la documentazione del fornitore.
+
+GA4 riceve lo stato predefinito `analytics_storage=granted`; gli storage pubblicitari restano negati. La configurazione automatica di pagina è disattivata e viene inviato un solo `page_view` esplicito con titolo e URL correnti. Test unitari locali verificano stato predefinito, rifiuto persistente e assenza di duplicati. La ricezione live e la disattivazione end-to-end devono ancora essere osservate con Tag Assistant/Tempo reale; questa verifica non è sostituibile dai test del codice.
+
+I PDF dei grafici dichiarano per ogni serie la provenienza dei campioni effettivamente tracciati: dati live, storico, sintetici, misti, origine non specificata o nessuna serie. Le medie contano i campioni per origine, così la dicitura segue i dati inclusi nel grafico.
 
 La pagina `/privacy` descrive il comportamento del client, il titolare e il recapito forniti dall’utente, i periodi Analytics osservati e le finestre dei due strumenti Vercel per il piano Hobby verificato in dashboard. I log tecnici hosting/backend dipendono dalle impostazioni e dai termini dei fornitori, non sono configurati dal frontend. Il record Google Analytics mostrava conservazione eventi di 2 mesi, livello utente di 14 mesi e reset del periodo dopo nuova attività abilitato. La pagina resta da approvare dal titolare prima della pubblicazione e i contratti/configurazioni di fornitore vanno verificati per il trattamento effettivo.
 
-Prima di pubblicare: verificare accettazione/rifiuto/revoca su una distribuzione di prova e controllare con Google Tag Assistant; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori; far approvare l’informativa al titolare. La schermata Google può segnalare l’assenza di dati fino a 48 ore. Nessuna configurazione della proprietà Analytics o pubblicazione Vercel è stata eseguita da questa modifica locale.
+Prima di pubblicare: verificare attivazione predefinita/disattivazione su una distribuzione di prova e controllare con Google Tag Assistant; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori; far approvare l’informativa al titolare. La schermata Google può segnalare l’assenza di dati fino a 48 ore. Nessuna configurazione della proprietà Analytics o pubblicazione Vercel è stata eseguita da questa modifica locale.
 
 ## Versione pubblicata
 
@@ -150,7 +154,7 @@ Distribuzione: la route pubblica `/home` serve il bundle con entrambi i pulsanti
 
 ## Correzioni successive all’audit — 23 ottobre 2026
 
-COR-009, COR-011 e COR-012 corretti localmente su richiesta utente. L’ordine della cronologia e del PDF conserva i microsecondi; il cursore backend mantiene la precisione PostgreSQL e accetta i vecchi cursori millisecondo. Il PDF usa larghezze flessibili per i valori, entro i margini anche con più pagine. La cronologia segue le novità dell’ultima lettura, il ritorno alla pagina/online e il comando manuale; quest’ultimo serve anche per gli import storici che non cambiano latest. La data di rilettura usa l’orologio del browser e non indica né ora fisica né freschezza della stazione. [Prove finali](project-review/README.md#correzioni-locali-successive-alla-revisione). La gestione dei sintetici e COR-010 restano invariati per richiesta esplicita; cancellazione futura non eseguita. Nessun deploy frontend/backend o test remoto eseguito.
+COR-009, COR-011 e COR-012 sono stati corretti localmente il 23 ottobre. COR-010 è stato corretto localmente il 26 ottobre; GA4 ha ricevuto un percorso esplicito di consenso e `page_view` ma richiede ancora conferma live. La precedente esclusione dei sintetici è superata dalla richiesta del 26 ottobre. La gestione dei dati remoti non è stata cambiata o cancellata; nessun deploy frontend/backend eseguito in questa sessione.
 
 
 ## Motion — verifica locale del 23 ottobre 2026

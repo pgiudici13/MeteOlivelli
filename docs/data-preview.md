@@ -1,6 +1,19 @@
-# Campioni di prova — stato al 24 ottobre 2026
+# Campioni di prova — stato al 26 ottobre 2026
 
-## Batch corrente: 241 campioni ogni tre ore
+## Batch aggiunto: dieci campioni recenti ogni tre ore
+
+Il 26 ottobre è stato usato il programma Python `uploader` con la modalità
+esplicita `synthetic` e timestamp UTC di scenario. Sono stati aggiunti 10 record
+alla sorgente `meteolivelli`, senza modificare i 241 record già presenti. La
+verifica sul database conferma 251 righe complessive, zero righe `live`, tutti i
+10 nuovi record con `measured_at = NULL` e `_provenance.kind = synthetic`, dal
+25 ottobre 2026 15:06 UTC al 26 ottobre 2026 18:06 UTC; ogni intervallo è di
+10.800 secondi. I valori sono generati e non sono osservazioni della stazione.
+Il batch è stato caricato con l’outbox persistente e gli stessi ID sono stati
+ritentati dopo un errore temporaneo iniziale. Nessuna migrazione, sostituzione o
+cancellazione di righe.
+
+## Batch del 24 ottobre: 241 campioni ogni tre ore
 
 Su richiesta esplicita del 24 ottobre sono state sovrascritte tutte le righe
 presenti in `public.station_measurements` del progetto Supabase MeteOlivelli

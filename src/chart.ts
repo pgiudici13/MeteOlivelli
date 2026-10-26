@@ -47,7 +47,13 @@ function zonedTime(day: string, hours: number) {
   }
   return guess
 }
-export interface ChartPoint { id: string; time: number; value: number; count: number; label: string }
+export type ChartSource = 'live' | 'historical' | 'synthetic' | 'unknown'
+export type ChartSourceCounts = Record<ChartSource, number>
+export interface ChartPoint { id: string; time: number; value: number; count: number; label: string; sources: ChartSourceCounts }
+
+function sourceCounts(row: Measurement): ChartSourceCounts {
+  return { live: row.acquisition_kind === 'live' ? 1 : 0, historical: row.acquisition_kind === 'historical' ? 1 : 0, synthetic: row.acquisition_kind === 'synthetic' ? 1 : 0, unknown: row.acquisition_kind === undefined ? 1 : 0 }
+}
 
 /** I punti medi sono derivati per il grafico: non diventano eventi nella cronologia. */
 export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMode, until: string) {
@@ -58,7 +64,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   const averaged = mode === 'auto' ? last - first > 7 * 24 * hour : mode !== '24h'
   if (!averaged) {
     const segments = chartSegments(dated, metric).map(segment => segment.map(row => ({
-      id: row.ingestion_id, time: Date.parse(row.captured_at!), value: row[metric] as number, count: 1, label: formatTime(row.captured_at),
+      id: row.ingestion_id, time: Date.parse(row.captured_at!), value: row[metric] as number, count: 1, label: formatTime(row.captured_at), sources: sourceCounts(row),
     })))
     const span = Math.max(last - first, hour)
     const range = mode === 'auto' && dated.length ? { start: last - span, end: last } : undefined
@@ -77,7 +83,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
     const time = Date.parse(row.captured_at!)
     return time >= start && time < end && (!live || row.acquisition_kind === 'live')
   })
-  const buckets = new Map<string, { sum: number; count: number }>()
+  const buckets = new Map<string, { sum: number; count: number; sources: ChartSourceCounts }>()
   for (const row of selected) {
     const time = Date.parse(row.captured_at!)
     if (row[metric] === null || isSuspect(row, metric)) continue
@@ -87,15 +93,17 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
     if (mode === 'auto') {
       const band = localHour < 12 ? 0 : localHour < 17 ? 1 : 2
       const key = `${local.year}-${local.month}-${local.day}/${band}`
-      const bucket = buckets.get(key) ?? { sum: 0, count: 0 }
+      const bucket = buckets.get(key) ?? { sum: 0, count: 0, sources: { live: 0, historical: 0, synthetic: 0, unknown: 0 } }
       bucket.sum += row[metric] as number
       bucket.count++
+      for (const [kind, count] of Object.entries(sourceCounts(row)) as [ChartSource, number][]) bucket.sources[kind] += count
       buckets.set(key, bucket)
     } else {
       const key = `${local.year}-${local.month}-${local.day}`
-      const bucket = buckets.get(key) ?? { sum: 0, count: 0 }
+      const bucket = buckets.get(key) ?? { sum: 0, count: 0, sources: { live: 0, historical: 0, synthetic: 0, unknown: 0 } }
       bucket.sum += row[metric] as number
       bucket.count++
+      for (const [kind, count] of Object.entries(sourceCounts(row)) as [ChartSource, number][]) bucket.sources[kind] += count
       buckets.set(key, bucket)
     }
   }
@@ -114,7 +122,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
       }
       const label = mode === 'auto' ? ['Mattina 00–12', 'Primo pomeriggio 12–17', 'Sera 17–24'][Number(bandIndex)] : '09:00–18:00'
       const middle = mode === 'auto' ? [6, 14.5, 20.5][Number(bandIndex)] : 13.5
-      segment.push({ id: key, time: zonedTime(day, middle), value: bucket.sum / bucket.count, count: bucket.count, label: `${day.split('-').reverse().join('/')} · ${label} · media di ${bucket.count} campioni` })
+      segment.push({ id: key, time: zonedTime(day, middle), value: bucket.sum / bucket.count, count: bucket.count, label: `${day.split('-').reverse().join('/')} · ${label} · media di ${bucket.count} campioni`, sources: bucket.sources })
     })
   }
   if (segment.length) segments.push(segment)

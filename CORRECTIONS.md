@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto; COR-014 in analisi; COR-015 aperto in attesa della verifica PSI post-rilascio. [Perimetro, prove e limiti](docs/project-review/README.md).
+Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009–COR-013 risolti localmente; COR-014 aggiornato per tracker attivi di default, con ricezione live ancora da verificare; COR-015 aperto per LCP mobile. [Perimetro, prove e limiti](docs/project-review/README.md).
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -118,14 +118,13 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-010 — PDF dei grafici privo della provenienza sintetica
 
-- **Stato:** aperto, verificato il 23 ottobre 2026 a `6e5f197`.
+- **Stato:** risolto nel codice locale il 26 ottobre 2026; rilascio non eseguito.
 - **Area/file:** `src/pdf-graphs-document.ts`, `src/pdf-chart.ts`; introdotto con `b714d87` / `5dc40a1`.
 - **Problema/prova:** un input `synthetic` genera tre pagine di grafici senza etichetta sintetica o avvertenza equivalente; la postilla della Home non è nel file. Verificati definizione e testo del PDF reale. Lo stesso input è correttamente etichettato nel PDF cronologia. I conteggi delle medie non esprimono provenienza.
 - **Impatto/priorità:** media; il PDF condiviso può far interpretare dati di prova come osservazioni della stazione.
-- **Correzione proposta:** dichiarare permanentemente la provenienza delle serie effettivamente disegnate, distinguendo sintetici/live e casi misti.
-- **Verifica richiesta:** PDF solo sintetici, solo live e misti in Auto/24h/7g/14g/30g; estrazione testo e controllo visivo di ogni pagina pertinente. [Analisi](docs/project-review/README.md#cor-010--provenienza-persa-nel-pdf-dei-grafici).
-
-- **Decisione successiva dell’utente:** escludere questa correzione perché i sintetici non saranno più usati e verranno eliminati in seguito. Difetto non corretto e non dichiarato risolto; nessuna rimozione dati eseguita o automatizzata.
+- **Correzione:** ogni serie PDF riporta l’origine dei soli campioni effettivamente tracciati: stazione live/storico, sintetica, mista, non specificata o nessuna serie. Le medie mantengono i conteggi per origine.
+- **Verifica:** `npm run check` supera 82 test frontend, inclusi casi sintetici, storici, misti, tutte le finestre, medie e generazione PDF. Test sul documento generato; estrazione/rendering multipagina di ogni variante non eseguiti.
+- **Decisione superata:** la precedente esclusione dell’intervento è superata dalla richiesta del 26 ottobre di correggere tutti i problemi. Nessun dato remoto modificato o cancellato.
 
 ## COR-011 — Cronologia ferma al caricamento iniziale
 
@@ -165,8 +164,8 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Nella sessione corrente Tag Assistant si collega a `meteolivelli.vercel.app`, trova `G-F2LRCD93NW` e la destinazione corrispondente, ma riporta “Nessun hit è stato inviato da questo tag”. Nel pannello Consenso indica che non è configurato uno stato predefinito. L’app carica il tag solo dopo “Accetta”; l’esito non prova ancora se il blocco avviene nel browser o nella richiesta di rete.
 - **Ricontrollo del 26 ottobre 2026:** Home Analytics continua a mostrare zero utenti, eventi e utenti in tempo reale. Nel sito pubblico il tag Google è presente. La richiesta di misurazione e il relativo esito di rete non sono stati osservati; presenza dello script e dashboard vuota non identificano la causa.
 - **Impatto/priorità:** media; Analytics non consente ancora di valutare visite o comportamento. La presenza dello script non dimostra che la richiesta di misurazione sia partita o sia stata accettata.
-- **Correzione proposta:** verificare il caricamento effettivo di `gtag.js` e l’eventuale blocco della richiesta `page_view` lato browser/rete prima di cambiare codice o filtri della proprietà. Non dare consenso per conto dell’utente e non disattivare i controlli di protezione come workaround.
-- **Verifica richiesta:** con consenso esplicito già fornito dall’utente e richiesta GA4 non bloccata, confermare `page_view` in Tag Assistant e in Tempo reale; annotare browser, consenso, ora e risultato. Se l’evento arriva ma i report standard restano vuoti, attendere l’elaborazione e ricontrollare. La sessione del 26 ottobre non ha verificato la richiesta di rete né ha modificato lo stato di consenso.
+- **Correzione locale del 26 ottobre:** su decisione esplicita dell’utente e sua verifica dichiarata delle condizioni applicabili, GA4, Vercel Analytics e Speed Insights si avviano senza scelta salvata; `Preferenze statistiche` consente opt-out persistente e riattivazione. GA4 riceve `analytics_storage=granted`, gli storage pubblicitari restano negati e viene inviato un solo `page_view` esplicito (`send_page_view:false`). L’opt-out aggiorna GA4, rimuove i cookie `_ga*` accessibili e ricarica.
+- **Verifica locale:** test unitari controllano attivazione predefinita, persistenza del rifiuto, stato GA4, pagina, URL e assenza di duplicati. **Resta da verificare live:** ricezione del `page_view` e disattivazione effettiva su tutti i tracker con Tag Assistant/Tempo reale. Il codice da solo non prova che Google riceva o interrompa la raccolta; nessuna impostazione remota della proprietà è stata cambiata.
 
 
 ## COR-015 — Prestazioni mobile da migliorare
