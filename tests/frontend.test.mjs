@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
-import { areAnalyticsEnabled, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
+import { areAnalyticsEnabled, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
@@ -378,6 +378,7 @@ test('GA4: analytics attivi per default, segnali pubblicitari negati e page_view
     createElement: () => ({ dataset: {}, async: false, src: '' }),
     head: { append: script => scripts.push(script) },
   }
+  fakeDocument.location.hostname = 'meteolivelli.vercel.app'
   Object.defineProperty(globalThis, 'document', { configurable: true, value: fakeDocument })
   Object.defineProperty(globalThis, 'window', { configurable: true, value: { dataLayer: [], location: fakeDocument.location } })
   try {
@@ -403,6 +404,30 @@ test('GA4: analytics attivi per default, segnali pubblicitari negati e page_view
       page_location: 'https://meteolivelli.vercel.app/info',
       page_path: '/info',
     })
+  } finally {
+    if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
+    else delete globalThis.window
+    if (documentDescriptor) Object.defineProperty(globalThis, 'document', documentDescriptor)
+    else delete globalThis.document
+  }
+})
+
+test('GA4: il tag di produzione non invia hit dagli URL specifici dei deploy Vercel', () => {
+  assert.equal(isGoogleAnalyticsHost('meteolivelli.vercel.app'), true)
+  assert.equal(isGoogleAnalyticsHost('meteolivelli-prp9ghkty-pedro13-projects.vercel.app'), false)
+  assert.equal(isGoogleAnalyticsHost('localhost'), false)
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const scripts = []
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { location: { hostname: 'meteolivelli-prp9ghkty-pedro13-projects.vercel.app' } } })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: {
+    querySelector: () => null,
+    createElement: () => ({}),
+    head: { append: script => scripts.push(script) },
+  } })
+  try {
+    loadGoogleAnalytics()
+    assert.deepEqual(scripts, [])
   } finally {
     if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
     else delete globalThis.window

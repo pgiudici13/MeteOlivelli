@@ -304,7 +304,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-02 — Implementare le previsioni meteo e lo stato non disponibile
 
-- [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente il 23 ottobre; restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
+- [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente; correzione v3 del 26 ottobre: la persistenza non viene più mostrata come previsione, con test per baseline e orizzonti variabili. Restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
 - **Scopo:** calcolare e servire solo previsioni supportate dalla verifica, separandole dalle misure.
 - **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
 - **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.

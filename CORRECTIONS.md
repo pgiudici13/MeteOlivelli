@@ -176,3 +176,20 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** media; LCP oltre 4 s è lento nella simulazione mobile. Accessibilità, best practice e SEO risultano 100 nel medesimo report; CLS è 0, TBT 0 ms.
 - **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
 - **Verifica:** build, lint e 77 test frontend superati. PSI mobile post-rilascio (12:32) sullo stesso URL/form factor: 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms, CLS 0; stima immagini 40 KiB (da 68,5), CSS bloccante 150 ms (da 310), JS inutilizzato 44 KiB (da 52). LCP resta il problema principale e richiede ulteriore intervento; i punteggi singoli oscillano tra run. La preview browser locale era bloccata da `listen EPERM`.
+
+## COR-016 — La persistenza veniva mostrata come previsione
+
+- **Stato:** corretto localmente il 26 ottobre 2026; non ancora pubblicato.
+- **Area/file:** `src/forecast.ts`, `src/components/ForecastSection.tsx`; modello locale `station-statistical-v2`.
+- **Problema/prova:** nello screenshot della Home, +3, +6 e +24 ore ripetono esattamente 17,3 °C, 50,4% e 1014,4 hPa. Il backtest permetteva di selezionare la persistenza quando nessun candidato superava il riferimento; la persistenza copia l’ultima misura per ogni orizzonte.
+- **Impatto/priorità:** alta; la ripetizione della misura sotto una sezione di previsioni può sembrare un valore calcolato per il futuro.
+- **Correzione locale:** versione v3 ritira il risultato quando l’unico metodo selezionato è la persistenza; la UI spiega che l’ultimo valore è un riferimento e non viene ri-etichettato come previsione. La simulazione sintetica rimane separata, e i dati esistenti non diventano prove di meteo reale.
+- **Verifica:** test mirati controllano che serie sintetiche variabili producano risultati diversi agli orizzonti +3/+6 ore, che il +24 ore senza miglioramento e le grandezze stabili restino senza valore, e che un trend verificato resti disponibile. Suite completa in esecuzione; nessuna accuratezza meteorologica o prova su dati fisici attestata.
+
+## COR-017 — Diagnostica Google Tag: host di deploy e stato consenso Ads
+
+- **Stato:** invio limitato al dominio pubblico con correzione locale del 26 ottobre; deploy da verificare.
+- **Area/file:** `src/analytics.ts`; stream GA4 `G-F2LRCD93NW` e Tag Google `GT-MJMHDXK6`.
+- **Problema/prova:** nello screenshot della diagnostica, GA4 segnala zero dati recenti e “domini aggiuntivi”; la configurazione cross-domain contiene già `meteolivelli.vercel.app` e suggerisce tre host specifici di deployment Vercel. La diagnosi del tasso consenso 0% indica tutti i segnali negati.
+- **Correzione locale:** GA4 ora si carica solo sul dominio canonico, così gli URL di deployment non continuano a inviare eventi nello stream di produzione. Non si aggiungono gli host temporanei alle regole cross-domain. Il codice mantiene `ad_user_data` e i segnali pubblicitari negati: il sito non usa personalizzazione Ads e la guida Google specifica che con Consent Mode già attivo non serve un intervento in questo caso.
+- **Verifica:** test locale del gate hostname e della configurazione Consent Mode; `npm run check` e prova `page_view` da browser senza blocchi ancora da completare. I suggerimenti per host che hanno già inviato hit possono restare nella diagnostica finché Google non aggiorna i domini rilevati. Non modificati impostazioni Google Ads, consenso Ads o protezioni browser.

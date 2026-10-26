@@ -1,5 +1,10 @@
 const measurementId = 'G-F2LRCD93NW'
 const consentKey = 'meteolivelli-analytics-consent'
+const publicHostname = 'meteolivelli.vercel.app'
+
+export function isGoogleAnalyticsHost(hostname: string) {
+  return hostname === publicHostname
+}
 
 export type AnalyticsConsent = 'granted' | 'denied' | null
 
@@ -33,6 +38,9 @@ export function saveAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
 }
 
 export function loadGoogleAnalytics() {
+  // Le URL di deploy Vercel sono anteprime/versioni tecniche, non host pubblici
+  // del sito: non inviare da lì hit al flusso GA4 di produzione.
+  if (!isGoogleAnalyticsHost(window.location.hostname)) return
   if (document.querySelector(`script[data-google-analytics="${measurementId}"]`)) return
 
   window.dataLayer = window.dataLayer || []
