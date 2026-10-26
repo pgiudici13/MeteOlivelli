@@ -11,6 +11,8 @@ import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { SchoolLogo } from './components/SchoolLogo.tsx'
+import { SchoolSiteLink } from './components/SchoolSiteLink.tsx'
+import { SiteFooter } from './components/SiteFooter.tsx'
 import { readFreshChartData } from './pdf-chart-data.ts'
 import { buildGraphsDocument } from './pdf-graphs-document.ts'
 import { createPdfBlob } from './pdf-runtime.ts'
@@ -166,7 +168,7 @@ function App() {
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 01</span></a>
-      <a className="school-logo" href="https://www.liceoolivelli.pv.it/"><SchoolLogo /></a>
+      <SchoolSiteLink className="school-logo"><SchoolLogo /></SchoolSiteLink>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="/gioca">Gioca</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
         <ThemeToggle />
@@ -252,7 +254,7 @@ function App() {
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><SchoolLogo footer /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/info">Il progetto e la stazione</a> · <a href="/gioca">Gioca con il meteo</a> · <a href="/privacy">Privacy</a> · Ultime misure verificate ogni 15 secondi a pagina visibile.</p></footer>
+    <SiteFooter />
   </div>
 }
 export default App

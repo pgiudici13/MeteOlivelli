@@ -60,7 +60,7 @@ Il [file Figma Obsidian v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/
 
 ## Licenza e collaborazione
 
-Il codice originale e la documentazione di MeteOlivelli sono proposti con licenza **MIT** (vedi [LICENSE](LICENSE)), subordinatamente all'approvazione dei titolari dei diritti. La licenza consente il riutilizzo e la modifica del materiale coperto, conservando la nota di copyright. **Marchi, stemmi e logo scolastico, immagini o altri materiali di terzi non diventano automaticamente disponibili sotto MIT:** verificare separatamente le autorizzazioni e le rispettive licenze.
+Il codice originale e la documentazione di MeteOlivelli sono proposti con licenza **MIT** (vedi [LICENSE](LICENSE)), subordinatamente all'approvazione dei titolari dei diritti indicati nel file: Pietro Giudici, Nicholas Borin e Liceo Teresio Olivelli di Pavia. La licenza consente il riutilizzo e la modifica del materiale coperto, conservando la nota di copyright. **Marchi, stemmi e logo scolastico, immagini o altri materiali di terzi non diventano automaticamente disponibili sotto MIT:** verificare separatamente le autorizzazioni e le rispettive licenze.
 
 Siamo due studenti e il progetto è ancora in sviluppo: contributi documentati, segnalazioni riproducibili e correzioni mirate sono benvenuti. Leggere [CONTRIBUTING.md](CONTRIBUTING.md) e aprire una issue prima di modifiche architetturali importanti. Non pubblicare dati personali, credenziali o misurazioni non verificate.
 

@@ -122,7 +122,7 @@ La build produce documenti statici per home, `/info`, `/privacy` e `/gioca` con 
 
 La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dati, guida alla lettura di periodi/medie, limiti e provenienza, stime sperimentali e team. L’indice interno conduce a tutte le cinque sezioni. È dichiarato che i campioni sintetici non sono osservazioni e che il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
 
-Il logo del liceo nella testata di Home, Informazioni, Privacy e Gioca apre in scheda corrente la homepage ufficiale `https://www.liceoolivelli.pv.it/`. I loghi nei footer continuano a rimandare alle informazioni di MeteOlivelli.
+Il logo del liceo nella testata di Home, Informazioni, Privacy e Gioca apre in una nuova scheda la homepage ufficiale `https://www.liceoolivelli.pv.it/`. Un componente condiviso centralizza URL, `noopener noreferrer` e l’annuncio accessibile della nuova scheda. Il footer condiviso raccoglie navigazione, autori, scuola, note sul polling e licenza; il testo MIT pubblicato in `/LICENSE` viene mantenuto uguale a `LICENSE` nella root del repository.
 
 ## Quiz “Gioca con il meteo”
 

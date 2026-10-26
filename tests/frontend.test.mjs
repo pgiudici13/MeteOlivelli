@@ -58,8 +58,28 @@ test('logo scolastico in testata apre il sito ufficiale in tutte le pagine', () 
     const source = readFileSync(new URL(path, import.meta.url), 'utf8')
     const header = source.match(/<header className="site-header">([\s\S]*?)<\/header>/)?.[1]
     assert.ok(header, `Intestazione non trovata in ${path}`)
-    assert.match(header, /<a className="school-logo" href="https:\/\/www\.liceoolivelli\.pv\.it\/">/)
+    assert.match(header, /<SchoolSiteLink className="school-logo"><SchoolLogo \/><\/SchoolSiteLink>/)
+    assert.match(source, /<SiteFooter \/>/)
   }
+})
+
+test('link esterno della scuola annuncia la nuova scheda e usa la URL centrale', () => {
+  const link = readFileSync(new URL('../src/components/SchoolSiteLink.tsx', import.meta.url), 'utf8')
+  assert.match(link, /href=\{SCHOOL_WEBSITE_URL\}/)
+  assert.match(link, /target="_blank"/)
+  assert.match(link, /rel="noopener noreferrer"/)
+  assert.match(link, /aria-label="Sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda"/)
+})
+
+test('footer completo e copia pubblica della licenza restano coerenti', () => {
+  const footer = readFileSync(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8')
+  for (const text of ['Pietro Giudici', 'Nicholas Borin', 'Liceo Teresio Olivelli di Pavia', 'Visita il sito ufficiale', 'href="/LICENSE"']) {
+    assert.ok(footer.includes(text), `Informazione assente nel footer: ${text}`)
+  }
+  const license = readFileSync(new URL('../LICENSE', import.meta.url), 'utf8')
+  const publicLicense = readFileSync(new URL('../public/LICENSE', import.meta.url), 'utf8')
+  assert.match(license, /Copyright \(c\) 2026 Pietro Giudici, Nicholas Borin, and Liceo Teresio Olivelli di Pavia/)
+  assert.equal(publicLicense, license)
 })
 
 test('PDF: formatta tempi in Europe/Rome, null espliciti e nomi file datati', () => {

@@ -1,6 +1,6 @@
 # Attività operative — MeteOlivelli
 
-> **Stato più recente — 26 ottobre 2026:** collegamento del logo scolastico della testata alla homepage ufficiale aggiunto localmente; non pubblicato. La revisione mobile precedente è pubblicata su `main` con commit `eeb677f`; deploy Vercel Production `READY`. Dopo il rilascio, PSI mobile misura 85/100 e LCP 4,1 s; il risparmio stimato immagini scende da 68,5 a 40 KiB e il CSS bloccante da 310 a 150 ms. GSC non ha campioni CrUX sufficienti e GA4 mostra ancora zero dati. COR-014 Analytics in analisi; COR-015 mobile ancora aperto per LCP post-rilascio.
+> **Stato più recente — 26 ottobre 2026:** footer condiviso completo e licenza MIT aggiornata con il Liceo Teresio Olivelli di Pavia aggiunti localmente; non pubblicati. La revisione mobile precedente è pubblicata su `main` con commit `eeb677f`; deploy Vercel Production `READY`. Dopo il rilascio, PSI mobile misura 85/100 e LCP 4,1 s; il risparmio stimato immagini scende da 68,5 a 40 KiB e il CSS bloccante da 310 a 150 ms. GSC non ha campioni CrUX sufficienti e GA4 mostra ancora zero dati. COR-014 Analytics in analisi; COR-015 mobile ancora aperto per LCP post-rilascio.
 
 > **Versione:** checklist aggiornata il 23 ottobre 2026 dopo l’audit locale dei commit fino a `6e5f197`.
 > **Fonte dei requisiti:** [plan.md](plan.md). Questo file è la checklist esecutiva, non una seconda roadmap.
@@ -8,7 +8,7 @@
 
 > **Richiesta storica, poi ampliata:** dashboard `/home` e pagina `/info`; richieste successive aggiungono `/privacy`, `/gioca` e i PDF. Richiesta successiva all’audit: correggere i problemi individuati, eccetto quello sulla provenienza sintetica dei PDF grafici.
 
-**Collegamento logo liceo — 26 ottobre 2026:** su richiesta dell’utente il logo nella testata di Home, Informazioni, Privacy e Gioca porta alla homepage ufficiale del liceo nella stessa scheda; i loghi dei footer restano interni. Build e lint superati; 78 test frontend superati, incluso quello mirato ai link delle quattro intestazioni; `git diff --check` pulito. Nessuna pubblicazione.
+**Logo, footer e titolarità MIT — 26 ottobre 2026:** link della testata centralizzato con annuncio accessibile della nuova scheda; introdotto footer condiviso con autori, navigazione, scuola, sito ufficiale, polling e licenza. Aggiunto il Liceo Teresio Olivelli di Pavia alla nota di copyright, con copia della licenza disponibile anche in `/LICENSE`. `npm run build`, `npm run lint`, 80 test frontend e `git diff --check` superati; nessuna verifica browser, pubblicazione o merge. La bozza MIT resta subordinata all’approvazione dei titolari.
 
 ## 1. Come usare la checklist
 

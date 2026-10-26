@@ -44,6 +44,6 @@ npm run check
 
 ## Diritti e materiali di terzi
 
-La proposta di licenza MIT riguarda il materiale originale per il quale i titolari possono concederla. Il logo del liceo, nomi, marchi, fotografie, font, librerie e altri elementi di terzi possono avere condizioni diverse: non presumere che siano coperti da MIT. Segnala sempre l'origine di risorse esterne e verifica i diritti di distribuzione.
+La proposta di licenza MIT riguarda il materiale originale per il quale i titolari riportati in [LICENSE](LICENSE) possono concederla; questa bozza è da approvare prima del merge. Il logo del liceo, nomi, marchi, fotografie, font, librerie e altri elementi di terzi possono avere condizioni diverse: non presumere che siano coperti da MIT. Segnala sempre l'origine di risorse esterne e verifica i diritti di distribuzione.
 
 Per informazioni operative, consulta [docs/operations.md](docs/operations.md). Per l'attendibilità dei dati di prova, consulta [docs/data-preview.md](docs/data-preview.md).

@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { BrandMark } from '../components/BrandMark.tsx'
 import { SchoolLogo } from '../components/SchoolLogo.tsx'
+import { SchoolSiteLink } from '../components/SchoolSiteLink.tsx'
+import { SiteFooter } from '../components/SiteFooter.tsx'
 import './PrivacyPage.css'
 
 const title = 'Privacy e dati — MeteOlivelli'
@@ -28,7 +30,7 @@ export function PrivacyPage() {
     <a className="skip-link" href="#privacy-content">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 03</span></a>
-      <a className="school-logo" href="https://www.liceoolivelli.pv.it/"><SchoolLogo /></a>
+      <SchoolSiteLink className="school-logo"><SchoolLogo /></SchoolSiteLink>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info">Informazioni</a><a href="/gioca">Gioca</a><a href="/privacy" aria-current="page">Privacy</a></nav>
         <ThemeToggle />
@@ -101,6 +103,6 @@ export function PrivacyPage() {
         </section>
       </div>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><SchoolLogo footer /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info">Informazioni</a> · <a href="/gioca">Gioca</a> · <a href="/privacy" aria-current="page">Privacy</a></p></footer>
+    <SiteFooter />
   </div>
 }

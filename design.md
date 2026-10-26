@@ -106,7 +106,11 @@ La palette scura resta disponibile come variante. Il tema iniziale segue `prefer
 
 ## Logo del Liceo Olivelli — 23 ottobre 2026
 
-Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer comune alle quattro pagine. Il link apre il sito ufficiale del liceo in una nuova scheda e annuncia questo comportamento alle tecnologie assistive. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+
+### Footer completo — 26 ottobre 2026
+
+Il footer condiviso riunisce nome e descrizione del progetto, autori e scuola, collegamenti a Home/Informazioni/Gioca/Privacy, link al sito ufficiale e alla licenza MIT. Include anche il contesto dell’aggiornamento dati, specificando che la verifica ogni 15 secondi avviene in Home mentre la pagina è visibile. Su desktop le informazioni sono disposte in tre colonne; a 760 px passano a due colonne e a 450 px a una colonna. Il logo scolastico mantiene le proprie proporzioni e si adatta al tema.
 
 ## Paginazione della cronologia — 23 ottobre 2026
 
