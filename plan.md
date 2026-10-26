@@ -769,7 +769,7 @@ Esiti iniziali al 21 ottobre 2026, fonte risposte Q1–Q35; aggiornati il 22 ott
 | D20 | Roadmap unica | Deciso (U: Q35): tenere solo plan.md | Fonte piano.md rimossa dopo integrazione dei contenuti utili |
 | D21 | Avvisi al responsabile | Approvato il 22 ottobre: controllo indipendente e avvisi email all’utente | Destinazione email e meccanismo gratuito da configurare/provare; nessun messaggio inviato |
 | D22 | Design/presentazione | Deciso (U): sito curato per scuola/open day, niente slide o relazione | Proposta visiva da valutare; blu notte non obbligatorio; buone pratiche accessibilità di base |
-| D23 | Previsioni | U, 22 ottobre: calcolate dal progetto senza servizio meteo esterno; precedente proposta Open-Meteo superata | Modello locale sperimentale, qualità temporale e valutazione per orizzonte da progettare; nessuna previsione attendibile già disponibile; §6 e WX-01/WX-02 |
+| D23 | Previsioni | U, 22 ottobre: calcolate dal progetto senza servizio meteo esterno; precedente proposta Open-Meteo superata. Il nome UI richiesto il 26 ottobre è “Previsioni meteo” | Il modello locale statistico non ha attendibilità meteorologica verificata; servono osservazioni fisiche datate e valutazione fuori campione; sintetici restano simulazione; §6 e WX-01/WX-02 |
 | D24 | Aggiornamento live | Richiesto (U): inserire nuova misura e aggiornare il sito automaticamente | Progettare rilevamento CSV e aggiornamento UI; target ~30s dal commit proposto, non SLA approvato |
 
 ## 12. Rischi e mitigazioni

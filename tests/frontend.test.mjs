@@ -52,6 +52,14 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   assert.match(page, /aria-label="In breve"/)
 })
 
+test('previsioni reali e simulazione sintetica hanno stati e presentazioni separate', () => {
+  const forecast = readFileSync(new URL('../src/components/ForecastSection.tsx', import.meta.url), 'utf8')
+  assert.match(forecast, /Previsioni meteo reali non disponibili/)
+  assert.match(forecast, /forecast-simulation/)
+  assert.match(forecast, /Mostra simulazione tecnica · dati fittizi, non previsione meteo/)
+  assert.doesNotMatch(forecast, /Stime sperimentali/)
+})
+
 test('logo scolastico in testata apre il sito ufficiale in tutte le pagine', () => {
   const pages = ['../src/App.tsx', '../src/pages/InfoPage.tsx', '../src/pages/PrivacyPage.tsx', '../src/pages/QuizPage.tsx']
   for (const path of pages) {

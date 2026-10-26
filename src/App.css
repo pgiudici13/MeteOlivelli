@@ -112,6 +112,9 @@ button:disabled { cursor: default; opacity: .45; }
 .pagination-range { color: var(--secondary); }
 .forecast-card { border: 1px solid var(--border); border-radius: 10px; padding: 24px; display: grid; gap: 16px; align-content: start; }
 .forecast-card h3 { font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; color: var(--secondary); }
+.forecast-simulation { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 8px; }
+.forecast-simulation > summary { max-width: 100%; color: var(--secondary); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.forecast-simulation[open] { display: grid; gap: 16px; }
 .forecast-card > p:not(.small) { font-size: 20px; letter-spacing: -.03em; }
 .forecast-estimates { margin: 0; }
 .forecast-estimate + .forecast-estimate { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
@@ -227,6 +230,29 @@ button:disabled { cursor: default; opacity: .45; }
   .metric-value { font-size: 24px; }
   .metric-value.value-empty { max-width: 120px; font-size: 12px; }
   .instrument-heading h2 { font-size: 10px; }
+}
+/* Tablet: mantiene densità desktop con griglie a due colonne. */
+@media (min-width: 761px) and (max-width: 1000px) {
+  .hero { grid-template-columns: 1fr; }
+  .metric-grid, .forecast-grid, .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .forecast-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .forecast-section { padding-inline: 24px; }
+}
+@media (min-width: 761px) and (max-width: 900px) {
+  .site-header { grid-template-columns: minmax(0, 1fr) auto; }
+  .school-logo { display: none; }
+}
+/* Mobile: stacca i contenuti dal bordo della sezione e contiene il testo lungo. */
+@media (max-width: 760px) {
+  .forecast-section { padding-inline: 18px; }
+  .forecast-section > *, .forecast-grid, .forecast-card { min-width: 0; }
+  .forecast-card { padding: 20px; border-radius: 8px; }
+  .forecast-evidence, .forecast-method { overflow-wrap: anywhere; }
+}
+@media (max-width: 450px) {
+  .forecast-section { padding-inline: 14px; }
+  .forecast-card { padding: 16px; }
+  .forecast-simulation { padding: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 

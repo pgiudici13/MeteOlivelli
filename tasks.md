@@ -294,7 +294,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato: motore locale v1 e backtest implementati il 23 ottobre; verifica meteorologica reale dipendente da DATA-01–DATA-02 e storico datato idoneo.**
+- [ ] **Stato: motore locale v1 e backtest implementati il 23 ottobre; query aggregata in sola lettura del 26 ottobre: 251 righe sintetiche, zero `measured_at`. La verifica meteorologica reale dipende da DATA-01–DATA-02 e da uno storico datato idoneo.**
 - **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
 - **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
 - **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
@@ -302,14 +302,14 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Verifica:** assenza di uso di dati futuri nella valutazione, dati mancanti/sospetti, timestamp acquisizione non idonei, confronto con base semplice e limiti dell’orizzonte giornaliero. Nessuna attendibilità meteorologica dichiarata senza prove.
 - **Riferimento:** plan.md §6, D23 e §18. La vecchia proposta provider è superata.
 
-### WX-02 — Implementare stime sperimentali e stato indisponibile
+### WX-02 — Implementare le previsioni meteo e lo stato non disponibile
 
 - [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente il 23 ottobre; restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
-- **Scopo:** calcolare e servire le sole stime supportate dalla verifica, separandole dalle misure.
+- **Scopo:** calcolare e servire solo previsioni supportate dalla verifica, separandole dalle misure.
 - **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
 - **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
-- **Risultato:** “Stime sperimentali MeteOlivelli”, limiti espliciti e “Stima non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata.
-- **Verifica:** dati insufficienti/vecchi/sospetti, orizzonti non validati, cambio giorno/DST, separazione osservazioni/stime e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
+- **Risultato:** sezione “Previsioni meteo MeteOlivelli”, limiti espliciti e “Previsione non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata. Il modello statistico locale attuale non è ancora validato come previsione meteorologica.
+- **Verifica:** dati insufficienti/vecchi/sospetti, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
 - **Riferimento:** plan.md §6, §18 e RF7.
 
 ### UI-00 — Preparare Figma e il primo design con il compagno (22 ottobre 2026)
@@ -335,9 +335,10 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Revisione locale Motion — 23 ottobre 2026:** dipendenza `motion`, ingressi/titoli per parole, microinterazioni dei controlli e paginazione basata sul completamento effettivo. SVG esplorabili con mouse/tocco e tastiera, mantenendo punti originali e medie dichiarate. Movimento ridotto e cleanup conservati. Build/lint e 74 test frontend superati; cinque scenari Chrome locali con fixture sintetiche, quattro route, temi chiaro/scuro e reflow 320/390/1280 px; nessun errore JavaScript non gestito. [Evidenze](docs/motion-verification/results.json), [specifiche](design.md#motion-e-interazioni--23-ottobre-2026). Nessun commit/push/deploy eseguito.
 
 - [x] **Stato: dashboard implementata, pubblicata e verificata il 22 ottobre 2026; collaudo della stazione reale separato.**
+- **Revisione mobile/tablet, nomenclatura e provenienza — 26 ottobre 2026:** contenuti e schede previsioni rientrati nei margini mobile; griglie a due colonne su tablet 761–1000 px e terza previsione a tutta riga. Interfaccia rinominata “Previsioni meteo”; con archivio solo sintetico, la previsione reale è indicata come non disponibile e la simulazione si apre in un riquadro separato. Verifica browser/telefono/tablet reale ancora da fare.
 - **Esito corrente:** UI Factory con titolo grande e pannello temperatura a destra su desktop, tema scuro, Inter locale, marchio `MO. | MeteOlivelli`, postilla, schede, quattro grafici SVG, filtri 24h/7g/30g e cronologia paginata con dettagli qualità/tempi. Solo GET BE-06, nessuna chiave client o dipendenza nuova per grafici/motion.
 - **Interazioni:** ingressi nascosti prima del paint e attivati individualmente in vista; curva/area/punti progressivi, riflesso locale sul bordo con inerzia, nessuna illuminazione del divisore quando si puntano i filtri. Focus tastiera e movimento ridotto rivelano i contenuti immediatamente. [Specifiche](design.md).
-- **Dati:** `live`, `historical`, `synthetic` distinti nell’applicazione. Cinque campioni di prova amministrativi sono pubblici con la postilla concordata; nessun selettore DEMO. Loading/vuoti/errori/null/sospetti restano distinti; nessuno zero sostitutivo. Le stime restano indisponibili senza WX-02.
+- **Dati:** `live`, `historical`, `synthetic` distinti nell’applicazione. Cinque campioni di prova amministrativi sono pubblici con la postilla concordata; nessun selettore DEMO. Loading/vuoti/errori/null/sospetti restano distinti; nessuno zero sostitutivo. Le simulazioni sintetiche restano separate dalle previsioni fisiche, non disponibili finché WX-01 non conferma dati e accuratezza.
 - **Verifica:** rilascio `bce39e2`, `npm run check` superato con 18 test Node, 41 Deno e 21 Python; 13 scenari browser locali e collaudo API → pagina pubblica con cinque campioni, quattro grafici, cronologia e postilla. Screenshot desktop/mobile e risultati in [docs/frontend.md](docs/frontend.md) e [docs/data-preview.md](docs/data-preview.md). Nessuna certificazione WCAG o prova Arduino/telefono reale attestata.
 - **File principali:** `src/App.tsx`, CSS, `src/components/HistoryChart.tsx`, `Reveal.tsx`, `src/motion.ts`, `src/use-border-light.ts`, adapter e hook dati.
 - **Limiti:** revisione con il compagno e dispositivi reali ancora aperti; Figma Obsidian v5 non è stato riallineato al restyling Factory. Freschezza reale e UI-02/WX non sono chiusi dalla pubblicazione.
