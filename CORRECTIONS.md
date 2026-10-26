@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto; COR-014 in analisi. [Perimetro, prove e limiti](docs/project-review/README.md). Nessuna pubblicazione o modifica remota eseguita.
+Ultima verifica: 26 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto; COR-014 in analisi; COR-015 aperto in attesa della verifica PSI post-rilascio. [Perimetro, prove e limiti](docs/project-review/README.md).
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -163,6 +163,17 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Stato:** in analisi (26 ottobre 2026).
 - **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
 - **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Nella sessione corrente Tag Assistant si collega a `meteolivelli.vercel.app`, trova `G-F2LRCD93NW` e la destinazione corrispondente, ma riporta “Nessun hit è stato inviato da questo tag”. Nel pannello Consenso indica che non è configurato uno stato predefinito. L’app carica il tag solo dopo “Accetta”; l’esito non prova ancora se il blocco avviene nel browser o nella richiesta di rete.
+- **Ricontrollo del 26 ottobre 2026:** Home Analytics continua a mostrare zero utenti, eventi e utenti in tempo reale. Nel sito pubblico il tag Google è presente. La richiesta di misurazione e il relativo esito di rete non sono stati osservati; presenza dello script e dashboard vuota non identificano la causa.
 - **Impatto/priorità:** media; Analytics non consente ancora di valutare visite o comportamento. La presenza dello script non dimostra che la richiesta di misurazione sia partita o sia stata accettata.
 - **Correzione proposta:** verificare il caricamento effettivo di `gtag.js` e l’eventuale blocco della richiesta `page_view` lato browser/rete prima di cambiare codice o filtri della proprietà. Non dare consenso per conto dell’utente e non disattivare i controlli di protezione come workaround.
 - **Verifica richiesta:** con consenso esplicito già fornito dall’utente e richiesta GA4 non bloccata, confermare `page_view` in Tag Assistant e in Tempo reale; annotare browser, consenso, ora e risultato. Se l’evento arriva ma i report standard restano vuoti, attendere l’elaborazione e ricontrollare. La sessione del 26 ottobre non ha verificato la richiesta di rete né ha modificato lo stato di consenso.
+
+
+## COR-015 — Prestazioni mobile da migliorare
+
+- **Stato:** correzioni frontend applicate il 26 ottobre 2026; verifica pubblica post-rilascio pendente.
+- **Area/file:** bundle iniziale, logo e presentazione responsive del sito MeteOlivelli.
+- **Problema/prova:** PageSpeed Insights mobile (Lighthouse 13.5, 26 ottobre 2026 alle 12:00) mostra 86/100, LCP 4,1 s, FCP 1,4 s, TBT 0 ms e CLS 0. Il report segnala immagine del logo scolastico sovradimensionata (originale 1041×359 per uno spazio di circa 200 px), assenza di dimensioni dichiarate sulle immagini, circa 310 ms di CSS render-blocking e 68,5 KiB di risparmio potenziale sulle immagini. Nel dettaglio LCP visto nel report precedente, il testo del consenso client-rendered è l’elemento LCP. Search Console non dispone di campioni CrUX sufficienti per classificare i Core Web Vitals di utenti reali; il punteggio è un laboratorio simulato.
+- **Impatto/priorità:** media; LCP oltre 4 s è lento nella simulazione mobile. Accessibilità, best practice e SEO risultano 100 nel medesimo report; CLS è 0, TBT 0 ms.
+- **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
+- **Verifica:** build, lint e 77 test frontend superati. Occorre pubblicare la revisione e ripetere PSI sullo stesso URL/form factor; confrontare LCP e risparmio immagini, non solo il punteggio aggregato. Verifica browser interattiva della build locale non disponibile in questa sessione.

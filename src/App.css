@@ -9,9 +9,6 @@
 .header-actions { justify-self: end; }
 .brand-symbol { font-size: inherit; letter-spacing: inherit; display: inline-flex; align-items: center; gap: 12px; }
 .brand-mark { display: block; width: 25px; height: 25px; flex: 0 0 auto; border-radius: 7px; }
-.brand-mark-light { display: none; }
-:root[data-theme="light"] .brand-mark-dark { display: none; }
-:root[data-theme="light"] .brand-mark-light { display: block; }
 .brand-symbol::after { content: ""; width: 1px; height: 1em; background: var(--border-strong); }
 .brand-index { font: 11px ui-monospace, monospace; color: var(--secondary); margin-left: 6px; }
 .site-header nav { display: flex; gap: 32px; }
