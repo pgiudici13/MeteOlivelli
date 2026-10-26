@@ -64,7 +64,7 @@ export function QuizPage() {
     <a className="skip-link" href="#quiz-content">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 04</span></a>
-      <a className="school-logo" href="/info"><SchoolLogo /></a>
+      <a className="school-logo" href="https://www.liceoolivelli.pv.it/"><SchoolLogo /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info">Informazioni</a><a href="/gioca" aria-current="page">Gioca</a></nav>
         <ThemeToggle />

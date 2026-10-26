@@ -52,6 +52,16 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   assert.match(page, /aria-label="In breve"/)
 })
 
+test('logo scolastico in testata apre il sito ufficiale in tutte le pagine', () => {
+  const pages = ['../src/App.tsx', '../src/pages/InfoPage.tsx', '../src/pages/PrivacyPage.tsx', '../src/pages/QuizPage.tsx']
+  for (const path of pages) {
+    const source = readFileSync(new URL(path, import.meta.url), 'utf8')
+    const header = source.match(/<header className="site-header">([\s\S]*?)<\/header>/)?.[1]
+    assert.ok(header, `Intestazione non trovata in ${path}`)
+    assert.match(header, /<a className="school-logo" href="https:\/\/www\.liceoolivelli\.pv\.it\/">/)
+  }
+})
+
 test('PDF: formatta tempi in Europe/Rome, null espliciti e nomi file datati', () => {
   assert.equal(formatReportTime('2026-10-25T00:30:00.000Z'), '25/10/2026, 02:30 CEST')
   assert.equal(formatReportTime('2026-10-25T01:30:00.000Z'), '25/10/2026, 02:30 CET')

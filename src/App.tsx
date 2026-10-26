@@ -166,7 +166,7 @@ function App() {
     <a className="skip-link" href="#contenuto">Vai al contenuto</a>
     <header className="site-header">
       <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 01</span></a>
-      <a className="school-logo" href="/info"><SchoolLogo /></a>
+      <a className="school-logo" href="https://www.liceoolivelli.pv.it/"><SchoolLogo /></a>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home" aria-current="page">Home</a><a href="/info">Informazioni</a><a href="/gioca">Gioca</a><a href="#history-title">Archivio <span aria-hidden="true">↗</span></a></nav>
         <ThemeToggle />
