@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react'
 import { inject } from '@vercel/analytics'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import { areAnalyticsEnabled, filterAnalyticsEvent, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled } from '../analytics.ts'
+import { areAnalyticsEnabled, filterAnalyticsEvent, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled, subscribeAnalyticsConsent } from '../analytics.ts'
 
 export function AnalyticsConsent() {
   const [consent, setConsent] = useState(readAnalyticsConsent)
   const [showChoices, setShowChoices] = useState(false)
   const [storageError, setStorageError] = useState(false)
 
+  useEffect(() => subscribeAnalyticsConsent(choice => {
+    setConsent(choice)
+    setStorageError(false)
+  }), [])
+
   useEffect(() => {
+    setAnalyticsTrackingEnabled(areAnalyticsEnabled(consent))
     if (areAnalyticsEnabled(consent)) {
       loadGoogleAnalytics()
       inject({ beforeSend: filterAnalyticsEvent })

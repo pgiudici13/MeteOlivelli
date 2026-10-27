@@ -237,3 +237,10 @@ punteggio accessibile; il percorso di dieci domande e replay è collaudato da ta
 L’ispezione mouse/touch dei grafici usa la trasformazione SVG reale: anche quando
 il rapporto del contenitore produce margini laterali, seleziona il campione
 corrispondente al punto indicato. Restano disponibili frecce, Home, End ed Escape.
+
+La preferenza statistica viene sincronizzata fra le schede già aperte con
+l’evento storage: l’opt-out blocca subito i filtri degli script caricati e aggiorna
+i controlli. La revoca elimina cookie Google sia dell’host sia con dominio
+esplicito. Rimuovere la preferenza ripristina il default attivo deciso dall’utente.
+I test `analytics-consent.test.mjs` e `analytics-browser.mjs` coprono sincronizzazione,
+cleanup e cookie senza contattare Google o Vercel.

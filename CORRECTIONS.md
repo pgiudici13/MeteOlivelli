@@ -405,3 +405,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** alto per giornate fitte; interazione apparentemente ferma.
 - **Correzione:** massimo dodici animazioni per riga; oltre dodici campioni viene animato il corpo della tabella come gruppo, senza eliminare dati.
 - **Verifica:** giornata da 300 campioni con cambio pagina completato sotto 2,5 secondi, conteggi conservati; `npm run check` superato.
+
+## COR-043 — Opt-out non applicato alle altre schede e cookie di dominio residui
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/analytics.ts`, `src/components/AnalyticsConsent.tsx`, test statistiche.
+- **Prova:** dopo disattivazione nella scheda A il filtro di invio della scheda B continuava ad accettare eventi; il vecchio loop di cancellazione lasciava il cookie `_ga` con attributo Domain.
+- **Impatto:** alto; preferenza salvata applicata solo dopo ricaricamento delle altre schede.
+- **Correzione:** sincronizzazione tramite evento storage, blocco immediato degli invii, aggiornamento UI e cancellazione cookie Google host/domain; listener rimosso allo smontaggio. Default attivo conservato per decisione utente.
+- **Verifica:** tre regressioni unitari e tre scenari browser con schede/cookie inventati e rete esterna bloccata; `npm run check` superato.

@@ -11,7 +11,18 @@ export function filterAnalyticsEvent<T>(event: T): T | null {
 export function setAnalyticsTrackingEnabled(enabled: boolean) {
   trackingEnabled = enabled
   window['ga-disable-G-F2LRCD93NW'] = !enabled
-  if (enabled) window.gtag?.('consent', 'update', { analytics_storage: 'granted' })
+  window.gtag?.('consent', 'update', { analytics_storage: enabled ? 'granted' : 'denied' })
+  if (!enabled) {
+    for (const cookie of document.cookie.split(';')) {
+      const name = cookie.split('=', 1)[0]?.trim()
+      if (!name?.startsWith('_ga')) continue
+      const expired = `${name}=; Max-Age=0; path=/; SameSite=Lax`
+      document.cookie = expired
+      // GA può usare un cookie di dominio anche quando il dominio è l'host corrente.
+      const hostname = window.location?.hostname
+      if (hostname) document.cookie = `${expired}; domain=${hostname}`
+    }
+  }
 }
 
 export function isGoogleAnalyticsHost(hostname: string) {
@@ -37,6 +48,21 @@ export function readAnalyticsConsent(): AnalyticsConsent {
   } catch {
     return null
   }
+}
+
+/** Una scelta in un'altra scheda deve fermare anche gli script già caricati. */
+export function subscribeAnalyticsConsent(onChange: (consent: AnalyticsConsent) => void): () => void {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== consentKey && event.key !== null) return
+    try {
+      if (event.storageArea !== window.localStorage) return
+    } catch { return }
+    const consent = readAnalyticsConsent()
+    setAnalyticsTrackingEnabled(areAnalyticsEnabled(consent))
+    onChange(consent)
+  }
+  window.addEventListener('storage', onStorage)
+  return () => window.removeEventListener('storage', onStorage)
 }
 
 export function saveAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
@@ -88,13 +114,7 @@ export function loadGoogleAnalytics() {
 
 export function revokeAnalyticsConsent() {
   setAnalyticsTrackingEnabled(false)
-  const saved = saveAnalyticsConsent('denied')
-  window.gtag?.('consent', 'update', { analytics_storage: 'denied' })
-  for (const cookie of document.cookie.split(';')) {
-    const name = cookie.split('=', 1)[0]?.trim()
-    if (name?.startsWith('_ga')) document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`
-  }
-  return saved
+  return saveAnalyticsConsent('denied')
 }
 
 declare global {
