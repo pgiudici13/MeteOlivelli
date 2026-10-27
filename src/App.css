@@ -395,3 +395,7 @@ button::after, .hero-link::after { padding: 2px; }
   .custom-period label { width: 100%; }
   .custom-period input, .custom-period button { width: 100%; }
 }
+.weather-summary { margin-top: 1rem; padding: clamp(1rem, 3vw, 1.5rem); }
+.weather-summary h3 { margin: 0 0 0.75rem; }
+.weather-summary ul { margin: 0 0 0.75rem; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+.weather-summary .small { margin: 0; }

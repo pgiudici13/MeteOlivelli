@@ -8,6 +8,7 @@ import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
+import { describeWeatherChange } from './weather-summary.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { SchoolLogo } from './components/SchoolLogo.tsx'
@@ -132,7 +133,7 @@ function App() {
   const latest = data.latest
   const matchingHistory = data.period === queryPeriod && data.anchorToLatest === (period === 'auto')
   const historyLoading = !matchingHistory || !data.historyLoaded
-  const rows = matchingHistory ? data.history : []
+  const rows = useMemo(() => matchingHistory ? data.history : [], [matchingHistory, data.history])
   const latestLoaded = data.latestLoaded
   const latestError = data.latestError
   const historyError = data.historyError
@@ -141,6 +142,7 @@ function App() {
   // Solo importazioni storiche: la dashboard lo dichiara invece di apparire vuota.
   const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
+  const weatherSummary = useMemo(() => describeWeatherChange(latest, rows), [latest, rows])
 
   function applyCustomRange(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -236,6 +238,10 @@ function App() {
           </p>
           <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
         </article>)}</div>
+        <div className="weather-summary panel" aria-labelledby="weather-summary-title">
+          <h3 id="weather-summary-title">Come stanno cambiando le misure?</h3>
+          {weatherSummary ? <><ul>{weatherSummary.map(sentence => <li key={sentence}>{sentence}</li>)}</ul><p className="small">Confronto descrittivo fra letture della stazione, non una previsione. Gli intervalli fra misure possono essere diversi.</p></> : <p className="small">La sintesi sarà disponibile quando arriveranno almeno due letture fisiche valide e confrontabili.</p>}
+        </div>
         {latest && <details className="time-details"><summary>Provenienza degli orari</summary>
           <p>Misura fisica: {formatTime(latest.measured_at)}.</p>
           <p>Acquisizione della riga sul PC: {formatTime(latest.captured_at)}.</p>
