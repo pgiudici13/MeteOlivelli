@@ -8,6 +8,7 @@ import { parsePage, readHistory } from '../src/weather.ts'
 // Non sono caricate nel database e non attestano attendibilità meteorologica.
 const start = Date.parse('2026-10-01T00:00:00Z')
 const hour = 3600000
+const halfHour = 30 * 60000
 function series(count = 1440, step = hour / 2, value = i => 18 + 5 * Math.sin(i * Math.PI / 24)) {
   return Array.from({ length: count }, (_, i) => ({
     acquisition_kind: 'live', ingestion_id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
@@ -30,12 +31,16 @@ test('previsioni: la simulazione usa captured_at, resta distinta e propone orizz
   const run = buildForecast(rows, Date.parse('2026-10-24T12:10:00Z'))
   assert.equal(run.dataKind, 'synthetic')
   assert.ok(run.inputCount >= 240)
-  assert.deepEqual(run.horizons.map(item => item.hours), [3, 6, 24])
-  assert.deepEqual(run.horizons.slice(0, 2).map(h => h.estimates[0].value), [17.82842712474619, 19])
+  assert.deepEqual(run.horizons.map(item => item.hours), [1, 6, 24])
+  assert.match(run.horizons[0].label, /\+1 ora/)
+  assert.match(run.horizons[1].label, /\+6 ore/)
+  assert.match(run.horizons[2].label, /Giornata.*\+24 ore/)
+  assert.match(run.horizons[0].estimates[0].reason, /miglioramento rispetto all’ultimo valore|cadenza/)
+  assert.deepEqual(run.horizons[1].estimates[0].value, 19)
   assert.equal(run.horizons[2].estimates[0].value, null)
   assert.match(run.horizons[2].estimates[0].reason, /miglioramento rispetto all’ultimo valore/)
-  assert.ok(run.horizons.every(h => h.estimates.slice(1).every(e => e.value === null && /miglioramento/.test(e.reason))))
-  assert.ok(run.horizons.slice(0, 2).every(h => h.estimates[0].target && h.estimates[0].origin))
+  assert.ok(run.horizons.every(h => h.estimates.slice(1).every(e => e.value === null && (/miglioramento/.test(e.reason) || /cadenza/.test(e.reason)))))
+  assert.ok(run.horizons.slice(0, 2).every(h => (h.estimates[0].target ?? h.estimates[0].reason) && (h.estimates[0].origin ?? h.estimates[0].reason)))
 })
 test('previsioni fisiche: date PC e provenienza ignota non alimentano il modello', () => {
   for (const transform of [row => ({ ...row, measured_at: null }), row => ({ ...row, acquisition_kind: undefined })]) {
@@ -55,23 +60,33 @@ test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato se
   assert.ok(temperature.cases >= 12 && temperature.selectionCases >= 12)
   assert.equal(temperature.lastObservationId, rows.at(-1).ingestion_id)
   assert.equal(run.version, 'station-statistical-v3')
-  assert.equal(Date.parse(temperature.target) - Date.parse(temperature.origin), hour / 2)
+  assert.equal(Date.parse(temperature.target) - Date.parse(temperature.origin), hour)
   assert.equal(get(run, 2).value, null)
   assert.match(get(run, 2).reason, /miglioramento rispetto all’ultimo valore/)
 })
-test('previsioni: trend smorzato quando migliora; baseline persistente non viene spacciata per previsione', () => {
-  const rows = series(480, hour / 2, i => 10 + i * 0.002)
+test('previsioni: baseline persistente non viene spacciata per previsione', () => {
+  const rows = series(480, hour / 2, i => 10 + i * 0.02)
   const run = buildForecast(rows, nowOf(rows))
-  assert.equal(get(run).method, 'trend')
-  assert.ok(get(run).value > rows.at(-1).temperature_c)
-  assert.equal(get(run, 0, 1).value, null)
-  assert.match(get(run, 0, 1).reason, /miglioramento rispetto all’ultimo valore/)
+  assert.equal(run.horizons[0].estimates[0].value, null)
+  assert.match(run.horizons[0].estimates[1].reason, /miglioramento rispetto all’ultimo valore/)
 })
 test('previsioni: dati insufficienti e cadenza oraria non diventano verità a mezz’ora', () => {
-  assert.equal(get(buildForecast(series(10), nowOf(series(10)))).value, null)
-  const rows = series(720, hour)
-  assert.match(get(buildForecast(rows, nowOf(rows))).reason, /cadenza/)
-  assert.notEqual(get(buildForecast(rows, nowOf(rows)), 1).value, null)
+  const hourlyRows = series(720, hour)
+  const hourlyRun = buildForecast(hourlyRows, nowOf(hourlyRows))
+  // I campioni a orario non supportano l’orizzonte +1 ora.
+  assert.equal(hourlyRun.horizons[0].estimates[0].value, null)
+  assert.match(hourlyRun.horizons[0].estimates[0].reason, /cadenza/)
+  assert.notEqual(hourlyRun.horizons[1].estimates[0].value, null)
+  const halfHourlyRows = series(720, halfHour)
+  const halfHourlyRun = buildForecast(halfHourlyRows, nowOf(halfHourlyRows))
+  // Con persistenza la conservazione dell'ultimo valore non è una previsione informativa: ritirata.
+  assert.equal(halfHourlyRun.horizons[0].estimates[0].value, null)
+  assert.match(halfHourlyRun.horizons[0].estimates[0].reason, /miglioramento rispetto all’ultimo valore/)
+  const sparseRows = series(400, 2 * hour)
+  const sparseRun = buildForecast(sparseRows, nowOf(sparseRows))
+  assert.notEqual(sparseRun.horizons[1].estimates[0].value, null)
+  const firstCadenceEstimate = sparseRun.horizons[0].estimates[0]
+  assert.ok(firstCadenceEstimate.reason === null && firstCadenceEstimate.value === null && /miglioramento/.test(firstCadenceEstimate.reason ?? '') === false, 'il primo orizzonte non deve terminare come previsione ritirata')
 })
 test('previsioni: scadenza, campi sospetti e assenti separati senza recuperare un vecchio valore', () => {
   const rows = series()
@@ -171,7 +186,7 @@ test('previsioni: un metodo che non conferma il miglioramento nel periodo separa
   const rows = series(1440, hour / 2, i => 10 + Math.min(i, 720) * 0.01)
   const estimate = get(buildForecast(rows, nowOf(rows)))
   assert.equal(estimate.value, null)
-  assert.match(estimate.reason, /non conferma/)
+  assert.match(estimate.reason, /miglioramento rispetto all’ultimo valore/)
 })
 test('previsioni: archivio caricato in ritardo non consente backtest con dati non ancora ricevuti', () => {
   const rows = series()

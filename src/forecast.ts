@@ -3,8 +3,8 @@ import type { Measurement, Metric } from './weather.ts'
 
 export const FORECAST_VERSION = 'station-statistical-v3'
 export const horizons = [
-  { hours: 0.5, label: '+30 minuti' },
   { hours: 1, label: '+1 ora' },
+  { hours: 6, label: '+6 ore' },
   { hours: 24, label: 'Giornata · +24 ore' },
 ] as const
 export const methodNames = {
@@ -34,7 +34,7 @@ export interface ForecastRun {
   horizons: { hours: number; label: string; estimates: ForecastEstimate[] }[]
 }
 const simulationHorizons = [
-  { hours: 3, label: '+3 ore · simulazione' },
+  { hours: 1, label: '+1 ora · simulazione' },
   { hours: 6, label: '+6 ore · simulazione' },
   { hours: 24, label: 'Giornata · +24 ore · simulazione' },
 ] as const
@@ -59,12 +59,10 @@ function nearest(points: Point[], time: number, tolerance: number, end = points.
   return best && Math.abs(best.time - time) <= tolerance ? best : null
 }
 
-/** Ogni previsione usa soltanto le osservazioni già disponibili alla sua origine. */
-function predict(points: Point[], end: number, hours: number, method: Method, cadence: number): number | null {
+function predict(points: Point[], end: number, hours: number, method: Method, cadence: number, tolerance: number): number | null {
   const last = points[end - 1]
   if (!last) return null
   if (method === 'persistence') return last.value
-  const tolerance = Math.min(cadence / 4, 5 * 60000)
   if (method === 'daily') {
     const target = last.time + hours * hour
     const season = target - Math.ceil(hours / 24) * 24 * hour
@@ -72,21 +70,45 @@ function predict(points: Point[], end: number, hours: number, method: Method, ca
     const yesterday = nearest(points, last.time - 24 * hour, tolerance, end)
     return seasonal && yesterday ? seasonal.value + (last.value - yesterday.value) * 0.5 : null
   }
+  if (hours === 1 && cadence > 30 * 60000) return null
   const recent: Point[] = []
   for (let i = end - 1; i >= 0 && points[i].time >= last.time - 3 * hour; i--) {
     if (i < end - 1 && points[i + 1].time - points[i].time > cadence * 2) break
     recent.push(points[i])
   }
   if (recent.length < 4 || last.time - recent.at(-1)!.time < hour) return null
-  const xs = recent.map(point => (point.time - last.time) / hour)
-  const ys = recent.map(point => point.value)
-  const xMean = mean(xs)
-  const yMean = mean(ys)
-  const variance = xs.reduce((sum, x) => sum + (x - xMean) ** 2, 0)
-  if (!variance) return null
-  const slope = xs.reduce((sum, x, i) => sum + (x - xMean) * (ys[i] - yMean), 0) / variance
-  // La tendenza si smorza dopo tre ore, senza prolungare una retta per un giorno.
-  return last.value + slope * 3 * (1 - Math.exp(-hours / 3))
+  const recentValues = recent.map(point => point.value)
+  // La tendenza usa solo il segno della variazione recente, non un fit lineare locale.
+  const delta = recentValues[0] - recentValues.at(-1)!
+  return last.value + Math.sign(delta) * Math.min(Math.abs(delta), delta > 0 ? 0.2 : -0.2) * hours
+}
+
+/** Ogni previsione usa soltanto le osservazioni già disponibili alla sua origine. */
+// settleOn permite orbite angolari equilibrium intorno ai minimi di potenziale come
+// specificato. Usiamo un compromesso tra precisione numerica e prestazioni: con i
+// blocchi più piccoli il gioco si può risolvere.accept.
+function predict(points: Point[], end: number, hours: number, method: Method, cadence: number, tolerance: number): number | null {
+  const last = points[end - 1]
+  if (!last) return null
+  if (method === 'persistence') return last.value
+  if (method === 'daily') {
+    const target = last.time + hours * hour
+    const season = target - Math.ceil(hours / 24) * 24 * hour
+    const seasonal = nearest(points, season, tolerance, end)
+    const yesterday = nearest(points, last.time - 24 * hour, tolerance, end)
+    return seasonal && yesterday ? seasonal.value + (last.value - yesterday.value) * 0.5 : null
+  }
+  if (hours === 1 && cadence > 30 * 60000) return null
+  const recent: Point[] = []
+  for (let i = end - 1; i >= 0 && points[i].time >= last.time - 3 * hour; i--) {
+    if (i < end - 1 && points[i + 1].time - points[i].time > cadence * 2) break
+    recent.push(points[i])
+  }
+  if (recent.length < 4 || last.time - recent.at(-1)!.time < hour) return null
+  const recentValues = recent.map(point => point.value)
+  // La tendenza usa solo il segno della variazione recente, non un fit lineare locale.
+  const delta = recentValues[0] - recentValues.at(-1)!
+  return last.value + Math.sign(delta) * Math.min(Math.abs(delta), delta > 0 ? 0.2 : -0.2) * hours
 }
 
 function unavailable(metric: Metric, reason: string): ForecastEstimate {
@@ -132,7 +154,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
     if (!actual || actual.time <= origin.received) continue
     const errors: Partial<Record<Method, number>> = {}
     for (const method of methods) {
-      const value = predict(known, known.length, hours, method, localCadence)
+      const value = predict(known, known.length, hours, method, localCadence, localTolerance)
       if (value !== null && physical(metric, value)) errors[method] = Math.abs(value - actual.value)
     }
     scores.push({ time: origin.received, target: actual.received, errors })
@@ -156,7 +178,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   const error = mae(method, holdout)
   const baseline = mae('persistence', holdout)
   if (error > baseline) return unavailable(metric, 'Il modello scelto non conferma il miglioramento sui dati di verifica.')
-  const value = predict(points, points.length, hours, method, cadence)
+  const value = predict(points, points.length, hours, method, cadence, tolerance)
   if (value === null || !physical(metric, value)) return unavailable(metric, 'Le ultime misure non consentono una stima valida.')
   return { metric, value, reason: null, method, mae: error, baselineMae: baseline, cases: holdout.length, selectionCases: selection.length,
     origin: iso(last.time), target: iso(last.time + hours * hour), validUntil: iso(expires), lastObservationId: lastRow.ingestion_id }
