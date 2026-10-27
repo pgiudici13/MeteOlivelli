@@ -254,6 +254,8 @@ test('PDF grafici: documento completo per il periodo selezionato e metadati di g
   assert.equal(document.pageOrientation, 'landscape')
   assert.match(document.info.title, /24 ore/)
   assert.equal(document.content.filter(item => item.stack).length, 3)
+  assert.equal(document.content.filter(item => item.pageBreak === 'before').length, 2)
+  assert.match(document.header().text, /24 ore · Europe\/Rome/)
   assert.ok(document.content.some(item => item.text?.includes('Generato il 22/10/2026')))
   assert.ok(document.content.some(item => item.text?.includes('non vengono interpolati')))
   const weeklyRows = [
@@ -308,6 +310,7 @@ test('PDF cronologia: include ogni riga, distingue gli orari e marca null, quali
   assert.match(table[1][5], /†/)
   assert.match(table[2][1], /SINTETICO/)
   assert.equal(table[0][2].text, 'Misura fisica')
+  assert.match(document.header().text, /Cronologia · Orari Europe\/Rome/)
 })
 
 test('PDF cronologia: il motore genera un documento tabellare scaricabile', async () => {

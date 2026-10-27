@@ -13,13 +13,14 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
   return {
     pageSize: 'A4',
     pageOrientation: 'landscape',
-    pageMargins: [36, 42, 36, 42],
+    pageMargins: [36, 52, 36, 42],
     defaultStyle: { font: 'Roboto', fontSize: 9, color: '#292622' },
     info: { title: `MeteOlivelli · Grafici · ${periodLabel}`, subject: 'Esportazione dei grafici delle misurazioni' },
     content: [
       { text: 'MeteOlivelli · Grafici delle misurazioni', style: 'title' },
       { text: `Periodo selezionato: ${periodLabel} · Generato il ${reportTime} · Ora visualizzata: Europe/Rome`, style: 'meta', margin: [0, 2, 0, 8] },
-      ...charts.map(chart => ({
+      ...charts.map((chart, index) => ({
+        ...(index ? { pageBreak: 'before' as const } : {}),
         stack: [
           { text: `${chart.metric.name} · ${chart.metric.unit}`, style: 'heading', margin: [0, 5, 0, 1] },
           { svg: chart.svg, width: 735, height: 296, margin: [0, 0, 0, 0] },
@@ -39,6 +40,7 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
       caption: { fontSize: 8, color: '#68625D' },
       footnote: { fontSize: 8, color: '#68625D' },
     },
+    header: () => ({ text: `MeteOlivelli · Grafici · ${periodLabel} · Europe/Rome`, alignment: 'left', margin: [36, 20, 36, 0], fontSize: 8, color: '#68625D' }),
     footer: (currentPage: number, pageCount: number) => ({ text: `MeteOlivelli · Grafici · Pagina ${currentPage} di ${pageCount}`, alignment: 'right', margin: [36, 0, 36, 16], fontSize: 8, color: '#68625D' }),
   }
 }

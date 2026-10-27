@@ -28,7 +28,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
   return {
     pageSize: 'A4',
     pageOrientation: 'landscape',
-    pageMargins: [28, 38, 28, 38],
+    pageMargins: [28, 48, 28, 38],
     defaultStyle: { font: 'Roboto', fontSize: 7, color: '#292622' },
     info: { title: 'MeteOlivelli · Cronologia completa', subject: 'Tutti i campioni registrati' },
     content: [
@@ -54,6 +54,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
       tableHeader: { bold: true, fontSize: 7 },
       footnote: { fontSize: 7, color: '#68625D' },
     },
+    header: () => ({ text: 'MeteOlivelli · Cronologia · Orari Europe/Rome', margin: [28, 18, 28, 0], fontSize: 8, color: '#68625D' }),
     footer: (currentPage: number, pageCount: number) => ({ text: `MeteOlivelli · Cronologia · Pagina ${currentPage} di ${pageCount}`, alignment: 'right', margin: [28, 0, 28, 14], fontSize: 7, color: '#68625D' }),
   }
 }
