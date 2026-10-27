@@ -287,3 +287,19 @@ I grafici espongono statistiche e variazione dei punti disponibili, con media po
 
 La dashboard descrive l'andamento delle tre grandezze esclusivamente confrontando campioni fisici validi con acquisizione datata. Non presenta dati sintetici come osservazioni né interpreta la descrizione come previsione; se i confronti non sono disponibili mostra uno stato esplicito. Il calcolo ha test per misure mancanti, sospette e provenienza non ammessa.
 
+## Curiosità del giorno — 27 ottobre 2026
+
+La pagina iniziale mostra una curiosità educativa tratta dalle domande già verificate del quiz. La selezione è deterministica per giorno civile `Europe/Rome`, uguale per i visitatori e aggiornata mentre la scheda rimane aperta; non dipende dalle misure della stazione. La risposta è spiegata e collegata alla pagina Gioca. Le prove coprono rotazione, stabilità e validità delle risposte.
+
+## Età dell'ultima lettura — 27 ottobre 2026
+
+La pagina mostra il tempo trascorso dall'orario della misura fisica attestata, oppure, quando assente, dall'acquisizione PC o dalla ricezione server con etichette distinte. Il calcolo usa l'ora restituita dal backend e non l'orologio del visitatore; date future/non coerenti non producono un'età fittizia. L'indicazione non equivale a certificare la freschezza della misura in assenza di una cadenza verificata.
+
+## Spiegazioni delle grandezze — 27 ottobre 2026
+
+Le tre schede principali espongono una spiegazione apribile da tastiera tramite `details/summary`, con definizione accessibile di temperatura dell'aria, umidità relativa e pressione atmosferica. Non inferiscono fenomeni meteo non misurati e non richiedono nuove API.
+
+## Riepiloghi giornalieri e mensili — 27 ottobre 2026
+
+La dashboard calcola minimo, massimo, media e numero dei campioni validi per la giornata più recente con misure; espone il primo e l'ultimo orario osservati senza promettere copertura continua. Nel mese corrente identifica le giornate mediamente più calda e più fredda fra quelle effettivamente disponibili. Il giorno civile è Europe/Rome; è usato `measured_at` quando attestato, altrimenti `captured_at`, e vengono esclusi dati sintetici, date future, null e valori sospetti. Lo storico completo resta la fonte, senza nuove scritture server.
+

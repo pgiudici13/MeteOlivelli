@@ -12,10 +12,11 @@ export interface WeatherState {
   historyError: boolean
   checkedAt: number | null
   windowUntil: string | null
+  serverUntil: string | null
   invalidLatestTime: boolean
 }
 export function initialWeatherState(period: Period, anchorToLatest = false): WeatherState {
-  return { period, anchorToLatest, latest: null, history: [], latestLoaded: false, historyLoaded: false, latestError: false, historyError: false, checkedAt: null, windowUntil: null, invalidLatestTime: false }
+  return { period, anchorToLatest, latest: null, history: [], latestLoaded: false, historyLoaded: false, latestError: false, historyError: false, checkedAt: null, windowUntil: null, serverUntil: null, invalidLatestTime: false }
 }
 
 /** Un solo ciclo alla volta; un errore conserva gli ultimi valori e ne segnala lo stato. */
@@ -59,7 +60,7 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
         const invalidLatestTime = Boolean(candidate?.captured_at && isAfterServerTime(candidate.captured_at, response.until))
         const latest = invalidLatestTime ? null : candidate
         const nextSignature = JSON.stringify([response.items, invalidLatestTime])
-        state = { ...state, latest, invalidLatestTime, latestLoaded: true, latestError: false, checkedAt: Date.now() }
+        state = { ...state, latest, invalidLatestTime, latestLoaded: true, latestError: false, checkedAt: Date.now(), serverUntil: response.until }
         if ((nextSignature !== signature || !state.historyLoaded || state.historyError || reconcileHistory) && !historyStarted) await updateHistory()
         // Anche senza nuovi campioni la finestra deve avanzare, senza nuove letture di serie.
         const windowUntil = options.anchorToLatest ? state.windowUntil ?? response.until : response.until
