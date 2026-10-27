@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-27",
+  "target": "Chrome locale, API intercettate; dati inventati nelle sole fixture",
+  "totalPassed": 57,
+  "runs": [
+    {
+      "runner": "frontend-browser.mjs",
+      "passed": 14,
+      "scenarios": [
+        "risposta vuota intercettata → dashboard senza misure inventate",
+        "fixture sintetica: tre grafici, unità e tabella accessibile",
+        "Auto predefinito: intervallo breve e medie settimanali senza cambiare i campioni",
+        "reflow 320, 390, 768, 1280 px e font Inter locale",
+        "motion: disegno curva in vista, fine animazione e riduzione dinamica",
+        "hover: riflesso locale, nessuna illuminazione della sezione e periodo leggibile",
+        "tastiera, focus e filtri 7g/30g senza storico sostitutivo",
+        "polling invariato non ricarica la serie",
+        "nuovo campione appare in due browser senza reload",
+        "errore rete conserva dati con avviso; riconnessione automatica",
+        "campi assenti e probabili errati preservati e separati dalla linea",
+        "zoom 200% simulato tramite reflow e movimento ridotto",
+        "stato caricamento distinto dal vuoto",
+        "fallback senza JavaScript"
+      ]
+    },
+    {
+      "runner": "complete-history-browser.mjs",
+      "passed": 11,
+      "scenarios": [
+        "caricamento iniziale completo",
+        "nuova lettura riconcilia la cronologia",
+        "polling invariato non rilegge tutto lo storico",
+        "aggiornamento manuale include importazioni e mantiene la pagina",
+        "errore conserva campioni e pagina, retry recupera",
+        "ritorno online riconcilia anche senza nuovo latest",
+        "focus ripetuti entro un minuto non rileggono la cronologia",
+        "pagina nascosta non rilegge; ritorno visibile riconcilia",
+        "reflow 320 px",
+        "reflow 390 px",
+        "reflow 1280 px"
+      ]
+    },
+    {
+      "runner": "motion-browser.mjs",
+      "passed": 5,
+      "scenarios": [
+        "titolo animato, grafico progressivo e movimento ridotto dinamico",
+        "grafico: puntatore, frecce, estremi e campione reale della fixture",
+        "controlli: hover, pressione e annullamento dinamico",
+        "paginazione Motion completa, inversione e movimento ridotto durante uscita",
+        "tutte le pagine, entrambi i temi e reflow 320/390/1280 px"
+      ]
+    },
+    {
+      "runner": "forecast-browser.mjs",
+      "passed": 7,
+      "scenarios": [
+        "worker reale: tre orizzonti, sei stime e ritiro della persistenza a 24 ore, con paginazione",
+        "filtri dei grafici indipendenti dal modello",
+        "reflow a 390/320 px con dettagli metodo aperti",
+        "errore rete ritira i numeri; riconnessione recupera il risultato",
+        "ultimo dato nullo/sospetto ritira soltanto le grandezze interessate",
+        "scadenza anche senza nuovi campioni: nessuna stima passata resta attuale",
+        "dieci sintetici non producono previsioni né una simulazione nella UI finale"
+      ]
+    },
+    {
+      "runner": "ui-regressions-browser.mjs",
+      "passed": 6,
+      "scenarios": [
+        "intestazione senza sovrapposizioni in ogni breakpoint e pagina pubblica",
+        "ingressi delle pagine lazy inizializzati dopo Suspense e movimento ridotto rispettato",
+        "quiz completabile da tastiera con focus su domanda, spiegazione e risultato",
+        "grafico limitato in altezza: puntatore e tocco selezionano il punto effettivo",
+        "cambio giorno con 300 campioni termina rapidamente e conserva i dati",
+        "modifica dell’ultima misura con stesso ID aggiorna anche la cronologia"
+      ]
+    },
+    {
+      "runner": "admin-browser.mjs",
+      "passed": 2,
+      "scenarios": [
+        "modificare un valore conserva secondi, millisecondi e istante nel ritorno all’ora solare",
+        "un inserimento confermato non viene riproposto se il successivo elenco fallisce"
+      ]
+    },
+    {
+      "runner": "analytics-browser.mjs",
+      "passed": 3,
+      "scenarios": [
+        "opt-out nella prima scheda arresta gli invii e aggiorna la seconda senza reload",
+        "cancellare la preferenza ripristina il default attivo nelle altre schede",
+        "opt-out rimuove cookie Google host/domain e conserva gli altri cookie"
+      ]
+    },
+    {
+      "runner": "page-errors-browser.mjs",
+      "passed": 2,
+      "scenarios": [
+        "/info: errore gestito, temi/reflow, preferenze, ricarica e ritorno home",
+        "/gioca: errore gestito, temi/reflow, preferenze, ricarica e ritorno home"
+      ]
+    },
+    {
+      "runner": "school-link-browser.mjs",
+      "passed": 4,
+      "scenarios": [
+        "/home: nome accessibile coerente con il testo visibile del link scolastico",
+        "/info: nome accessibile coerente con il testo visibile del link scolastico",
+        "/privacy: nome accessibile coerente con il testo visibile del link scolastico",
+        "/gioca: nome accessibile coerente con il testo visibile del link scolastico"
+      ]
+    },
+    {
+      "runner": "font-browser.mjs",
+      "passed": 3,
+      "scenarios": [
+        "Inter 320px: solo subset iniziale, glifi con stesse misure, alfabeti ulteriori disponibili",
+        "Inter 390px: solo subset iniziale, glifi con stesse misure, alfabeti ulteriori disponibili",
+        "Inter 1280px: solo subset iniziale, glifi con stesse misure, alfabeti ulteriori disponibili"
+      ]
+    }
+  ]
+}

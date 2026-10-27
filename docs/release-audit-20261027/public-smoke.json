@@ -1,0 +1,103 @@
+{
+  "target": "https://meteolivelli.vercel.app",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "MeteOlivelli | Meteo scolastico a Pavia"
+    },
+    {
+      "path": "/home",
+      "status": 200,
+      "title": "MeteOlivelli | Meteo scolastico a Pavia"
+    },
+    {
+      "path": "/info",
+      "status": 200,
+      "title": "Informazioni su MeteOlivelli — progetto e stazione meteo"
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy e dati — MeteOlivelli"
+    },
+    {
+      "path": "/gioca",
+      "status": 200,
+      "title": "Gioca con il meteo — MeteOlivelli"
+    },
+    {
+      "path": "/data",
+      "status": 200,
+      "title": "Gestione delle misure — MeteOlivelli"
+    },
+    {
+      "path": "/verifica-pagina-inesistente",
+      "status": 404,
+      "title": "Pagina non trovata — MeteOlivelli"
+    }
+  ],
+  "hashes": [
+    {
+      "asset": "/fonts/InterVariable-latin.woff2",
+      "bytes": 72260,
+      "sha256": "282007f0302745967839553f0346021f955bf6b838ae90c6c55fa5d261a70ad6"
+    },
+    {
+      "asset": "/assets/index-IB6Yw0au.js",
+      "bytes": 301397,
+      "sha256": "47a95c12b33bcf6ea27fbfbf0a4e5543e12e6d5b94023c8fdf71b317bcc3589f"
+    },
+    {
+      "asset": "/assets/rolldown-runtime-WkwZ5CU-.js",
+      "bytes": 599,
+      "sha256": "2629f2ad3cb75a57d98de697127f5af7d777ef572bbcdfa6e3ce8f438cd4527e"
+    },
+    {
+      "asset": "/assets/index--ZpIAzI0.css",
+      "bytes": 27478,
+      "sha256": "e6e433c5448fd0e3f1d82d50271d9df747bf71f847e015b397b11f7eebc0d76b"
+    }
+  ],
+  "latest": {
+    "count": 1,
+    "acquisitionKinds": [
+      "synthetic"
+    ]
+  },
+  "adminUnauthenticatedStatus": 503,
+  "browserRoutes": [
+    {
+      "path": "/home",
+      "title": "MeteOlivelli | Meteo scolastico a Pavia",
+      "heading": "Il meteo,\nqui all’Olivelli."
+    },
+    {
+      "path": "/info",
+      "title": "Informazioni su MeteOlivelli — progetto e stazione meteo",
+      "heading": "La stazione,\nvista da vicino."
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy e dati — MeteOlivelli",
+      "heading": "Privacy e dati."
+    },
+    {
+      "path": "/gioca",
+      "title": "Gioca con il meteo — MeteOlivelli",
+      "heading": "Gioca con\nil meteo."
+    },
+    {
+      "path": "/data",
+      "title": "Gestione dati — MeteOlivelli",
+      "heading": "Gestione delle misure"
+    },
+    {
+      "path": "/verifica-pagina-inesistente",
+      "title": "Pagina non trovata — MeteOlivelli",
+      "heading": "Qui non c’è\nnessuna misura."
+    }
+  ],
+  "errors": [],
+  "verifiedCommit": "e625950ee8b37e5b9f07a3e78b857b1b77039991"
+}

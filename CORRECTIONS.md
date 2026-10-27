@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 27 ottobre 2026. Audit finale: COR-033–COR-045 riprodotti e corretti con regressioni; commit/push autorizzati dall’utente. Le correzioni frontend passano build/lint e prove browser, mentre le Edge Function richiedono pubblicazione separata. COR-015 (LCP), collaudo fisico, backup e attività operative ancora aperte non vengono chiusi dai test locali. Gli stati nei verbali precedenti restano riferiti alle rispettive sessioni.
+Ultima verifica: 27 ottobre 2026. Audit finale: COR-033–COR-046 riprodotti e corretti con regressioni; commit/push autorizzati dall’utente. Le correzioni frontend passano build/lint e prove browser, mentre le Edge Function richiedono pubblicazione separata. COR-015 (LCP), collaudo fisico, backup e attività operative ancora aperte non vengono chiusi dai test locali. Gli stati nei verbali precedenti restano riferiti alle rispettive sessioni.
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -170,14 +170,14 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-015 — Prestazioni mobile da migliorare
 
-- **Stato:** ottimizzazioni pubblicate il 26 ottobre 2026 (`eeb677f`), deploy Production `READY`; LCP 4,1 s ancora da migliorare.
+- **Stato:** aperto per la variabilità LCP; ottimizzazione font pubblicata e verificata il 27 ottobre 2026 (`e625950`), file iniziale ridotto del 79,5%.
 - **Area/file:** bundle iniziale, logo e presentazione responsive del sito MeteOlivelli.
 - **Problema/prova:** PageSpeed Insights mobile (Lighthouse 13.5, 26 ottobre 2026 alle 12:00) mostra 86/100, LCP 4,1 s, FCP 1,4 s, TBT 0 ms e CLS 0. Il report segnala immagine del logo scolastico sovradimensionata (originale 1041×359 per uno spazio di circa 200 px), assenza di dimensioni dichiarate sulle immagini, circa 310 ms di CSS render-blocking e 68,5 KiB di risparmio potenziale sulle immagini. Nel dettaglio LCP visto nel report precedente, il testo del consenso client-rendered è l’elemento LCP. Search Console non dispone di campioni CrUX sufficienti per classificare i Core Web Vitals di utenti reali; il punteggio è un laboratorio simulato.
 - **Impatto/priorità:** media; LCP oltre 4 s è lento nella simulazione mobile. Accessibilità, best practice e SEO risultano 100 nel medesimo report; CLS è 0, TBT 0 ms.
 - **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
 - **Verifica:** build, lint e 77 test frontend superati. PSI mobile post-rilascio (12:32) sullo stesso URL/form factor: 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms, CLS 0; stima immagini 40 KiB (da 68,5), CSS bloccante 150 ms (da 310), JS inutilizzato 44 KiB (da 52). LCP resta il problema principale e richiede ulteriore intervento; i punteggi singoli oscillano tra run. La preview browser locale era bloccata da `listen EPERM`.
 
-**Aggiornamento 27 ottobre 2026:** due baseline Lighthouse mobile 13.5 registrano 73/100 con LCP simulato 6,56 s e 88/100 con 3,70 s; LCP osservato rispettivamente 2,73 e 1,54 s. Font precaricato da 352.240 byte, oltre il necessario per la UI italiana. Preparato subset da 72.260 byte (−79,5%), medesimi glifi/assi variabili, originale invariato disponibile per gli altri alfabeti con intervalli CSS disgiunti. Tre prove browser verificano rete, temi, quiz e ingombri identici a 320/390/1280 px; `npm run check` superato. Stato prestazioni da confermare con misura pubblica successiva, non chiuso sulla sola riduzione del file.
+**Aggiornamento 27 ottobre 2026:** due baseline Lighthouse mobile 13.5 registrano 73/100 con LCP simulato 6,56 s e 88/100 con 3,70 s; LCP osservato rispettivamente 2,73 e 1,54 s. Font precaricato da 352.240 byte, oltre il necessario per la UI italiana. Preparato subset da 72.260 byte (−79,5%), medesimi glifi/assi variabili, originale invariato disponibile per gli altri alfabeti con intervalli CSS disgiunti. Tre prove browser verificano rete, temi, quiz e ingombri identici a 320/390/1280 px; `npm run check` superato. Dopo il rilascio due Lighthouse con identica configurazione registrano performance 80/98 e LCP simulato 5,19/2,03 s; LCP osservato 1,583/1,580 s, CLS 0 e altre categorie 100. Il font completo non viene più richiesto dalla Home italiana. La variabilità impedisce di chiudere COR-015 come garanzia di LCP. [Quattro misure sanificate](docs/release-audit-20261027/lighthouse-summary.json).
 
 ## COR-016 — La persistenza veniva mostrata come previsione
 

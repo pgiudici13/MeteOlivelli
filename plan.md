@@ -1,5 +1,7 @@
 # Piano di progetto — MeteOlivelli
 
+> **Esito audit e rilascio — 27 ottobre 2026:** corretti 14 problemi verificati (COR-033–COR-046) e ridotto del 79,5% il font precaricato (COR-015). Correzioni testate e pushate su `main`; frontend pubblico verificato sul commit `e625950`, Vercel success, JS/CSS/font identici a dist. Build/lint, 107 frontend, 54 Deno, 28 Python e 57 scenari browser passati. API admin ancora 503: configurazione e deployment Edge separati restano necessari. COR-015 resta aperto: Lighthouse mobile post-rilascio 80/98, LCP simulato 5,19/2,03 s; altre categorie 100. [Verbale corrente](docs/release-audit-20261027.md).
+
 > **Audit finale richiesto — 27 ottobre 2026:** revisione di codice e UI senza restyling; l’utente autorizza correzioni, test e commit/push dopo ogni risoluzione verificata. Nessuna applicazione di migrazioni o modifica alla configurazione dei servizi inclusa. Gli esiti sono registrati in `tasks.md` e i problemi riprodotti in `CORRECTIONS.md`; collaudo della stazione, backup/restore e validazione previsionale restano criteri separati.
 
 > **Aggiornamento locale — 27 ottobre 2026:** su richiesta rivisti i testi di Informazioni per una presentazione più diretta, senza avvisi provvisori; rimangono spiegazioni accurate su orari, freschezza e previsioni. Il funzionamento continuo della stazione resta da verificare.

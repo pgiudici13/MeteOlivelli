@@ -1,0 +1,197 @@
+{
+  "source": "Audit Lighthouse locali del sito pubblico, profili temporanei e preferenze statistiche predefinite. Non equivalgono a PSI/CrUX o prove su telefono reale.",
+  "configuration": {
+    "lighthouseVersion": "13.5.0",
+    "chrome": "156.0.0.0",
+    "formFactor": "mobile",
+    "throttlingMethod": "simulate",
+    "throttling": {
+      "rttMs": 150,
+      "throughputKbps": 1638.4,
+      "requestLatencyMs": 562.5,
+      "downloadThroughputKbps": 1474.5600000000002,
+      "uploadThroughputKbps": 675,
+      "cpuSlowdownMultiplier": 4
+    },
+    "screenEmulation": {
+      "mobile": true,
+      "width": 412,
+      "height": 823,
+      "deviceScaleFactor": 1.75,
+      "disabled": false
+    }
+  },
+  "measurements": [
+    {
+      "label": "baseline1",
+      "reportPath": "/tmp/meteolivelli-lighthouse-20261027.report.json",
+      "fetchTime": "2026-10-27T13:45:13.951Z",
+      "localTime": "27/10/26, 14:45:13",
+      "lighthouseVersion": "13.5.0",
+      "performance": 73,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcpMs": 1677.3509999999997,
+      "lcpSimulatedMs": 6562.736999999999,
+      "lcpObservedMs": 2725,
+      "tbtMs": 65,
+      "cls": 0,
+      "speedIndexMs": 4603.933203608465,
+      "totalTransferBytes": 734807,
+      "fontRequests": [
+        {
+          "path": "/fonts/InterVariable.woff2",
+          "resourceBytes": 352240,
+          "transferBytes": 352613
+        }
+      ],
+      "labelMismatchPassed": false,
+      "failedA11yBpSeo": {
+        "accessibility": [
+          "label-content-name-mismatch"
+        ],
+        "best-practices": [],
+        "seo": []
+      },
+      "warnings": [],
+      "runtimeError": null
+    },
+    {
+      "label": "baseline2",
+      "reportPath": "/tmp/meteolivelli-lighthouse-20261027-run2.report.json",
+      "fetchTime": "2026-10-27T13:46:47.315Z",
+      "localTime": "27/10/26, 14:46:47",
+      "lighthouseVersion": "13.5.0",
+      "performance": 88,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcpMs": 1628.4255,
+      "lcpSimulatedMs": 3700.4345000000003,
+      "lcpObservedMs": 1543,
+      "tbtMs": 46,
+      "cls": 0,
+      "speedIndexMs": 3130.2729737576306,
+      "totalTransferBytes": 735047,
+      "fontRequests": [
+        {
+          "path": "/fonts/InterVariable.woff2",
+          "resourceBytes": 352240,
+          "transferBytes": 352622
+        }
+      ],
+      "labelMismatchPassed": false,
+      "failedA11yBpSeo": {
+        "accessibility": [
+          "label-content-name-mismatch"
+        ],
+        "best-practices": [],
+        "seo": []
+      },
+      "warnings": [],
+      "runtimeError": null
+    },
+    {
+      "label": "post1",
+      "reportPath": "/tmp/meteolivelli-lighthouse-20261027-post1.report.json",
+      "fetchTime": "2026-10-27T13:54:20.738Z",
+      "localTime": "27/10/26, 14:54:20",
+      "lighthouseVersion": "13.5.0",
+      "performance": 80,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcpMs": 1623.232,
+      "lcpSimulatedMs": 5186.911999999999,
+      "lcpObservedMs": 1583,
+      "tbtMs": 54,
+      "cls": 0,
+      "speedIndexMs": 3002.4769290158247,
+      "totalTransferBytes": 456384,
+      "fontRequests": [
+        {
+          "path": "/fonts/InterVariable-latin.woff2",
+          "resourceBytes": 72260,
+          "transferBytes": 72486
+        }
+      ],
+      "labelMismatchPassed": true,
+      "failedA11yBpSeo": {
+        "accessibility": [],
+        "best-practices": [],
+        "seo": []
+      },
+      "warnings": [],
+      "runtimeError": null
+    },
+    {
+      "label": "post2",
+      "reportPath": "/tmp/meteolivelli-lighthouse-20261027-post2.report.json",
+      "fetchTime": "2026-10-27T13:54:54.778Z",
+      "localTime": "27/10/26, 14:54:54",
+      "lighthouseVersion": "13.5.0",
+      "performance": 98,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcpMs": 1362.76,
+      "lcpSimulatedMs": 2028.04,
+      "lcpObservedMs": 1580,
+      "tbtMs": 15.5,
+      "cls": 0,
+      "speedIndexMs": 2857.231657974623,
+      "totalTransferBytes": 456539,
+      "fontRequests": [
+        {
+          "path": "/fonts/InterVariable-latin.woff2",
+          "resourceBytes": 72260,
+          "transferBytes": 72477
+        }
+      ],
+      "labelMismatchPassed": true,
+      "failedA11yBpSeo": {
+        "accessibility": [],
+        "best-practices": [],
+        "seo": []
+      },
+      "warnings": [],
+      "runtimeError": null
+    }
+  ],
+  "publicFontVerification": {
+    "status": 200,
+    "path": "/fonts/InterVariable-latin.woff2",
+    "downloadedBytes": 72260
+  },
+  "fontResourceSavingsBytes": 279980,
+  "fontResourceSavingsPercent": 79.48557801498978,
+  "remainingPerformanceOpportunities": [
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "displayValue": "Est savings of 45 KiB"
+    },
+    {
+      "id": "lcp-discovery-insight",
+      "title": "LCP request discovery",
+      "displayValue": null
+    },
+    {
+      "id": "network-dependency-tree-insight",
+      "title": "Network dependency tree",
+      "displayValue": null
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render-blocking requests",
+      "displayValue": null
+    },
+    {
+      "id": "unused-javascript",
+      "title": "Reduce unused JavaScript",
+      "displayValue": "Est savings of 116 KiB"
+    }
+  ],
+  "conclusion": "Font ridotto del 79,5% e mismatch accessibile risolto. Performance dopo il rilascio 80–98, LCP simulato 2,03–5,19 s: due run variabili non dimostrano una garanzia di LCP né chiudono COR-015."
+}

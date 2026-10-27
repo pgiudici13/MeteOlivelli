@@ -254,7 +254,7 @@ focus, temi e reflow senza richieste a servizi esterni.
 ### Prove finali dell’audit — 27 ottobre 2026
 
 `npm run check`: 107 test frontend, 54 backend Deno e 28 uploader Python, build e
-lint superati. Gli otto runner browser coprono 50 scenari (inclusi 52 layout
+lint superati. I dieci runner browser coprono 57 scenari (inclusi 52 layout
 responsive), con fixture locali e nessuna scrittura remota. I runner previsionali
 e cronologia sono aggiornati alle decisioni attuali: non pretendono più la
 persistenza come previsione, la simulazione rimossa o riletture senza throttle.
@@ -271,3 +271,9 @@ L’ottimizzazione dei font riduce il file inizialmente scaricato del 79,5%:
 include anche simboli di temi e quiz; gli altri alfabeti usano l’originale con
 `unicode-range` disgiunti. Il runner `font-browser.mjs` controlla richieste,
 ingombri dei glifi identici all’originale e disponibilità degli alfabeti ulteriori.
+
+Verifica pubblica sul commit `e625950`: Vercel success, bundle e font identici a
+dist, pagine/404/noindex e reflow corretti, nessun errore JavaScript rilevato.
+Lighthouse mobile post-font: 80 e 98/100, altre categorie 100, CLS 0; LCP simulato
+variabile 5,19 e 2,03 s. I quattro report prima/dopo sono riassunti nel verbale:
+COR-015 resta aperto, mentre il risparmio di 279.980 byte sul font è verificato.

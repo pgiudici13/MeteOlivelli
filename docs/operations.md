@@ -1,5 +1,7 @@
 # Gestione operativa — MeteOlivelli
 
+> **Verifica corrente — 27 ottobre 2026:** frontend `e625950` distribuito con successo via Git e verificato sul dominio pubblico; dettagli e hash nel [verbale](release-audit-20261027.md). La UI finale esclude sintetici e non mostra la vecchia postilla: i paragrafi storici sotto non superano questa decisione. API di lettura 200, API amministrativa 503; correzioni Edge locali e configurazione server non pubblicate/modificate in questa sessione. Backup, avvisi e stazione reale restano aperti.
+
 Stato documentato il 22 ottobre 2026, riferito al rilascio applicativo `bce39e2`. Questa guida registra le procedure e i limiti; non attiva backup, allarmi, pulizie o modifiche remote. I task esecutivi restano nella [Fase 8](../tasks.md#8-fase-8--backup-gestione-e-rilascio).
 
 ## Target e accessi
@@ -18,7 +20,7 @@ Prima di ogni intervento verificare nuovamente progetto, ambiente, commit e ambi
 
 ## Diagnosi senza scritture
 
-1. Aprire il sito e controllare postilla, stato delle misure, ultimo campione e cronologia. HTTP 200 indica disponibilità della pagina, non freschezza della stazione.
+1. Aprire il sito e controllare stato delle misure, ultimo campione e cronologia. HTTP 200 indica disponibilità della pagina, non freschezza della stazione.
 2. Provare in sola lettura:
 
 ```sh
