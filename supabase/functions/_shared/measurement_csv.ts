@@ -122,6 +122,7 @@ export function parseMeasurementCsvRow(
     // Il CSV v1 non contiene un'ora assoluta: measured_at è solo quello attestato
     // dal chiamante (writer o orologio della sorgente), mai dedotto o inventato.
     measured_at: context.measured_at ?? null,
+    ...(context.acquisition_kind === 'synthetic' ? { _provenance: { kind: 'synthetic' } } : {}),
   }, ranges)
   return result.ok
     ? { ...result, raw_row: rawRow }

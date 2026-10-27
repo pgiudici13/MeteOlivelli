@@ -110,7 +110,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
       }} />
       {dateError && <p role="status">{dateError}</p>}
     </div>}
-    {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} acquisiti in questo giorno</p></div>}
+    {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} · giorno di acquisizione o, se assente, di ricezione</p></div>}
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
       <caption className="sr-only">Campioni del {visibleDay?.label ?? 'giorno selezionato'} in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione. Valori sospetti segnalati per campo.</caption>
@@ -141,7 +141,8 @@ function App() {
     if (canonical) canonical.href = 'https://meteolivelli.vercel.app/'
   }, [])
   useEffect(() => {
-    const id = decodeURIComponent(window.location.hash.slice(1))
+    let id: string
+    try { id = decodeURIComponent(window.location.hash.slice(1)) } catch { return }
     if (!['chart-temperature_c', 'chart-humidity_pct', 'chart-pressure_hpa'].includes(id)) return
     const frame = requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView())
     return () => cancelAnimationFrame(frame)

@@ -165,9 +165,11 @@ Overflow/non finiti e underflow non nullo verso zero vengono segnalati. La
 rappresentazione numerica è quella `number` JavaScript; nessun arrotondamento per la UI.
 Testo non interpretabile resta un errore, numeri sospetti mantengono i flag qualità.
 
-`context` fornisce sorgente, ID persistito, tipo di acquisizione e `captured_at`.
-L'adattatore imposta sempre `measured_at: null`: questi quattro campi non dichiarano
-un orario fisico affidabile. Restano valide le regole storico/live del contratto.
+`context` fornisce sorgente, ID persistito, tipo di acquisizione, `captured_at` e
+un eventuale `measured_at` attestato dal chiamante. La riga CSV non fornisce da sé
+un orario fisico: in assenza di attestazione il valore resta nullo. Per il tipo
+`synthetic` l'adattatore aggiunge la provenienza esplicita richiesta dal contratto;
+restano valide le regole di validazione di tempi e provenienza.
 
 Ogni esito restituisce `raw_row` identico alla stringa ricevuta, anche se invalida.
 Su errore `stage: csv` distingue `invalid_dialect`, `invalid_csv`,
@@ -330,9 +332,9 @@ Richiesta esplicita di implementazione del modello del progetto, senza provider 
 
 ### Contratto e ammissione
 
-- Versione `station-statistical-v3`, generazione con riferimento server, campioni considerati e risultati distinti per temperatura/umidità/pressione. Con dati fisici gli orizzonti restano +30 minuti, +1 ora e +24 ore. Se il feed contiene solo righe `synthetic`, il motore entra in modalità simulazione separata e usa +3, +6 e +24 ore, compatibili con la cadenza ogni tre ore.
+- Versione `station-statistical-v3`, generazione con riferimento server, campioni considerati e risultati distinti per temperatura/umidità/pressione. Gli orizzonti correnti sono +1, +6 e +24 ore. Il motore puro può distinguere input sintetici per test, ma il feed e la UI finali li escludono.
 - Ogni risultato disponibile contiene valore/unità (unità dal contratto della metrica), metodo, origine fisica, UUID dell’ultima osservazione, istante previsto, scadenza, MAE del periodo di verifica, MAE della persistenza sugli stessi casi, numerosità di selezione/verifica. Un indisponibile contiene una ragione esplicita e nessun numero sostitutivo.
-- Le stime fisiche ammettono soltanto `live`/`historical` con `measured_at` finito, non futuro e non successivo a `received_at`; anche la ricezione deve essere già avvenuta. Il campo è assunto conforme al contratto fisico: il codice non certifica l’orologio/sensore. Tempi reali, writer e stazione restano da verificare. `captured_at` e uptime non ricostruiscono date fisiche. In modalità simulazione sono ammessi esclusivamente record `synthetic` e `captured_at`; il tempo di scenario è trattato come ricezione simulata perché i campioni sono stati importati insieme e il loro `received_at` descrive solo l’importazione. Non vengono mescolati con lo storico fisico e la UI li etichetta come simulazione.
+- Le stime fisiche ammettono soltanto `live`/`historical` con `measured_at` finito, non futuro e non successivo a `received_at`; anche la ricezione deve essere già avvenuta. Il campo è assunto conforme al contratto fisico: il codice non certifica l’orologio/sensore. Tempi reali, writer e stazione restano da verificare. `captured_at` e uptime non ricostruiscono date fisiche. I campioni sintetici non alimentano il feed previsionale pubblico.
 - Serie dedicata di 30 giorni in base `measured_at`, paginata sull’API pubblica esistente, massimo 50.000 eventi; superamento/errore non produce una serie parziale. Duplicati temporali con UUID diversi esclusi come ambigui. Un null/sospetto nell’ultima osservazione fisica ritira la sola grandezza interessata; non si recupera un vecchio valore per farla sembrare attuale.
 - “Giornata” è definita qui come **valore a +24 ore**, non media, massima/minima del giorno o calendario fino a mezzanotte. Durata fisica di 24 ore anche al cambio DST. Una traiettoria dell’intera giornata e gli estremi richiedono ulteriori verifiche; questa prima funzione non li produce.
 
@@ -344,7 +346,7 @@ Confronto statistico, non regole arbitrarie pressione → pioggia. Metodi candid
 2. Tendenza: regressione lineare sulle ultime tre ore contigue (almeno quattro campioni e un’ora coperta), incremento smorzato `pendenza × 3 × (1 − exp(−orizzonte/3))`. Nessuna retta prolungata per un giorno.
 3. Ciclo di 24 ore: valore osservato al tempo previsto meno 24 ore, con metà della differenza fra livello attuale e livello di 24 ore prima. Nessun dato futuro o sintetico.
 
-Backtest a origini mobili, dopo almeno 24 ore iniziali di training, con al massimo circa 96 origini distribuite e distanziate almeno quanto l’orizzonte. Ogni fit usa solo misure antecedenti all’origine e già ricevute a quell’istante; archivi caricati successivamente non consentono di inventare una disponibilità passata. Il target è un’osservazione reale vicina all’istante richiesto, senza interpolazione; tolleranza massima `min(cadenza passata/4, orizzonte/10, 5 minuti)`. La cadenza di ogni fit è stimata solo dai suoi dati passati, non dall’intero dataset. Una cadenza oraria non valida automaticamente +30 minuti.
+Backtest a origini mobili, dopo almeno 24 ore iniziali di training, con al massimo circa 96 origini distribuite e distanziate almeno quanto l’orizzonte. Ogni fit usa solo misure antecedenti all’origine e già ricevute a quell’istante; archivi caricati successivamente non consentono di inventare una disponibilità passata. Il target è un’osservazione reale vicina all’istante richiesto, senza interpolazione; tolleranza massima `min(cadenza passata/4, orizzonte/10, 5 minuti)`. La cadenza di ogni fit è stimata solo dai suoi dati passati, non dall’intero dataset; il calcolo finale applica lo stesso limite alla cadenza corrente. Una cadenza superiore all’orizzonte non lo supporta.
 
 Lo storico viene diviso temporalmente a metà. I target usati per selezionare devono essere già ricevuti prima del confine; le origini del periodo di verifica iniziano dopo il confine. Servono almeno 12 casi per ciascuna parte nelle stime fisiche e almeno 4 nella sola simulazione sintetica: quest’ultima soglia serve a mantenere disponibile il test dimostrativo, **non certifica attendibilità meteorologica**. Un candidato deve essere calcolabile sugli stessi casi e migliorare il MAE di selezione di almeno il 5% per sostituire il riferimento. Il metodo scelto resta fisso nel periodo separato di verifica: se lì peggiora rispetto alla persistenza, viene ritirato, senza scegliere un altro metodo usando quegli esiti. Se vince la persistenza, il risultato ora è ritirato: l’ultimo valore è solo un riferimento ingenuo e ripeterlo come +3/+6/+24 ore non costituisce una previsione informativa.
 

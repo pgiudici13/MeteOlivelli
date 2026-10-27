@@ -59,6 +59,7 @@ function nearest(points: Point[], time: number, tolerance: number, end = points.
   return best && Math.abs(best.time - time) <= tolerance ? best : null
 }
 
+/** Ogni previsione usa soltanto le osservazioni già disponibili alla sua origine. */
 function predict(points: Point[], end: number, hours: number, method: Method, cadence: number, tolerance: number): number | null {
   const last = points[end - 1]
   if (!last) return null
@@ -70,17 +71,21 @@ function predict(points: Point[], end: number, hours: number, method: Method, ca
     const yesterday = nearest(points, last.time - 24 * hour, tolerance, end)
     return seasonal && yesterday ? seasonal.value + (last.value - yesterday.value) * 0.5 : null
   }
-  if (hours === 1 && cadence > 30 * 60000) return null
   const recent: Point[] = []
   for (let i = end - 1; i >= 0 && points[i].time >= last.time - 3 * hour; i--) {
     if (i < end - 1 && points[i + 1].time - points[i].time > cadence * 2) break
     recent.push(points[i])
   }
   if (recent.length < 4 || last.time - recent.at(-1)!.time < hour) return null
-  const recentValues = recent.map(point => point.value)
-  // La tendenza usa solo il segno della variazione recente, non un fit lineare locale.
-  const delta = recentValues[0] - recentValues.at(-1)!
-  return last.value + Math.sign(delta) * Math.min(Math.abs(delta), delta > 0 ? 0.2 : -0.2) * hours
+  const xs = recent.map(point => (point.time - last.time) / hour)
+  const ys = recent.map(point => point.value)
+  const xMean = mean(xs)
+  const yMean = mean(ys)
+  const variance = xs.reduce((sum, x) => sum + (x - xMean) ** 2, 0)
+  if (!variance) return null
+  const slope = xs.reduce((sum, x, i) => sum + (x - xMean) * (ys[i] - yMean), 0) / variance
+  // La tendenza si smorza dopo tre ore, senza prolungare una retta per un giorno.
+  return last.value + slope * 3 * (1 - Math.exp(-hours / 3))
 }
 
 function unavailable(metric: Metric, reason: string): ForecastEstimate {
@@ -150,7 +155,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   const error = mae(method, holdout)
   const baseline = mae('persistence', holdout)
   if (error > baseline) return unavailable(metric, 'Il modello scelto non conferma il miglioramento sui dati di verifica.')
-  const value = predict(points, points.length, hours, method, cadence, tolerance)
+  const value = predict(points, points.length, hours, method, cadence, Math.min(cadence / 4, tolerance))
   if (value === null || !physical(metric, value)) return unavailable(metric, 'Le ultime misure non consentono una stima valida.')
   return { metric, value, reason: null, method, mae: error, baselineMae: baseline, cases: holdout.length, selectionCases: selection.length,
     origin: iso(last.time), target: iso(last.time + hours * hour), validUntil: iso(expires), lastObservationId: lastRow.ingestion_id }

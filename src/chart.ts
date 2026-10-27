@@ -86,11 +86,9 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   const firstOffset = 1 - days
   const start = zonedTime(shiftDay(firstOffset), 0)
   const end = zonedTime(shiftDay(1), 0)
-  // Le medie della stazione non incorporano il batch di prova quando sono presenti misure live.
-  const live = dated.some(row => row.acquisition_kind === 'live')
   const selected = dated.filter(row => {
     const time = Date.parse(row.captured_at!)
-    return time >= start && time < end && (!live || row.acquisition_kind === 'live')
+    return time >= start && time < end
   })
   const buckets = new Map<string, { sum: number; count: number; sources: ChartSourceCounts }>()
   for (const row of selected) {

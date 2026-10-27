@@ -2,6 +2,8 @@
 
 ## Aggiornamento locale — 27 ottobre 2026
 
+Revisione successiva: la cronologia specifica che il giorno è quello di acquisizione oppure, se mancante, di ricezione. Le medie dei periodi manuali includono le misure ammesse sia live sia storiche; Auto mantiene la priorità live prevista. Nell'area amministrativa, se una scrittura riesce ma la successiva rilettura fallisce, nuove scritture e azioni sulle righe restano disabilitate fino al recupero dell'elenco. Le previsioni correnti usano gli orizzonti +1, +6 e +24 ore; il feed pubblico esclude i sintetici. Correzioni locali, non pubblicate in questa sessione.
+
 La dashboard, le previsioni e i PDF mostrano solo campioni con provenienza esplicita `live` o `historical`: `synthetic` e provenienza non specificata sono esclusi, senza cancellare i dati dal backend. La simulazione pubblica e la postilla provvisoria sono rimosse localmente. L’API remota può ancora restituire i campioni di prova; finché sono gli unici presenti, la dashboard locale mostra gli stati vuoti. Una acquisizione futura rispetto al server non è mostrata, produce un avviso e non blocca i grafici; la cronologia conserva il giorno selezionato quando arrivano altri giorni.
 
 Con storage indisponibile la revoca applica il flag di disabilitazione Google e filtra gli invii Vercel già caricati; la riattivazione ripristina i segnali nella pagina corrente. La preferenza non salvabile non persiste al caricamento successivo. I paragrafi successivi sono verbali storici se descrivono postilla, simulazione o funzionamento precedente. Nessun deploy eseguito.

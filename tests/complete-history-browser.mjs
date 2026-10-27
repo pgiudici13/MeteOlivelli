@@ -10,6 +10,7 @@ const errors = []
 let count = 13
 let historical = 0
 let fail = false
+let undated = false
 let historyRequests = 0
 const row = index => ({
   // La fixture è inventata e intercettata localmente, ma esercita il contratto live.
@@ -31,6 +32,7 @@ try {
     if (all && fail) return route.fulfill({ status: 503, json: { code: 'temporarily_unavailable' } })
     const latest = url.searchParams.get('view') === 'latest'
     const items = url.searchParams.get('basis') === 'measured_at' ? [] : latest ? [row(count - 1)] : Array.from({ length: count + (all ? historical : 0) }, (_, index) => row(index))
+    if (all && undated) items.push({ ...row(90), acquisition_kind: 'historical', captured_at: null, received_at: '2026-10-23T11:00:00.000Z' })
     return route.fulfill({ json: { items, next_cursor: null, until: url.searchParams.get('until') ?? '2026-10-23T12:00:00.000Z', time_basis: url.searchParams.get('basis') ?? 'captured_at' } })
   })
   const page = await context.newPage()
@@ -38,8 +40,14 @@ try {
   await page.clock.install({ time: new Date('2026-10-23T12:00:00Z') })
   await page.goto(base.href)
   const total = page.locator('.chronology-section .history-feedback')
-  const expectTotal = async value => { await page.waitForFunction(value => document.querySelector('.chronology-section .history-feedback')?.textContent === `${value} campioni registrati.`, value) }
+  const expectTotal = async value => { await page.waitForFunction(value => document.querySelector('.chronology-section .history-feedback')?.textContent === `${value} campioni registrati, consultabili giorno per giorno.`, value) }
   await check('caricamento iniziale completo', () => expectTotal(13))
+  await check('cronologia chiusa inizialmente e apribile', async () => {
+    const toggle = page.getByRole('button', { name: 'Mostra le misurazioni', exact: true })
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'false')
+    await toggle.click()
+    assert.equal(await page.getByRole('button', { name: 'Nascondi le misurazioni', exact: true }).getAttribute('aria-expanded'), 'true')
+  })
   await check('nuova lettura riconcilia la cronologia', async () => {
     count++
     await page.clock.runFor(16000)
@@ -61,11 +69,11 @@ try {
     fail = true
     await page.getByRole('button', { name: 'Aggiorna cronologia', exact: true }).click()
     await page.locator('.chronology-section .warning').waitFor()
-    assert.equal(await total.textContent(), '15 campioni registrati.')
+    assert.equal(await total.textContent(), '15 campioni registrati, consultabili giorno per giorno.')
     assert.match(await page.locator('.pagination p').textContent(), /Giorno 2 di/)
     fail = false
     historical++
-    await page.getByRole('button', { name: 'Riprova', exact: true }).click()
+    await page.getByRole('button', { name: 'Ritenta', exact: true }).click()
     await expectTotal(16)
   })
   await check('ritorno online riconcilia anche senza nuovo latest', async () => {
@@ -96,6 +104,14 @@ try {
       document.dispatchEvent(new Event('visibilitychange'))
     })
     await expectTotal(18)
+  })
+  await check('il giorno di ricezione non viene presentato come acquisizione', async () => {
+    undated = true
+    await page.getByRole('button', { name: 'Aggiorna cronologia', exact: true }).click()
+    await expectTotal(19)
+    await page.getByRole('button', { name: 'Più recenti', exact: true }).click()
+    assert.match(await page.locator('.history-day-heading p').textContent(), /giorno di acquisizione o, se assente, di ricezione/)
+    assert.equal(await page.getByText('Senza ora di acquisizione', { exact: true }).count(), 1)
   })
   for (const width of [320, 390, 1280]) await check(`reflow ${width} px`, async () => {
     await page.setViewportSize({ width, height: 900 })

@@ -39,6 +39,7 @@ export function DataAdminPage() {
   const [editing, setEditing] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [listStale, setListStale] = useState(false)
 
   const refresh = useCallback(async (secret: string) => {
     const result = await api(secret, 'GET') as { items: Row[] }
@@ -62,21 +63,21 @@ export function DataAdminPage() {
 
   async function refreshAfterWrite(success: string) {
     setMessage(success)
-    try { await refresh(password) }
-    catch { setMessage(`${success} L’elenco non è stato aggiornato: premi “Aggiorna elenco” prima di altre modifiche.`) }
+    try { await refresh(password); setListStale(false) }
+    catch { setListStale(true); setMessage(`${success} L’elenco non è stato aggiornato: premi “Aggiorna elenco” prima di altre modifiche.`) }
   }
 
   async function reloadRows() {
     if (busy) return
     setBusy(true); setMessage('')
-    try { await refresh(password); setMessage('Elenco aggiornato.') }
+    try { await refresh(password); setListStale(false); setMessage('Elenco aggiornato.') }
     catch { setMessage('Elenco non aggiornato. Riprova tra poco.') }
     finally { setBusy(false) }
   }
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (busy) return
+    if (busy || listStale) return
     setBusy(true); setMessage('')
     try {
       const original = rows.find(row => row.ingestion_id === editing)?.measured_at ?? null
@@ -89,7 +90,7 @@ export function DataAdminPage() {
   }
 
   function edit(row: Row) {
-    if (busy) return
+    if (busy || listStale) return
     setEditing(row.ingestion_id)
     setValue({
       arduino_seconds: row.arduino_seconds,
@@ -102,7 +103,7 @@ export function DataAdminPage() {
   }
 
   async function remove(row: Row) {
-    if (busy) return
+    if (busy || listStale) return
     if (!window.confirm(`Eliminare la misura ${row.ingestion_id}? L’operazione non si può annullare.`)) return
     setBusy(true); setMessage('')
     try {
@@ -114,7 +115,7 @@ export function DataAdminPage() {
     finally { setBusy(false) }
   }
 
-  function logout() { setPassword(''); setRows([]); setValue(blank); setEditing(null); setMessage('Sessione chiusa.') }
+  function logout() { setPassword(''); setRows([]); setValue(blank); setEditing(null); setListStale(false); setMessage('Sessione chiusa.') }
 
   function setNumber(key: 'arduino_seconds' | 'temperature_c' | 'humidity_pct' | 'pressure_hpa', raw: string) {
     setValue(current => ({ ...current, [key]: raw === '' ? null : Number(raw) }))
@@ -132,7 +133,7 @@ export function DataAdminPage() {
       <div className="data-admin-toolbar"><p>Connesso · {rows.length} delle ultime 100 misure</p><div className="data-admin-actions"><button type="button" className="quiet-button" disabled={busy} onClick={() => void reloadRows()}>Aggiorna elenco</button><button type="button" className="quiet-button" disabled={busy} onClick={logout}>Esci</button></div></div>
       <form id="data-form" className="data-admin-form" onSubmit={save}>
         <h2>{editing ? 'Modifica misura' : 'Aggiungi misura'}</h2>
-        <fieldset className="data-admin-fields" disabled={busy}>
+        <fieldset className="data-admin-fields" disabled={busy || listStale}>
           <label>Secondi Arduino<input type="number" min="0" max="9007199254740991" step="any" value={value.arduino_seconds ?? ''} onChange={event => setNumber('arduino_seconds', event.target.value)} required /></label>
           <label>Temperatura (°C)<input type="number" step="any" value={value.temperature_c ?? ''} onChange={event => setNumber('temperature_c', event.target.value)} /></label>
           <label>Umidità (%)<input type="number" step="any" value={value.humidity_pct ?? ''} onChange={event => setNumber('humidity_pct', event.target.value)} /></label>
@@ -140,7 +141,7 @@ export function DataAdminPage() {
           <label>Data e ora della misura (ora locale)<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
         </fieldset>
         <p className="data-admin-note">Il contatore è richiesto dal formato attuale del database. Lascia vuoti i valori non disponibili. Una misura inserita a mano viene registrata come storica; l’orario di acquisizione sul PC resta vuoto. Le modifiche ricalcolano i flag qualità e conservano il payload originale; l’audit registra l’ID e l’operazione.</p>
-        <div className="data-admin-actions"><button disabled={busy}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
+        <div className="data-admin-actions"><button disabled={busy || listStale}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
       </form>
       <section className="data-admin-list" aria-labelledby="data-list-title">
         <h2 id="data-list-title">Misure recenti</h2>
@@ -149,7 +150,7 @@ export function DataAdminPage() {
           <tbody>{rows.map(row => <tr key={row.ingestion_id}>
             <td>{new Date(row.received_at).toLocaleString('it-IT')}</td><td>{row.measured_at ? new Date(row.measured_at).toLocaleString('it-IT') : '—'}</td>
             <td>{row.temperature_c ?? '—'}</td><td>{row.humidity_pct ?? '—'}</td><td>{row.pressure_hpa ?? '—'}</td><td>{row.arduino_seconds}</td>
-            <td className="data-admin-row-actions"><button type="button" disabled={busy} onClick={() => edit(row)}>Modifica</button><button type="button" className="danger-button" disabled={busy} onClick={() => void remove(row)}>Rimuovi</button></td>
+            <td className="data-admin-row-actions"><button type="button" disabled={busy || listStale} onClick={() => edit(row)}>Modifica</button><button type="button" className="danger-button" disabled={busy || listStale} onClick={() => void remove(row)}>Rimuovi</button></td>
           </tr>)}</tbody>
         </table></div>}
       </section>

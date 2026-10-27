@@ -48,6 +48,21 @@ try {
     results.push(path)
     console.log(`OK ${path}: errore gestito, temi/reflow, preferenze, ricarica e ritorno home`)
   }
+  const malformedContext = await browser.newContext()
+  await malformedContext.route('**/*', route => {
+    const url = new URL(route.request().url())
+    if (url.origin === base.origin) return route.continue()
+    if (url.pathname.endsWith('/read-measurements')) return route.fulfill({ json: { items: [], next_cursor: null, until: '2026-10-27T12:00:00Z', time_basis: url.searchParams.get('basis') ?? 'captured_at' } })
+    return route.abort()
+  })
+  const malformed = await malformedContext.newPage()
+  malformed.on('pageerror', error => errors.push(error.message))
+  await malformed.goto(new URL('/home#%', base).href)
+  await malformed.locator('#page-title').waitFor()
+  assert.equal(await malformed.getByRole('heading', { name: 'La pagina non si è caricata.', exact: true }).count(), 0)
+  await malformedContext.close()
+  results.push('hash malformato')
+  console.log('OK hash malformato: home disponibile senza errore')
   assert.deepEqual(errors, [])
   console.log(`${results.length} scenari di recupero pagina superati; rete esterna bloccata.`)
 } finally {

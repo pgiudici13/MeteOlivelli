@@ -678,3 +678,12 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-015, ottimizzazione font: variante Inter da 72.260 byte invece di 352.240, originale e metriche conservati; prove font a tre larghezze, entrambi i temi e quiz, `npm run check` superato. Misura pubblica post-rilascio separata.
 
 - [x] Verifica pubblica post-font: Vercel success sul commit `e625950`; font/JS/CSS identici a dist, sei pagine browser e sette risposte HTTP corrette, API lettura 200 e admin ancora 503. Due Lighthouse successivi: performance 80/98, altre categorie 100, font −79,5%; COR-015 resta aperto per variabilità LCP. Evidenze sanificate nel verbale.
+
+### Controllo locale successivo — 27 ottobre 2026
+
+- [x] Rivisto il checkout `7085c64` e corretti COR-047–COR-052: compilazione e previsione, tolleranza del backtest, elenco amministrativo obsoleto, adattatore CSV sintetico, giorno della cronologia e medie manuali miste. Regressioni mirate aggiunte; dati browser intercettati localmente.
+- [x] `npm run check`: lint/build, 110 test frontend, 55 Deno e 28 Python superati. Chrome: 14 scenari dashboard, 12 cronologia, 7 previsioni, 6 regressioni UI, 2 amministrazione, 3 Analytics, 2 recupero errori, 4 link scuola e 3 font superati; axe non rieseguito. Home pubblica HTTP 200; endpoint admin HTTP 503 in richiesta anonima, senza prova autenticata. La build segnala i chunk PDF caricati su richiesta superiori a 500 kB.
+- [ ] Restano il collaudo con CSV/Windows e stazione reali, la prova backup/restore, la configurazione e prova autenticata dell'area amministrativa e la validazione meteorologica. Nessuna scrittura remota, migrazione o pubblicazione eseguita in questa sessione.
+- [ ] Il runner separato delle animazioni non ha restituito un esito in questa sessione; il controllo movimento incluso nel runner dashboard è passato. Non sono state rieseguite prove su dispositivi fisici o browser diversi da Chrome.
+
+**Integrazione con `c7a1adb`:** preservate le nuove funzioni su `main` e aggiunta la correzione COR-053 per i frammenti URL malformati. Sul checkout integrato `npm run check` superato: 157 test frontend, 55 Deno, 28 Python, build/lint e budget iniziale. Chrome con API intercettate: 13 scenari cronologia, 3 gestione errori, 7 previsioni e 2 amministrazione superati. Le prove precedenti si riferiscono al checkout antecedente.

@@ -64,30 +64,47 @@ test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato se
   assert.equal(get(run, 2).value, null)
   assert.match(get(run, 2).reason, /miglioramento rispetto all’ultimo valore/)
 })
+test('previsioni: la stima finale usa la stessa tolleranza stagionale del backtest', () => {
+  const rows = series(2880, 10 * 60000, i => 18 + 5 * Math.sin(i * Math.PI / 72))
+  const seasonal = rows.length - 1 - 23 * 6
+  for (const key of ['captured_at', 'measured_at', 'received_at']) {
+    rows[seasonal][key] = new Date(Date.parse(rows[seasonal][key]) + 4 * 60000).toISOString()
+  }
+  const estimate = get(buildForecast(rows, nowOf(rows)))
+  assert.equal(estimate.value, null)
+  assert.match(estimate.reason, /ultime misure non consentono una stima valida/)
+})
 test('previsioni: baseline persistente non viene spacciata per previsione', () => {
-  const rows = series(480, hour / 2, i => 10 + i * 0.02)
+  const rows = series(480, hour / 2, () => 10)
   const run = buildForecast(rows, nowOf(rows))
   assert.equal(run.horizons[0].estimates[0].value, null)
   assert.match(run.horizons[0].estimates[1].reason, /miglioramento rispetto all’ultimo valore/)
 })
-test('previsioni: cadenza oraria e campioni insufficienti non producono stime non validate', () => {
+test('previsioni: tendenza crescente e decrescente seguono il segno della regressione', () => {
+  for (const direction of [-1, 1]) {
+    const rows = series(480, halfHour, i => 20 + direction * i * 0.02)
+    const estimate = get(buildForecast(rows, nowOf(rows)))
+    assert.equal(estimate.method, 'trend')
+    assert.equal(Math.sign(estimate.value - rows.at(-1).temperature_c), direction)
+    assert.ok(estimate.mae < estimate.baselineMae)
+  }
+})
+test('previsioni: la cadenza non può superare l’orizzonte richiesto', () => {
   const hourlyRows = series(720, hour)
   const hourlyRun = buildForecast(hourlyRows, nowOf(hourlyRows))
-  // Un orizzonte +1 ora è ammesso solo se supera i controlli del modello.
-  assert.equal(hourlyRun.horizons[0].estimates[0].value, null)
-  assert.match(hourlyRun.horizons[0].estimates[0].reason, /miglioramento|cadenza|Storico insufficiente/)
+  assert.notEqual(hourlyRun.horizons[0].estimates[0].value, null)
+  assert.notEqual(hourlyRun.horizons[1].estimates[0].value, null)
   assert.equal(hourlyRun.horizons[1].hours, 6)
-  assert.ok(hourlyRun.horizons[1].estimates[0].value !== null || hourlyRun.horizons[1].estimates[0].reason)
+  assert.equal(Date.parse(hourlyRun.horizons[1].estimates[0].target) - Date.parse(hourlyRun.horizons[1].estimates[0].origin), 6 * hour)
   const halfHourlyRows = series(720, halfHour)
   const halfHourlyRun = buildForecast(halfHourlyRows, nowOf(halfHourlyRows))
-  // Le osservazioni ogni mezz'ora consentono qui una stima oraria verificata.
   assert.notEqual(halfHourlyRun.horizons[0].estimates[0].value, null)
   assert.equal(Date.parse(halfHourlyRun.horizons[0].estimates[0].target) - Date.parse(halfHourlyRun.horizons[0].estimates[0].origin), hour)
   const sparseRows = series(400, 2 * hour)
   const sparseRun = buildForecast(sparseRows, nowOf(sparseRows))
-  assert.ok(sparseRun.horizons[1].estimates[0].value !== null || sparseRun.horizons[1].estimates[0].reason)
   const firstCadenceEstimate = sparseRun.horizons[0].estimates[0]
-  assert.ok(firstCadenceEstimate.value === null || Number.isFinite(firstCadenceEstimate.value))
+  assert.equal(firstCadenceEstimate.value, null)
+  assert.match(firstCadenceEstimate.reason, /cadenza/)
 })
 test('previsioni: scadenza, campi sospetti e assenti separati senza recuperare un vecchio valore', () => {
   const rows = series()
@@ -187,7 +204,7 @@ test('previsioni: un metodo che non conferma il miglioramento nel periodo separa
   const rows = series(1440, hour / 2, i => 10 + Math.min(i, 720) * 0.01)
   const estimate = get(buildForecast(rows, nowOf(rows)))
   assert.equal(estimate.value, null)
-  assert.match(estimate.reason, /miglioramento rispetto all’ultimo valore/)
+  assert.match(estimate.reason, /non conferma il miglioramento sui dati di verifica/)
 })
 test('previsioni: archivio caricato in ritardo non consente backtest con dati non ancora ricevuti', () => {
   const rows = series()

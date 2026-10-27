@@ -199,3 +199,19 @@ Deno.test('CSV: measured_at solo se attestato dal chiamante, mai dedotto', () =>
   })
   assert(!synthetic.ok && synthetic.stage === 'measurement')
 })
+
+Deno.test('CSV: i campioni dichiarati sintetici mantengono la provenienza obbligatoria', () => {
+  const result = valid(parseMeasurementCsvRow('1;21;55;1013', dialect, {
+    ...context,
+    acquisition_kind: 'synthetic',
+  }))
+  assert(result.measurement.acquisition_kind === 'synthetic')
+  assert(result.measurement._provenance?.kind === 'synthetic')
+  assert(result.measurement.measured_at === null)
+  const missingTime = parseMeasurementCsvRow('1;21;55;1013', dialect, {
+    ...context,
+    acquisition_kind: 'synthetic',
+    captured_at: null,
+  })
+  assert(!missingTime.ok && missingTime.stage === 'measurement')
+})

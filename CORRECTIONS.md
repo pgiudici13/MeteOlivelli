@@ -443,3 +443,52 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; link difficile da identificare tramite controllo vocale.
 - **Correzione:** nome accessibile coerente col testo, apertura in nuova scheda ancora annunciata e freccia decorativa esclusa dalla lettura.
 - **Verifica:** quattro pagine senza violazioni della regola axe, nessun errore JavaScript; `npm run check` superato.
+
+## COR-047 — Build bloccata e tendenza previsionale errata
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** nel checkout `7085c64` `npm run build` falliva con due errori TS2393 per dichiarazioni duplicate di `predict`; la formula presente attribuiva un incremento positivo anche a una variazione negativa.
+- **Impatto:** build impossibile e, senza il blocco, stima di tendenza potenzialmente nella direzione errata.
+- **Correzione e verifica:** ripristinata l'unica regressione lineare smorzata documentata, coerente con gli orizzonti correnti; test su serie crescenti e decrescenti, cadenza e persistenza. Build e test locali superati; attendibilità meteorologica reale ancora da valutare.
+
+## COR-048 — Tolleranza della previsione finale diversa dal backtest
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** con cadenza di 10 minuti e punto stagionale distante 4 minuti, la stima finale lo ammetteva, mentre il backtest lo escludeva con tolleranza di 2,5 minuti.
+- **Impatto:** il metodo finale poteva usare una corrispondenza non soggetta alle stesse condizioni della verifica.
+- **Correzione e verifica:** applicato anche alla stima finale il limite basato sulla cadenza corrente; regressione su tale scenario superata.
+
+## COR-049 — Elenco amministrativo obsoleto ancora modificabile
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** dopo una scrittura riuscita e una rilettura fallita l'interfaccia chiedeva di aggiornare l'elenco, ma lasciava attivi inserimento e azioni sulle righe precedenti.
+- **Impatto:** rischio di operare su valori non aggiornati.
+- **Correzione e verifica:** bloccate le operazioni fino a una rilettura riuscita; prova Chrome con GET fallito, nuovo tentativo fallito e recupero, tramite API intercettata localmente.
+
+## COR-050 — Provenienza mancante nell'adattatore CSV sintetico
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** `parseMeasurementCsvRow` accettava il tipo `synthetic` nel contesto ma non inseriva il marcatore richiesto dal validatore, che rifiutava anche righe sintetiche altrimenti valide.
+- **Impatto:** adattamento di righe sintetiche inutilizzabile.
+- **Correzione e verifica:** aggiunta provenienza esplicita soltanto per tale tipo; test Deno verificano accettazione, tempi distinti e rifiuto di una data fisica sintetica. Nessun invio remoto.
+
+## COR-051 — Giorno della cronologia attribuito sempre all'acquisizione
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** un campione privo di `captured_at` veniva raggruppato per giorno di ricezione, ma l'intestazione lo indicava come acquisito quel giorno.
+- **Impatto:** informazione temporale fuorviante.
+- **Correzione e verifica:** dicitura che distingue acquisizione e ricezione sostitutiva; scenario browser con campioni misti superato.
+
+## COR-052 — Medie manuali escludono misure storiche in presenza di live
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** una misura storica di 10 e una live di 20 nella stessa fascia producevano 20 anziché 15 nei periodi manuali.
+- **Impatto:** medie incomplete e possibili giorni vuoti.
+- **Correzione e verifica:** inclusi entrambi i tipi ammessi nei periodi manuali, mantenendo la regola Auto; regressione su 7, 14 e 30 giorni con conteggio e provenienza.
+
+## COR-053 — Frammento URL malformato blocca la home
+
+- **Stato:** corretto localmente il 27 ottobre 2026.
+- **Prova:** il nuovo collegamento ai grafici decodificava il frammento URL senza gestire errori; aprendo `/home#%`, `decodeURIComponent` sollevava `URIError` e attivava la schermata di errore.
+- **Impatto:** home non consultabile tramite un collegamento malformato.
+- **Correzione e verifica:** ignorato il frammento non valido, lasciando invariati i collegamenti validi; regressione browser dedicata.
