@@ -351,3 +351,30 @@ button::after, .hero-link::after { padding: 2px; }
 .chart-selection line { stroke: var(--tone); stroke-width: 1; stroke-dasharray: 3 4; opacity: .5; }
 .chart-selection circle { fill: var(--tone); stroke: var(--surface, #171615); stroke-width: 2; }
 .chart-inspection { min-height: 3em; font-variant-numeric: tabular-nums; }
+
+/* Pagina 404: stesso tema e gerarchia visiva della dashboard. */
+.route-not-found {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: min(100%, 94rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem) clamp(1.25rem, 6vw, 6rem) 1.5rem;
+  background: var(--page-bg);
+  color: var(--text);
+}
+.route-not-found-brand { display: inline-flex; align-items: center; gap: .65rem; width: fit-content; text-decoration: none; font-size: 1rem; font-weight: 650; letter-spacing: -.03em; }
+.route-not-found-brand svg { width: 1.6rem; height: 1.6rem; }
+.route-not-found-brand span { color: var(--secondary); font-size: .78rem; font-weight: 450; }
+.route-not-found-content { align-self: center; max-width: 58rem; padding: clamp(4rem, 12vh, 8rem) 0; }
+.route-not-found-content .eyebrow { margin: 0 0 1.5rem; color: var(--accent-soft); font-size: .75rem; font-weight: 650; letter-spacing: .14em; }
+.route-not-found-content h1 { max-width: 14ch; margin: 0; font-size: clamp(3.25rem, 9vw, 7.5rem); font-weight: 480; line-height: .98; letter-spacing: -.075em; }
+.route-not-found-content > p:not(.eyebrow) { max-width: 34rem; margin: 1.5rem 0 2rem; color: var(--secondary); font-size: clamp(1rem, 2vw, 1.2rem); }
+.route-not-found-link { display: inline-flex; align-items: center; gap: .75rem; padding: .8rem 1.15rem; border-radius: 999px; background: var(--contrast-bg); color: var(--contrast-text); font-weight: 600; text-decoration: none; transition: transform .18s ease, background-color .18s ease; }
+.route-not-found-link:hover { transform: translateY(-2px); background: var(--contrast-hover); }
+.route-not-found footer { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--secondary); font-size: .8rem; }
+.route-not-found footer a { color: inherit; text-underline-offset: .2em; }
+@media (max-width: 480px) {
+  .route-not-found-content h1 { font-size: clamp(3.1rem, 13vw, 4.5rem); }
+  .route-not-found-content { padding: 5rem 0; }
+}

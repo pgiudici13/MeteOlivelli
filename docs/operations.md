@@ -100,38 +100,107 @@ segnala solo che i dati non arrivano.
 
 ## Runbook backup e restore — AUD-01 (27 ottobre 2026)
 
-Procedure da eseguire su un **dispositivo amministrativo autorizzato** (non il PC
-della scuola, non questo repository). Comandi indicativi: verificare la CLI
-disponibile e l'autenticazione prima dell'uso. **Nessuno di questi passaggi è
-stato eseguito in questa sessione.**
+Procedura proposta per un **dispositivo amministrativo autorizzato** (non il PC
+della scuola, non questo repository). Lo stato corrente è stato controllato il
+27 ottobre 2026: il progetto Supabase è sul piano Free; la documentazione
+ufficiale raccomanda export regolari e copie fuori sede per questo piano. Il
+piano non garantisce backup automatici gestiti. **Nessun export o restore è stato
+eseguito.** La CLI Supabase, `psql`, `pg_dump`, `age`, `gpg` e `supabase` non sono
+installati in questo ambiente; Docker è disponibile. La procedura va provata sul
+dispositivo amministrativo scelto prima di dichiararla operativa.
 
-1. **Export cifrato** (frequenza proposta: giornaliera, RPO 24 h):
-
-```sh
-supabase db dump --db-url "$METEO_ADMIN_DB_URL" -f meteolivelli-$(date +%F).sql
-openssl enc -aes-256-cbc -pbkdf2 -in meteolivelli-$(date +%F).sql \
-  -out meteolivelli-$(date +%F).sql.enc   # frase segreta mai in Git o nei log
-```
-
-2. **Conservare insieme al dump lo stato dell'uploader** del PC autorizzato
-   (`uploader/runtime/<sorgente>/state/outbox.sqlite3` e il marcatore):
-   preservarlo è la prima difesa contro i duplicati (AUD-09).
-3. **Upload manuale** nella cartella Google Drive scolastica concordata (OPS-01),
-   con 30 copie giornaliere e 12 mensili come da proposta.
-4. **Restore di prova** almeno una volta e poi con cadenza periodica, **mai su
-   produzione**: decifrare, ripristinare su ambiente/DB separato autorizzato e
-   compilare la checklist qui sotto.
+1. **Preparare gli strumenti e il target:** installare la Supabase CLI ufficiale
+   e Docker; per il restore aggiungere `psql`. Usare il pooler di sessione o la
+   connessione diretta consigliata dal pannello. `METEO_ADMIN_DB_URL` deve essere
+   disponibile solo nella sessione amministrativa protetta: non inserirla in Git,
+   in un file `.env`, nei comandi salvati o nei log. La CLI filtra gli schemi
+   gestiti da Supabase; non sostituirla con `pg_dump` raw.
+2. **Esportare ruoli, schema e dati separatamente** (proposta giornaliera, RPO
+   24 h). `supabase db dump` senza opzioni esporta schema soltanto, non dati o
+   ruoli: tutti e tre i file sono necessari per questa copia logica.
 
 ```sh
-openssl enc -d -aes-256-cbc -pbkdf2 -in meteolivelli-$(date +%F).sql.enc -out restore.sql
-psql "$METEO_RESTORE_TEST_URL" -X -v ON_ERROR_STOP=1 -f restore.sql
+umask 077
+backup_prefix="meteolivelli-$(date +%F)"
+backup_dir="$backup_prefix-files"
+mkdir "$backup_dir"
+supabase db dump --db-url "$METEO_ADMIN_DB_URL" -f "$backup_dir/roles.sql" --role-only
+supabase db dump --db-url "$METEO_ADMIN_DB_URL" -f "$backup_dir/schema.sql"
+supabase db dump --db-url "$METEO_ADMIN_DB_URL" -f "$backup_dir/data.sql" \
+  --use-copy --data-only -x "storage.buckets_vectors" -x "storage.vector_indexes"
 ```
+
+3. **Includere lo stato dell'uploader** del PC autorizzato: snapshot SQLite
+   coerente di `uploader/runtime/<sorgente>/state/outbox.sqlite3` e del marcatore
+   associato. Usare la SQLite Backup API oppure fermare l'uploader e copiare i
+   file mentre è fermo; non copiare il DB attivo alla cieca e non includere la
+   configurazione che contiene il token. Preservare la outbox evita di riassegnare
+   identità agli eventi pendenti (AUD-09). Dopo avere creato questi due snapshot,
+   impostare `METEO_OUTBOX_SNAPSHOT` e `METEO_STATE_MARKER` ai loro percorsi:
+
+```sh
+cp "$METEO_OUTBOX_SNAPSHOT" "$backup_dir/outbox.sqlite3"
+cp "$METEO_STATE_MARKER" "$backup_dir/state.marker"
+tar -czf "$backup_prefix.tar.gz" -C "$backup_dir" .
+```
+
+4. **Impacchettare e cifrare con autenticazione** prima di lasciare il dispositivo.
+   Usare `age` con una chiave pubblica di backup; custodire la chiave privata
+   separatamente e fuori da Drive. Il destinatario pubblico può stare nella
+   configurazione del job; la chiave privata no. Esempio, dopo aver creato il
+   pacchetto `.tar.gz` con i dump e lo snapshot SQLite:
+
+```sh
+age -r "$METEO_BACKUP_RECIPIENT" -o "$backup_prefix.tar.gz.age" "$backup_prefix.tar.gz"
+shasum -a 256 "$backup_prefix.tar.gz.age" > "$backup_prefix.tar.gz.age.sha256"
+```
+
+   `age` rileva alterazioni del contenuto cifrato; il checksum rileva errori di
+   copia. La precedente bozza usava AES-CBC senza autenticazione e un solo dump
+   predefinito, quindi non esportava i record e non rilevava manomissioni: non
+   usare quei comandi.
+5. **Caricare solo artefatti cifrati** nella cartella Google Drive scolastica
+   concordata (OPS-01), dopo aver verificato permessi, spazio e custode. Mantenere
+   30 copie giornaliere e 12 mensili solo se lo spazio lo consente; sono proposte,
+   non impostazioni già attive. Proteggere separatamente la chiave privata.
+6. **Provare periodicamente il restore in un progetto/database separato e
+   autorizzato, mai in produzione.** Verificare prima il checksum, decifrare con
+   la chiave custodita separatamente, estrarre i tre dump e ripristinarli con
+   `psql` secondo la procedura ufficiale. L'esempio seguente presuppone che il
+   pacchetto sia già stato verificato e decifrato; `METEO_RESTORE_TEST_URL` deve
+   puntare esclusivamente al target isolato.
+
+```sh
+shasum -a 256 -c "$backup_prefix.tar.gz.age.sha256"
+age -d -i "$METEO_BACKUP_IDENTITY" -o "$backup_prefix.tar.gz" "$backup_prefix.tar.gz.age"
+mkdir -p "$backup_prefix-restore"
+tar -xzf "$backup_prefix.tar.gz" -C "$backup_prefix-restore"
+psql --single-transaction --variable ON_ERROR_STOP=1 \
+  --file "$backup_prefix-restore/roles.sql" \
+  --file "$backup_prefix-restore/schema.sql" \
+  --command 'SET session_replication_role = replica' \
+  --file "$backup_prefix-restore/data.sql" \
+  --dbname "$METEO_RESTORE_TEST_URL"
+```
+
+   Questo esempio è da validare sul target scelto: ruoli riservati, privilegi
+   predefiniti, estensioni e differenze di versione possono richiedere passaggi
+   separati. Un dump logico Supabase non comprende oggetti Storage, deployment
+   delle Edge Function o credenziali runtime; questi elementi richiedono una
+   procedura separata, senza copiare segreti nel backup Drive.
 
 Checklist di verifica del restore: conteggio righe per `source_id` e
 `acquisition_kind`; campione di UUID identici al dump; null di `captured_at`/
 `measured_at` invariati; assenza di duplicati (query sotto); privilegi, RLS e
 RPC uguali alla produzione; eventuale replay controllato dell'uploader con gli
-stessi ID (`--replay-confirmed`) senza nuove righe. Registrare durata ed esito.
+stessi ID (`--replay-confirmed`) senza nuove righe. Verificare anche che la
+decifratura rifiuti un artefatto alterato e conservare un manifest con data,
+versioni CLI/PostgreSQL, conteggi e hash. Registrare durata, RPO effettivo ed esito.
+
+Riferimenti: [backup Supabase](https://supabase.com/docs/guides/platform/backups),
+[dump CLI](https://supabase.com/docs/reference/cli/supabase-db-dump),
+[restore CLI](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore)
+e [formato age](https://c2sp.org/age%40v1.0.0).
 
 ## Duplicati: rilevamento e regole — AUD-09 (27 ottobre 2026)
 
@@ -170,3 +239,25 @@ analizzate in `plan.md` e non implementate: richiedono una decisione di contratt
   ottobre. Resta da validare con una valutazione GDPR/ePrivacy: se richiesto, il
   passaggio a opt-in è un cambiamento minimo (il codice distingue già granted/
   denied). Decisione non tecnica: non modificare il default senza richiesta.
+
+## Gestione manuale delle misure — predisposizione `/data` (27 ottobre 2026)
+
+La pagina non compare nei menu e dichiara `noindex`; l'indirizzo è comunque
+pubblico. Ogni richiesta di elenco o modifica viene autenticata dalla Edge Function
+con `METEOLIVELLI_ADMIN_PASSWORD`, mantenuta in memoria dal browser. Configurare
+un valore casuale di almeno 24 caratteri solo nella sezione Secrets delle Edge
+Functions Supabase; non aggiungerlo a `.env` versionati, Vercel, HTML o argomenti
+CLI. Prima dell'uso controllare il dominio CORS autorizzato. Il limitatore attuale
+è in memoria per istanza e non offre un limite durevole contro tentativi
+distribuiti: verificare prima le protezioni gateway Supabase e non usare la pagina
+finché non è stata fatta una revisione di sicurezza.
+
+La migrazione `20261027113158_admin_measurement_writes.sql` è applicata e
+`manage-measurements` è distribuita come Edge Function v1. Il segreto
+`METEOLIVELLI_ADMIN_PASSWORD` è ancora da impostare nel pannello Supabase; fino a
+quel momento le operazioni rispondono 503. Il limite tentativi corrente è solo
+in-memory e non sostituisce una protezione durevole. Dopo aver impostato il
+segreto, provare prima su una riga di test autorizzata. La cancellazione toglie
+la misura dalla tabella, ma l'audit conserva ID, azione e data; non contiene una
+copia del contenuto eliminato. Prima dell'uso definire come ripristinare errori
+umani tramite backup, poiché il comando non è annullabile.

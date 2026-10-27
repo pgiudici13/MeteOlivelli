@@ -1,0 +1,28 @@
+.data-admin {
+  width: min(100% - 2rem, 76rem);
+  margin: 3rem auto 6rem;
+  color: var(--text);
+}
+
+.data-admin > a { color: inherit; text-underline-offset: .2em; }
+.data-admin h1 { margin: .4rem 0 1rem; font-size: clamp(2rem, 6vw, 4rem); }
+.data-admin > p:not(.eyebrow) { max-width: 48rem; color: var(--secondary); }
+.data-admin-login, .data-admin-form { margin-top: 2rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--border); border-radius: 1rem; background: var(--surface-raised); }
+.data-admin-login { max-width: 32rem; display: grid; gap: 1rem; }
+.data-admin label { display: grid; gap: .4rem; font-weight: 600; }
+.data-admin input { min-width: 0; padding: .7rem .8rem; border: 1px solid var(--border-strong); border-radius: .5rem; background: var(--surface); color: inherit; font: inherit; }
+.data-admin button { padding: .65rem .9rem; border: 1px solid var(--contrast-bg); border-radius: 999px; background: var(--contrast-bg); color: var(--contrast-text); font: inherit; cursor: pointer; }
+.data-admin button:disabled { opacity: .55; cursor: wait; }
+.data-admin .quiet-button { background: transparent; color: inherit; }
+.data-admin .danger-button { border-color: #dc7568; background: transparent; color: #dc7568; }
+.data-admin-toolbar, .data-admin-actions { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
+.data-admin-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; }
+.data-admin-note { max-width: 56rem; color: var(--secondary); font-size: .9rem; }
+.data-admin-list { margin-top: 3rem; }
+.data-admin-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: .8rem; }
+.data-admin table { width: 100%; border-collapse: collapse; background: var(--surface-raised); font-variant-numeric: tabular-nums; }
+.data-admin th, .data-admin td { padding: .75rem; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.data-admin th { font-size: .85rem; }
+.data-admin-row-actions { display: flex; gap: .45rem; }
+.data-admin-row-actions button { padding: .45rem .65rem; font-size: .86rem; }
+.data-admin-status { min-height: 1.5em; }

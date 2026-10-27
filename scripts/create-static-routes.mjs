@@ -24,6 +24,12 @@ const routes = [
     title: 'Gioca con il meteo — MeteOlivelli',
     description: 'Dieci domande casuali sulle curiosità del meteo. Mettiti alla prova con MeteOlivelli.',
   },
+  {
+    path: 'data',
+    title: 'Gestione delle misure — MeteOlivelli',
+    description: 'Area riservata per la gestione delle misure MeteOlivelli.',
+    noindex: true,
+  },
 ]
 
 for (const route of routes) {
@@ -37,6 +43,7 @@ for (const route of routes) {
     .replace(/<meta property="og:description" content="[^"]*"\s*\/>/, `<meta property="og:description" content="${route.description}" />`)
     .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="https://meteolivelli.vercel.app/${route.path === 'home' ? '' : route.path}" />`)
     .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="https://meteolivelli.vercel.app/${route.path === 'home' ? '' : route.path}" />`)
+    .replace('<meta name="theme-color"', `${route.noindex ? '<meta name="robots" content="noindex, nofollow" />\n    ' : ''}<meta name="theme-color"`)
   await writeFile(join(directory, 'index.html'), html)
 }
 

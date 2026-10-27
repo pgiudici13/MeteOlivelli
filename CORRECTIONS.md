@@ -306,3 +306,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** media; possibili righe duplicate con valori identici.
 - **Correzione proposta:** regole operative anti-duplicati, query di rilevamento e backup dell'outbox nel runbook; alternative strutturali (unicità su contenuto+offset, ID deterministici) documentate in `plan.md` con i rischi per il riconoscimento dei riavvii e il vincolo UUID v4 del contratto.
 - **Verifica richiesta:** decisione esplicita insieme a DATA-03; se si implementa un'alternativa, test dedicati su righe ripetute, reset Arduino e replay dopo perdita dello stato.
+
+## COR-032 — Runbook backup non includeva i dati e non autenticava la cifratura
+
+- **Stato:** corretto nella documentazione locale il 27 ottobre 2026; backup e restore non eseguiti.
+- **Area/file:** `docs/operations.md`, runbook AUD-01.
+- **Problema/prova:** il comando `supabase db dump` senza `--data-only` o `--role-only` produce lo schema ma non dati né ruoli, secondo la [documentazione CLI Supabase](https://supabase.com/docs/reference/cli/supabase-db-dump); la bozza archiviava quel solo file. Usava inoltre `openssl enc -aes-256-cbc`, che non fornisce autenticazione dell'artefatto. Il progetto verificato è sul piano Free e i backup gestiti giornalieri documentati da Supabase sono per piani Pro/Team/Enterprise.
+- **Impatto/priorità:** alta; il file risultante non avrebbe conservato i record meteorologici e non avrebbe rilevato alterazioni del ciphertext.
+- **Correzione:** runbook aggiornato con dump separati di ruoli, schema e dati; archivio proposto con cifratura autenticata `age`, checksum, snapshot SQLite coerente dell'outbox e restore isolato. CLI, `psql` e `age` non sono installati qui; Docker è disponibile.
+- **Verifica:** comandi e perimetro confrontati con le guide ufficiali; controllo documentale e `git diff --check`. Resta necessario eseguire export e restore di prova su target autorizzati prima di dichiarare OPS-01 completato.

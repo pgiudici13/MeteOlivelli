@@ -93,6 +93,7 @@ aggiunta a `.env.local`.
 | `STATION_INGEST_TOKEN` | Endpoint e futuro uploader | Token dedicato, almeno 32 caratteri; esempio vuoto |
 | `STATION_SOURCE_ID` | Endpoint server | Sorgente associata al token; esempio vuoto |
 | `SUPABASE_SERVICE_ROLE_KEY` | Solo runtime Edge | Credenziale DB privilegiata; mai browser/uploader; esempio vuoto |
+| `METEOLIVELLI_ADMIN_PASSWORD` | Solo `manage-measurements` Edge Function | Segreto casuale ≥24 caratteri; mai frontend/uploader; esempio vuoto |
 
 Questi sono nomi definiti per il progetto; non descrivono il contenuto dei file
 locali o delle configurazioni remote, che non è stato letto. `SUPABASE_URL` è una
