@@ -235,9 +235,9 @@ button:disabled { cursor: default; opacity: .45; }
   .forecast-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .forecast-section { padding-inline: 24px; }
 }
-@media (min-width: 761px) and (max-width: 900px) {
+@media (min-width: 761px) and (max-width: 1060px) {
   .site-header { grid-template-columns: minmax(0, 1fr) auto; }
-  .school-logo { display: none; }
+  .site-header .school-logo { display: none; }
 }
 /* Mobile: stacca i contenuti dal bordo della sezione e contiene il testo lungo. */
 @media (max-width: 760px) {

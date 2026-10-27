@@ -141,3 +141,9 @@ Revisione locale richiesta dall’utente: `motion/mini` gestisce ingressi, diseg
 - Grafici: maschera lineare in 700 ms e griglia in 220 ms conservate, ora tramite Motion. Il puntatore o il tocco selezionano il punto più vicino; focus e frecce scorrono i punti, Home/End raggiungono gli estremi, Escape chiude la selezione. Un cursore verticale e una didascalia mostrano soltanto il valore e l’etichetta del punto esistente, incluse le medie dichiarate. Nessuna curva o misura intermedia creata.
 
 Con movimento ridotto gli ingressi e le microinterazioni sono esclusi e gli effetti in corso vengono cancellati; focus rivela subito il contenuto. Le larghezze applicate alla maschera da Motion vengono ripristinate prima di nuove serie e al cambio preferenza. Scroll manuale nativo e controlli HTML conservati. Evidenze locali con fixture sintetiche in [motion-verification](docs/motion-verification/results.json); nessuna nuova pubblicazione.
+
+### Audit responsive — 27 ottobre 2026
+
+Tra 761 e 1060 px la testata usa due colonne e nasconde il solo logo scolastico
+centrale; il logo del footer resta visibile. Oltre 1060 px torna la testata a tre
+colonne. Verificate 52 combinazioni pagina/larghezza senza sovrapposizioni o overflow.

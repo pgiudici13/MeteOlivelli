@@ -663,3 +663,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-035: riconciliazione ogni cinque minuti dei grafici e firma completa dell’ultima misura per la cronologia; tre regressioni e prova browser stesso UUID, `npm run check` superato.
 - [x] COR-036: date amministrative senza perdita involontaria di ora/secondi/ms; regressioni helper, integrazione backend e browser passate, `npm run check` superato. Preservazione DB oltre millisecondi locale fino al deploy Edge.
 - [x] COR-037: salvataggio amministrativo distinto dagli errori di ricaricamento, recupero elenco e controlli bloccati durante le richieste; due scenari Chrome e `npm run check` superati.
+- [x] COR-038: ricevute non UTF-8 non arrestano l’uploader e non confermano eventi; test retry e `npm run check` superati.
+- [x] COR-039: testata tablet senza sovrapposizioni e logo footer preservato; 52 combinazioni browser e `npm run check` superati.

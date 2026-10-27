@@ -360,3 +360,21 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** alto; duplicazioni involontarie e stato dell’interfaccia incoerente.
 - **Correzione:** conferma della scrittura distinta dal ricaricamento; modulo azzerato subito dopo successo, eliminazione rimossa localmente, messaggio di elenco obsoleto e comando “Aggiorna elenco”. Campi, uscita e annullamento disabilitati durante le operazioni; scroll rispetta movimento ridotto.
 - **Verifica:** regressioni Chrome su orario DST e POST riuscito/GET fallito superate, `npm run check` superato. Tutte le operazioni amministrative intercettate, nessuna scrittura remota.
+
+## COR-038 — Ricevuta non UTF-8 arresta l’uploader
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `uploader/core.py`, `uploader/tests/test_uploader.py`.
+- **Prova:** `json.loads(bytes)` accettava ricevute UTF-16/32; la successiva decodifica UTF-8 nella conferma sollevava `UnicodeDecodeError` e fermava il processo.
+- **Impatto:** medio; una risposta malformata poteva interrompere gli invii successivi.
+- **Correzione:** validare subito la codifica UTF-8; ricevute non conformi restano pendenti e mantengono UUID/payload per il retry.
+- **Verifica:** regressione con entrambe le codifiche, retry e successiva conferma valida; `npm run check` superato.
+
+## COR-039 — Navigazione sovrapposta al logo su tablet
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/App.css`.
+- **Prova:** a 901 e 920 px logo scolastico e azioni di testata si sovrapponevano; il selettore tablet nascondeva inoltre il logo del footer.
+- **Impatto:** medio; controlli e marchi poco leggibili a larghezze intermedie.
+- **Correzione:** layout tablet esteso fino a 1060 px, nascondendo soltanto il logo di testata; footer conservato.
+- **Verifica:** 52 combinazioni pagina/larghezza, assenza di overflow/sovrapposizioni e footer visibile; `npm run check` superato.
