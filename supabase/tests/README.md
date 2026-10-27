@@ -8,6 +8,14 @@ dall’utente il 22 ottobre 2026, con ROLLBACK. Per ripeterlo usare un target
 autorizzato e psql ON_ERROR_STOP; [verbale](../../docs/backend-verification.md).
 Non fa parte di `npm run backend:test`: quel comando non accede a un database.
 
+`read_query_indexes.sql` è la regressione della migrazione AUD-11 (indici e RPC
+con rami separati, [migrazione predisposta](../migrations/20261027120000_read_query_indexes.sql)):
+verifica presenza degli indici, semantica invariata di latest/finestre/cronologia,
+paginazione e validazione dei parametri. Anch'esso termina con ROLLBACK e va
+eseguito solo sul target autorizzato DOPO l'applicazione della migrazione,
+insieme a `station_backend.sql`. La verifica EXPLAIN dell'uso degli indici è
+un controllo manuale separato sul volume dichiarato.
+
 ## Protocollo concorrente su due connessioni
 
 BE-07 ha verificato sei richieste HTTP contemporanee, una 201 e cinque 200

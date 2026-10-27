@@ -27,7 +27,7 @@ Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/)
 
 La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disponibile su `/gioca`: presenta dieci domande casuali fra venti curiosità, mescola le risposte e spiega il risultato di ogni scelta.
 
-La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. La revisione locale esclude le simulazioni dalla dashboard.
+La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. La revisione locale esclude le simulazioni dalla dashboard.
 
 **Dati di prova:** l’ultima verifica documentata il 26 ottobre 2026 riporta 251 campioni `synthetic` nel database finale, inclusi 10 aggiunti ai 241 precedenti. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La revisione locale nasconde questi campioni e rimuove la postilla provvisoria. [Contratto ed evidenze](docs/data-preview.md).
 
@@ -125,6 +125,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
 | `npm run uploader:test` | Test sintetici Python con SQLite temporaneo, senza rete; richiede `python3` |
+| `node scripts/check-station-health.mjs` | Controllo salute pipeline in sola lettura (endpoint, provenienza, età campioni, orologio); esito 0/1/2 |
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 

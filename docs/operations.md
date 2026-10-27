@@ -75,3 +75,98 @@ Come base da approvare: esportazione cifrata giornaliera, 30 copie giornaliere e
 **REL-01:** CSV/writer/Windows, catena completa Arduino → sito, autonomia offline, latenza reale e validità delle stime restano da collaudare. Le prove sintetiche non li sostituiscono.
 
 **END-01:** chiusura a dicembre soltanto se riconfermata, dopo conservazione/ripristino dello storico e decisione su cosa fermare. Nessuna cancellazione o spegnimento programmati.
+
+## Health check della pipeline — AUD-10 (27 ottobre 2026)
+
+`scripts/check-station-health.mjs` è un controllo **di sola lettura** sull'endpoint
+pubblico, senza credenziali: verifica raggiungibilità e contratto, presenza di
+misure della stazione (distingue i soli campioni sintetici), età dell'ultimo
+campione ricevuto e sincronizzazione dell'orologio locale col tempo del server.
+
+```sh
+node scripts/check-station-health.mjs                    # output leggibile, soglia 26 ore
+node scripts/check-station-health.mjs --max-age-hours 4   # soglia più stretta
+node scripts/check-station-health.mjs --json              # output machine-readable
+```
+
+Esiti: `0` entro i limiti, `1` avviso (nessun campione, solo sintetici, dati
+fermi oltre soglia, orologio fuori sincronia), `2` endpoint irraggiungibile o
+risposta non valida. L'età è sempre calcolata sul tempo del server; con
+`measured_at` assente è dichiarata sulla ricezione. Logica pura testata in
+`tests/station-health.test.mjs`. Da pianificare su un dispositivo autorizzato
+(Windows Task Scheduler o equivalente) con notifica su esito ≠ 0: il canale di
+notifica resta aperto (OPS-02). Lo script non sostituisce il writer/uploader:
+segnala solo che i dati non arrivano.
+
+## Runbook backup e restore — AUD-01 (27 ottobre 2026)
+
+Procedure da eseguire su un **dispositivo amministrativo autorizzato** (non il PC
+della scuola, non questo repository). Comandi indicativi: verificare la CLI
+disponibile e l'autenticazione prima dell'uso. **Nessuno di questi passaggi è
+stato eseguito in questa sessione.**
+
+1. **Export cifrato** (frequenza proposta: giornaliera, RPO 24 h):
+
+```sh
+supabase db dump --db-url "$METEO_ADMIN_DB_URL" -f meteolivelli-$(date +%F).sql
+openssl enc -aes-256-cbc -pbkdf2 -in meteolivelli-$(date +%F).sql \
+  -out meteolivelli-$(date +%F).sql.enc   # frase segreta mai in Git o nei log
+```
+
+2. **Conservare insieme al dump lo stato dell'uploader** del PC autorizzato
+   (`uploader/runtime/<sorgente>/state/outbox.sqlite3` e il marcatore):
+   preservarlo è la prima difesa contro i duplicati (AUD-09).
+3. **Upload manuale** nella cartella Google Drive scolastica concordata (OPS-01),
+   con 30 copie giornaliere e 12 mensili come da proposta.
+4. **Restore di prova** almeno una volta e poi con cadenza periodica, **mai su
+   produzione**: decifrare, ripristinare su ambiente/DB separato autorizzato e
+   compilare la checklist qui sotto.
+
+```sh
+openssl enc -d -aes-256-cbc -pbkdf2 -in meteolivelli-$(date +%F).sql.enc -out restore.sql
+psql "$METEO_RESTORE_TEST_URL" -X -v ON_ERROR_STOP=1 -f restore.sql
+```
+
+Checklist di verifica del restore: conteggio righe per `source_id` e
+`acquisition_kind`; campione di UUID identici al dump; null di `captured_at`/
+`measured_at` invariati; assenza di duplicati (query sotto); privilegi, RLS e
+RPC uguali alla produzione; eventuale replay controllato dell'uploader con gli
+stessi ID (`--replay-confirmed`) senza nuove righe. Registrare durata ed esito.
+
+## Duplicati: rilevamento e regole — AUD-09 (27 ottobre 2026)
+
+Regole operative: **non reinizializzare mai uno stato uploader esistente**; in
+caso di perdita dello stato fermarsi e usare questa query prima di riprendere;
+mai cancellare righe per “pulire” senza identificare gli UUID esatti.
+
+```sql
+-- Candidati duplicati: stessa uptime e stesso contenuto grezzo.
+-- Attenzione: righe identiche scritte due volte dal writer sono eventi legittimi
+-- (plan.md §6); ogni segnalazione va valutata, non eliminata automaticamente.
+select arduino_seconds, md5(raw_payload) as digest, count(*) as n,
+       array_agg(ingestion_id order by received_at)
+from public.station_measurements
+where source_id = 'meteolivelli'
+group by 1, 2
+having count(*) > 1;
+```
+
+Le alternative strutturali (unicità sul contenuto, ID deterministici) sono
+analizzate in `plan.md` e non implementate: richiedono una decisione di contratto.
+
+## Verifiche periodiche e decisioni ancora aperte — AUD-06/07/08
+
+- **AUD-07, continuità del piano Free:** verificare periodicamente quota storage
+  ed egress nel pannello Supabase e lo stato del progetto (rischio pausa per
+  inattività con uploader fermo). Nessun SLA: documentare eventuali superamenti.
+- **AUD-06, rate limiting:** valutato un limitatore in-memory dentro le Edge
+  Function e **non implementato**: senza un `x-forwarded-for` verificato della
+  piattaforma il bucket sarebbe condiviso tra tutti gli utenti e genererebbe 429
+  ingiustificati. Operazione manuale richiesta: verificare nel pannello Supabase
+  l'esistenza di limiti/protectio a livello di gateway; solo dopo, eventualmente,
+  reintrodurre un limitatore per IP con test dedicati.
+- **AUD-08, consenso statistico:** il comportamento attuale (tracker attivi di
+  default con opt-out persistente) è una scelta del titolare documentata il 26
+  ottobre. Resta da validare con una valutazione GDPR/ePrivacy: se richiesto, il
+  passaggio a opt-in è un cambiamento minimo (il codice distingue già granted/
+  denied). Decisione non tecnica: non modificare il default senza richiesta.

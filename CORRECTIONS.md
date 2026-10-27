@@ -231,3 +231,78 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Stato:** corretti localmente, 27 ottobre 2026.
 - **Prova e impatto:** `src/assets/hero.png`, `react.svg`, `vite.svg` e `public/icons.svg` senza riferimenti rilevati nel progetto; file superflui.
 - **Correzione e verifica:** rimossi i quattro asset; build e verifiche frontend richieste.
+
+## COR-024 — TypeScript strict disabilitato nel frontend (AUD-05)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `tsconfig.app.json`, `tsconfig.node.json`.
+- **Problema/prova:** nessuna opzione `strict` dichiarata; `npx tsc --showConfig` non ne restituiva alcuna, quindi `tsc -b` non intercettava null-unsafe o `any` impliciti nel client, divergendo dal backend Deno (`"strict": true`).
+- **Impatto/priorità:** media; regressioni di tipizzazione non segnalate in build.
+- **Correzione:** `strict: true` in entrambi i tsconfig; il codice esistente risultava già compatibile (zero errori).
+- **Verifica/Esito:** `npm run check` superato (build con `tsc -b`, lint, 95 test frontend, 47 Deno, 27 Python).
+
+## COR-025 — Cronologia riletta integralmente ad ogni focus della finestra (AUD-04)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `src/use-weather.ts`, `src/weather.ts` (`shouldAutoRefreshHistory`).
+- **Problema/prova:** `useCompleteHistory` rileggeva tutte le pagine dello storico ad ogni `visibilitychange`/`online`; con archivi pluriennali ogni focus scaricava l'intero database.
+- **Impatto/priorità:** media; banda e latenza crescenti con lo storico.
+- **Correzione:** stimoli automatici limitati a una rilettura integrale al minuto; cambio dell'ultima lettura e “Aggiorna cronologia” invariati. Alternativa strutturale (delta su `received_at`) documentata in `plan.md`.
+- **Verifica/Esito:** test di regressione su `shouldAutoRefreshHistory`; test UI aggiornata; `npm run check` superato.
+
+## COR-026 — Dashboard indistinguibile con sole importazioni storiche (AUD-12)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `src/App.tsx`, `src/weather.ts` (`stationStatusText`).
+- **Problema/prova:** con sole righe `historical` la dashboard mostrava “Nessuna misura disponibile” mentre la cronologia era popolata.
+- **Impatto/priorità:** bassa; confusione dell'utente.
+- **Correzione:** stato distinto “Solo dati storici disponibili”, nota dedicata e schede “Nessuna lettura recente”.
+- **Verifica/Esito:** `stationStatusText` estratto con test di regressione; `npm run check` superato.
+
+## COR-027 — File di verifica Google e pagina 404 non serviti dal deploy (AUD-16)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `public/googlead8bb9c28d0d4e51.html` (spostato dalla root), `scripts/create-static-routes.mjs`.
+- **Problema/prova:** il file di verifica stava alla root e non entrava in `dist/`; le route inesistenti ricevevano il 404 generico della piattaforma, senza la pagina brandizzata.
+- **Impatto/priorità:** bassa; possibile verifica Search Console inefficace, errore 404 non brandizzato.
+- **Correzione:** file servito da `public/`; il build genera `dist/404.html` con `noindex`, titolo/descrizione dedicati e SPA che rende “Pagina non trovata”; route esistenti invariate.
+- **Verifica richiesta:** dopo il deploy, GET del file di verifica sul dominio e di una route inesistente (atteso status 404 con pagina brandizzata).
+- **Esito locale:** output `dist/` verificato dopo build; effetto sul dominio non verificato in questa sessione.
+
+## COR-028 — Nessun controllo di salute della pipeline (AUD-10)
+
+- **Stato:** in analisi (strumento risolto il 27 ottobre 2026; pianificazione e notifiche aperte).
+- **Area/file:** `scripts/check-station-health.mjs`, `src/station-health.ts`, `tests/station-health.test.mjs`.
+- **Problema/prova:** assenza di un modo automatico di accorgersi di stazione/uploader fermi (OPS-02): un mese di dati mancanti sarebbe passato inosservato.
+- **Impatto/priorità:** media; perdita di dati non rilevata.
+- **Correzione:** controllo in sola lettura sull'endpoint pubblico (contratto, provenienza, età campioni sul tempo server, sincronizzazione orologio) con esiti 0/1/2.
+- **Verifica richiesta:** pianificazione su dispositivo autorizzato e prova di notifica con esito ≠ 0.
+- **Esito:** 6 test di regressione; smoke test reale sull'endpoint pubblico riuscito (avviso corretto: solo campioni sintetici).
+
+## COR-029 — `measured_at` mai valorizzabile dalla pipeline (AUD-03)
+
+- **Stato:** risolto per il supporto (27 ottobre 2026); efficacia dipendente dal writer reale (DATA-01).
+- **Area/file:** `uploader/core.py` (`measured_timestamp_column`), `supabase/functions/_shared/measurement_csv.ts` (`context.measured_at`), `uploader/config.example.json`.
+- **Problema/prova:** nessun componente scriveva `measured_at` (uploader e adapter lo fissavano a `null`): freschezza e previsioni fisiche sarebbero restate permanentemente indisponibili.
+- **Impatto/priorità:** media; requisiti di aggiornamento e stime non verificabili.
+- **Correzione:** colonna opzionale con l'ora di misura **attestata dal writer** (formato UTC rigoroso, esclusa per `synthetic`, incompatibile con la colonna scenario); pass-through esplicito nell'adapter TS. Nessuna data dedotta dall'uptime o inventata.
+- **Verifica richiesta:** al campione CSV reale, verificare che il writer possa produrre l'ora di misura e che la UI la mostri come “Misura”.
+- **Esito:** test Python (live+measured distinte da cattura) e Deno (attestata vs dedotta) superati; decisioni e alternative in `plan.md`.
+
+## COR-030 — Letture `latest`/`all` con ordinamento non indicizzato (AUD-11)
+
+- **Stato:** in analisi — migrazione e test predisposti, **non applicati**.
+- **Area/file:** `supabase/migrations/20261027120000_read_query_indexes.sql`, `supabase/tests/read_query_indexes.sql`.
+- **Problema/prova:** gli ORDER BY di `latest` (priorità live) e `all` (`coalesce(captured_at, received_at)`) non avevano indici corrispondenti: sort lineare per richiesta al crescere dello storico.
+- **Impatto/priorità:** media (scalabilità); la verifica EXPLAIN su volume reale era già tra le verifiche aperte di `docs/backend-schema.md`.
+- **Correzione proposta:** due indici (uno parziale per `latest`, uno su espressione per `all`) e `read_station_measurements` riscritta con rami separati per view/base temporale, stessa semantica.
+- **Verifica richiesta:** eseguire `supabase/tests/` (incluso `read_query_indexes.sql` e `station_backend.sql`) sul target autorizzato, confrontare i risultati con la versione precedente, verificare `EXPLAIN` su volume dichiarato; applicare solo con autorizzazione esplicita.
+
+## COR-031 — Duplicati possibili dopo perdita dello stato uploader (AUD-09)
+
+- **Stato:** in analisi — mitigazioni documentate; alternative di contratto aperte.
+- **Area/file:** `uploader/core.py` (stato/outbox), `docs/operations.md` (regole e query), `plan.md` (alternative).
+- **Problema/prova:** la ricreazione dello stato uploader rilegge righe già inviate assegnando UUID nuovi; il database non deduplica sul contenuto (scelta attestata: valori uguali possono essere misure distinte — test `test_repeated_rows_and_reset_are_different_events`).
+- **Impatto/priorità:** media; possibili righe duplicate con valori identici.
+- **Correzione proposta:** regole operative anti-duplicati, query di rilevamento e backup dell'outbox nel runbook; alternative strutturali (unicità su contenuto+offset, ID deterministici) documentate in `plan.md` con i rischi per il riconoscimento dei riavvii e il vincolo UUID v4 del contratto.
+- **Verifica richiesta:** decisione esplicita insieme a DATA-03; se si implementa un'alternativa, test dedicati su righe ripetute, reset Arduino e replay dopo perdita dello stato.

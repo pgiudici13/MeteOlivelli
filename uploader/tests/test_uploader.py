@@ -107,6 +107,42 @@ class UploaderTest(unittest.TestCase):
         with self.assertRaises(Halt):
             validate_config(dict(config, header=["wrong", "header", "shape", "only"]))
 
+    def test_measured_timestamp_column_carries_only_attested_times(self):
+        config = dict(self.config, measured_timestamp_column=True)
+        validate_config(config)
+        data, reason = parse_row(b"1;18,5;62;1014,2;2026-10-26T16:00:00.123Z", config,
+                                 str(uuid.uuid4()), None)
+        self.assertIsNone(reason)
+        self.assertEqual(data["measured_at"], "2026-10-26T16:00:00.123Z")
+        self.assertIsNone(data["captured_at"])
+        self.assertEqual(data["acquisition_kind"], "historical")
+        for raw in (b"1;18,5;62;1014,2;2026-10-26T16:00:00+01:00",
+                    b"1;18,5;62;1014,2;2026-02-30T16:00:00Z",
+                    b"1;18,5;62;1014,2;not-a-timestamp"):
+            self.assertEqual(parse_row(raw, config, str(uuid.uuid4()), None), (None, "csv_non_valido"))
+        with self.assertRaises(Halt):
+            validate_config(dict(self.config, acquisition_kind="synthetic", measured_timestamp_column=True))
+        with self.assertRaises(Halt):
+            validate_config(dict(self.config, measured_timestamp_column=True, synthetic_timestamp_column=True))
+        with self.assertRaises(Halt):
+            validate_config(dict(self.config, measured_timestamp_column="true"))
+
+    def test_live_row_keeps_observation_and_measurement_times_distinct(self):
+        self.config.update(live_verified=True, measured_timestamp_column=True)
+        self.csv.write_bytes(b"1;20;50;1010;2026-10-22T11:00:00.000Z\n")
+        store = self.store()
+        self.assertEqual(store.capture(), 1)  # backlog iniziale: sempre storico
+        boundary = self.csv.stat().st_size
+        self.append(b"2;21;50;1010;2026-10-22T11:58:00.000Z\n")
+        stamp = "2026-10-22T12:00:00.000Z"
+        store.capture(live_from=boundary, now=lambda: stamp)
+        first, second = (json.loads(row["payload"]) for row in self.events(store))
+        self.assertIsNone(first["captured_at"])
+        self.assertEqual(first["measured_at"], "2026-10-22T11:00:00.000Z")
+        self.assertEqual(second["captured_at"], stamp)
+        self.assertEqual(second["measured_at"], "2026-10-22T11:58:00.000Z")
+        self.assertEqual(second["acquisition_kind"], "live")
+
     def test_timestamped_synthetic_scenario_is_frozen_in_outbox(self):
         self.config.update(acquisition_kind="synthetic", synthetic_timestamp_column=True)
         self.csv.write_bytes(b"1;18,5;62;1014,2;2026-10-26T13:00:00.000Z\n")

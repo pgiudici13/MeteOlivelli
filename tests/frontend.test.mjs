@@ -2,7 +2,7 @@ import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { historyAnchor, parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, stationMeasurements, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
+import { historyAnchor, parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, stationMeasurements, stationStatusText, shouldAutoRefreshHistory, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { areAnalyticsEnabled, filterAnalyticsEvent, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
@@ -828,4 +828,27 @@ test('Auto: timestamp PostgreSQL normalizzati, inclusi microsecondi e paginazion
     assert.equal(calls, 2)
     feed.stop()
   }
+})
+
+test('stazione: stato distinto quando restano solo importazioni storiche', () => {
+  const base = { latestLoaded: true, invalidLatestTime: false, latestError: false, freshness: 'empty', historicalOnly: false }
+  assert.equal(stationStatusText(base), 'Nessuna misura disponibile')
+  assert.equal(stationStatusText({ ...base, historicalOnly: true }), 'Solo dati storici disponibili')
+  assert.equal(stationStatusText({ ...base, latestLoaded: false }), 'Caricamento delle misure…')
+  assert.equal(stationStatusText({ ...base, invalidLatestTime: true }), 'Orario dell’ultima acquisizione non valido')
+  assert.equal(stationStatusText({ ...base, latestError: true }), 'Aggiornamento non riuscito')
+  assert.equal(stationStatusText({ ...base, freshness: 'delayed' }), 'Stazione in ritardo')
+  assert.equal(stationStatusText({ ...base, freshness: 'current' }), 'Misure aggiornate')
+  assert.equal(stationStatusText({ ...base, freshness: 'unknown' }), 'Freschezza non determinabile')
+  // Errore e orario non valido prevalgono anche quando resta solo lo storico.
+  assert.equal(stationStatusText({ ...base, historicalOnly: true, latestError: true }), 'Aggiornamento non riuscito')
+})
+
+test('cronologia: gli stimoli automatici di rilettura sono limitati nel tempo', () => {
+  assert.equal(shouldAutoRefreshHistory(-Infinity, 1000), true) // primo stimolo sempre ammesso
+  assert.equal(shouldAutoRefreshHistory(1000, 1000 + 59999), false)
+  assert.equal(shouldAutoRefreshHistory(1000, 1000 + 60000), true)
+  assert.equal(shouldAutoRefreshHistory(1000, 500), false) // orologio indietro: nessuna rilettura
+  assert.equal(shouldAutoRefreshHistory(NaN, 500), true)
+  assert.equal(shouldAutoRefreshHistory(1000, 1500, 500), true) // soglia esplicita
 })

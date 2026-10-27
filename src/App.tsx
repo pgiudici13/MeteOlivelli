@@ -1,11 +1,11 @@
 import { animate } from 'motion/mini'
 import { AnimatedHeading } from './components/AnimatedHeading.tsx'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
-import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods } from './weather.ts'
+import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
@@ -34,7 +34,8 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
   const [nextDay, setNextDay] = useState<string | null>(null)
   const [direction, setDirection] = useState<'older' | 'newer'>('older')
-  const days = groupHistoryByLocalDay([...rows].reverse())
+  // Raggruppamento costoso solo quando cambiano i campioni, non a ogni render di transizione.
+  const days = useMemo(() => groupHistoryByLocalDay([...rows].reverse()), [rows])
   const pages = days.length
   const selectedIndex = selectedDay === null ? 0 : days.findIndex(day => day.key === selectedDay)
   const current = Math.max(0, selectedIndex)
@@ -129,9 +130,9 @@ function App() {
   const historyError = data.historyError
   // Cadenza e ancoraggio non sono ancora verificati, quindi la freschezza resta sconosciuta.
   const freshness = getFreshness(latest, data.checkedAt ?? 0, null)
-  const stationStatus = !data.latestLoaded ? 'Caricamento delle misure…' : data.invalidLatestTime ? 'Orario dell’ultima acquisizione non valido' : data.latestError ? 'Aggiornamento non riuscito' :
-    freshness === 'empty' ? 'Nessuna misura disponibile' : freshness === 'delayed' ? 'Stazione in ritardo' :
-      freshness === 'current' ? 'Misure aggiornate' : 'Freschezza non determinabile'
+  // Solo importazioni storiche: la dashboard lo dichiara invece di apparire vuota.
+  const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
+  const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
 
   async function downloadGraphsPdf() {
     if (pdfBusy) return
@@ -183,7 +184,7 @@ function App() {
           <p className="hero-description">Uno sguardo fuori, un dato alla volta.<br />Temperatura, umidità e pressione, osservate dalla nostra scuola.</p>
           <a className="hero-link" href="#history-title">Esplora le misure <span aria-hidden="true">↗</span></a>
           <p className={`station-status ${latestError ? 'warning' : ''}`} role="status"><span className="status-dot" aria-hidden="true" />{stationStatus}</p>
-          <p className="small freshness-note">{latest ? 'Ultima lettura disponibile. La freschezza della misura non è ancora verificabile.' : 'Le osservazioni appariranno appena saranno disponibili.'}</p>
+          <p className="small freshness-note">{latest ? 'Ultima lettura disponibile. La freschezza della misura non è ancora verificabile.' : historicalOnly ? 'Sono disponibili solo importazioni storiche: non risultano letture recenti della stazione.' : 'Le osservazioni appariranno appena saranno disponibili.'}</p>
         </section></Reveal>
         <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>
@@ -209,7 +210,7 @@ function App() {
         <div className="metric-grid">{metrics.map(metric => <article key={metric.key} className={`metric-card panel tone-${metric.tone}`}>
           <h3>{metric.name}</h3>
           <p className={`metric-value ${!latest || latest[metric.key] === null ? 'value-empty' : ''}`}>
-            {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : 'Nessun dato disponibile'}
+            {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : historicalOnly ? 'Nessuna lettura recente' : 'Nessun dato disponibile'}
           </p>
           <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
         </article>)}</div>
@@ -242,7 +243,7 @@ function App() {
           <button type="button" onClick={() => void downloadHistoryPdf()} disabled={historyPdfBusy || completeHistory.loading || completeHistory.error} aria-busy={historyPdfBusy}>{historyPdfBusy ? 'Preparazione PDF…' : 'Scarica PDF della cronologia completa'}</button>
           <p role="status" aria-live="polite">{historyPdfMessage}</p>
         </div>
-        {completeHistory.checkedAt && <p className="small">Cronologia riletta il {formatTime(completeHistory.checkedAt)} · Europe/Rome. Si aggiorna quando cambia l’ultima lettura e al ritorno alla pagina o online. Per includere importazioni storiche usa “Aggiorna cronologia”.</p>}
+        {completeHistory.checkedAt && <p className="small">Cronologia riletta il {formatTime(completeHistory.checkedAt)} · Europe/Rome. Si aggiorna quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto. Per includere importazioni storiche usa “Aggiorna cronologia”.</p>}
         {completeHistory.loading && <p className="empty-state" role="status">{completeHistory.checkedAt ? 'Aggiornamento della cronologia…' : 'Caricamento di tutta la cronologia…'}</p>}
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Riprova</button></div>}
         {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
