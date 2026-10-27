@@ -384,6 +384,24 @@ class UploaderTest(unittest.TestCase):
                 self.assertEqual(store.counts(), {"pending": 1})
                 self.assertEqual(deliver(store, "synthetic-token", 110, send=self.receipt), 0)
 
+    def test_non_utf8_receipt_does_not_stop_retries_or_confirm(self):
+        store = self.store()
+        store.capture()
+        original = self.events(store)[0]["payload"]
+        _, _, body = self.receipt(None, None, original)
+        for encoding in ("utf-16", "utf-32"):
+            with self.subTest(encoding=encoding):
+                with store.db:
+                    store.db.execute("UPDATE events SET next_attempt=0")
+                invalid = body.decode("utf-8").encode(encoding)
+                deliver(store, "synthetic-token", 1000, send=lambda *args: (201, {}, invalid))
+                self.assertEqual(store.counts(), {"pending": 1})
+                row = self.events(store)[0]
+                self.assertIsNone(row["receipt"])
+                self.assertEqual(row["payload"], original)
+        deliver(store, "synthetic-token", 10000, send=self.receipt)
+        self.assertEqual(store.counts(), {"confirmed": 1})
+
     def test_transport_bearer_timeout_and_redirect_refusal(self):
         self.assertIsNone(NoRedirect().redirect_request(None, None, 302, "", {}, "https://other.invalid"))
 

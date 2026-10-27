@@ -341,7 +341,9 @@ def retry_delay(attempts, headers, now, jitter=random.random):
 
 def valid_receipt(status, body, payload):
     try:
-        receipt = json.loads(body)
+        # json.loads(bytes) accetta anche UTF-16/32. Richiedere UTF-8 qui
+        # evita un arresto durante la successiva conferma locale nell'outbox.
+        receipt = json.loads(body.decode("utf-8"))
         kind = "accepted" if status == 201 else "duplicate"
         timestamp = receipt["received_at"]
         if not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|\+00:00)", timestamp):

@@ -227,3 +227,7 @@ con esito. Finché non è completata, i dati della stazione non sono attestati.
    duplicati né date inventate) e writer che aggiunge righe durante l'esecuzione.
 7. Registrare gli esiti in `tasks.md` (UP-01–UP-04, REL-01) prima di dichiarare
    operativa la catena di acquisizione.
+
+**Verifica ricevute (audit 27 ottobre 2026):** le risposte di conferma devono
+essere JSON UTF-8. Risposte UTF-16/32 o malformate lasciano l’evento pendente;
+il retry conserva identità e payload, senza interrompere il processo.
