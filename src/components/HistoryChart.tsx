@@ -6,16 +6,19 @@ import { prepareChart } from '../chart.ts'
 import { summarizeChart } from '../chart-summary.ts'
 import { animateOnEntrance } from '../motion.ts'
 import { formatValue, metrics } from '../weather.ts'
+import { createChartLink } from '../chart-links.ts'
 import type { Measurement, ChartMode } from '../weather.ts'
 
-export function HistoryChart({ metric, rows, loading, error, period, until, customRange }: {
+export function HistoryChart({ metric, rows, loading, error, period, until, customRange, shareable = true }: {
   period: ChartMode; until: string | null;
   customRange?: { start: number; end: number } | null;
+  shareable?: boolean;
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
   const [selection, setSelection] = useState<{ id: string; series: string } | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const [shareMessage, setShareMessage] = useState('')
   const ref = useRef<HTMLElement>(null)
   const openerRef = useRef<HTMLButtonElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -82,7 +85,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
     selectPoint(nearest)
   }
   const chart = (
-    <article ref={ref} className={`chart tone-${metric.tone}${expanded ? ' chart-expanded' : ''}`} aria-labelledby={`${id}-title`} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined}
+    <article id={shareable ? `chart-${metric.key}` : undefined} ref={ref} className={`chart tone-${metric.tone}${expanded ? ' chart-expanded' : ''}`} aria-labelledby={`${id}-title`} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined}
       onKeyDown={event => {
         if (!expanded) return
         if (event.key === 'Escape') { event.preventDefault(); setExpanded(false); return }
@@ -96,7 +99,13 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
       <div className="chart-expand-actions">
         {!expanded ? <button ref={openerRef} type="button" onClick={() => setExpanded(true)} aria-label={`Ingrandisci il grafico di ${metric.name}`}>Ingrandisci ↗</button>
           : <button ref={closeRef} type="button" onClick={() => setExpanded(false)} aria-label={`Chiudi il grafico ingrandito di ${metric.name}`}>Chiudi ×</button>}
+        {shareable && <button type="button" onClick={async () => {
+          const link = createChartLink(window.location.origin, period, metric.key, customRange)
+          try { await navigator.clipboard.writeText(link); setShareMessage('Collegamento copiato.') }
+          catch { setShareMessage(`Copia il collegamento: ${link}`) }
+        }} aria-label={`Copia il link al grafico di ${metric.name}`}>Condividi ↗</button>}
       </div>
+      {shareMessage && <p className="chart-share-message small" role="status">{shareMessage}</p>}
       <p className="chart-value">{prepared?.averaged && <span className="chart-average-label">Ultima media · </span>}{last ? `${formatValue(last.value)} ${metric.unit}` : 'Nessun valore disponibile'}</p>
       {loading || error || !points.length || !timeline ? (
         <div className="chart-empty">{loading ? 'Caricamento del grafico…' : error ? 'Grafico temporaneamente non disponibile.' : rows.length ? 'Nessun valore valido da tracciare. Consulta i campioni nella tabella.' : 'Il grafico apparirà quando saranno disponibili misure in questo periodo.'}</div>

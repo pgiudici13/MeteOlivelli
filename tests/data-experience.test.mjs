@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { createChartLink, readChartLink } from '../src/chart-links.ts'
 
 const chartSource = readFileSync(new URL('../src/components/HistoryChart.tsx', import.meta.url), 'utf8')
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
@@ -17,4 +18,16 @@ test('cronologia: data esatta consultabile con feedback per le date assenti', ()
   assert.match(appSource, /id="history-jump-date" type="date"/)
   assert.match(appSource, /days\.findIndex\(day => day\.key === key\)/)
   assert.match(appSource, /Nessuna misurazione registrata in questa data/)
+})
+
+test('condivisione: link conserva metrica, periodo e intervallo personalizzato valido', () => {
+  const until = Date.parse('2026-10-27T12:00:00Z')
+  const url = createChartLink('https://meteolivelli.vercel.app', '7g', 'humidity_pct')
+  assert.match(url, /period=7g#chart-humidity_pct/)
+  assert.deepEqual(readChartLink(new URL(url).search, until), { period: '7g', customRange: null })
+  const customRange = { start: until - 3600000, end: until }
+  const custom = createChartLink('https://meteolivelli.vercel.app', '30g', 'pressure_hpa', customRange)
+  assert.equal(new URL(custom).hash, '#chart-pressure_hpa')
+  assert.deepEqual(readChartLink(new URL(custom).search, until), { period: '30g', customRange })
+  assert.deepEqual(readChartLink('?period=custom&from=bad&to=bad', until), { period: 'auto', customRange: null })
 })

@@ -12,6 +12,7 @@ import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
 import { measurementAge } from './measurement-age.ts'
+import { localDateTimeValue, readChartLink } from './chart-links.ts'
 import { metricExplanations } from './metric-explanations.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
@@ -135,12 +136,19 @@ function App() {
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     if (canonical) canonical.href = 'https://meteolivelli.vercel.app/'
   }, [])
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    if (!['chart-temperature_c', 'chart-humidity_pct', 'chart-pressure_hpa'].includes(id)) return
+    const frame = requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView())
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   useBorderLight()
-  const [period, setPeriod] = useState<ChartMode>('auto')
-  const [customStart, setCustomStart] = useState('')
-  const [customEnd, setCustomEnd] = useState('')
-  const [customRange, setCustomRange] = useState<{ start: number; end: number } | null>(null)
+  const initialChartLink = useMemo(() => readChartLink(window.location.search), [])
+  const [period, setPeriod] = useState<ChartMode>(initialChartLink.period)
+  const [customStart, setCustomStart] = useState(() => initialChartLink.customRange ? localDateTimeValue(initialChartLink.customRange.start) : '')
+  const [customEnd, setCustomEnd] = useState(() => initialChartLink.customRange ? localDateTimeValue(initialChartLink.customRange.end) : '')
+  const [customRange, setCustomRange] = useState<{ start: number; end: number } | null>(initialChartLink.customRange)
   const [customError, setCustomError] = useState('')
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfMessage, setPdfMessage] = useState('')
@@ -242,7 +250,7 @@ function App() {
             </div>)}</dl>
           </div>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'Il primo campione della stazione non è ancora arrivato'}</p>
-          <HistoryChart period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
+          <HistoryChart shareable={false} period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
