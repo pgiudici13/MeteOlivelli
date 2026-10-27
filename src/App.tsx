@@ -5,6 +5,7 @@ import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
+import { DailyStatistics } from './components/DailyStatistics.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
@@ -289,6 +290,7 @@ function App() {
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
         {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><ForecastSection /></Reveal>
       <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">

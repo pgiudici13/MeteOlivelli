@@ -439,3 +439,16 @@ button::after, .hero-link::after { padding: 2px; }
 .metric-explanation summary span { font-size: 17px; }
 .metric-explanation p { margin: 6px 0 0; line-height: 1.6; overflow-wrap: anywhere; }
 @media (max-width: 760px) { .metric-explanation { grid-column: 1 / -1; } }
+.daily-statistics { margin-top: 64px; padding: clamp(22px, 4vw, 36px); display: grid; gap: 16px; }
+.daily-statistics h2 { margin: 0; }
+.daily-stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.daily-stat-card { min-width: 0; border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.daily-stat-card h3 { margin: 0 0 12px; font-size: 15px; }
+.daily-stat-card dl { display: grid; gap: 8px; }
+.daily-stat-card dl div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; }
+.daily-stat-card dt { color: var(--secondary); }
+.daily-stat-card dd { margin: 0; font-variant-numeric: tabular-nums; }
+.daily-stat-card .small { margin: 12px 0 0; }
+.monthly-extremes { border-top: 1px solid var(--border); padding-top: 16px; display: grid; gap: 8px; }
+.monthly-extremes h3, .monthly-extremes p { margin: 0; }
+@media (max-width: 760px) { .daily-stats-grid { grid-template-columns: 1fr; } .daily-statistics { margin-top: 48px; } }

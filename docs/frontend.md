@@ -297,3 +297,7 @@ La pagina mostra il tempo trascorso dall'orario della misura fisica attestata, o
 
 Le tre schede principali espongono una spiegazione apribile da tastiera tramite `details/summary`, con definizione accessibile di temperatura dell'aria, umidità relativa e pressione atmosferica. Non inferiscono fenomeni meteo non misurati e non richiedono nuove API.
 
+## Riepiloghi giornalieri e mensili — 27 ottobre 2026
+
+La dashboard calcola minimo, massimo, media e numero dei campioni validi per la giornata più recente con misure; espone il primo e l'ultimo orario osservati senza promettere copertura continua. Nel mese corrente identifica le giornate mediamente più calda e più fredda fra quelle effettivamente disponibili. Il giorno civile è Europe/Rome; è usato `measured_at` quando attestato, altrimenti `captured_at`, e vengono esclusi dati sintetici, date future, null e valori sospetti. Lo storico completo resta la fonte, senza nuove scritture server.
+
