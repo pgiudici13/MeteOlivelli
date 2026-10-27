@@ -7,6 +7,7 @@ import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
 import { DailyStatistics } from './components/DailyStatistics.tsx'
+import { WeatherRecords } from './components/WeatherRecords.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
@@ -326,6 +327,7 @@ function App() {
         </details>
       </section></Reveal>
       <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} selectedRange={customRange} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
+      <Reveal><WeatherRecords rows={completeHistory.rows} until={data.serverUntil} loading={completeHistory.loading} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
