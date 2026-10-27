@@ -16,6 +16,7 @@ import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
 import { measurementAge } from './measurement-age.ts'
 import { localDateTimeValue, readChartLink } from './chart-links.ts'
+import { browserChartPreference, isMetric, orderedMetrics, rememberBrowserChartPreference } from './chart-preferences.ts'
 import { metricExplanations } from './metric-explanations.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
@@ -158,6 +159,7 @@ function App() {
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
   const [showChronology, setShowChronology] = useState(false)
+  const [firstChart, setFirstChart] = useState(browserChartPreference)
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory(data.latestLoaded ? JSON.stringify([data.latest, data.invalidLatestTime]) : null)
@@ -318,7 +320,13 @@ function App() {
           <p role="status" aria-live="polite">{pdfMessage}</p>
         </div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
-        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        <label className="first-chart-picker">Mostra per primo
+          <select value={firstChart} onChange={event => { if (isMetric(event.target.value)) { setFirstChart(event.target.value); rememberBrowserChartPreference(event.target.value) } }}>
+            {metrics.map(metric => <option key={metric.key} value={metric.key}>{metric.name}</option>)}
+          </select>
+        </label>
+        <p className="small">La scelta viene ricordata solo su questo dispositivo. Tutti e tre i grafici restano disponibili.</p>
+        <div className="chart-grid" aria-busy={historyLoading}>{orderedMetrics(firstChart).map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
         {!historyLoading && !historyError && <CombinedChart rows={rows} period={period} until={data.windowUntil} customRange={customRange} />}
         <p className="small">Le linee rappresentano misure effettive o medie dei campioni disponibili, mai valori inventati.</p>
         <details className="chart-methodology"><summary>Come leggere i grafici e le medie</summary>
