@@ -22,10 +22,10 @@ export function DailyStatistics({ rows, serverUntil, loading, error }: { rows: M
             <div><dt>Massimo</dt><dd>{formatValue(stats.maximum)} {metric.unit}</dd></div>
             <div><dt>Media</dt><dd>{formatValue(stats.average)} {metric.unit}</dd></div>
           </dl> : <p className="small">Nessun valore valido.</p>}
-          {stats && <p className="small">{stats.count} {stats.count === 1 ? 'campione valido' : 'campioni validi'}</p>}
+          {stats && <p className="small">{stats.count} {stats.count === 1 ? 'campione valido' : 'campioni validi'} distribuiti in {stats.observedHours} {stats.observedHours === 1 ? 'ora distinta' : 'ore distinte'}.</p>}
         </article>
       })}</div>
-      <p className="small">Intervallo osservato nella giornata: {formatTime(new Date(day.first).toISOString(), true)}–{formatTime(new Date(day.last).toISOString(), true)}. Non indica necessariamente copertura continua.</p>
+      <p className="small">Intervallo osservato nella giornata: {formatTime(new Date(day.first).toISOString(), true)}–{formatTime(new Date(day.last).toISOString(), true)}. Il numero di ore con campioni non equivale a una copertura continua della giornata.</p>
     </>}
     <div className="monthly-extremes">
       <h3>Questo mese</h3>

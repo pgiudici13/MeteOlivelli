@@ -14,6 +14,7 @@ test('riepilogo giornaliero usa soltanto campioni validi senza inventare un gior
   assert.equal(summary.days[0].metrics.temperature_c.minimum, 10)
   assert.equal(summary.days[0].metrics.temperature_c.maximum, 14)
   assert.equal(summary.days[0].metrics.temperature_c.average, 12)
+  assert.equal(summary.days[0].metrics.temperature_c.observedHours, 2)
 })
 
 test('il giorno civile segue Europe/Rome anche prima della mezzanotte UTC', () => {
@@ -39,6 +40,25 @@ test('confronto settimanale pondera i campioni senza inventare i giorni mancanti
   assert.equal(period.metrics.temperature_c.average, 20)
   assert.equal(period.metrics.temperature_c.minimum, 10)
   assert.equal(period.metrics.temperature_c.maximum, 30)
+  assert.equal(period.metrics.temperature_c.observedHours, 3)
+})
+
+test('molti campioni nella stessa ora non simulano copertura prolungata', () => {
+  const summary = collectDailyStatistics([
+    row('2026-10-27T10:00:00Z', 10),
+    row('2026-10-27T10:10:00Z', 11),
+    row('2026-10-27T10:20:00Z', 12),
+  ], '2026-10-27T12:00:00Z')
+  assert.equal(summary.days[0].metrics.temperature_c.count, 3)
+  assert.equal(summary.days[0].metrics.temperature_c.observedHours, 1)
+})
+
+test('nel cambio dell’ora solare due ore reali con stessa etichetta locale restano distinte', () => {
+  const summary = collectDailyStatistics([
+    row('2026-10-25T00:30:00Z', 10),
+    row('2026-10-25T01:30:00Z', 11),
+  ], '2026-10-25T03:00:00Z')
+  assert.equal(summary.days[0].metrics.temperature_c.observedHours, 2)
 })
 
 test('confronto di periodi vuoti non restituisce valori simulati', () => {

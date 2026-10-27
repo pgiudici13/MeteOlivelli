@@ -47,8 +47,8 @@ export function DailyComparison({ days, today }: { days: DayStatistics[]; today:
       return <article className="comparison-card" key={metric.key}>
         <h4>{metric.name}</h4>
         {a && b ? <>
-          <p><span>Prima</span><strong>{formatValue(a.average)} {metric.unit}</strong><small>{a.count} campioni</small></p>
-          <p><span>Seconda</span><strong>{formatValue(b.average)} {metric.unit}</strong><small>{b.count} campioni</small></p>
+          <p><span>Prima</span><strong>{formatValue(a.average)} {metric.unit}</strong><small>{a.count} campioni · {a.observedHours} ore con misure</small></p>
+          <p><span>Seconda</span><strong>{formatValue(b.average)} {metric.unit}</strong><small>{b.count} campioni · {b.observedHours} ore con misure</small></p>
           <p className={`comparison-delta comparison-${direction!.tone}`}>
             <span className="comparison-direction" aria-label={direction!.label}>{direction!.symbol} {direction!.label}</span>
             <span>Differenza delle medie: <strong>{delta! > 0 && Math.round(delta! * 10) !== 0 ? '+' : ''}{formatValue(delta!)} {metric.unit}</strong></span>
