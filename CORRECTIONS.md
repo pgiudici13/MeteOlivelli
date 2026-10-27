@@ -342,3 +342,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** alto per la coerenza dei dati mostrati.
 - **Correzione:** grafici riconciliati ogni cinque minuti a pagina visibile; cronologia completa legata alla firma dell’ultima misura, con polling leggero invariato.
 - **Verifica:** tre regressioni unitari, prova browser con stesso UUID e `npm run check` superati. Errori di riconciliazione conservano i valori e ritentano al ciclo successivo.
+
+## COR-036 — Modificare un valore altera involontariamente l’ora della misura
+
+- **Stato:** frontend corretto il 27 ottobre 2026; preservazione aggiuntiva della precisione DB nell’Edge locale, da pubblicare separatamente.
+- **Area/file:** `src/admin-time.ts`, `src/pages/DataAdminPage.tsx`, handler amministrativo e relativi test.
+- **Prova:** nel browser Europe/Rome il campione `2026-10-25T01:30:45.123456+00:00` diventava `2026-10-25T00:30:00.000Z` cambiando soltanto temperatura: persi un’ora, secondi e frazioni.
+- **Impatto:** alto; corruzione temporale durante una modifica non temporale.
+- **Correzione:** campo locale con secondi/millisecondi; istante originale riutilizzato quando la data resta invariata, formato inviato compatibile con ingest v1; date inesistenti nel cambio legale rifiutate nel blocco di errore. L’Edge conserva anche frazioni DB e rappresentazione payload invariati dopo validazione, senza ampliare ingest.
+- **Verifica:** tre test helper, integrazione helper→handler con DST/precisione/rimozione data e prova Chrome superati; `npm run check` superato. Il secondo scenario browser amministrativo relativo al refresh resta distinto (COR-042).

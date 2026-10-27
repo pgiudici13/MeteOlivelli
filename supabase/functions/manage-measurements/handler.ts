@@ -50,6 +50,22 @@ function validId(value: string | null) {
     /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
+function originalTimestamp(row: Record<string, unknown>, field: 'captured_at' | 'measured_at') {
+  const stored = row[field]
+  if (typeof stored !== 'string') return null
+  const original = (row.payload as Record<string, unknown> | undefined)?.[field]
+  if (typeof original !== 'string') return stored
+  const utcKey = (value: string) => {
+    const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?(?:Z|\+00:00)$/
+      .exec(value)
+    return match ? `${match[1]}.${(match[2] ?? '').padEnd(6, '0')}Z` : null
+  }
+  // Preservare anche la rappresentazione del payload evita conflitti nei retry
+  // identici; il confronto include i microsecondi e non passa da Date.
+  const storedKey = utcKey(stored)
+  return storedKey !== null && utcKey(original) === storedKey ? original : stored
+}
+
 function validInput(value: unknown): value is {
   arduino_seconds: number
   temperature_c: number | null
@@ -195,6 +211,17 @@ export function createManageHandler(
       const raw = JSON.stringify(candidate)
       const parsed = parseMeasurementJson(raw)
       if (!parsed.ok) return response(req, { code: 'invalid_measurement' }, 400)
+      // La UI invia istanti canonici v1 al millisecondo. Per i valori invariati
+      // manteniamo la precisione PostgreSQL letta, senza ampliare il contratto ingest.
+      if (current) {
+        if (capturedAt !== null && typeof current.captured_at === 'string') {
+          parsed.measurement.captured_at = originalTimestamp(current, 'captured_at')
+        }
+        if (
+          typeof current.measured_at === 'string' &&
+          input.measured_at === new Date(current.measured_at).toISOString()
+        ) parsed.measurement.measured_at = originalTimestamp(current, 'measured_at')
+      }
       if (req.method === 'POST') {
         const receipt = await db('/rest/v1/rpc/ingest_station_measurement', 'POST', {
           p_measurement: parsed.measurement,

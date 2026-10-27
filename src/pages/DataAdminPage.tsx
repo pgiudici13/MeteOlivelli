@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { dateInput, measurementTime } from '../admin-time.ts'
 import './DataAdminPage.css'
 
 type Row = {
@@ -16,17 +17,6 @@ type Row = {
 type FormValue = Omit<Pick<Row, 'arduino_seconds' | 'temperature_c' | 'humidity_pct' | 'pressure_hpa'>, 'arduino_seconds'> & { arduino_seconds: number | null; measured_at: string }
 const endpoint = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/manage-measurements'
 const blank: FormValue = { arduino_seconds: null, temperature_c: null, humidity_pct: null, pressure_hpa: null, measured_at: '' }
-
-function dateInput(value: string | null) {
-  if (!value) return ''
-  const date = new Date(value)
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
-  return local.toISOString().slice(0, 16)
-}
-
-function localIso(value: string) {
-  return value ? new Date(value).toISOString() : null
-}
 
 async function api(password: string, method: string, body?: unknown, id?: string) {
   const url = new URL(endpoint)
@@ -73,8 +63,9 @@ export function DataAdminPage() {
     event.preventDefault()
     if (busy) return
     setBusy(true); setMessage('')
-    const payload = { ...value, measured_at: localIso(value.measured_at) }
     try {
+      const original = rows.find(row => row.ingestion_id === editing)?.measured_at ?? null
+      const payload = { ...value, measured_at: measurementTime(value.measured_at, original) }
       await api(password, editing ? 'PATCH' : 'POST', payload, editing ?? undefined)
       await refresh(password)
       setValue(blank); setEditing(null)
@@ -130,7 +121,7 @@ export function DataAdminPage() {
           <label>Temperatura (°C)<input type="number" step="any" value={value.temperature_c ?? ''} onChange={event => setNumber('temperature_c', event.target.value)} /></label>
           <label>Umidità (%)<input type="number" step="any" value={value.humidity_pct ?? ''} onChange={event => setNumber('humidity_pct', event.target.value)} /></label>
           <label>Pressione (hPa)<input type="number" step="any" value={value.pressure_hpa ?? ''} onChange={event => setNumber('pressure_hpa', event.target.value)} /></label>
-          <label>Data e ora della misura<input type="datetime-local" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
+          <label>Data e ora della misura (ora locale)<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
         </div>
         <p className="data-admin-note">Il contatore è richiesto dal formato attuale del database. Lascia vuoti i valori non disponibili. Una misura inserita a mano viene registrata come storica; l’orario di acquisizione sul PC resta vuoto. Le modifiche ricalcolano i flag qualità e conservano il payload originale; l’audit registra l’ID e l’operazione.</p>
         <div className="data-admin-actions"><button disabled={busy}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>

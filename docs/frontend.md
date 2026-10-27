@@ -218,3 +218,8 @@ visibile, per recepire modifiche e cancellazioni precedenti all’ultima lettura
 Il polling di 15 secondi resta leggero prima della soglia. La cronologia completa
 si aggiorna anche quando cambia il contenuto dell’ultimo UUID; per altre modifiche
 retroattive rimane disponibile il comando “Aggiorna cronologia”.
+
+L’area amministrativa mostra le date nel fuso del browser con secondi e
+millisecondi. Cambiare un valore senza cambiare la data mantiene l’istante UTC
+originale, anche nell’ora ripetuta in autunno. Ore locali inesistenti in primavera
+vengono rifiutate. Il formato inviato resta quello UTC al millisecondo di v1.

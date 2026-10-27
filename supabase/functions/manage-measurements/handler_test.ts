@@ -1,5 +1,6 @@
 // Dati e credenziali esclusivamente fittizi; nessuna rete o lettura dell'ambiente.
 import { createManageHandler } from './handler.ts'
+import { dateInput, measurementTime } from '../../../src/admin-time.ts'
 
 const origin = 'https://meteolivelli.vercel.app'
 const password = 'synthetic-admin-password-for-tests'
@@ -126,7 +127,7 @@ Deno.test('Admin aggiorna conservando identità e provenienza, gestisce righe ma
   assert((await handler(request('PATCH', input))).status === 200)
   const measurement = calls[1].body?.p_measurement as Record<string, unknown>
   assert(measurement.ingestion_id === id && measurement.acquisition_kind === 'live')
-  assert(measurement.captured_at === '2026-10-27T09:00:00.000Z')
+  assert(measurement.captured_at === '2026-10-27T09:00:00+00:00')
   assert((await handler(request('DELETE'))).status === 200)
   assert(calls[2].url.endsWith('/rpc/admin_delete_station_measurement'))
   const missing = createManageHandler(
@@ -160,4 +161,71 @@ Deno.test('Admin limita i tentativi falliti anche se viene poi fornita la passwo
   }
   assert((await handler(request('GET', undefined, headers))).status === 401)
   assert(calls === 0)
+})
+
+Deno.test('Admin integra il campo locale e conserva microsecondi PostgreSQL per istanti invariati', async () => {
+  for (
+    const original of [
+      '2026-10-25T01:30:45.123456+00:00',
+      '2026-10-25T01:30:00+00:00',
+    ]
+  ) {
+    const captured = '2026-10-25T01:29:00.654321+00:00'
+    const saved: Record<string, unknown>[] = []
+    const handler = createManageHandler((name) => environment[name], (_url, init) => {
+      if (init?.method === 'GET') {
+        return Promise.resolve(Response.json([{
+          ingestion_id: id,
+          acquisition_kind: 'live',
+          captured_at: captured,
+          measured_at: original,
+        }]))
+      }
+      saved.push(JSON.parse(String(init?.body)).p_measurement)
+      return Promise.resolve(Response.json(true))
+    })
+    const unchanged = measurementTime(dateInput(original), original)
+    assert((await handler(request('PATCH', { ...input, measured_at: unchanged }))).status === 200)
+    assert(saved[0].measured_at === original, 'Persi microsecondi della misura invariata')
+    assert(saved[0].captured_at === captured, 'Persi microsecondi di acquisizione')
+    assert((await handler(request('PATCH', input))).status === 200)
+    assert(saved[1].measured_at === input.measured_at, 'Modifica della data ignorata')
+    assert(saved[1].captured_at === captured)
+    assert((await handler(request('PATCH', { ...input, measured_at: null }))).status === 200)
+    assert(saved[2].measured_at === null, 'Rimozione della data ignorata')
+  }
+})
+
+Deno.test('Admin conserva la forma originale del payload solo se coincide fino ai microsecondi', async () => {
+  for (const precision of ['microseconds', 'milliseconds', 'mismatch']) {
+    const matches = precision !== 'mismatch'
+    const captured = `2026-10-25T01:29:00.654${precision === 'milliseconds' ? '000' : '321'}+00:00`
+    const measured = `2026-10-25T01:30:45.123${precision === 'milliseconds' ? '000' : '456'}+00:00`
+    const payload = {
+      captured_at: precision === 'microseconds'
+        ? '2026-10-25T01:29:00.654321Z'
+        : '2026-10-25T01:29:00.654Z',
+      measured_at: precision === 'microseconds'
+        ? '2026-10-25T01:30:45.123456Z'
+        : '2026-10-25T01:30:45.123Z',
+    }
+    let saved: Record<string, unknown> = {}
+    const handler = createManageHandler((name) => environment[name], (_url, init) => {
+      if (init?.method === 'GET') {
+        return Promise.resolve(Response.json([{
+          ingestion_id: id,
+          acquisition_kind: 'live',
+          captured_at: captured,
+          measured_at: measured,
+          payload,
+        }]))
+      }
+      saved = JSON.parse(String(init?.body)).p_measurement
+      return Promise.resolve(Response.json(true))
+    })
+    const unchanged = measurementTime(dateInput(measured), measured)
+    assert((await handler(request('PATCH', { ...input, measured_at: unchanged }))).status === 200)
+    assert(saved.captured_at === (matches ? payload.captured_at : captured))
+    assert(saved.measured_at === (matches ? payload.measured_at : measured))
+  }
 })

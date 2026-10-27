@@ -389,3 +389,9 @@ senza avviare un server o leggere segreti. URL backend invalidi restituiscono
 trasporto in memoria per configurazione, autenticazione, validazione e CRUD.
 Le correzioni locali della funzione richiedono un deployment Edge separato:
 il push Git del frontend non lo esegue.
+
+Nelle modifiche amministrative, i timestamp invariati conservano la precisione
+PostgreSQL e, quando equivalente fino al microsecondo, la forma del payload
+originale. Il confronto avviene dopo la validazione v1 e non estende i timestamp
+accettati dall’ingestione pubblica. È coperto anche il passaggio helper frontend →
+handler durante il ritorno all’ora solare. Correzione Edge locale da pubblicare.
