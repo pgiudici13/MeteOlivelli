@@ -1,20 +1,32 @@
 import { animate } from 'motion/mini'
 import type { AnimationPlaybackControls } from 'motion'
-import { useLayoutEffect, useId, useRef, useMemo, useState } from 'react'
+import { useLayoutEffect, useEffect, useId, useRef, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { prepareChart } from '../chart.ts'
 import { summarizeChart } from '../chart-summary.ts'
 import { animateOnEntrance } from '../motion.ts'
 import { formatValue, metrics } from '../weather.ts'
+import { createChartLink } from '../chart-links.ts'
 import type { Measurement, ChartMode } from '../weather.ts'
 
-export function HistoryChart({ metric, rows, loading, error, period, until, customRange }: {
+export function HistoryChart({ metric, rows, loading, error, period, until, customRange, shareable = true }: {
   period: ChartMode; until: string | null;
   customRange?: { start: number; end: number } | null;
+  shareable?: boolean;
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
   const [selection, setSelection] = useState<{ id: string; series: string } | null>(null)
+  const [expanded, setExpanded] = useState(false)
+  const [shareMessage, setShareMessage] = useState('')
   const ref = useRef<HTMLElement>(null)
+  const openerRef = useRef<HTMLButtonElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const wasExpandedRef = useRef(false)
+  useEffect(() => {
+    if (expanded) { wasExpandedRef.current = true; closeRef.current?.focus() }
+    else if (wasExpandedRef.current) openerRef.current?.focus()
+  }, [expanded])
   const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until, customRange ?? undefined) : null, [rows, metric.key, period, until, customRange])
   const segments = prepared?.segments ?? []
   const points = segments.flat()
@@ -72,9 +84,28 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
     const nearest = points.reduce((best, point, index) => Math.abs(x(point) - position) < Math.abs(x(points[best]) - position) ? index : best, 0)
     selectPoint(nearest)
   }
-  return (
-    <article ref={ref} className={`chart tone-${metric.tone}`} aria-labelledby={`${id}-title`}>
+  const chart = (
+    <article id={shareable ? `chart-${metric.key}` : undefined} ref={ref} className={`chart tone-${metric.tone}${expanded ? ' chart-expanded' : ''}`} aria-labelledby={`${id}-title`} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined}
+      onKeyDown={event => {
+        if (!expanded) return
+        if (event.key === 'Escape') { event.preventDefault(); setExpanded(false); return }
+        if (event.key !== 'Tab') return
+        const controls = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled), svg[tabindex]') ?? [])
+        if (!controls.length) return
+        if (event.shiftKey && document.activeElement === controls[0]) { event.preventDefault(); controls.at(-1)?.focus() }
+        else if (!event.shiftKey && document.activeElement === controls.at(-1)) { event.preventDefault(); controls[0].focus() }
+      }}>
       <h3 id={`${id}-title`}>{metric.name} · {metric.unit}</h3>
+      <div className="chart-expand-actions">
+        {!expanded ? <button ref={openerRef} type="button" onClick={() => setExpanded(true)} aria-label={`Ingrandisci il grafico di ${metric.name}`}>Ingrandisci ↗</button>
+          : <button ref={closeRef} type="button" onClick={() => setExpanded(false)} aria-label={`Chiudi il grafico ingrandito di ${metric.name}`}>Chiudi ×</button>}
+        {shareable && <button type="button" onClick={async () => {
+          const link = createChartLink(window.location.origin, period, metric.key, customRange)
+          try { await navigator.clipboard.writeText(link); setShareMessage('Collegamento copiato.') }
+          catch { setShareMessage(`Copia il collegamento: ${link}`) }
+        }} aria-label={`Copia il link al grafico di ${metric.name}`}>Condividi ↗</button>}
+      </div>
+      {shareMessage && <p className="chart-share-message small" role="status">{shareMessage}</p>}
       <p className="chart-value">{prepared?.averaged && <span className="chart-average-label">Ultima media · </span>}{last ? `${formatValue(last.value)} ${metric.unit}` : 'Nessun valore disponibile'}</p>
       {loading || error || !points.length || !timeline ? (
         <div className="chart-empty">{loading ? 'Caricamento del grafico…' : error ? 'Grafico temporaneamente non disponibile.' : rows.length ? 'Nessun valore valido da tracciare. Consulta i campioni nella tabella.' : 'Il grafico apparirà quando saranno disponibili misure in questo periodo.'}</div>
@@ -124,4 +155,5 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
       <p className="chart-period-note small">{customRange ? 'Intervallo personalizzato · tutti i campioni validi' : period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>
   )
+  return expanded ? createPortal(chart, document.body) : chart
 }

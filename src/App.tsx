@@ -2,16 +2,21 @@ import { animate } from 'motion/mini'
 import { AnimatedHeading } from './components/AnimatedHeading.tsx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
+import { CombinedChart } from './components/CombinedChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
 import { DailyStatistics } from './components/DailyStatistics.tsx'
+import { WeatherRecords } from './components/WeatherRecords.tsx'
+import { MeteorologyGlossary } from './components/MeteorologyGlossary.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
 import { measurementAge } from './measurement-age.ts'
+import { localDateTimeValue, readChartLink } from './chart-links.ts'
+import { browserChartPreference, isMetric, orderedMetrics, rememberBrowserChartPreference } from './chart-preferences.ts'
 import { metricExplanations } from './metric-explanations.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
@@ -39,6 +44,8 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
   const [nextDay, setNextDay] = useState<string | null>(null)
   const [direction, setDirection] = useState<'older' | 'newer'>('older')
+  const [requestedDate, setRequestedDate] = useState('')
+  const [dateError, setDateError] = useState('')
   // Raggruppamento costoso solo quando cambiano i campioni, non a ogni render di transizione.
   const days = useMemo(() => groupHistoryByLocalDay([...rows].reverse()), [rows])
   const pages = days.length
@@ -80,6 +87,8 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 
   function changePage(target: number) {
     if (transition !== 'idle' || target < 0 || target >= pages || target === current) return
+    setRequestedDate(days[target].key)
+    setDateError('')
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setSelectedDay(target === 0 ? null : days[target].key)
       return
@@ -90,6 +99,17 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   }
 
   return <>
+    {pages > 1 && <div className="history-date-search">
+      <label htmlFor="history-jump-date">Vai direttamente a una data</label>
+      <input id="history-jump-date" type="date" value={requestedDate || visibleDay?.key || ''} min={days.at(-1)?.key} max={days[0]?.key} disabled={transition !== 'idle'} onChange={event => {
+        const key = event.target.value
+        setRequestedDate(key)
+        const index = days.findIndex(day => day.key === key)
+        if (index < 0) setDateError('Nessuna misurazione registrata in questa data. Scegli un giorno presente nell’archivio.')
+        else { setDateError(''); changePage(index) }
+      }} />
+      {dateError && <p role="status">{dateError}</p>}
+    </div>}
     {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} acquisiti in questo giorno</p></div>}
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
@@ -120,18 +140,26 @@ function App() {
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     if (canonical) canonical.href = 'https://meteolivelli.vercel.app/'
   }, [])
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    if (!['chart-temperature_c', 'chart-humidity_pct', 'chart-pressure_hpa'].includes(id)) return
+    const frame = requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView())
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   useBorderLight()
-  const [period, setPeriod] = useState<ChartMode>('auto')
-  const [customStart, setCustomStart] = useState('')
-  const [customEnd, setCustomEnd] = useState('')
-  const [customRange, setCustomRange] = useState<{ start: number; end: number } | null>(null)
+  const initialChartLink = useMemo(() => readChartLink(window.location.search), [])
+  const [period, setPeriod] = useState<ChartMode>(initialChartLink.period)
+  const [customStart, setCustomStart] = useState(() => initialChartLink.customRange ? localDateTimeValue(initialChartLink.customRange.start) : '')
+  const [customEnd, setCustomEnd] = useState(() => initialChartLink.customRange ? localDateTimeValue(initialChartLink.customRange.end) : '')
+  const [customRange, setCustomRange] = useState<{ start: number; end: number } | null>(initialChartLink.customRange)
   const [customError, setCustomError] = useState('')
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfMessage, setPdfMessage] = useState('')
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
   const [showChronology, setShowChronology] = useState(false)
+  const [firstChart, setFirstChart] = useState(browserChartPreference)
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory(data.latestLoaded ? JSON.stringify([data.latest, data.invalidLatestTime]) : null)
@@ -227,7 +255,7 @@ function App() {
             </div>)}</dl>
           </div>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'Il primo campione della stazione non è ancora arrivato'}</p>
-          <HistoryChart period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
+          <HistoryChart shareable={false} period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
@@ -292,7 +320,14 @@ function App() {
           <p role="status" aria-live="polite">{pdfMessage}</p>
         </div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
-        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        <label className="first-chart-picker">Mostra per primo
+          <select value={firstChart} onChange={event => { if (isMetric(event.target.value)) { setFirstChart(event.target.value); rememberBrowserChartPreference(event.target.value) } }}>
+            {metrics.map(metric => <option key={metric.key} value={metric.key}>{metric.name}</option>)}
+          </select>
+        </label>
+        <p className="small">La scelta viene ricordata solo su questo dispositivo. Tutti e tre i grafici restano disponibili.</p>
+        <div className="chart-grid" aria-busy={historyLoading}>{orderedMetrics(firstChart).map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        {!historyLoading && !historyError && <CombinedChart rows={rows} period={period} until={data.windowUntil} customRange={customRange} />}
         <p className="small">Le linee rappresentano misure effettive o medie dei campioni disponibili, mai valori inventati.</p>
         <details className="chart-methodology"><summary>Come leggere i grafici e le medie</summary>
           <p>La vista di 24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano medie giornaliere dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome).</p>
@@ -300,7 +335,8 @@ function App() {
           <p>Misure assenti o indicate come «probabili errate» interrompono il tracciato. Rimangono consultabili nella cronologia.</p>
         </details>
       </section></Reveal>
-      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} selectedRange={customRange} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
+      <Reveal><WeatherRecords rows={completeHistory.rows} until={data.serverUntil} loading={completeHistory.loading} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
@@ -325,6 +361,7 @@ function App() {
         <p className="secondary">MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia, realizzato da Pietro Giudici e Nicholas Borin. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.</p>
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
+      <Reveal><MeteorologyGlossary /></Reveal>
     </main>
     <SiteFooter />
   </div>
