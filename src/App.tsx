@@ -131,6 +131,7 @@ function App() {
   const [pdfMessage, setPdfMessage] = useState('')
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
+  const [showChronology, setShowChronology] = useState(false)
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory(data.latestLoaded ? JSON.stringify([data.latest, data.invalidLatestTime]) : null)
@@ -230,6 +231,15 @@ function App() {
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
+      <nav className="section-jump-nav" aria-label="Vai a una sezione della homepage">
+        <span>Vai a</span>
+        <a href="#latest-title">Misure</a>
+        <a href="#forecast-title">Previsioni</a>
+        <a href="#daily-curiosity-title">Curiosità</a>
+        <a href="#history-title">Grafici</a>
+        <a href="#daily-stats-title">Statistiche</a>
+        <a href="#chronology-title">Cronologia</a>
+      </nav>
       <Reveal><section className="latest-section" aria-labelledby="latest-title" aria-busy={!latestLoaded}>
         <div className="section-heading"><div><p className="eyebrow section-index">01 / Osservazioni</p><h2 id="latest-title">Le ultime misure</h2></div>
           <p className="small">{latest ? `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
@@ -255,10 +265,12 @@ function App() {
           <p>La ricezione di un campione non dimostra che la misura sia recente. Il contatore Arduino non è una data.</p>
         </details>}
       </section></Reveal>
+      <Reveal><ForecastSection /></Reveal>
+      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <p className="eyebrow section-index">02 / Archivio della stazione</p>
         <h2 id="history-title">Andamento delle misure</h2>
-        <p className="secondary">{rows.length ? `Nel periodo selezionato sono disponibili ${rows.length} campioni.` : 'Lo storico mostra i campioni disponibili per il periodo selezionato.'} Orari di acquisizione sul PC · Europe/Rome.</p>
+        <p className="secondary">{rows.length ? `${rows.length} misurazioni nel periodo scelto.` : 'Esplora come sono cambiate le misure nel tempo.'} Orari locali italiani.</p>
         <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={!customRange && period === item.value} onClick={() => { setPeriod(item.value); setCustomRange(null); setCustomError('') }}>{item.label}</button>)}</div>
         <form className="custom-period" onSubmit={applyCustomRange}>
           <strong>Intervallo personalizzato</strong>
@@ -274,12 +286,19 @@ function App() {
           <p role="status" aria-live="polite">{pdfMessage}</p>
         </div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
-        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>          <p className="small">24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano la media giornaliera dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome). In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. Un intervallo personalizzato mostra i campioni originali. La cronologia conserva i campioni originali. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
+        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        <p className="small">Le linee rappresentano misure effettive o medie dei campioni disponibili, mai valori inventati.</p>
+        <details className="chart-methodology"><summary>Come leggere i grafici e le medie</summary>
+          <p>La vista di 24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano medie giornaliere dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome).</p>
+          <p>In Auto, lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. Un intervallo personalizzato e la cronologia mostrano i campioni originali.</p>
+          <p>Misure assenti o indicate come «probabili errate» interrompono il tracciato. Rimangono consultabili nella cronologia.</p>
+        </details>
       </section></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
-        <p className="secondary">Tutti i campioni registrati finora, dal più recente. Le date di acquisizione e ricezione sono indicate separatamente. Unità di misura: °C, %, hPa.</p>
+        <p className="secondary">Consulta tutte le letture, dalla più recente, oppure scarica l'archivio in PDF.</p>
         <div className="pdf-export-controls">
           <button type="button" onClick={completeHistory.retry} disabled={completeHistory.loading}>Aggiorna cronologia</button>
           <button type="button" onClick={() => void downloadHistoryPdf()} disabled={historyPdfBusy || completeHistory.loading || completeHistory.error} aria-busy={historyPdfBusy}>{historyPdfBusy ? 'Preparazione PDF…' : 'Scarica PDF della cronologia completa'}</button>
@@ -288,11 +307,12 @@ function App() {
         {completeHistory.checkedAt && <p className="small">Cronologia riletta il {formatTime(completeHistory.checkedAt)} · Europe/Rome. Si aggiorna quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto. Per includere importazioni storiche usa “Aggiorna cronologia”.</p>}
         {completeHistory.loading && <p className="empty-state" role="status">{completeHistory.checkedAt ? 'Aggiornamento della cronologia in corso…' : 'Lettura di tutta la cronologia in corso…'}</p>}
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
-        {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
+        {completeHistory.rows.length ? <>
+          <p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati, consultabili giorno per giorno.</p>
+          <button type="button" className="chronology-toggle" aria-expanded={showChronology} aria-controls="chronology-data" onClick={() => setShowChronology(value => !value)}>{showChronology ? 'Nascondi le misurazioni' : 'Mostra le misurazioni'}</button>
+          <div id="chronology-data" hidden={!showChronology}>{showChronology && <HistoryTable key="all-history" rows={completeHistory.rows} />}</div>
+        </> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
-      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
-      <Reveal><ForecastSection /></Reveal>
-      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>
         <h2 id="about-title">Un progetto per osservare e imparare.</h2>

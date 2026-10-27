@@ -4,7 +4,7 @@ import type { Measurement, Metric } from './weather.ts'
 const calendar = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' })
 const dayLabel = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', day: 'numeric', month: 'long', year: 'numeric' })
 
-export interface MetricStatistics { count: number; minimum: number; maximum: number; average: number }
+export interface MetricStatistics { count: number; minimum: number; maximum: number; average: number; observedHours: number }
 export interface DayStatistics {
   key: string
   label: string
@@ -22,7 +22,7 @@ function dayKey(time: number) {
 export function collectDailyStatistics(rows: Measurement[], serverUntil: string): { days: DayStatistics[]; today: string; month: string } {
   const now = Date.parse(serverUntil)
   if (!Number.isFinite(now)) throw new Error('Tempo server non valido')
-  type Acc = { sum: number; count: number; minimum: number; maximum: number }
+  type Acc = { sum: number; count: number; minimum: number; maximum: number; hours: Set<number> }
   const grouped = new Map<string, { first: number; last: number; metrics: Partial<Record<Metric, Acc>> }>()
   for (const row of rows) {
     if (!['live', 'historical'].includes(row.acquisition_kind ?? '')) continue
@@ -37,9 +37,10 @@ export function collectDailyStatistics(rows: Measurement[], serverUntil: string)
       const value = row[metric.key]
       if (value === null || !Number.isFinite(value) || isSuspect(row, metric.key)) continue
       valid = true
-      const acc = entry.metrics[metric.key] ?? { sum: 0, count: 0, minimum: value, maximum: value }
+      const acc = entry.metrics[metric.key] ?? { sum: 0, count: 0, minimum: value, maximum: value, hours: new Set<number>() }
       acc.sum += value
       acc.count++
+      acc.hours.add(Math.floor(time / 3_600_000))
       acc.minimum = Math.min(acc.minimum, value)
       acc.maximum = Math.max(acc.maximum, value)
       entry.metrics[metric.key] = acc
@@ -53,6 +54,7 @@ export function collectDailyStatistics(rows: Measurement[], serverUntil: string)
     key, label: dayLabel.format(new Date(entry.first)), first: entry.first, last: entry.last,
     metrics: Object.fromEntries(Object.entries(entry.metrics).map(([metric, value]) => [metric, {
       count: value!.count, minimum: value!.minimum, maximum: value!.maximum, average: value!.sum / value!.count,
+      observedHours: value!.hours.size,
     }])),
   })).sort((a, b) => b.key.localeCompare(a.key))
   const today = dayKey(now)
@@ -82,6 +84,7 @@ export function aggregatePeriod(days: DayStatistics[], start: string, end: strin
       minimum: Math.min(...samples.map(value => value.minimum)),
       maximum: Math.max(...samples.map(value => value.maximum)),
       average: samples.reduce((sum, value) => sum + value.average * value.count, 0) / count,
+      observedHours: samples.reduce((sum, value) => sum + value.observedHours, 0),
     }
   }
   return { metrics: values, observedDays: selected.length }
