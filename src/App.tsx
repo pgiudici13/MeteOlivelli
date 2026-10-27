@@ -231,6 +231,15 @@ function App() {
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
+      <nav className="section-jump-nav" aria-label="Vai a una sezione della homepage">
+        <span>Vai a</span>
+        <a href="#latest-title">Misure</a>
+        <a href="#forecast-title">Previsioni</a>
+        <a href="#daily-curiosity-title">Curiosità</a>
+        <a href="#history-title">Grafici</a>
+        <a href="#daily-stats-title">Statistiche</a>
+        <a href="#chronology-title">Cronologia</a>
+      </nav>
       <Reveal><section className="latest-section" aria-labelledby="latest-title" aria-busy={!latestLoaded}>
         <div className="section-heading"><div><p className="eyebrow section-index">01 / Osservazioni</p><h2 id="latest-title">Le ultime misure</h2></div>
           <p className="small">{latest ? `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
