@@ -118,6 +118,10 @@ function App() {
 
   useBorderLight()
   const [period, setPeriod] = useState<ChartMode>('auto')
+  const [customStart, setCustomStart] = useState('')
+  const [customEnd, setCustomEnd] = useState('')
+  const [customRange, setCustomRange] = useState<{ start: number; end: number } | null>(null)
+  const [customError, setCustomError] = useState('')
   const [pdfBusy, setPdfBusy] = useState(false)
   const [pdfMessage, setPdfMessage] = useState('')
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
@@ -138,14 +142,28 @@ function App() {
   const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
 
+  function applyCustomRange(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const start = new Date(customStart).getTime()
+    const end = new Date(customEnd).getTime()
+    const now = Date.now()
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end || end > now || now - start > 30 * 24 * 3600000) {
+      setCustomError('Scegli un intervallo valido, nel passato, compreso negli ultimi 30 giorni.')
+      return
+    }
+    setCustomError('')
+    setPeriod('30g')
+    setCustomRange({ start, end })
+  }
+
   async function downloadGraphsPdf() {
     if (pdfBusy) return
     setPdfBusy(true)
     setPdfMessage('Aggiornamento dei dati e preparazione del PDF…')
     try {
-      const { rows: freshRows, until } = await readFreshChartData(period, new AbortController().signal)
+      const { rows: freshRows, until } = await readFreshChartData(customRange ? '30g' : period, new AbortController().signal)
       const generatedAt = new Date()
-      const blob = await createPdfBlob(buildGraphsDocument(freshRows, period, until, generatedAt))
+      const blob = await createPdfBlob(buildGraphsDocument(freshRows, customRange ? '30g' : period, until, generatedAt, customRange ?? undefined))
       downloadPdfBlob(blob, 'grafici', generatedAt)
       setPdfMessage('PDF dei grafici scaricato.')
     } catch {
@@ -201,7 +219,7 @@ function App() {
             </div>)}</dl>
           </div>
           <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'Il primo campione della stazione non è ancora arrivato'}</p>
-          <HistoryChart period={period} until={data.windowUntil} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
+          <HistoryChart period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
       </div>
@@ -229,13 +247,22 @@ function App() {
         <p className="eyebrow section-index">02 / Archivio della stazione</p>
         <h2 id="history-title">Andamento delle misure</h2>
         <p className="secondary">{rows.length ? `Nel periodo selezionato sono disponibili ${rows.length} campioni.` : 'Lo storico mostra i campioni disponibili per il periodo selezionato.'} Orari di acquisizione sul PC · Europe/Rome.</p>
-        <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={period === item.value} onClick={() => setPeriod(item.value)}>{item.label}</button>)}</div>
+        <div className="period-picker" role="group" aria-label="Periodo dello storico">{periods.map(item => <button key={item.value} aria-pressed={!customRange && period === item.value} onClick={() => { setPeriod(item.value); setCustomRange(null); setCustomError('') }}>{item.label}</button>)}</div>
+        <form className="custom-period" onSubmit={applyCustomRange}>
+          <strong>Intervallo personalizzato</strong>
+          <label>Da <input type="datetime-local" value={customStart} onChange={event => setCustomStart(event.target.value)} required /></label>
+          <label>A <input type="datetime-local" value={customEnd} onChange={event => setCustomEnd(event.target.value)} required /></label>
+          <button type="submit" aria-pressed={customRange !== null}>Applica intervallo</button>
+          {customRange && <button type="button" onClick={() => { setCustomRange(null); setPeriod('auto') }}>Torna ad Auto</button>}
+          {customError && <p role="alert">{customError}</p>}
+          <p className="small">Fino a 30 giorni recenti; i grafici personalizzati mostrano i campioni originali.</p>
+        </form>
         <div className="pdf-export-controls">
-          <button type="button" onClick={() => void downloadGraphsPdf()} disabled={pdfBusy} aria-busy={pdfBusy}>{pdfBusy ? 'Preparazione PDF…' : `Scarica PDF dei grafici · ${periods.find(item => item.value === period)?.label}`}</button>
+          <button type="button" onClick={() => void downloadGraphsPdf()} disabled={pdfBusy} aria-busy={pdfBusy}>{pdfBusy ? 'Preparazione PDF…' : `Scarica PDF dei grafici · ${customRange ? 'Personalizzato' : periods.find(item => item.value === period)?.label}`}</button>
           <p role="status" aria-live="polite">{pdfMessage}</p>
         </div>
-        <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${periods.find(item => item.value === period)?.label}: ${rows.length} campioni.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
-        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>          <p className="small">24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano la media giornaliera dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome). In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. La cronologia conserva i campioni originali. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
+        <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
+        <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>          <p className="small">24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano la media giornaliera dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome). In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. Un intervallo personalizzato mostra i campioni originali. La cronologia conserva i campioni originali. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
       </section></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>

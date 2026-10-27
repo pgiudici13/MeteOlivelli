@@ -166,3 +166,7 @@ La UI italiana precarica il subset Inter da circa 71 KiB; l’originale da 344 K
 resta disponibile per gli alfabeti ulteriori tramite intervalli Unicode disgiunti.
 Nessun cambio a forme, pesi o ingombri. La rigenerazione e la licenza sono descritte
 in `public/fonts/README.md`; confronto browser eseguito anche su temi e quiz.
+# Aggiornamento UX — selezione e lettura dei grafici (27 ottobre 2026)
+
+I grafici mostrano minimo, massimo, media ponderata sul numero dei campioni e variazione fra gli ultimi due punti. Se i punti sono aggregati la variazione confronta le aggregazioni e la media usa il peso dei campioni che compongono ciascun punto. Un intervallo personalizzato permette di consultare i campioni originali negli ultimi 30 giorni, con scelta locale di data e ora di inizio/fine. Lo stesso intervallo è applicato al PDF; non è prevista esportazione CSV.
+

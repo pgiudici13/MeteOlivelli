@@ -2,23 +2,26 @@ import { animate } from 'motion/mini'
 import type { AnimationPlaybackControls } from 'motion'
 import { useLayoutEffect, useId, useRef, useMemo, useState } from 'react'
 import { prepareChart } from '../chart.ts'
+import { summarizeChart } from '../chart-summary.ts'
 import { animateOnEntrance } from '../motion.ts'
 import { formatValue, metrics } from '../weather.ts'
 import type { Measurement, ChartMode } from '../weather.ts'
 
-export function HistoryChart({ metric, rows, loading, error, period, until }: {
+export function HistoryChart({ metric, rows, loading, error, period, until, customRange }: {
   period: ChartMode; until: string | null;
+  customRange?: { start: number; end: number } | null;
   metric: typeof metrics[number]; rows: Measurement[]; loading: boolean; error: boolean
 }) {
   const id = useId()
   const [selection, setSelection] = useState<{ id: string; series: string } | null>(null)
   const ref = useRef<HTMLElement>(null)
-  const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until) : null, [rows, metric.key, period, until])
+  const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until, customRange ?? undefined) : null, [rows, metric.key, period, until, customRange])
   const segments = prepared?.segments ?? []
   const points = segments.flat()
   const values = points.map(point => point.value)
   const min = values.length ? Math.min(...values) : 0
   const max = values.length ? Math.max(...values) : 1
+  const summary = summarizeChart(points)
   const padding = Math.max((max - min) * 0.15, 0.5)
   const low = min - padding
   const high = max + padding
@@ -111,8 +114,8 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
         </svg>
       )}
       {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${metric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
-      <p className="small">{points.length ? `Minimo ${formatValue(min)} · massimo ${formatValue(max)} ${metric.unit}` : 'I valori mancanti non vengono interpolati.'}</p>
-      <p className="chart-period-note small">{period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
+      <p className="chart-statistics small">{summary ? `Minimo ${formatValue(summary.minimum)} · massimo ${formatValue(summary.maximum)} · media ${formatValue(summary.average)} ${metric.unit} (${summary.samples} campioni validi)${summary.change === null ? '' : ` · variazione dall’ultimo punto ${summary.change > 0 ? '+' : ''}${formatValue(summary.change)} ${metric.unit}`}` : 'I valori mancanti non vengono interpolati.'}</p>
+      <p className="chart-period-note small">{customRange ? 'Intervallo personalizzato · tutti i campioni validi' : period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>
   )
 }

@@ -378,3 +378,20 @@ button::after, .hero-link::after { padding: 2px; }
   .route-not-found-content h1 { font-size: clamp(3.1rem, 13vw, 4.5rem); }
   .route-not-found-content { padding: 5rem 0; }
 }
+.custom-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+.custom-period strong { flex-basis: 100%; }
+.custom-period label { display: grid; gap: 0.35rem; min-width: 0; }
+.custom-period input { min-width: 0; max-width: 100%; padding: 0.65rem; border: 1px solid currentColor; border-radius: 0.4rem; background: transparent; color: inherit; }
+.custom-period .small, .custom-period [role="alert"] { flex-basis: 100%; margin: 0; }
+.chart-statistics { line-height: 1.6; }
+@media (max-width: 640px) {
+  .custom-period { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .custom-period label { width: 100%; }
+  .custom-period input, .custom-period button { width: 100%; }
+}

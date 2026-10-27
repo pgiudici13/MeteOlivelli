@@ -277,3 +277,7 @@ dist, pagine/404/noindex e reflow corretti, nessun errore JavaScript rilevato.
 Lighthouse mobile post-font: 80 e 98/100, altre categorie 100, CLS 0; LCP simulato
 variabile 5,19 e 2,03 s. I quattro report prima/dopo sono riassunti nel verbale:
 COR-015 resta aperto, mentre il risparmio di 279.980 byte sul font è verificato.
+# Aggiornamento grafici (27 ottobre 2026)
+
+I grafici espongono statistiche e variazione dei punti disponibili, con media ponderata nel caso di aggregazioni. Il filtro personalizzato copre al massimo gli ultimi 30 giorni, usa gli orari locali immessi dall'utente e restituisce sempre campioni originali. L'esportazione del filtro selezionato resta esclusivamente PDF. La nuova logica è verificata con test unitari; la prova visuale su dispositivi reali resta separata.
+
