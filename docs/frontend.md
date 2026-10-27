@@ -260,3 +260,8 @@ e cronologia sono aggiornati alle decisioni attuali: non pretendono più la
 persistenza come previsione, la simulazione rimossa o riletture senza throttle.
 Directory delle evidenze opzionale al quinto argomento nei quattro runner che
 scrivono screenshot/JSON. [Esiti, target e limiti](release-audit-20261027.md).
+
+Il link scolastico del footer include il testo “Visita il sito ufficiale” nel nome
+accessibile e annuncia la nuova scheda; la freccia è decorativa. Il runner
+`school-link-browser.mjs` verifica quattro pagine e può eseguire la regola axe
+`label-content-name-mismatch` con uno strumento esterno al progetto.

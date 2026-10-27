@@ -18,9 +18,9 @@ export function SiteFooter() {
       </nav>
       <section className="footer-school" aria-labelledby="footer-school-title">
         <h2 id="footer-school-title">La scuola</h2>
-        <SchoolSiteLink className="school-logo footer-school-logo footer-school-link">
+        <SchoolSiteLink className="school-logo footer-school-logo footer-school-link" ariaLabel="Visita il sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda">
           <SchoolLogo footer />
-          <span>Visita il sito ufficiale ↗</span>
+          <span>Visita il sito ufficiale <span aria-hidden="true" style={{ display: 'inline', margin: 0 }}>↗</span></span>
         </SchoolSiteLink>
         <p>Liceo Teresio Olivelli · Pavia</p>
       </section>

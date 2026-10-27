@@ -141,7 +141,8 @@ test('link esterno della scuola annuncia la nuova scheda e usa la URL centrale',
   assert.match(link, /href=\{SCHOOL_WEBSITE_URL\}/)
   assert.match(link, /target="_blank"/)
   assert.match(link, /rel="noopener noreferrer"/)
-  assert.match(link, /aria-label="Sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda"/)
+  assert.match(link, /ariaLabel = 'Sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda'/)
+  assert.match(link, /aria-label=\{ariaLabel\}/)
 })
 
 test('footer completo e copia pubblica della licenza restano coerenti', () => {

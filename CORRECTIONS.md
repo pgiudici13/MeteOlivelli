@@ -432,3 +432,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** alto su rete instabile o durante il rinnovo degli asset di un deploy.
 - **Correzione:** recupero accessibile con messaggio italiano, titolo focalizzato, ricarica e ritorno alla home; preferenze statistiche disponibili anche dopo l’errore, senza dettagli tecnici esposti.
 - **Verifica:** due scenari browser completi, entrambi i temi a 320/1280 px, ricarica e home dopo recupero della rete; `npm run check` superato.
+
+## COR-046 — Nome accessibile del link scolastico diverso dal testo visibile
+
+- **Stato:** corretto il 27 ottobre 2026.
+- **Area/file:** `SchoolSiteLink`, `SiteFooter`, test frontend e `school-link-browser.mjs`.
+- **Prova:** Lighthouse 13.5 e axe segnalavano `label-content-name-mismatch`: il footer mostra “Visita il sito ufficiale”, ma l’aria-label ometteva “Visita il”.
+- **Impatto:** medio; link difficile da identificare tramite controllo vocale.
+- **Correzione:** nome accessibile coerente col testo, apertura in nuova scheda ancora annunciata e freccia decorativa esclusa dalla lettura.
+- **Verifica:** quattro pagine senza violazioni della regola axe, nessun errore JavaScript; `npm run check` superato.

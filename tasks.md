@@ -657,7 +657,7 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/push autorizzati dopo i controlli; nessuna applicazione di migrazioni o configurazione remota compresa.
 
 - [x] COR-033: ordine dei grafici corretto anche ai microsecondi, tre regressioni dedicate; `npm run check` superato (101 frontend, 52 Deno, 28 Python nel checkout condiviso). Lo script frontend include automaticamente tutti i file `tests/*.test.mjs`.
-- [ ] Completare revisione UI/browser, area amministrativa, backend/uploader e verifica del rilascio Git.
+- [x] Completate revisione UI/browser, area amministrativa, backend/uploader e verifica del rilascio Git; frontend pubblico controllato sul commit `c2c7d0a`. API admin ancora 503; deployment Edge e collaudo autenticato separati.
 - [ ] Rimangono indipendenti: CSV/writer e Windows reali, acquisizione continua, backup/restore, avvisi e validazione meteo.
 - [x] COR-034: handler amministrativo testabile e 503/CORS per configurazione invalida; cinque regressioni Deno, `npm run check` superato. Il push del sorgente non pubblica l’Edge Function.
 - [x] COR-035: riconciliazione ogni cinque minuti dei grafici e firma completa dell’ultima misura per la cronologia; tre regressioni e prova browser stesso UUID, `npm run check` superato.
@@ -673,3 +673,4 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-045: schermata accessibile di recupero dagli errori di pagina; due scenari browser e `npm run check` superati.
 - [x] Aggiornati i runner browser previsionali e cronologia al comportamento corrente: persistenza ritirata, sintetici esclusi e limite automatico di un minuto; aggiunta verifica focus ripetuto. Le directory di evidenza possono essere passate come quinto argomento per preservare i verbali storici.
 - [x] Verifica finale software: `npm run check` con 107 frontend, 54 Deno e 28 Python; audit npm ufficiale con zero vulnerabilità; 50 scenari browser negli otto runner, comprese 52 combinazioni responsive. [Verbale corrente](docs/release-audit-20261027.md).
+- [x] COR-046: nome accessibile del link scuola allineato al testo visibile; quattro prove browser/axe e `npm run check` superati.
