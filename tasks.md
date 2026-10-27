@@ -662,3 +662,4 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-034: handler amministrativo testabile e 503/CORS per configurazione invalida; cinque regressioni Deno, `npm run check` superato. Il push del sorgente non pubblica l’Edge Function.
 - [x] COR-035: riconciliazione ogni cinque minuti dei grafici e firma completa dell’ultima misura per la cronologia; tre regressioni e prova browser stesso UUID, `npm run check` superato.
 - [x] COR-036: date amministrative senza perdita involontaria di ora/secondi/ms; regressioni helper, integrazione backend e browser passate, `npm run check` superato. Preservazione DB oltre millisecondi locale fino al deploy Edge.
+- [x] COR-037: salvataggio amministrativo distinto dagli errori di ricaricamento, recupero elenco e controlli bloccati durante le richieste; due scenari Chrome e `npm run check` superati.

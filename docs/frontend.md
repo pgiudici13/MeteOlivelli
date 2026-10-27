@@ -223,3 +223,9 @@ L’area amministrativa mostra le date nel fuso del browser con secondi e
 millisecondi. Cambiare un valore senza cambiare la data mantiene l’istante UTC
 originale, anche nell’ora ripetuta in autunno. Ore locali inesistenti in primavera
 vengono rifiutate. Il formato inviato resta quello UTC al millisecondo di v1.
+
+Un salvataggio amministrativo confermato azzera il modulo anche se la successiva
+lettura fallisce. Il messaggio distingue successo della scrittura ed elenco non
+aggiornato; “Aggiorna elenco” permette di recuperare senza ripetere la scrittura.
+Durante la richiesta campi, uscita e annullamento sono disabilitati. Il runner
+`tests/admin-browser.mjs` esercita questi casi con API interamente intercettata.

@@ -16,7 +16,7 @@
 .data-admin .quiet-button { background: transparent; color: inherit; }
 .data-admin .danger-button { border-color: #dc7568; background: transparent; color: #dc7568; }
 .data-admin-toolbar, .data-admin-actions { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
-.data-admin-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; }
+.data-admin-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; border: 0; padding: 0; margin: 0; min-width: 0; }
 .data-admin-note { max-width: 56rem; color: var(--secondary); font-size: .9rem; }
 .data-admin-list { margin-top: 3rem; }
 .data-admin-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: .8rem; }

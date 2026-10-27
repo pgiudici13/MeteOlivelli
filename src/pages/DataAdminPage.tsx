@@ -49,6 +49,7 @@ export function DataAdminPage() {
 
   async function login(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (busy) return
     setBusy(true); setMessage('')
     try {
       await refresh(enteredPassword)
@@ -56,6 +57,20 @@ export function DataAdminPage() {
       setEnteredPassword('')
       setMessage('Accesso effettuato.')
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Accesso non riuscito.') }
+    finally { setBusy(false) }
+  }
+
+  async function refreshAfterWrite(success: string) {
+    setMessage(success)
+    try { await refresh(password) }
+    catch { setMessage(`${success} L’elenco non è stato aggiornato: premi “Aggiorna elenco” prima di altre modifiche.`) }
+  }
+
+  async function reloadRows() {
+    if (busy) return
+    setBusy(true); setMessage('')
+    try { await refresh(password); setMessage('Elenco aggiornato.') }
+    catch { setMessage('Elenco non aggiornato. Riprova tra poco.') }
     finally { setBusy(false) }
   }
 
@@ -67,14 +82,14 @@ export function DataAdminPage() {
       const original = rows.find(row => row.ingestion_id === editing)?.measured_at ?? null
       const payload = { ...value, measured_at: measurementTime(value.measured_at, original) }
       await api(password, editing ? 'PATCH' : 'POST', payload, editing ?? undefined)
-      await refresh(password)
       setValue(blank); setEditing(null)
-      setMessage(editing ? 'Modifiche salvate.' : 'Misura aggiunta.')
+      await refreshAfterWrite(editing ? 'Modifiche salvate.' : 'Misura aggiunta.')
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Salvataggio non riuscito.') }
     finally { setBusy(false) }
   }
 
   function edit(row: Row) {
+    if (busy) return
     setEditing(row.ingestion_id)
     setValue({
       arduino_seconds: row.arduino_seconds,
@@ -83,17 +98,18 @@ export function DataAdminPage() {
       pressure_hpa: row.pressure_hpa,
       measured_at: dateInput(row.measured_at),
     })
-    document.getElementById('data-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById('data-form')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
   }
 
   async function remove(row: Row) {
+    if (busy) return
     if (!window.confirm(`Eliminare la misura ${row.ingestion_id}? L’operazione non si può annullare.`)) return
     setBusy(true); setMessage('')
     try {
       await api(password, 'DELETE', undefined, row.ingestion_id)
-      await refresh(password)
+      setRows(previous => previous.filter(item => item.ingestion_id !== row.ingestion_id))
       if (editing === row.ingestion_id) { setEditing(null); setValue(blank) }
-      setMessage('Misura rimossa.')
+      await refreshAfterWrite('Misura rimossa.')
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Eliminazione non riuscita.') }
     finally { setBusy(false) }
   }
@@ -110,21 +126,21 @@ export function DataAdminPage() {
     <h1>Gestione delle misure</h1>
     <p>Inserisci, correggi o rimuovi misure nel database. Le date inserite sono l’ora della misura, non l’ora di ricezione.</p>
     {!password ? <form className="data-admin-login" onSubmit={login}>
-      <label>Password amministratore<input autoComplete="current-password" type="password" value={enteredPassword} onChange={event => setEnteredPassword(event.target.value)} required /></label>
+      <label>Password amministratore<input autoComplete="current-password" type="password" value={enteredPassword} disabled={busy} onChange={event => setEnteredPassword(event.target.value)} required /></label>
       <button disabled={busy}>{busy ? 'Accesso…' : 'Accedi'}</button>
     </form> : <>
-      <div className="data-admin-toolbar"><p>Connesso · {rows.length} delle ultime 100 misure</p><button type="button" className="quiet-button" onClick={logout}>Esci</button></div>
+      <div className="data-admin-toolbar"><p>Connesso · {rows.length} delle ultime 100 misure</p><div className="data-admin-actions"><button type="button" className="quiet-button" disabled={busy} onClick={() => void reloadRows()}>Aggiorna elenco</button><button type="button" className="quiet-button" disabled={busy} onClick={logout}>Esci</button></div></div>
       <form id="data-form" className="data-admin-form" onSubmit={save}>
         <h2>{editing ? 'Modifica misura' : 'Aggiungi misura'}</h2>
-        <div className="data-admin-fields">
+        <fieldset className="data-admin-fields" disabled={busy}>
           <label>Secondi Arduino<input type="number" min="0" max="9007199254740991" step="any" value={value.arduino_seconds ?? ''} onChange={event => setNumber('arduino_seconds', event.target.value)} required /></label>
           <label>Temperatura (°C)<input type="number" step="any" value={value.temperature_c ?? ''} onChange={event => setNumber('temperature_c', event.target.value)} /></label>
           <label>Umidità (%)<input type="number" step="any" value={value.humidity_pct ?? ''} onChange={event => setNumber('humidity_pct', event.target.value)} /></label>
           <label>Pressione (hPa)<input type="number" step="any" value={value.pressure_hpa ?? ''} onChange={event => setNumber('pressure_hpa', event.target.value)} /></label>
           <label>Data e ora della misura (ora locale)<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
-        </div>
+        </fieldset>
         <p className="data-admin-note">Il contatore è richiesto dal formato attuale del database. Lascia vuoti i valori non disponibili. Una misura inserita a mano viene registrata come storica; l’orario di acquisizione sul PC resta vuoto. Le modifiche ricalcolano i flag qualità e conservano il payload originale; l’audit registra l’ID e l’operazione.</p>
-        <div className="data-admin-actions"><button disabled={busy}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
+        <div className="data-admin-actions"><button disabled={busy}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
       </form>
       <section className="data-admin-list" aria-labelledby="data-list-title">
         <h2 id="data-list-title">Misure recenti</h2>

@@ -350,4 +350,13 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Prova:** nel browser Europe/Rome il campione `2026-10-25T01:30:45.123456+00:00` diventava `2026-10-25T00:30:00.000Z` cambiando soltanto temperatura: persi un’ora, secondi e frazioni.
 - **Impatto:** alto; corruzione temporale durante una modifica non temporale.
 - **Correzione:** campo locale con secondi/millisecondi; istante originale riutilizzato quando la data resta invariata, formato inviato compatibile con ingest v1; date inesistenti nel cambio legale rifiutate nel blocco di errore. L’Edge conserva anche frazioni DB e rappresentazione payload invariati dopo validazione, senza ampliare ingest.
-- **Verifica:** tre test helper, integrazione helper→handler con DST/precisione/rimozione data e prova Chrome superati; `npm run check` superato. Il secondo scenario browser amministrativo relativo al refresh resta distinto (COR-042).
+- **Verifica:** tre test helper, integrazione helper→handler con DST/precisione/rimozione data e prova Chrome superati; `npm run check` superato. Il secondo scenario browser amministrativo relativo al refresh resta distinto (COR-037).
+
+## COR-037 — Scrittura amministrativa riuscita mostrata come fallimento
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/pages/DataAdminPage.tsx`, relativo CSS e `tests/admin-browser.mjs`.
+- **Prova:** POST confermato seguito da GET 503 lasciava il modulo compilato e mostrava un errore generico; ripetere il salvataggio poteva creare una seconda misura. Il test browser falliva prima della correzione.
+- **Impatto:** alto; duplicazioni involontarie e stato dell’interfaccia incoerente.
+- **Correzione:** conferma della scrittura distinta dal ricaricamento; modulo azzerato subito dopo successo, eliminazione rimossa localmente, messaggio di elenco obsoleto e comando “Aggiorna elenco”. Campi, uscita e annullamento disabilitati durante le operazioni; scroll rispetta movimento ridotto.
+- **Verifica:** regressioni Chrome su orario DST e POST riuscito/GET fallito superate, `npm run check` superato. Tutte le operazioni amministrative intercettate, nessuna scrittura remota.
