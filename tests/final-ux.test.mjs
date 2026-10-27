@@ -31,3 +31,21 @@ test('l’orario di acquisizione compare una volta nella sezione, non su ogni sc
   assert.doesNotMatch(app, /className="small metric-source"/)
   assert.match(app, /metricExplanations\[metric\.key\]/)
 })
+
+test('focus evidente e aree di tocco per dettagli, pulsanti e grafici', () => {
+  assert.match(styles, /\.site-shell svg\[tabindex\]:focus-visible \{ outline: 3px solid var\(--mint\)/)
+  assert.match(styles, /\.metric-explanation summary, \.time-details summary, \.forecast-method summary, \.history-table summary/)
+  assert.match(styles, /min-height: 44px; padding-block: 12px/)
+})
+
+test('contrasto dei testi secondari e degli avvisi supera il rapporto WCAG AA 4,5:1', () => {
+  const luminance = (hex) => {
+    const channels = hex.slice(1).match(/../g).map(part => parseInt(part, 16) / 255)
+      .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4)
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+  }
+  const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + 0.05) / (Math.min(luminance(a), luminance(b)) + 0.05)
+  for (const [text, background] of [['#b8b3b0', '#101010'], ['#68625d', '#ffffff'], ['#ee6018', '#171615'], ['#a54017', '#ffffff']]) {
+    assert.ok(contrast(text, background) >= 4.5, `${text} su ${background}`)
+  }
+})

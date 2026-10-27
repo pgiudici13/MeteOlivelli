@@ -223,6 +223,12 @@ button:disabled { cursor: default; opacity: .45; }
   .chart-touch-controls span { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .chart-inspection { min-height: 36px; overflow-wrap: anywhere; }
 }
+/* Tastiera, lettori di schermo e comodità di tocco. Mantiene il marker nativo dei dettagli. */
+.metric-explanation summary, .time-details summary, .forecast-method summary, .history-table summary, .comparison-modes button { min-height: 44px; padding-block: 12px; }
+.site-shell a:focus-visible, .site-shell button:focus-visible, .site-shell input:focus-visible, .site-shell select:focus-visible, .site-shell summary:focus-visible, .site-shell svg[tabindex]:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .instrument-time, .hero-secondary-readings dt, .chart-period-note { font-size: 12px; line-height: 1.5; }
+}
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
   .site-header { grid-template-columns: minmax(0, 1fr) auto; min-height: 0; padding-block: 16px; }
