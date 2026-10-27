@@ -20,3 +20,9 @@ test('cronologia estesa solo su richiesta senza nascondere il download PDF', () 
   assert.match(app, /\{showChronology && <HistoryTable/)
   assert.ok(app.indexOf('downloadHistoryPdf()') < app.indexOf('aria-expanded={showChronology}'))
 })
+
+test('spiegazioni tecniche dei grafici disponibili su richiesta', () => {
+  assert.match(app, /<details className="chart-methodology">/)
+  assert.match(app, /Come leggere i grafici e le medie/)
+  assert.match(app, /09:00 e le 18:00/)
+})

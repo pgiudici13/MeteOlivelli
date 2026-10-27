@@ -453,6 +453,9 @@ button::after, .hero-link::after { padding: 2px; }
 .monthly-extremes h3, .monthly-extremes p { margin: 0; }
 .chronology-toggle { justify-self: start; min-width: 220px; }
 .chronology-toggle[aria-expanded='true'] { border-color: var(--accent); color: var(--text); }
+.chart-methodology { border-top: 1px solid var(--border); padding-top: 12px; color: var(--secondary); font-size: 13px; line-height: 1.65; }
+.chart-methodology summary { color: var(--text); cursor: pointer; padding: 10px 0; min-height: 44px; }
+.chart-methodology p { margin: 8px 0 0; }
 .daily-comparison { border-top: 1px solid var(--border); padding-top: 18px; display: grid; gap: 14px; }
 .daily-comparison h3 { margin: 0; font-size: 19px; }
 .comparison-modes { display: flex; flex-wrap: wrap; gap: 8px; }
