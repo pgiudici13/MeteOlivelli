@@ -152,3 +152,8 @@ Le transizioni della cronologia animano singolarmente fino a dodici righe; oltre
 questa soglia animano il corpo della tabella come gruppo. Durata e numero di
 animazioni restano limitati anche per giornate fitte, mantenendo tutte le righe e
 il rispetto del movimento ridotto.
+
+Gli ingressi della pagina vengono inizializzati dopo che il contenuto lazy è
+pronto dentro Suspense, mantenendo un solo insieme di listener. Il caricamento
+lento dei moduli non salta più la preparazione delle sezioni fuori schermo;
+movimento ridotto e cleanup restano validi.

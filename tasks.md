@@ -669,3 +669,4 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-041: selezione mouse/touch corretta nei grafici con margini SVG; regressione browser e `npm run check` superati.
 - [x] COR-042: durata e numero di animazioni cronologia limitati; prova browser con 300 campioni e `npm run check` superati.
 - [x] COR-043: opt-out sincronizzato fra schede e cookie Google di dominio rimossi; tre regressioni unitari, tre scenari browser e `npm run check` superati.
+- [x] COR-044: ingresso pagine lazy inizializzato dopo Suspense; test chunk ritardato/movimento ridotto e `npm run check` superati.

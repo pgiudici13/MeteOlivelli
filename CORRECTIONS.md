@@ -414,3 +414,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** alto; preferenza salvata applicata solo dopo ricaricamento delle altre schede.
 - **Correzione:** sincronizzazione tramite evento storage, blocco immediato degli invii, aggiornamento UI e cancellazione cookie Google host/domain; listener rimosso allo smontaggio. Default attivo conservato per decisione utente.
 - **Verifica:** tre regressioni unitari e tre scenari browser con schede/cookie inventati e rete esterna bloccata; `npm run check` superato.
+
+## COR-044 — Animazioni delle pagine lazy inizializzate prima del contenuto
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/SiteRoute.tsx`.
+- **Prova:** ritardando di 300 ms il modulo Informazioni, le cinque sezioni Informazioni e le sei Privacy fuori schermo restavano visibili senza observer di ingresso; l’hook era già partito durante il fallback Suspense.
+- **Impatto:** basso; animazioni incoerenti in base alla velocità della rete/cache.
+- **Correzione:** wrapper Motion montato dentro Suspense dopo il contenuto, mantenendo un solo insieme di listener e cleanup.
+- **Verifica:** prova browser con chunk ritardato e movimento ridotto dinamico; `npm run check` superato.
