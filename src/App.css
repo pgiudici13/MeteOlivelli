@@ -399,3 +399,31 @@ button::after, .hero-link::after { padding: 2px; }
 .weather-summary h3 { margin: 0 0 0.75rem; }
 .weather-summary ul { margin: 0 0 0.75rem; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
 .weather-summary .small { margin: 0; }
+
+/* Consultazione a una mano: filtri scorrevoli e valori leggibili su telefoni stretti. */
+@media (max-width: 600px) {
+  .period-picker {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .period-picker button {
+    flex: 0 0 auto;
+    min-width: 92px;
+    min-height: 44px;
+    scroll-snap-align: start;
+  }
+  .chart { padding: 16px; gap: 10px; }
+  .chart svg { touch-action: pan-y; min-height: 180px; }
+  .chart svg text { font-size: 11px; }
+  .chart-value { font-size: 26px; }
+  .chart-statistics { margin-top: 0; font-size: 12px; }
+  .metric-value { min-width: 0; overflow-wrap: anywhere; }
+  .history-table tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .history-table td[data-label="Pressione"] { grid-column: 1 / -1; }
+  .pagination button { min-height: 44px; }
+}
