@@ -68,3 +68,28 @@ export function monthExtremes(days: DayStatistics[], month: string) {
     days: eligible.length,
   }
 }
+
+/** Intervalli di giorni civili italiani; giorni senza misure restano senza peso. */
+export function aggregatePeriod(days: DayStatistics[], start: string, end: string) {
+  const selected = days.filter(day => day.key >= start && day.key <= end)
+  const values: Partial<Record<Metric, MetricStatistics>> = {}
+  for (const metric of metrics) {
+    const samples = selected.map(day => day.metrics[metric.key]).filter((value): value is MetricStatistics => value !== undefined)
+    const count = samples.reduce((sum, value) => sum + value.count, 0)
+    if (!count) continue
+    values[metric.key] = {
+      count,
+      minimum: Math.min(...samples.map(value => value.minimum)),
+      maximum: Math.max(...samples.map(value => value.maximum)),
+      average: samples.reduce((sum, value) => sum + value.average * value.count, 0) / count,
+    }
+  }
+  return { metrics: values, observedDays: selected.length }
+}
+
+export function shiftCivilDay(key: string, offset: number) {
+  const date = new Date(`${key}T12:00:00Z`)
+  if (!Number.isFinite(date.getTime())) throw new Error('Giorno non valido')
+  date.setUTCDate(date.getUTCDate() + offset)
+  return date.toISOString().slice(0, 10)
+}

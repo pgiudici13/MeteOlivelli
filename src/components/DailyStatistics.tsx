@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { collectDailyStatistics, monthExtremes } from '../daily-statistics.ts'
 import { formatTime, formatValue, metrics } from '../weather.ts'
 import type { Measurement } from '../weather.ts'
+import { DailyComparison } from './DailyComparison.tsx'
 
 export function DailyStatistics({ rows, serverUntil, loading, error }: { rows: Measurement[]; serverUntil: string | null; loading: boolean; error: boolean }) {
   const summary = useMemo(() => serverUntil ? collectDailyStatistics(rows, serverUntil) : null, [rows, serverUntil])
@@ -32,6 +33,7 @@ export function DailyStatistics({ rows, serverUntil, loading, error }: { rows: M
         <p>Giornata mediamente più fredda: <strong>{monthly.coldest.label}</strong> · {formatValue(monthly.coldest.metrics.temperature_c!.average)} °C.</p>
         <p className="small">Confronto fra {monthly.days} giornate con campioni validi di temperatura nel mese corrente; le medie non garantiscono osservazioni per l’intera giornata.</p></> : <p className="small">Non sono ancora disponibili giornate confrontabili nel mese corrente.</p>}
     </div>
+    <DailyComparison days={summary?.days ?? []} today={summary?.today ?? null} />
     {error && <p className="small" role="status">Aggiornamento dello storico non riuscito: gli eventuali riepiloghi si basano sui dati precedentemente caricati.</p>}
     <p className="small">Data della misura fisica, se attestata; altrimenti data di acquisizione sul PC. Dati sintetici e valori sospetti esclusi.</p>
   </section>
