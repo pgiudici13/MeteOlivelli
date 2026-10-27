@@ -468,6 +468,17 @@ button::after, .hero-link::after { padding: 2px; }
 .section-jump-nav a:hover, .section-jump-nav a:focus-visible { border-color: var(--accent); background: var(--surface-soft); }
 #latest-title, #forecast-title, #daily-curiosity-title, #history-title, #daily-stats-title, #chronology-title { scroll-margin-top: 24px; }
 @media (max-width: 600px) { .section-jump-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; overscroll-behavior-inline: contain; } .section-jump-nav a, .section-jump-nav span { flex-shrink: 0; } }
+/* Telefoni stretti: nessuna navigazione o azione deve uscire dallo schermo. */
+@media (max-width: 450px) {
+  .site-header { grid-template-columns: minmax(0, 1fr); }
+  .header-actions { align-items: flex-start; }
+  .site-header nav { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; gap: 2px 12px; }
+  .site-header nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+  .theme-toggle { flex-shrink: 0; }
+  .pdf-export-controls button { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; }
+  .chronology-toggle { min-width: 0; width: 100%; }
+  .daily-statistics, .daily-comparison, .comparison-card { min-width: 0; }
+}
 .daily-comparison { border-top: 1px solid var(--border); padding-top: 18px; display: grid; gap: 14px; }
 .daily-comparison h3 { margin: 0; font-size: 19px; }
 .comparison-modes { display: flex; flex-wrap: wrap; gap: 8px; }
