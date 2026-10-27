@@ -217,6 +217,13 @@ button:disabled { cursor: default; opacity: .45; }
   .period-picker button { min-width: 0; flex: 1; padding-inline: 8px; }
   .about-section { margin-top: 40px; padding: 22px; }
 }
+.chart-touch-controls { display: none; }
+@media (max-width: 600px) {
+  .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
+  .chart-touch-controls button { min-width: 0; min-height: 44px; padding: 8px; font-size: 12px; }
+  .chart-touch-controls span { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .chart-inspection { min-height: 36px; overflow-wrap: anywhere; }
+}
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
   .site-header { grid-template-columns: minmax(0, 1fr) auto; min-height: 0; padding-block: 16px; }

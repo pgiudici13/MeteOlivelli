@@ -58,6 +58,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
     })
   }, [seriesKey, period, loading, error])
   const active = selection?.series === seriesKey ? points.find(point => point.id === selection.id) : undefined
+  const activeIndex = active ? points.indexOf(active) : points.length - 1
   function selectPoint(index: number) {
     const point = points[Math.max(0, Math.min(points.length - 1, index))]
     if (point) setSelection(previous => previous?.id === point.id && previous.series === seriesKey ? previous : { id: point.id, series: seriesKey })
@@ -114,6 +115,11 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
         </svg>
       )}
       {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${metric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
+      {points.length > 1 && <div className="chart-touch-controls" role="group" aria-label={`Scorri i valori di ${metric.name}`}>
+        <button type="button" disabled={activeIndex <= 0} onClick={() => selectPoint(activeIndex - 1)} aria-label={`${metric.name}: punto precedente`}>← Precedente</button>
+        <span className="small">{activeIndex + 1} di {points.length}</span>
+        <button type="button" disabled={activeIndex >= points.length - 1} onClick={() => selectPoint(activeIndex + 1)} aria-label={`${metric.name}: punto successivo`}>Successivo →</button>
+      </div>}
       <p className="chart-statistics small">{summary ? `Minimo ${formatValue(summary.minimum)} · massimo ${formatValue(summary.maximum)} · media ${formatValue(summary.average)} ${metric.unit} (${summary.samples} campioni validi)${summary.change === null ? '' : ` · variazione dall’ultimo punto ${summary.change > 0 ? '+' : ''}${formatValue(summary.change)} ${metric.unit}`}` : 'I valori mancanti non vengono interpolati.'}</p>
       <p className="chart-period-note small">{customRange ? 'Intervallo personalizzato · tutti i campioni validi' : period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>

@@ -17,3 +17,11 @@ test('controlli mobili: testata flessibile, bersagli ampi e PDF a tutta larghezz
   assert.match(styles, /\.site-header nav a \{ display: inline-flex; align-items: center; min-height: 44px/)
   assert.match(styles, /\.pdf-export-controls button \{ flex: 1 1 100%/)
 })
+
+test('grafici: navigazione per punti utilizzabile da touch con etichette accessibili', () => {
+  const chart = readFileSync(new URL('../src/components/HistoryChart.tsx', import.meta.url), 'utf8')
+  assert.match(chart, /className="chart-touch-controls" role="group"/)
+  assert.match(chart, /aria-label=\{`\$\{metric\.name\}: punto precedente`\}/)
+  assert.match(chart, /aria-label=\{`\$\{metric\.name\}: punto successivo`\}/)
+  assert.match(styles, /\.chart-touch-controls button \{ min-width: 0; min-height: 44px/)
+})
