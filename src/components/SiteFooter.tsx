@@ -27,7 +27,7 @@ export function SiteFooter() {
     </div>
     <div className="footer-bottom">
       <p>© 2026 Pietro Giudici, Nicholas Borin e Liceo Teresio Olivelli di Pavia.</p>
-      <p>Il codice è distribuito con licenza <a href="/LICENSE">MIT</a>; marchi e logo scolastico restano dei rispettivi titolari.</p>
+      <p>Per il codice è proposta la <a href="/LICENSE">licenza MIT</a>, subordinata all’approvazione dei titolari; marchi e logo scolastico restano dei rispettivi titolari.</p>
       <p>In Home, le ultime misure vengono verificate ogni 15 secondi a pagina visibile.</p>
     </div>
   </footer>

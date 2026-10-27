@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createWeatherFeed, initialWeatherState } from './weather-feed.ts'
-import { readAllHistory } from './weather.ts'
+import { readAllHistory, stationMeasurements } from './weather.ts'
 import type { Measurement, Period } from './weather.ts'
 
 export function useWeather(period: Period, anchorToLatest = false) {
@@ -30,7 +30,7 @@ export function useCompleteHistory(latestId: string | null) {
     const controller = new AbortController()
     let active = true
     void readAllHistory(controller.signal).then(
-      rows => { if (active) setState({ rows, loading: false, error: false, checkedAt: new Date().toISOString() }) },
+      rows => { if (active) setState({ rows: stationMeasurements(rows), loading: false, error: false, checkedAt: new Date().toISOString() }) },
       () => { if (active) setState(previous => ({ ...previous, loading: false, error: true })) },
     )
     return () => { active = false; controller.abort() }

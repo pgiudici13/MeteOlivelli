@@ -2,9 +2,9 @@ import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
+import { historyAnchor, parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, stationMeasurements, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
-import { areAnalyticsEnabled, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
+import { areAnalyticsEnabled, filterAnalyticsEvent, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
@@ -23,6 +23,72 @@ const row = (number = 1, overrides = {}) => ({
 })
 const page = (items = [], next_cursor = null) => ({ items, next_cursor, until: '2026-10-22T12:00:00.000Z', time_basis: 'captured_at' })
 const signal = () => new AbortController().signal
+
+test('dashboard e PDF escludono campioni sintetici e provenienza non specificata', async () => {
+  const live = row(1, { acquisition_kind: 'live' })
+  const historical = row(2, { acquisition_kind: 'historical', captured_at: null })
+  const synthetic = row(3, { acquisition_kind: 'synthetic' })
+  const unknown = row(4)
+  assert.deepEqual(stationMeasurements([live, historical, synthetic, unknown]), [live, historical])
+  let state
+  const feed = createWeatherFeed('24h', value => { state = value }, async params => page(params.get('view') === 'latest' ? [synthetic] : [live, synthetic, unknown]))
+  await feed.refresh()
+  assert.equal(state.latest, null)
+  assert.deepEqual(state.history.map(item => item.ingestion_id), [live.ingestion_id])
+  feed.stop()
+  const reader = async params => params.get('view') === 'latest' ? page([synthetic]) : page([live, synthetic, unknown])
+  const chart = await readFreshChartData('24h', signal(), reader)
+  assert.deepEqual(chart.rows.map(item => item.ingestion_id), [live.ingestion_id])
+  const pdf = await createFreshHistoryPdf(signal(), async () => page([live, historical, synthetic, unknown]), async () => new Blob(['pdf']))
+  assert.deepEqual(pdf.rows.map(item => item.ingestion_id).sort(), [live.ingestion_id, historical.ingestion_id].sort())
+})
+
+test('Auto evita ancoraggi futuri e recupera quando il tempo server raggiunge il campione', async () => {
+  const future = row(1, { acquisition_kind: 'live', captured_at: '2026-10-22T12:00:01.000Z' })
+  let now = '2026-10-22T12:00:00.000Z', state
+  const calls = []
+  const feed = createWeatherFeed('30g', value => { state = value }, async params => {
+    calls.push(new URLSearchParams(params))
+    return { ...page(params.get('view') === 'latest' ? [future] : []), until: params.get('until') ?? now }
+  }, { anchorToLatest: true })
+  await feed.refresh()
+  assert.equal(state.invalidLatestTime, true)
+  assert.equal(state.latest, null)
+  assert.equal(state.historyError, false)
+  assert.equal(calls[1].has('until'), false)
+  now = '2026-10-22T12:00:02.000Z'
+  await feed.refresh()
+  assert.equal(state.invalidLatestTime, false)
+  assert.equal(state.latest.ingestion_id, future.ingestion_id)
+  assert.equal(calls.at(-1).get('until'), future.captured_at)
+  assert.equal(historyAnchor('2026-10-22T12:00:00.000001+00:00', '2026-10-22T12:00:00.000Z'), null)
+  feed.stop()
+})
+
+test('revoca e riattivazione funzionano anche se localStorage non è disponibile', () => {
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const commands = []
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { localStorage: { setItem() { throw new Error('storage') } }, gtag: (...args) => commands.push(args) } })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: { cookie: '' } })
+  const event = { name: 'pageview' }
+  try {
+    setAnalyticsTrackingEnabled(true)
+    assert.equal(filterAnalyticsEvent(event), event)
+    assert.equal(revokeAnalyticsConsent(), false)
+    assert.equal(window['ga-disable-G-F2LRCD93NW'], true)
+    assert.equal(filterAnalyticsEvent(event), null)
+    setAnalyticsTrackingEnabled(true)
+    assert.equal(window['ga-disable-G-F2LRCD93NW'], false)
+    assert.equal(filterAnalyticsEvent(event), event)
+    assert.deepEqual(commands.map(command => command[2].analytics_storage), ['granted', 'denied', 'granted'])
+  } finally {
+    if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
+    else delete globalThis.window
+    if (documentDescriptor) Object.defineProperty(globalThis, 'document', documentDescriptor)
+    else delete globalThis.document
+  }
+})
 
 test('Prova misure: fixture sintetica, completa per 30 giorni e a intervalli CEST di sei ore', () => {
   const contents = readFileSync(new URL('./fixtures/Prova misure.csv', import.meta.url), 'utf8').trimEnd()
@@ -52,11 +118,10 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   assert.match(page, /aria-label="In breve"/)
 })
 
-test('previsioni reali e simulazione sintetica hanno stati e presentazioni separate', () => {
+test('la sezione previsioni presenta soltanto osservazioni fisiche', () => {
   const forecast = readFileSync(new URL('../src/components/ForecastSection.tsx', import.meta.url), 'utf8')
-  assert.match(forecast, /Previsioni meteo reali non disponibili/)
-  assert.match(forecast, /forecast-simulation/)
-  assert.match(forecast, /Mostra simulazione tecnica · dati fittizi, non previsione meteo/)
+  assert.match(forecast, /osservazioni fisiche datate/)
+  assert.doesNotMatch(forecast, /forecast-simulation|dati fittizi|simulazione tecnica/)
   assert.doesNotMatch(forecast, /Stime sperimentali/)
 })
 
@@ -299,7 +364,7 @@ test('PDF cronologia: genera solo dopo aver raccolto tutte le pagine e fissa l�
   const generatedAt = new Date('2026-10-23T12:00:00.000Z')
   const result = await createFreshHistoryPdf(signal(), async () => {
     calls++
-    return calls === 1 ? page([row(2)], 'second-page') : page([row(1)])
+    return calls === 1 ? page([row(2, { acquisition_kind: 'live' })], 'second-page') : page([row(1, { acquisition_kind: 'live' })])
   }, async definition => {
     const table = definition.content.find(item => item.table)?.table.body
     assert.equal(table.length, 3)
@@ -557,7 +622,7 @@ test('formattazione: zero valido, null esplicito e fuso Europe/Rome anche al DST
   assert.equal(formatTime('2026-10-25T01:30:00.000Z', true), '02:30')
 })
 test('polling: storico iniziale, nessun ricaricamento se ultima invariata, nuovo campione senza reload', async () => {
-  let latest = row(1)
+  let latest = row(1, { acquisition_kind: 'live' })
   let historyCalls = 0
   let published
   const feed = createWeatherFeed('24h', state => { published = state }, async params => {
@@ -568,7 +633,7 @@ test('polling: storico iniziale, nessun ricaricamento se ultima invariata, nuovo
   await feed.refresh()
   await feed.refresh()
   assert.equal(historyCalls, 1)
-  latest = row(2)
+  latest = row(2, { acquisition_kind: 'live' })
   await feed.refresh()
   assert.equal(historyCalls, 2)
   assert.equal(published.latest.ingestion_id, latest.ingestion_id)
@@ -580,7 +645,7 @@ test('polling: errore conserva dati e recupero ricarica storico senza duplicati'
   let published
   const feed = createWeatherFeed('24h', state => { published = state }, async () => {
     if (fail) throw new Error('Offline sintetico')
-    return page([row()])
+    return page([row(1, { acquisition_kind: 'live' })])
   })
   await feed.refresh()
   fail = true
@@ -724,7 +789,7 @@ test('7, 14 e 30 giorni mostrano una media al giorno limitata alle 09:00–18:00
 })
 
 test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma da mesi', async () => {
-  const old = row(1, { captured_at: '2026-08-01T10:00:00.000Z' })
+  const old = row(1, { acquisition_kind: 'live', captured_at: '2026-08-01T10:00:00.000Z' })
   let published
   let calls = 0
   const feed = createWeatherFeed('30g', state => { published = state }, async params => {
@@ -743,7 +808,7 @@ test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma d
 
 test('Auto: timestamp PostgreSQL normalizzati, inclusi microsecondi e paginazione', async () => {
   for (const captured of ['2026-08-01T10:00:00+00:00', '2026-08-01T10:00:00.123456+00:00']) {
-    const old = row(1, { captured_at: captured })
+    const old = row(1, { acquisition_kind: 'live', captured_at: captured })
     const anchor = captured.includes('.') ? '2026-08-01T10:00:00.124Z' : '2026-08-01T10:00:00.000Z'
     let published
     let calls = 0

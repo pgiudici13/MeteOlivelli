@@ -1,4 +1,4 @@
-import { readPage, readHistory, trimHistory } from './weather.ts'
+import { historyAnchor, isAfterServerTime, readPage, readHistory, stationMeasurements, trimHistory } from './weather.ts'
 import type { Measurement, PageReader, Period } from './weather.ts'
 
 export interface WeatherState {
@@ -12,9 +12,10 @@ export interface WeatherState {
   historyError: boolean
   checkedAt: number | null
   windowUntil: string | null
+  invalidLatestTime: boolean
 }
 export function initialWeatherState(period: Period, anchorToLatest = false): WeatherState {
-  return { period, anchorToLatest, latest: null, history: [], latestLoaded: false, historyLoaded: false, latestError: false, historyError: false, checkedAt: null, windowUntil: null }
+  return { period, anchorToLatest, latest: null, history: [], latestLoaded: false, historyLoaded: false, latestError: false, historyError: false, checkedAt: null, windowUntil: null, invalidLatestTime: false }
 }
 
 /** Un solo ciclo alla volta; un errore conserva gli ultimi valori e ne segnala lo stato. */
@@ -29,14 +30,11 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
       if (busy || stopped) return
       busy = true
       let historyStarted = false
+      let serverUntil: string | null = null
       const updateHistory = async () => {
         historyStarted = true
         try {
-          const capturedAt = options.anchorToLatest ? state.latest?.captured_at : null
-          // L'API richiede UTC canonico; PostgreSQL può restituire +00:00 e microsecondi.
-          // Arrotondare in alto evita di escludere l'ultimo campione sub-millisecondo.
-          const fraction = capturedAt?.match(/\.(\d+)/)?.[1] ?? ''
-          const anchor = capturedAt ? new Date(Date.parse(capturedAt) + (/[1-9]/.test(fraction.slice(3)) ? 1 : 0)).toISOString() : null
+          const anchor = options.anchorToLatest && serverUntil ? historyAnchor(state.latest?.captured_at, serverUntil) : null
           let windowUntil: string | null = null
           const history = await readHistory(period, controller.signal, async (params, signal) => {
             if (anchor) params.set('until', anchor)
@@ -44,17 +42,20 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
             windowUntil = page.until
             return page
           })
-          state = { ...state, history, windowUntil, historyLoaded: true, historyError: false }
+          state = { ...state, history: stationMeasurements(history), windowUntil, historyLoaded: true, historyError: false }
         } catch { state = { ...state, historyLoaded: true, historyError: true } }
       }
       // Prima apertura: richieste indipendenti in parallelo.
       const historyRequest = !options.anchorToLatest && (!state.historyLoaded || state.historyError) ? updateHistory() : Promise.resolve()
       try {
         const response = await reader(new URLSearchParams({ view: 'latest' }), controller.signal)
+        serverUntil = response.until
         if (response.items.length > 1 || response.next_cursor) throw new Error('Ultima misura incoerente')
-        const latest = response.items[0] ?? null
-        const nextSignature = JSON.stringify(latest)
-        state = { ...state, latest, latestLoaded: true, latestError: false, checkedAt: Date.now() }
+        const candidate = stationMeasurements(response.items)[0] ?? null
+        const invalidLatestTime = Boolean(candidate?.captured_at && isAfterServerTime(candidate.captured_at, response.until))
+        const latest = invalidLatestTime ? null : candidate
+        const nextSignature = JSON.stringify([response.items, invalidLatestTime])
+        state = { ...state, latest, invalidLatestTime, latestLoaded: true, latestError: false, checkedAt: Date.now() }
         if ((nextSignature !== signature || !state.historyLoaded || state.historyError) && !historyStarted) await updateHistory()
         // Anche senza nuovi campioni la finestra deve avanzare, senza nuove letture di serie.
         const windowUntil = options.anchorToLatest ? state.windowUntil ?? response.until : response.until

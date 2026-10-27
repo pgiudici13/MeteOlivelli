@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { inject } from '@vercel/analytics'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import { areAnalyticsEnabled, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent } from '../analytics.ts'
+import { areAnalyticsEnabled, filterAnalyticsEvent, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled } from '../analytics.ts'
 
 export function AnalyticsConsent() {
   const [consent, setConsent] = useState(readAnalyticsConsent)
@@ -11,7 +11,7 @@ export function AnalyticsConsent() {
   useEffect(() => {
     if (areAnalyticsEnabled(consent)) {
       loadGoogleAnalytics()
-      inject()
+      inject({ beforeSend: filterAnalyticsEvent })
     }
   }, [consent])
 
@@ -23,6 +23,7 @@ export function AnalyticsConsent() {
       if (saved) window.location.reload()
       return
     }
+    setAnalyticsTrackingEnabled(true)
     const saved = saveAnalyticsConsent('granted')
     if (!saved) {
       setStorageError(true)
@@ -42,7 +43,7 @@ export function AnalyticsConsent() {
       <div>
         <h2 id="analytics-consent-title">Preferenze statistiche</h2>
         <p id="analytics-consent-description">Google Analytics, Vercel Analytics e Speed Insights sono attivi per impostazione predefinita per misurare in forma aggregata l’uso e le prestazioni di MeteOlivelli. Puoi disattivarli o riattivarli qui in qualsiasi momento. <a href="/privacy">Leggi l’informativa privacy</a>.</p>
-        {storageError && <p role="alert">Non riesco a salvare questa preferenza nel browser. La scelta vale per questa visita; verifica le impostazioni di archiviazione per conservarla anche nelle visite successive.</p>}
+        {storageError && <p role="alert">Non riesco a salvare questa preferenza nel browser. La scelta vale per questa pagina fino al prossimo caricamento; verifica le impostazioni di archiviazione per conservarla.</p>}
       </div>
       <div className="analytics-consent-actions">
         {areAnalyticsEnabled(consent)
@@ -56,6 +57,6 @@ export function AnalyticsConsent() {
           </>}
       </div>
     </section>}
-    {areAnalyticsEnabled(consent) && <SpeedInsights />}
+    {areAnalyticsEnabled(consent) && <SpeedInsights beforeSend={filterAnalyticsEvent} />}
   </>
 }

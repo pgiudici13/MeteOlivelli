@@ -30,13 +30,14 @@ function Value({ row, metric }: { row: Measurement; metric: typeof metrics[numbe
 
 function HistoryTable({ rows }: { rows: Measurement[] }) {
   const tableRef = useRef<HTMLTableElement>(null)
-  const [page, setPage] = useState(0)
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
-  const [nextPage, setNextPage] = useState(0)
+  const [nextDay, setNextDay] = useState<string | null>(null)
   const [direction, setDirection] = useState<'older' | 'newer'>('older')
   const days = groupHistoryByLocalDay([...rows].reverse())
   const pages = days.length
-  const current = Math.min(page, Math.max(0, pages - 1))
+  const selectedIndex = selectedDay === null ? 0 : days.findIndex(day => day.key === selectedDay)
+  const current = Math.max(0, selectedIndex)
   const visibleDay = days[current]
   const visible = visibleDay?.rows ?? []
 
@@ -47,7 +48,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
     const advance = () => {
       if (cancelled) return
       if (transition === 'exiting') {
-        setPage(nextPage)
+        setSelectedDay(nextDay)
         setTransition(media.matches ? 'idle' : 'entering')
       } else setTransition('idle')
     }
@@ -65,16 +66,16 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
       media.removeEventListener('change', onPreference)
       animations.forEach(animation => animation.cancel())
     }
-  }, [nextPage, transition, direction])
+  }, [nextDay, transition, direction])
 
   function changePage(target: number) {
     if (transition !== 'idle' || target < 0 || target >= pages || target === current) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPage(target)
+      setSelectedDay(target === 0 ? null : days[target].key)
       return
     }
     setDirection(target > current ? 'older' : 'newer')
-    setNextPage(target)
+    setNextDay(target === 0 ? null : days[target].key)
     setTransition('exiting')
   }
 
@@ -128,7 +129,7 @@ function App() {
   const historyError = data.historyError
   // Cadenza e ancoraggio non sono ancora verificati, quindi la freschezza resta sconosciuta.
   const freshness = getFreshness(latest, data.checkedAt ?? 0, null)
-  const stationStatus = !data.latestLoaded ? 'Caricamento delle misure…' : data.latestError ? 'Aggiornamento non riuscito' :
+  const stationStatus = !data.latestLoaded ? 'Caricamento delle misure…' : data.invalidLatestTime ? 'Orario dell’ultima acquisizione non valido' : data.latestError ? 'Aggiornamento non riuscito' :
     freshness === 'empty' ? 'Nessuna misura disponibile' : freshness === 'delayed' ? 'Stazione in ritardo' :
       freshness === 'current' ? 'Misure aggiornate' : 'Freschezza non determinabile'
 
@@ -175,7 +176,6 @@ function App() {
       </div>
     </header>
     <main id="contenuto" tabIndex={-1}>
-      <p className="development-notice">Work in progress · Possibili dati presenti fittizi</p>
       <div className="hero">
         <Reveal><section className="intro" aria-labelledby="page-title">
           <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Stazione scolastica</p>
@@ -204,6 +204,7 @@ function App() {
         <div className="section-heading"><div><p className="eyebrow section-index">01 / Osservazioni</p><h2 id="latest-title">Le ultime misure</h2></div>
           <p className="small">{latest ? `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
         </div>
+        {data.invalidLatestTime && <div className="error-message" role="alert">L’ultima acquisizione ha un orario futuro rispetto al server e non viene mostrata. Verificare l’orologio del PC della stazione.</div>}
         {latestError && <div className="error-message" role="alert">Non è stato possibile aggiornare le misure. Riproviamo automaticamente; gli eventuali valori visibili sono dell’ultima lettura riuscita.</div>}
         <div className="metric-grid">{metrics.map(metric => <article key={metric.key} className={`metric-card panel tone-${metric.tone}`}>
           <h3>{metric.name}</h3>

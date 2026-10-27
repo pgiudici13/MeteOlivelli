@@ -14,7 +14,8 @@ const check = async (name, action) => { await action(); results.push({ name, pas
 const attachErrors = page => page.on('pageerror', error => errors.push(error.message))
 const noOverflow = async page => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
 const record = (index, overrides = {}) => ({
-  acquisition_kind: 'synthetic',
+  // Fixture inventata, intercettata localmente, con il contratto della stazione.
+  acquisition_kind: 'live',
   ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   temperature_c: [14.9, 15.5, 16.1, 17, 17.8, 19.4][index] ?? 20.2,
   humidity_pct: [76, 74, 72, 70, 68, 64][index] ?? 62,
@@ -23,7 +24,7 @@ const record = (index, overrides = {}) => ({
   received_at: '2026-10-22T18:00:00.000Z', quality_flags: [], ...overrides,
 })
 const records = Array.from({ length: 6 }, (_, index) => record(index))
-const pageData = (items, basis = 'captured_at') => ({ items, next_cursor: null, until: '2026-10-22T20:00:00.000Z', time_basis: basis })
+const pageData = (items, basis = 'captured_at') => ({ items, next_cursor: null, until: '2026-10-22T23:59:59.000Z', time_basis: basis })
 let latest = records.at(-1)
 let fixtureRows = records
 let failure = false
@@ -54,7 +55,7 @@ try {
     await live.screenshot({ path: `${output}/desktop-empty.png`, fullPage: true })
   })
   await liveContext.close()
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', colorScheme: 'dark' })
   await context.route('**/functions/v1/read-measurements?*', async route => {
     if (waitForResponse) await waitForResponse
     if (failure) return route.abort('internetdisconnected')
@@ -63,7 +64,7 @@ try {
     if (url.searchParams.get('basis') === 'measured_at') return route.fulfill({ json: pageData([], 'measured_at') })
     if (history) historyCalls++
     const items = history ? url.searchParams.get('period') === '7g' ? [] : fixtureRows : [latest]
-    await route.fulfill({ json: pageData(items) })
+    await route.fulfill({ json: { ...pageData(items), until: url.searchParams.get('until') ?? pageData(items).until } })
   })
   const page = await context.newPage()
   attachErrors(page)
@@ -71,6 +72,7 @@ try {
   await check('fixture sintetica: tre grafici, unità e tabella accessibile', async () => {
     await page.goto(base)
     await page.locator('.chart svg').first().waitFor()
+    await page.locator('.history-table tbody tr').first().waitFor()
     assert.equal(await page.locator('.chart-grid .chart svg').count(), 3)
     assert.equal(await page.locator('.history-table tbody tr').count(), 6)
     assert.match(await page.locator('.metric-value').first().textContent(), /19,4/)
@@ -95,10 +97,11 @@ try {
       const auto = await context.newPage()
       await auto.goto(base)
       await auto.locator('.chart-average-label').first().waitFor()
+      await auto.locator('.history-table tbody tr').first().waitFor()
       assert.equal(await auto.locator('.hero-instrument .chart-point').count(), 21)
-      assert.match(await auto.locator('.chart-period-note').first().textContent(), /medie 00–12/)
+      assert.match(await auto.locator('.chart-period-note').first().textContent(), /medie per fascia 00–12/)
       assert.match(await auto.locator('.chart-point title').first().textContent(), /media di/)
-      assert.equal(await auto.locator('.history-table tbody tr').count(), 6)
+      assert.equal(await auto.locator('.history-table tbody tr').count(), 3)
       await auto.close()
     } finally { fixtureRows = originalRows; latest = originalLatest }
   })
@@ -170,7 +173,7 @@ try {
     await page.keyboard.press('Enter')
     await page.getByText('Nessuna misura nel periodo selezionato.', { exact: true }).waitFor()
     assert.equal(await seven.getAttribute('aria-pressed'), 'true')
-    assert.equal(await page.locator('.history-table tbody tr').count(), 0)
+    assert.equal(await page.locator('.history-table tbody tr').count(), 6)
     await page.getByRole('button', { name: '30 giorni', exact: true }).click()
     await page.locator('.chart svg').first().waitFor()
     assert.equal(await page.locator('.history-table tbody tr').count(), 6)

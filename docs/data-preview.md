@@ -1,5 +1,7 @@
 # Campioni di prova — stato al 26 ottobre 2026
 
+> **Aggiornamento locale 27 ottobre:** l’API e i record remoti restano invariati. La dashboard finale locale esclude i campioni `synthetic` e non mostra la simulazione o la postilla; le descrizioni della UI sottostanti sono storiche.
+
 ## Batch aggiunto: dieci campioni recenti ogni tre ore
 
 Il 26 ottobre è stato usato il programma Python `uploader` con la modalità

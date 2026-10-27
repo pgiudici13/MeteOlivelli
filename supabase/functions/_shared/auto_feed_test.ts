@@ -6,6 +6,7 @@ import { parseReadQuery } from '../read-measurements/handler.ts'
 Deno.test('Auto normalizza il timestamp PostgreSQL per il validatore API reale', async () => {
   let published: WeatherState | undefined
   const row = {
+    acquisition_kind: 'live' as const,
     ingestion_id: '12345678-1234-4234-8234-123456789abc',
     temperature_c: 18,
     humidity_pct: 60,

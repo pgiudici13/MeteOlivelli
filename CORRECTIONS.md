@@ -159,7 +159,7 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-014 — GA4 non mostra eventi del sito
 
-- **Stato:** correzione del dataLayer pubblicata in `6059b1d`; deploy Production `READY` il 26 ottobre 2026. La raccolta degli hit resta non verificata.
+- **Stato:** raccolta verificata il 26 ottobre 2026: `page_view` inviato con HTTP 204 e 9 eventi `page_view` nel report Tempo reale. La completezza dei report ordinari e la revoca sulla nuova versione locale restano da verificare dopo un eventuale rilascio.
 - **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
 - **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Tag Assistant, collegato alla pagina Home pubblica in Chrome, trova `G-F2LRCD93NW` e la destinazione corretta ma riporta “Nessun hit è stato inviato da questo tag” e “Consenso non configurato”. Lo stream GA4 mostra il dominio esatto `https://meteolivelli.vercel.app`, l’ID `G-F2LRCD93NW` e nessun dato nelle ultime 48 ore.
 - **Diagnosi:** `loadGoogleAnalytics()` accodava i comandi con `dataLayer.push(args)`, cioè come array, mentre il formato gtag documentato è `dataLayer.push(arguments)`. Dopo la correzione Tag Assistant vede `analytics_storage=Concesso`, i tre consensi pubblicitari negati e la configurazione del tag. Nella stessa sessione non mostra ancora hit `page_view`; il mancato invio può dipendere da rete o protezione del browser e non è stato attribuito con certezza.
@@ -193,3 +193,41 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Problema/prova:** nello screenshot della diagnostica, GA4 segnala zero dati recenti e “domini aggiuntivi”; la configurazione cross-domain contiene già `meteolivelli.vercel.app` e suggerisce tre host specifici di deployment Vercel. La diagnosi del tasso consenso 0% indica tutti i segnali negati.
 - **Correzione locale:** GA4 ora si carica solo sul dominio canonico, così gli URL di deployment non continuano a inviare eventi nello stream di produzione. Non si aggiungono gli host temporanei alle regole cross-domain. Il codice mantiene `ad_user_data` e i segnali pubblicitari negati: il sito non usa personalizzazione Ads e la guida Google specifica che con Consent Mode già attivo non serve un intervento in questo caso.
 - **Verifica:** test locale del gate hostname e della configurazione Consent Mode; `npm run check` e prova `page_view` da browser senza blocchi ancora da completare. I suggerimenti per host che hanno già inviato hit possono restare nella diagnostica finché Google non aggiorna i domini rilevati. Non modificati impostazioni Google Ads, consenso Ads o protezioni browser.
+
+
+## COR-018 — Dati di prova presentati come letture della stazione
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** la Home pubblicata presentava campioni `synthetic` come ultima lettura della stazione, con sola postilla generale; una serie mista poteva combinare sintetici e reali nel grafico 24h.
+- **Correzione:** dashboard, previsioni e PDF ammettono solo `live` e `historical`; escluse anche provenienze assenti. Avviso provvisorio e simulazione rimossi dalla UI su richiesta. Database e API restano invariati.
+- **Verifica:** test mirati su feed, grafici e PDF con provenienze miste; browser locale con API reale e fixture intercettata. Nessun dato fisico o collaudo stazione attestato.
+
+## COR-019 — Acquisizione futura impedisce il caricamento Auto
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** fixture con ora PC futura accettata dal validatore; latest HTTP 200 e richiesta Auto HTTP 400. Grafici indisponibili finché l’ancora resta futura.
+- **Correzione e verifica:** confronto con il tempo API anche a precisione microsecondo; il valore futuro è nascosto con avviso e l’archivio viene letto senza ancora futura. Test di recupero quando il tempo server raggiunge il campione e prove esistenti su microsecondi. Nessuna modifica remota.
+
+## COR-020 — Revoca statistiche con storage indisponibile
+
+- **Stato:** corretto localmente, 27 ottobre 2026; comportamento di rete su produzione dopo deploy non verificato.
+- **Prova e impatto:** con `localStorage` non scrivibile la riattivazione lasciava GA4 negato e gli script Vercel già caricati non ricevevano un filtro di arresto.
+- **Correzione e verifica:** flag di disattivazione GA4, aggiornamento consenso e filtro `beforeSend` condiviso per Web Analytics e Speed Insights. Test delle transizioni con storage che genera errore; in browser locale provate disattivazione persistente e riattivazione. Se lo storage è indisponibile, la scelta vale fino al successivo caricamento.
+
+## COR-021 — Cronologia perde il giorno selezionato
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** aggiungendo un giorno più recente, la stessa posizione numerica individuava una data diversa.
+- **Correzione e verifica:** selezione per data civile con ritorno automatico al più recente quando richiesto; browser con fixture intercettata, data del 23 ottobre mantenuta dopo inserimento di un nuovo giorno.
+
+## COR-022 — Checklist privacy e footer MIT incoerenti
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** la checklist descriveva scadenza a sei mesi e consenso preventivo, mentre il client usa default attivo e opt-out persistente; il footer presentava la licenza come definitiva mentre README e CONTRIBUTING la indicano da approvare.
+- **Correzione e verifica:** checklist allineata al comportamento; footer allineato allo stato della proposta. Nessuna approvazione dei titolari dedotta.
+
+## COR-023 — Asset non referenziati
+
+- **Stato:** corretti localmente, 27 ottobre 2026.
+- **Prova e impatto:** `src/assets/hero.png`, `react.svg`, `vite.svg` e `public/icons.svg` senza riferimenti rilevati nel progetto; file superflui.
+- **Correzione e verifica:** rimossi i quattro asset; build e verifiche frontend richieste.

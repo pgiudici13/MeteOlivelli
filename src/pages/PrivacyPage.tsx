@@ -71,7 +71,7 @@ export function PrivacyPage() {
           <p className="eyebrow section-index">03 / Finalità e scelta</p>
           <h2 id="purposes-title">Servire il sito e misurarne l’uso.</h2>
           <p>I dati tecnici strettamente necessari sono trattati per consegnare le pagine richieste e mantenere sicuro il servizio; per i trattamenti di dati personali connessi a questa finalità, la base giuridica è il legittimo interesse del titolare alla gestione e sicurezza del sito (art. 6, par. 1, lett. f GDPR). Google Analytics, Vercel Web Analytics e Speed Insights si avviano automaticamente secondo la verifica del titolare sulle condizioni applicabili agli strumenti statistici. Puoi disattivarli o riattivarli in qualsiasi momento da “Preferenze statistiche”; la scelta viene registrata nel browser.</p>
-          <p>Se disattivi le statistiche, il sito salva la preferenza, aggiorna lo stato di Google Analytics, elimina i cookie Google accessibili alla pagina e ricarica senza riattivare gli strumenti. La preferenza resta finché non la modifichi o cancelli i dati del sito.</p>
+          <p>Se disattivi le statistiche, il sito arresta gli invii, elimina i cookie Google accessibili alla pagina e, quando la preferenza è salvata, ricarica senza riattivare gli strumenti. La scelta salvata resta finché non la modifichi o cancelli i dati del sito. Se il browser impedisce il salvataggio, la scelta vale fino al prossimo caricamento della pagina.</p>
         </section>
 
         <section className="privacy-block" aria-labelledby="recipients-title">

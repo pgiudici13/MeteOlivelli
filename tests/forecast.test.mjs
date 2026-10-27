@@ -151,16 +151,18 @@ test('feed previsioni: lettura dedicata, cache a input invariati, recupero e sto
   assert.equal(published, before)
 })
 
-test('feed previsioni: i campioni synthetic richiedono lo storico captured_at', async () => {
+test('feed previsioni: non usa campioni synthetic e richiede measured_at', async () => {
   const rows = series(241, 3 * hour).map(row => ({ ...row, acquisition_kind: 'synthetic', measured_at: null }))
   const bases = []
-  const feed = createForecastFeed(() => {}, async (input, now) => buildForecast(input, now), async params => {
+  let computed
+  const feed = createForecastFeed(() => {}, async (input, now) => { computed = input; return buildForecast(input, now) }, async params => {
     const latest = params.get('view') === 'latest'
     if (!latest) bases.push(params.get('basis'))
-    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: latest ? 'captured_at' : 'captured_at' }
+    return { items: latest ? [rows.at(-1)] : [], next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: latest ? 'captured_at' : 'measured_at' }
   })
   await feed.refresh()
-  assert.deepEqual(bases, ['captured_at'])
+  assert.deepEqual(bases, ['measured_at'])
+  assert.deepEqual(computed, [])
   feed.stop()
 })
 

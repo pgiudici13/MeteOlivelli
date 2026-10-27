@@ -4,7 +4,6 @@ import { formatTime, formatValue, metrics } from '../weather.ts'
 
 export function ForecastSection() {
   const forecast = useForecast()
-  const synthetic = forecast.run?.dataKind === 'synthetic'
   const forecastCards = (forecast.run?.horizons ?? horizons).map((horizon, index) => {
     const result = forecast.run?.horizons[index]
     return <article className="forecast-card" key={horizon.hours}>
@@ -22,7 +21,7 @@ export function ForecastSection() {
               <p>{estimate.method && methodNames[estimate.method]}.</p>
               <p>Errore medio assoluto: {formatValue(estimate.mae)} {metric.unit}, su {estimate.cases} confronti successivi alla selezione del metodo. Riferimento “ultimo valore”: {formatValue(estimate.baselineMae)} {metric.unit}.</p>
               <p>È un errore storico, non una garanzia o una probabilità di riuscita.</p>
-              <p>{synthetic ? 'Ultimo orario di scenario' : 'Ultima misura fisica'}: {formatTime(estimate.origin)}. Previsione valida fino alle {formatTime(estimate.validUntil, true)}; può scadere prima dell’orario previsto se non arrivano nuove misure.</p>
+              <p>Ultima misura fisica: {formatTime(estimate.origin)}. Previsione valida fino alle {formatTime(estimate.validUntil, true)}; può scadere prima dell’orario previsto se non arrivano nuove misure.</p>
             </details>
           </> : <>
             <span className="forecast-unavailable">{!forecast.loaded ? 'Valutazione in corso…' : 'Previsione non disponibile'}</span>
@@ -35,14 +34,14 @@ export function ForecastSection() {
   return <section className="panel forecast-section" aria-labelledby="forecast-title" aria-busy={!forecast.loaded}>
     <p className="eyebrow section-index">04 / Previsioni meteo</p>
     <h2 id="forecast-title">Previsioni meteo MeteOlivelli</h2>
-    <p className="secondary">Temperatura, umidità e pressione sono mostrate separatamente. I valori ricavati da campioni fittizi sono simulazioni e non descrivono il meteo reale della stazione.</p>
+    <p className="secondary">Le previsioni di temperatura, umidità e pressione sono mostrate separatamente dalle osservazioni della stazione.</p>
     <p className="small">La previsione a 24 ore indica il valore atteso tra 24 ore, non le massime e minime del giorno. Questo modello non prevede sole, pioggia o altri fenomeni atmosferici.</p>
-    <div role="status" className="small">{!forecast.loaded ? 'Valutazione dello storico…' : forecast.error ? 'Lettura o calcolo non riusciti. Nuovo tentativo automatico.' : synthetic ? 'Previsioni meteo reali non disponibili: l’archivio contiene soltanto campioni fittizi senza orari di misura fisica.' : 'Le previsioni della stazione richiedono osservazioni fisiche datate e uno storico verificabile. I dati fittizi e gli orari di sola acquisizione sul PC sono esclusi.'}</div>
-    {synthetic ? <details className="forecast-simulation"><summary>Mostra simulazione tecnica · dati fittizi, non previsione meteo</summary><div className="forecast-grid">{forecastCards}</div></details> : <div className="forecast-grid">{forecastCards}</div>}
+    <div role="status" className="small">{!forecast.loaded ? 'Valutazione dello storico…' : forecast.error ? 'Lettura o calcolo non riusciti. Nuovo tentativo automatico.' : 'Le previsioni della stazione richiedono osservazioni fisiche datate e uno storico verificabile. Gli orari di sola acquisizione sul PC non sono sufficienti.'}</div>
+    <div className="forecast-grid">{forecastCards}</div>
     <details className="forecast-method"><summary>Come vengono calcolate le previsioni</summary>
       <p>Il modello confronta ultimo valore, tendenza recente smorzata e ciclo di 24 ore corretto. Selezione e verifica usano periodi separati: nessun dato futuro viene usato per calcolare una previsione passata. Ogni grandezza e orizzonte ha una propria verifica.</p>
-      <p>Campioni mancanti, sospetti o troppo vecchi non producono numeri sostitutivi. L’ultimo valore è usato come riferimento: se nessun metodo lo supera nel periodo di selezione, il modello ritira il risultato invece di ripetere la misura come previsione. La simulazione usa solo campioni fittizi e orizzonti compatibili con la loro cadenza; non va interpretata come previsione della stazione o bollettino meteo. Uno storico insufficiente o un modello che peggiora rispetto al riferimento resta non disponibile.</p>
-      {forecast.run && <p>Versione: {forecast.run.version}. Valutazione: {formatTime(forecast.run.generatedAt)} · {forecast.run.inputCount} {forecast.run.dataKind === 'synthetic' ? 'campioni fittizi di scenario' : 'osservazioni fisiche datate'} considerati. Fonte: {forecast.run.dataKind === 'synthetic' ? 'simulazione locale' : 'stazione MeteOlivelli'}.</p>}
+      <p>Campioni mancanti, sospetti o troppo vecchi non producono numeri sostitutivi. L’ultimo valore è usato come riferimento: se nessun metodo lo supera nel periodo di selezione, il modello ritira il risultato invece di ripetere la misura come previsione. Uno storico insufficiente o un modello che peggiora rispetto al riferimento resta non disponibile.</p>
+      {forecast.run && <p>Versione: {forecast.run.version}. Valutazione: {formatTime(forecast.run.generatedAt)} · {forecast.run.inputCount} osservazioni fisiche datate considerate. Fonte: stazione MeteOlivelli.</p>}
     </details>
   </section>
 }

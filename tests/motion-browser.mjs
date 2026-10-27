@@ -11,7 +11,7 @@ const results = []
 const errors = []
 const check = async (name, run) => { await run(); results.push({ name, passed: true }); console.log(`OK ${name}`) }
 const rows = Array.from({ length: 12 }, (_, index) => ({
-  acquisition_kind: 'synthetic', ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  acquisition_kind: 'live', ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   captured_at: new Date(Date.UTC(2026, 9, 22 + Math.floor(index / 6), index % 6)).toISOString(), measured_at: null,
   received_at: '2026-10-23T12:00:00.000Z', temperature_c: 15 + index / 2,
   humidity_pct: 60 + index, pressure_hpa: 1010 + index, quality_flags: [],
@@ -67,12 +67,12 @@ try {
     const next = page.getByRole('button', { name: 'Precedenti', exact: true })
     await next.click()
     await page.waitForFunction(() => document.querySelector('.history-table-wrap')?.getAttribute('aria-busy') === 'false')
-    assert.match(await page.locator('.pagination').textContent(), /Pagina 2 di 2/)
+    assert.match(await page.locator('.pagination').textContent(), /Giorno 2 di 2/)
     const previous = page.getByRole('button', { name: 'Più recenti', exact: true })
     await previous.click()
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.waitForFunction(() => document.querySelector('.history-table-wrap')?.getAttribute('aria-busy') === 'false')
-    assert.match(await page.locator('.pagination').textContent(), /Pagina 1 di 2/)
+    assert.match(await page.locator('.pagination').textContent(), /Giorno 1 di 2/)
     assert.equal(await page.locator('.history-table tbody tr').first().evaluate(el => getComputedStyle(el).opacity), '1')
   })
   await check('tutte le pagine, entrambi i temi e reflow 320/390/1280 px', async () => {

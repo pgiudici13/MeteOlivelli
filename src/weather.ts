@@ -25,6 +25,26 @@ export interface ReadPage {
   until: string
   time_basis: 'captured_at' | 'measured_at'
 }
+/** La dashboard finale mostra solo campioni con provenienza della stazione esplicita. */
+export function stationMeasurements(rows: Measurement[]): Measurement[] {
+  return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
+}
+
+export function isAfterServerTime(value: string, serverUntil: string): boolean {
+  const key = (time: string) => time.replace(/\+00:00$/, 'Z')
+    .replace(/(?:\.(\d{1,6}))?Z$/, (_, fraction: string = '') => `.${fraction.padEnd(6, '0')}Z`)
+  return key(value) > key(serverUntil)
+}
+
+/** L'ancoraggio non può superare il tempo del server, neppure per arrotondamento. */
+export function historyAnchor(capturedAt: string | null | undefined, serverUntil: string): string | null {
+  if (!capturedAt) return null
+  const time = Date.parse(capturedAt)
+  const serverTime = Date.parse(serverUntil)
+  if (!Number.isFinite(time) || !Number.isFinite(serverTime) || isAfterServerTime(capturedAt, serverUntil)) return null
+  const fraction = capturedAt.match(/\.(\d+)/)?.[1] ?? ''
+  return new Date(Math.min(serverTime, time + (/[1-9]/.test(fraction.slice(3)) ? 1 : 0))).toISOString()
+}
 export const metrics = [
   { key: 'temperature_c', name: 'Temperatura', unit: '°C', tone: 'mint' },
   { key: 'humidity_pct', name: 'Umidità', unit: '%', tone: 'blue' },

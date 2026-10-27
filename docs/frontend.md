@@ -1,4 +1,12 @@
-# Frontend — stato e verifiche locali al 26 ottobre 2026
+# Frontend — stato e verifiche
+
+## Aggiornamento locale — 27 ottobre 2026
+
+La dashboard, le previsioni e i PDF mostrano solo campioni con provenienza esplicita `live` o `historical`: `synthetic` e provenienza non specificata sono esclusi, senza cancellare i dati dal backend. La simulazione pubblica e la postilla provvisoria sono rimosse localmente. L’API remota può ancora restituire i campioni di prova; finché sono gli unici presenti, la dashboard locale mostra gli stati vuoti. Una acquisizione futura rispetto al server non è mostrata, produce un avviso e non blocca i grafici; la cronologia conserva il giorno selezionato quando arrivano altri giorni.
+
+Con storage indisponibile la revoca applica il flag di disabilitazione Google e filtra gli invii Vercel già caricati; la riattivazione ripristina i segnali nella pagina corrente. La preferenza non salvabile non persiste al caricamento successivo. I paragrafi successivi sono verbali storici se descrivono postilla, simulazione o funzionamento precedente. Nessun deploy eseguito.
+
+Il 26 ottobre Tempo reale GA4 mostrava 2 utenti e 9 `page_view` negli ultimi 30 minuti; la richiesta di raccolta ha ricevuto HTTP 204. I report ordinari restavano a zero nel periodo precedente.
 
 ## Preferenze statistiche e privacy — comportamento locale aggiornato il 26 ottobre 2026
 

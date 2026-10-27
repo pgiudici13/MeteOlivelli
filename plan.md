@@ -1,5 +1,7 @@
 # Piano di progetto — MeteOlivelli
 
+> **Decisione del 27 ottobre 2026, implementazione locale:** per la versione finale l’utente chiede di rimuovere l’avviso provvisorio e i riferimenti ai dati fittizi dalla UI. La dashboard, i PDF e le previsioni escludono campioni `synthetic` o con provenienza assente; il database e l’API remoti non sono stati modificati. Con l’ultimo archivio documentato la dashboard locale è vuota fino all’arrivo di misure della stazione. I paragrafi e verbali precedenti sulla simulazione pubblica descrivono la versione storica.
+
 > **Aggiornamento — 23 ottobre 2026:** quiz `/gioca` pubblicato su `main`: 10 domande casuali da 20, opzioni rimescolate, spiegazioni per ogni risposta, ripple localizzato sul pulsante e barra di avanzamento lineare; movimento ridotto rispettato.
 
 > **Stato più recente — 26 ottobre 2026:** COR-010 (provenienza nei PDF) e COR-014 (tracker Analytics attivi per default, opt-out persistente e `page_view` singolo) corretti e pushati nel commit `775c248`; Vercel Production è `READY`. L’utente dichiara verificate le condizioni applicabili. Aggiunti tramite uploader Python 10 record sintetici ogni tre ore; Supabase verifica 251 righe totali, tutte le nuove sintetiche e nessuna live. Ricezione GA4 e disattivazione effettiva restano da verificare live; nessuna impostazione remota Google modificata.

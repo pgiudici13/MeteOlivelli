@@ -46,7 +46,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
           paddingBottom: () => 4,
         },
       },
-      { text: 'Gli orari di acquisizione sul PC, della misura fisica e della ricezione server sono distinti. “—” indica un orario o valore assente. † indica un valore segnalato dal controllo qualità come probabile errato. I campioni senza ora di acquisizione sono ordinati per ricezione, riportata separatamente. SINTETICO identifica dati dimostrativi e non osservazioni della stazione.', style: 'footnote', margin: [0, 8, 0, 0] },
+      { text: 'Gli orari di acquisizione sul PC, della misura fisica e della ricezione server sono distinti. “—” indica un orario o valore assente. † indica un valore segnalato dal controllo qualità come probabile errato. I campioni senza ora di acquisizione sono ordinati per ricezione, riportata separatamente.', style: 'footnote', margin: [0, 8, 0, 0] },
     ],
     styles: {
       title: { fontSize: 16, bold: true },

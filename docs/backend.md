@@ -1,5 +1,7 @@
 # Backend: setup locale e controllo dati
 
+> **Aggiornamento locale 27 ottobre 2026:** il feed previsionale pubblico richiede `measured_at` ed esclude i campioni sintetici; la modalità di simulazione rimane soltanto nel motore e nei test isolati. La UI e i PDF escludono anche le righe senza provenienza esplicita. Il contratto e l’API remoti non sono stati modificati. Le descrizioni precedenti della simulazione pubblica sono storiche.
+
 > **Aggiornamento 24 ottobre:** tipo applicativo `synthetic` distinto; batch pubblico corrente di 241 campioni amministrativi ogni tre ore, in sostituzione dei record presenti; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti agli aggiornamenti sintetici.
 
 ## Cosa è pronto
