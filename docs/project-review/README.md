@@ -4,7 +4,7 @@
 
 Checkout analizzato: `6e5f197`, directory di lavoro inizialmente pulita. Confronto prioritario `93ddb98..6e5f197`: 69 commit raggiungibili, 68 attribuiti a Nickybo e uno a Pietro, merge inclusi. L'attribuzione è quella dei metadati Git, non una deduzione sull'identità di chi ha scritto ogni riga. Il range comprende quiz, Informazioni, cronologia completa e PDF; la modifica di Pietro `c43f62a` è stata considerata nel confronto.
 
-Esito dell’audit iniziale: **quattro difetti applicativi verificati**, più incoerenze documentali corrette (COR-013). Successivamente, su richiesta utente, COR-009, COR-011 e COR-012 sono stati corretti localmente; COR-010 è escluso dall’intervento. [Esiti delle correzioni](#correzioni-locali-successive-alla-revisione). I paragrafi seguenti conservano le prove dei difetti originari. Nessun dato remoto, schema o cronologia Git modificato. Non è una certificazione di assenza di altri difetti o vulnerabilità.
+Esito dell’audit iniziale: **quattro difetti applicativi verificati**, più incoerenze documentali corrette (COR-013). Successivamente, su richiesta utente, COR-009–COR-012 sono stati corretti localmente; le prove originali restano nei paragrafi seguenti. Nessuno schema o cronologia Git è stato modificato. Non è una certificazione di assenza di altri difetti o vulnerabilità.
 
 | ID | Priorità | Problema verificato | Introduzione / area |
 |---|---|---|---|
@@ -87,13 +87,15 @@ Restano i limiti già documentati: CSV/writer e timestamp reali, installazione W
 
 ## Correzioni locali successive alla revisione
 
-Richiesta utente: sistemare tutti i difetti eccetto la provenienza sintetica dei PDF grafici; i sintetici non saranno più usati e verranno cancellati in seguito secondo quanto dichiarato dall’utente. **COR-010 resta invariato, senza dichiararlo risolto. Nessun record cancellato.** Le fixture delle verifiche restano soltanto dati di collaudo.
+Richiesta del 23 ottobre: sistemare i difetti eccetto la provenienza sintetica nei PDF grafici; decisione poi superata il 26 ottobre dalla richiesta di correggere tutti i problemi. COR-010 è stato corretto localmente in quella data; nessun record cancellato. Le fixture delle verifiche restano soltanto dati di collaudo.
 
 | Problema | Correzione locale | Prova |
 |---|---|---|
 | COR-009 | Il cursore conserva fino a sei decimali, valida calendario/confini senza arrotondare e accetta i vecchi cursori a tre decimali. Tabella e PDF ordinano i microsecondi prima degli UUID | 1.201 record nello stesso microsecondo, tre pagine, tutti gli UUID recuperati; confini sub-millisecondo e date invalide; test Node su ordine di timestamp distinti nello stesso millisecondo |
 | COR-011 | Rilettura al cambio dell’ultimo UUID, ritorno visibile e online; pulsante manuale per importazioni storiche e data dello snapshot. Dati e pagina mantenuti in aggiornamento/errore, richieste superate annullate | 10 controlli Chrome su build locale, API intercettata: novità, polling invariato senza riletture integrali, import manuale, errore/recupero, online, visibilità e reflow 320/390/1280 px |
 | COR-012 | Colonne dei valori flessibili, orari ridimensionati entro A4 | Test sul layout PDF reale multipagina; 300 fixture su 16 pagine con null, pressione lunga e CET/CEST. Bordo massimo 813,39 pt entro il limite utile 813,89 pt; testo nei margini, intestazioni e ultima riga presenti |
+| COR-010 | Ogni grafico PDF dichiara provenienza effettiva, con conteggi aggregati per origine | Test dei casi sintetico/storico/misto e delle modalità; generazione PDF. Nessuna estrazione/rendering di tutte le varianti |
+| COR-014 | Tracker attivi per default, opt-out persistente, GA4 con ads storage negato e `page_view` esplicito singolo | Test unitari di stato/coda/URL. Ricezione live e stop end-to-end non verificati |
 
 `npm run check` finale: build/lint, **74 test frontend, 46 Deno e 23 Python** superati. Rimane il warning SQLite nei test già annotato; nessun guasto runtime attribuito a tale avviso. Non è stato eseguito un test SQL su PostgreSQL: la regressione del cursore usa handler/lettore reali e confronto SQL simulato con precisione esatta. Non cambiano query o schema: nessuna migrazione necessaria.
 
@@ -105,4 +107,4 @@ node tests/complete-history-browser.mjs /percorso/playwright/index.mjs /percorso
 
 La cronologia non viene riscaricata interamente a ogni polling invariato. Importazioni che non cambiano latest sono riconciliate dal comando manuale e al ritorno visibile/online. La data di rilettura usa l’orologio del browser, non certifica il tempo della misura né la freschezza della stazione.
 
-Le correzioni sono locali: per la produzione occorrono pubblicazione frontend e deploy di `read-measurements`, non eseguiti in questa sessione. Nessun commit/push, cambiamento di servizi, nuovo inserimento o cancellazione dati. I collaudi reali, UI-02, backup/restore e validazione WX restano aperti.
+Al momento della verifica descritta qui, le correzioni erano locali e non avevano comportato commit, push, nuove righe o cancellazioni. Successivamente, il commit `775c248` è stato pubblicato su `main` e il deploy Production risulta `READY`; il batch di dieci campioni sintetici è documentato in [data-preview](../data-preview.md) ed è stato aggiunto senza sovrascrivere record. Ricezione GA4/disattivazione end-to-end, collaudi reali, UI-02, backup/restore e validazione WX restano aperti.

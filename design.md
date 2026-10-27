@@ -41,7 +41,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 
 - Canvas caldo `#101010`, pannello temperatura e schede scuri `#171615`, testo `#eeeeee`, bordi sottili `#3d3a39`. Superfici piatte senza vetro, sfocatura o ombre.
 - Inter variabile locale con licenza già presente, peso 400 per i titoli, tracking stretto; didascalie monospaziate di sistema. Nessun font scaricato o dipendenza aggiunta.
-- Marchio `MO.` con dimensione ereditata da “MeteOlivelli” e separatore verticale decorativo.
+- Marchio MeteOlivelli: sole delineato con raggi alternati, derivato dal favicon originale e rifinito per la lettura a dimensione ridotta. Varianti coordinate in oro su antracite per dark mode e antracite/oro su avorio per clear mode; intestazione e favicon seguono il tema attivo. Il logo ufficiale del Liceo resta separato e invariato.
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Postilla visibile sopra il contenuto: “Work in progress · Possibili dati presenti fittizi”. Rimane fuori dalle animazioni. [Dati pubblici di prova e vincoli](docs/data-preview.md).
@@ -106,7 +106,11 @@ La palette scura resta disponibile come variante. Il tema iniziale segue `prefer
 
 ## Logo del Liceo Olivelli — 23 ottobre 2026
 
-Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer di Home e Informazioni. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+Il logo trasparente fornito dall’utente compare al centro della barra superiore fra il marchio MeteOlivelli e le azioni di navigazione, e nel footer comune alle quattro pagine. Il link apre il sito ufficiale del liceo in una nuova scheda e annuncia questo comportamento alle tecnologie assistive. Non ha un riquadro di sfondo; nel tema scuro l’immagine viene schiarita per mantenere leggibile il testo blu. Su schermi fino a 760 px il marchio, il logo e le azioni occupano righe distinte; dimensioni fluide e footer avvolgibile evitano overflow.
+
+### Footer completo — 26 ottobre 2026
+
+Il footer condiviso riunisce nome e descrizione del progetto, autori e scuola, collegamenti a Home/Informazioni/Gioca/Privacy, link al sito ufficiale e alla licenza MIT. Include anche il contesto dell’aggiornamento dati, specificando che la verifica ogni 15 secondi avviene in Home mentre la pagina è visibile. Su desktop le informazioni sono disposte in tre colonne; a 760 px passano a due colonne e a 450 px a una colonna. Il logo scolastico mantiene le proprie proporzioni e si adatta al tema.
 
 ## Paginazione della cronologia — 23 ottobre 2026
 

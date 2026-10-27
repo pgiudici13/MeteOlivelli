@@ -1,4 +1,5 @@
 import { prepareChart } from './chart.ts'
+import type { ChartSource } from './chart.ts'
 import { formatValue, metrics } from './weather.ts'
 import type { ChartMode, Measurement, Metric } from './weather.ts'
 
@@ -16,6 +17,7 @@ export interface PdfChart {
   pointCount: number
   sampleCount: number
   averaged: boolean
+  provenance: string
 }
 
 export function buildPdfChart(rows: Measurement[], field: Metric, mode: ChartMode, until: string): PdfChart {
@@ -24,6 +26,18 @@ export function buildPdfChart(rows: Measurement[], field: Metric, mode: ChartMod
   if (!metric) throw new Error('Grandezza non valida')
   const prepared = prepareChart(rows, field, mode, until)
   const points = prepared.segments.flat()
+  const sources = points.reduce<Record<ChartSource, number>>((total, point) => {
+    for (const source of Object.keys(total) as ChartSource[]) total[source] += point.sources[source]
+    return total
+  }, { live: 0, historical: 0, synthetic: 0, unknown: 0 })
+  const hasStation = sources.live + sources.historical > 0
+  const hasSynthetic = sources.synthetic > 0
+  const hasUnknown = sources.unknown > 0
+  const provenance = !points.length ? 'Nessuna serie tracciata' : [
+    ...(hasStation ? [`stazione${sources.live && sources.historical ? ' (live e storico)' : sources.live ? ' (live)' : ' (storico)'}`] : []),
+    ...(hasSynthetic ? ['sintetica'] : []),
+    ...(hasUnknown ? ['origine non specificata'] : []),
+  ].join(' e ')
   const values = points.map(point => point.value)
   const minimum = values.length ? Math.min(...values) : null
   const maximum = values.length ? Math.max(...values) : null
@@ -53,5 +67,5 @@ export function buildPdfChart(rows: Measurement[], field: Metric, mode: ChartMod
   }).join('')
   const periodLabel = mode === 'auto' ? 'Auto' : mode === '24h' ? '24 ore' : mode === '7g' ? '7 giorni' : mode === '14g' ? '14 giorni' : '30 giorni'
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" fill="#FFFFFF"/><text x="${plot.left}" y="15" font-family="Roboto, sans-serif" font-size="13" fill="#68625D">${xml(metric.name)} · ${xml(metric.unit)} · ${xml(periodLabel)}</text>${vertical}${horizontal}${series}<text x="${plot.left}" y="${height - 4}" font-size="11" fill="#68625D">${xml(prepared.timeline.startLabel)}</text><text x="${plot.left + plot.width}" y="${height - 4}" text-anchor="end" font-size="11" fill="#68625D">${xml(prepared.timeline.endLabel)}</text></svg>`
-  return { svg, metric, note: prepared.note, minimum, maximum, pointCount: points.length, sampleCount: points.reduce((sum, point) => sum + point.count, 0), averaged: prepared.averaged }
+  return { svg, metric, note: prepared.note, minimum, maximum, pointCount: points.length, sampleCount: points.reduce((sum, point) => sum + point.count, 0), averaged: prepared.averaged, provenance }
 }

@@ -1,30 +1,23 @@
 const measurementId = 'G-F2LRCD93NW'
 const consentKey = 'meteolivelli-analytics-consent'
+const publicHostname = 'meteolivelli.vercel.app'
 
-function consentExpired(decidedAt: number, now: number) {
-  const decisionDate = new Date(decidedAt)
-  const expiry = new Date(decisionDate)
-  const day = decisionDate.getDate()
-  expiry.setDate(1)
-  expiry.setMonth(expiry.getMonth() + 6)
-  const lastDay = new Date(expiry.getFullYear(), expiry.getMonth() + 1, 0).getDate()
-  expiry.setDate(Math.min(day, lastDay))
-  return now >= expiry.getTime()
+export function isGoogleAnalyticsHost(hostname: string) {
+  return hostname === publicHostname
 }
 
 export type AnalyticsConsent = 'granted' | 'denied' | null
+
+export function areAnalyticsEnabled(consent: AnalyticsConsent) {
+  return consent !== 'denied'
+}
 
 export function readAnalyticsConsent(): AnalyticsConsent {
   try {
     const stored = window.localStorage.getItem(consentKey)
     if (!stored) return null
-    const choice = JSON.parse(stored) as { value?: unknown; decidedAt?: unknown }
-    if ((choice.value !== 'granted' && choice.value !== 'denied') || typeof choice.decidedAt !== 'number') {
-      window.localStorage.removeItem(consentKey)
-      return null
-    }
-    const now = Date.now()
-    if (consentExpired(choice.decidedAt, now) || choice.decidedAt > now) {
+    const choice = JSON.parse(stored) as { value?: unknown }
+    if (choice.value !== 'granted' && choice.value !== 'denied') {
       window.localStorage.removeItem(consentKey)
       return null
     }
@@ -39,20 +32,39 @@ export function saveAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
     window.localStorage.setItem(consentKey, JSON.stringify({ value: consent, decidedAt: Date.now() }))
     return true
   } catch {
-    // Senza una scelta persistibile il tag non viene caricato.
+    // Il comportamento predefinito resta attivo; la scelta vale per la sessione corrente.
     return false
   }
 }
 
 export function loadGoogleAnalytics() {
+  // Le URL di deploy Vercel sono anteprime/versioni tecniche, non host pubblici
+  // del sito: non inviare da lì hit al flusso GA4 di produzione.
+  if (!isGoogleAnalyticsHost(window.location.hostname)) return
   if (document.querySelector(`script[data-google-analytics="${measurementId}"]`)) return
 
   window.dataLayer = window.dataLayer || []
-  window.gtag = function gtag(...args: unknown[]) { window.dataLayer?.push(args) }
+  window.gtag = function gtag() {
+    // gtag.js elabora l'oggetto Arguments; un array di rest non è equivalente.
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer?.push(arguments)
+  }
+  window.gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+  })
   window.gtag('js', new Date())
   window.gtag('config', measurementId, {
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
+    send_page_view: false,
+  })
+  window.gtag('event', 'page_view', {
+    page_title: document.title,
+    page_location: window.location.href,
+    page_path: window.location.pathname,
   })
 
   const script = document.createElement('script')
@@ -63,15 +75,7 @@ export function loadGoogleAnalytics() {
 }
 
 export function revokeAnalyticsConsent() {
-  let saved = saveAnalyticsConsent('denied')
-  if (!saved) {
-    try {
-      window.localStorage.removeItem(consentKey)
-      saved = true
-    } catch {
-      saved = false
-    }
-  }
+  const saved = saveAnalyticsConsent('denied')
   window.gtag?.('consent', 'update', { analytics_storage: 'denied' })
   for (const cookie of document.cookie.split(';')) {
     const name = cookie.split('=', 1)[0]?.trim()
@@ -82,7 +86,7 @@ export function revokeAnalyticsConsent() {
 
 declare global {
   interface Window {
-    dataLayer?: unknown[][]
+    dataLayer?: unknown[]
     gtag?: (...args: unknown[]) => void
   }
 }

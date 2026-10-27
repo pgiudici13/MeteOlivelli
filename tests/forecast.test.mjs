@@ -31,8 +31,11 @@ test('previsioni: la simulazione usa captured_at, resta distinta e propone orizz
   assert.equal(run.dataKind, 'synthetic')
   assert.ok(run.inputCount >= 240)
   assert.deepEqual(run.horizons.map(item => item.hours), [3, 6, 24])
-  assert.ok(run.horizons.every(h => h.estimates.every(e => e.value !== null)))
-  assert.ok(run.horizons.every(h => h.estimates.every(e => e.target && e.origin)))
+  assert.deepEqual(run.horizons.slice(0, 2).map(h => h.estimates[0].value), [17.82842712474619, 19])
+  assert.equal(run.horizons[2].estimates[0].value, null)
+  assert.match(run.horizons[2].estimates[0].reason, /miglioramento rispetto all’ultimo valore/)
+  assert.ok(run.horizons.every(h => h.estimates.slice(1).every(e => e.value === null && /miglioramento/.test(e.reason))))
+  assert.ok(run.horizons.slice(0, 2).every(h => h.estimates[0].target && h.estimates[0].origin))
 })
 test('previsioni fisiche: date PC e provenienza ignota non alimentano il modello', () => {
   for (const transform of [row => ({ ...row, measured_at: null }), row => ({ ...row, acquisition_kind: undefined })]) {
@@ -51,18 +54,18 @@ test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato se
   assert.ok(temperature.mae < temperature.baselineMae)
   assert.ok(temperature.cases >= 12 && temperature.selectionCases >= 12)
   assert.equal(temperature.lastObservationId, rows.at(-1).ingestion_id)
-  assert.equal(run.version, 'station-statistical-v2')
+  assert.equal(run.version, 'station-statistical-v3')
   assert.equal(Date.parse(temperature.target) - Date.parse(temperature.origin), hour / 2)
-  assert.ok(get(run, 2).value !== null)
-  assert.equal(get(run, 2).target, new Date(Date.parse(rows.at(-1).measured_at) + 24 * hour).toISOString())
+  assert.equal(get(run, 2).value, null)
+  assert.match(get(run, 2).reason, /miglioramento rispetto all’ultimo valore/)
 })
-test('previsioni: trend smorzato quando migliora; persistenza per grandezze stabili', () => {
+test('previsioni: trend smorzato quando migliora; baseline persistente non viene spacciata per previsione', () => {
   const rows = series(480, hour / 2, i => 10 + i * 0.002)
   const run = buildForecast(rows, nowOf(rows))
   assert.equal(get(run).method, 'trend')
   assert.ok(get(run).value > rows.at(-1).temperature_c)
-  assert.equal(get(run, 0, 1).method, 'persistence')
-  assert.equal(get(run, 0, 1).mae, 0)
+  assert.equal(get(run, 0, 1).value, null)
+  assert.match(get(run, 0, 1).reason, /miglioramento rispetto all’ultimo valore/)
 })
 test('previsioni: dati insufficienti e cadenza oraria non diventano verità a mezz’ora', () => {
   assert.equal(get(buildForecast(series(10), nowOf(series(10)))).value, null)
@@ -78,7 +81,7 @@ test('previsioni: scadenza, campi sospetti e assenti separati senza recuperare u
   const run = buildForecast(rows, nowOf(rows))
   assert.equal(get(run).value, null)
   assert.equal(get(run, 0, 1).value, null)
-  assert.equal(get(run, 0, 2).value, 1015)
+  assert.equal(get(run, 0, 2).value, null)
 })
 test('previsioni: duplicati temporali ambigui, futuri e caricamenti successivi non diventano training', () => {
   const rows = series()
@@ -98,7 +101,7 @@ test('previsioni: nessun confronto a target mancante e nessuna interpolazione de
   assert.equal(get(run, 1).value, null)
 })
 test('previsioni: +24 ore indica durata fisica anche attraversando il cambio ora', () => {
-  const rows = series().map(row => ({ ...row,
+  const rows = series(1440, hour / 2, i => 18 + 5 * Math.sin(i * Math.PI / 24) + i * 0.01).map(row => ({ ...row,
     captured_at: new Date(Date.parse(row.captured_at) - 6 * 24 * hour).toISOString(),
     measured_at: new Date(Date.parse(row.measured_at) - 6 * 24 * hour).toISOString(),
     received_at: new Date(Date.parse(row.received_at) - 6 * 24 * hour).toISOString(),

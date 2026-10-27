@@ -1,28 +1,34 @@
-# Frontend — revisione locale al 23 ottobre 2026
+# Frontend — stato e verifiche locali al 26 ottobre 2026
 
-## Preferenze statistiche e privacy — verifica locale del 23 ottobre 2026
+## Preferenze statistiche e privacy — comportamento locale aggiornato il 26 ottobre 2026
 
-La proprietà Google usa l’ID `G-F2LRCD93NW`. Google Analytics, Vercel Analytics (`inject()`) e Speed Insights sono avviati solo con scelta salvata `granted`. “Rifiuta” memorizza `denied` e impedisce l’avvio di tutti e tre; la scelta può essere riaperta da “Preferenze statistiche”. La revoca dopo l’accettazione salva il rifiuto, rimuove i cookie `_ga*` accessibili alla pagina e ricarica il sito. Segnali Google Ads e personalizzazione annunci sono disattivati. La scelta è salvata in `localStorage` con istante della decisione e scade dopo sei mesi di calendario; se il browser non consente di conservarla, gli strumenti restano spenti. Vercel Analytics è senza cookie secondo la documentazione del fornitore; Speed Insights viene montato solo dopo il consenso.
+La proprietà Google usa l’ID `G-F2LRCD93NW`. Google Analytics, Vercel Analytics (`inject()`) e Speed Insights sono attivi per impostazione predefinita, secondo la verifica delle condizioni applicabili comunicata dall’utente; una scelta salvata `denied` li disattiva. “Preferenze statistiche” consente di disattivarli o riattivarli e la scelta resta in `localStorage` finché non viene cambiata o cancellata. La disattivazione aggiorna GA4, rimuove i cookie `_ga*` accessibili alla pagina e ricarica il sito. Segnali Google Ads e personalizzazione annunci sono disattivati. Vercel Analytics è senza cookie secondo la documentazione del fornitore.
+
+GA4 riceve lo stato predefinito `analytics_storage=granted`; gli storage pubblicitari restano negati. Il tag GA4 si carica solo su `meteolivelli.vercel.app`: i sottodomini univoci dei deploy Vercel non sono domini pubblici/cross-domain e non devono inviare dati allo stream di produzione. La configurazione automatica di pagina è disattivata e viene inviato un solo `page_view` esplicito con titolo e URL correnti. I comandi gtag sono accodati nel formato `arguments` previsto da Google. La diagnostica che rileva `ad_user_data=denied` sempre è attesa quando non si usa la personalizzazione degli annunci; secondo Google, con Consent Mode già configurato e senza personalizzazione pubblicitaria non serve modificare questo segnale. Il report della proprietà non mostra ancora hit recenti: verificare `page_view` in Tag Assistant e Tempo reale da un browser/rete che non blocchi Google Tag. [Guida gtag.js](https://developers.google.com/tag-platform/gtagjs), [diagnostica Google Tag](https://support.google.com/tagmanager/answer/14681508?hl=it), [impostazioni consenso del Google Tag](https://support.google.com/tagmanager/answer/12131703?hl=it).
+
+I PDF dei grafici dichiarano per ogni serie la provenienza dei campioni effettivamente tracciati: dati live, storico, sintetici, misti, origine non specificata o nessuna serie. Le medie contano i campioni per origine, così la dicitura segue i dati inclusi nel grafico.
 
 La pagina `/privacy` descrive il comportamento del client, il titolare e il recapito forniti dall’utente, i periodi Analytics osservati e le finestre dei due strumenti Vercel per il piano Hobby verificato in dashboard. I log tecnici hosting/backend dipendono dalle impostazioni e dai termini dei fornitori, non sono configurati dal frontend. Il record Google Analytics mostrava conservazione eventi di 2 mesi, livello utente di 14 mesi e reset del periodo dopo nuova attività abilitato. La pagina resta da approvare dal titolare prima della pubblicazione e i contratti/configurazioni di fornitore vanno verificati per il trattamento effettivo.
 
-Prima di pubblicare: verificare accettazione/rifiuto/revoca su una distribuzione di prova e controllare con Google Tag Assistant; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori; far approvare l’informativa al titolare. La schermata Google può segnalare l’assenza di dati fino a 48 ore. Nessuna configurazione della proprietà Analytics o pubblicazione Vercel è stata eseguita da questa modifica locale.
+Resta da verificare attivazione/disattivazione effettiva con Tag Assistant e in Tempo reale; verificare log hosting/backend, ruoli e trasferimenti rispetto agli accordi dei fornitori e far approvare l’informativa al titolare. La proprietà Analytics non è stata modificata. Il dataLayer corretto è pubblicato su `main` nel commit `6059b1d`; Vercel Production è `READY`, mentre la raccolta degli hit è ancora da confermare.
 
 ## Versione pubblicata
 
 [MeteOlivelli](https://meteolivelli.vercel.app/) è pubblicato da `main` attraverso l’integrazione GitHub → Vercel. Rilasci verificati: `fab71cb` (grafica, motion, hover e postilla) e `bce39e2` (contratto con provenienza sintetica distinta). Il secondo deploy è stato verificato READY sul dominio principale, con HTTP 200 e nessun errore JavaScript non gestito. Queste verifiche riguardano la versione applicativa, non il collaudo della stazione reale.
 
+Aggiornamento del 26 ottobre: `775c248` porta i tracker Analytics attivi per default, il `page_view` esplicito singolo, l’opt-out e la provenienza nei PDF grafici; il deploy Production risulta `READY`. Ricezione GA4 e disattivazione live non sono state verificate.
+
 Stack conservato: React, TypeScript, Vite, ESLint, npm. Nessuna dipendenza aggiunta per grafici, animazioni o riflessi. Il riferimento Figma Obsidian v5 documenta la fase precedente; il sito corrente segue la proposta Factory adattata ai commenti dell’utente, senza aggiornamento del file Figma. [Storia Figma](design-review/README.md), [specifiche grafiche correnti](../design.md).
 
 ## Struttura e contenuti
 
-1. Intestazione con marchio `MO. | MeteOlivelli` e collegamenti alla stazione e all’archivio.
+1. Intestazione con sole delineato e wordmark `MeteOlivelli`, più collegamenti alla stazione e all’archivio.
 2. Postilla permanente, fuori dalle animazioni: **Work in progress · Possibili dati presenti fittizi**.
 3. Titolo grande a sinistra e pannello scuro della temperatura con grafico a destra; su mobile il pannello segue il titolo. Il numero è l’ultima lettura disponibile, non una temperatura attuale garantita.
 4. Tre schede per temperatura, umidità e pressione, sempre dallo stesso evento.
 5. Archivio 24 ore / 7 giorni / 30 giorni con tre grafici SVG. Il grafico iniziale segue lo stesso periodo; “Cambia periodo” porta ai filtri.
 6. Cronologia dal campione più recente, sei righe per pagina, dettagli temporali e qualità per campo.
-7. Stime sperimentali +30 minuti / +1 ora / +24 ore, con verifica temporale per campo, metodo, errore storico e scadenza; indisponibili quando dati o verifica non bastano. Informazioni sul progetto e footer.
+7. Previsioni meteo +30 minuti / +1 ora / +24 ore, con verifica temporale per campo, metodo, errore storico e scadenza; non disponibili quando dati o verifica non bastano. Informazioni sul progetto e footer.
 
 Caricamento, archivio vuoto, periodo vuoto, errore, campo nullo e valore sospetto rimangono stati distinti. Un campo nullo mostra “Dato assente”, mai uno zero inventato. I flag qualità restano consultabili; null e sospetti interrompono la curva del campo interessato. I grafici dichiarano unità, assi temporali, minimo/massimo e riepilogo accessibile; la tabella permette di consultare i valori senza il grafico.
 
@@ -114,13 +120,17 @@ Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove 
 **Revisione Cronologia del 23 ottobre:** `npm run build`, `npm run lint`, `npm run frontend:test` (41 test) e `git diff --check` superati. La preview browser locale non si è avviata: il sandbox ha negato il bind Vite su 127.0.0.1:4173 (`EPERM`); quindi questa revisione non ha verifica visiva interattiva. Nessuna pubblicazione.
 
 
-## Pagine e indicizzazione — 23 ottobre 2026
+## Pagine e indicizzazione — aggiornamento 26 ottobre 2026
 
-La dashboard è servita su `/home`; `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. La radice reindirizza a `/home` nella configurazione Vercel; il router locale applica lo stesso comportamento. La navigazione collega entrambe le pagine.
+La dashboard è disponibile alla radice e resta compatibile su `/home`; il router mostra la stessa home in entrambi i percorsi. `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. Il canonical della home indica la radice.
 
-La build produce `dist/home/index.html` e `dist/info/index.html` con title, description e canonical specifici. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca solo `/home` e `/info`. Verifica e invio in Google Search Console non sono stati eseguiti: richiedono che la modifica sia pubblicata sul dominio e poi verificata nel pannello.
+La build produce documenti statici per home, `/info`, `/privacy` e `/gioca` con title, description e canonical specifici. La homepage contiene `WebSite` JSON-LD con nome preferito `MeteOlivelli`, Open Graph e favicon PNG 96×96. Le varianti coordinate scura/chiara del sole seguono il tema iniziale e quello scelto manualmente; il segno nella testata usa un solo asset da 80 px per tema. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca la radice e le tre pagine informative. I metadati SEO e il logo premium sono stati pubblicati nel checkpoint precedente; questa revisione ottimizza le risorse responsive. Verifica di Google Search Console e ricrawl restano da fare dopo il rilascio corrente. Google decide autonomamente nome, titolo, snippet e favicon mostrati.
 
-La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dati, guida alla lettura di periodi/medie, limiti e provenienza, stime sperimentali e team. L’indice interno conduce a tutte le cinque sezioni. È dichiarato che i campioni sintetici non sono osservazioni e che il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
+La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dati, guida alla lettura di periodi/medie, limiti e provenienza, previsioni meteo e team. L’indice interno conduce a tutte le cinque sezioni. È dichiarato che i campioni sintetici non sono osservazioni e che il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
+
+**Revisione responsive, nomenclatura, provenienza e baseline — 26 ottobre 2026:** la sezione Previsioni meteo ha spazio interno e schede con bordi più leggibili su mobile. Tra 761 e 1000 px le griglie metriche, grafici e previsioni usano due colonne, con la terza scheda previsionale estesa sull’intera riga; la hero si impila. La nomenclatura pubblica ora usa “Previsioni meteo” e “Previsione non disponibile”. Una query aggregata in sola lettura ha trovato 251 righe `synthetic` e zero con `measured_at`; la Home dichiara indisponibili le previsioni reali e chiude per default la simulazione in un riquadro distinto. Nel modello v3 la persistenza è soltanto il riferimento: quando è il metodo selezionato, l’uscita viene ritirata invece di ripetere la misura a ogni orizzonte. Test locali coprono questo caso e orizzonti variabili; accuratezza meteorologica reale e QA su telefono/tablet restano da verificare.
+
+Il logo del liceo nella testata di Home, Informazioni, Privacy e Gioca apre in una nuova scheda la homepage ufficiale `https://www.liceoolivelli.pv.it/`. Un componente condiviso centralizza URL, `noopener noreferrer` e l’annuncio accessibile della nuova scheda. Il footer condiviso raccoglie navigazione, autori, scuola, note sul polling e licenza; il testo MIT pubblicato in `/LICENSE` viene mantenuto uguale a `LICENSE` nella root del repository.
 
 ## Quiz “Gioca con il meteo”
 
@@ -148,7 +158,7 @@ Distribuzione: la route pubblica `/home` serve il bundle con entrambi i pulsanti
 
 ## Correzioni successive all’audit — 23 ottobre 2026
 
-COR-009, COR-011 e COR-012 corretti localmente su richiesta utente. L’ordine della cronologia e del PDF conserva i microsecondi; il cursore backend mantiene la precisione PostgreSQL e accetta i vecchi cursori millisecondo. Il PDF usa larghezze flessibili per i valori, entro i margini anche con più pagine. La cronologia segue le novità dell’ultima lettura, il ritorno alla pagina/online e il comando manuale; quest’ultimo serve anche per gli import storici che non cambiano latest. La data di rilettura usa l’orologio del browser e non indica né ora fisica né freschezza della stazione. [Prove finali](project-review/README.md#correzioni-locali-successive-alla-revisione). La gestione dei sintetici e COR-010 restano invariati per richiesta esplicita; cancellazione futura non eseguita. Nessun deploy frontend/backend o test remoto eseguito.
+COR-009, COR-011 e COR-012 sono stati corretti localmente il 23 ottobre. COR-010 è stato corretto nel commit `775c248` del 26 ottobre; GA4 ha un `page_view` esplicito e i tre tracker sono attivi per default. La precedente esclusione dei sintetici è superata dalla richiesta del 26 ottobre. Il deploy Production è `READY`; dati live non verificati e nessuna funzione Edge o schema backend modificati.
 
 
 ## Motion — verifica locale del 23 ottobre 2026
@@ -166,3 +176,12 @@ node tests/motion-browser.mjs /percorso/playwright/index.mjs /percorso/chrome ht
 ```
 
 Nessun commit, push, deploy o modifica dei servizi remoti eseguiti per questa revisione.
+
+
+## Performance mobile e stato Analytics — 26 ottobre 2026
+
+PageSpeed Insights mobile (Lighthouse 13.5, report delle 12:00) mostra 86/100; FCP 1,4 s, LCP 4,1 s, TBT 0 ms, CLS 0. È un test di laboratorio, non dati di campo; Search Console riporta che il CrUX non ha campioni sufficienti negli ultimi 90 giorni. Il candidato LCP nel precedente dettaglio Lighthouse è il testo del banner consenso, renderizzato lato client; PSI stima circa 310 ms risparmiabili sul CSS render-blocking e 68,5 KiB sulle immagini.
+
+Correzioni locali: introdotte versioni del logo scolastico a 220 e 420 px, scelte con `srcSet`/`sizes`, dimensioni intrinseche per evitare spazio non riservato e caricamento lazy del solo logo nel footer. Il logo in testata usa sorgenti responsive; le icone del marchio sono ridotte da 128 a 80 px e viene richiesto un solo asset per tema. Le pagine Info, Privacy e Quiz vengono caricate con chunk separati quando si visita la route; la home non importa più quei moduli inizialmente. La nuova analisi dopo il deploy `eeb677f` misura 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms e CLS 0. Il risparmio immagini stimato è sceso da 68,5 a 40 KiB, il CSS render-blocking da 310 a 150 ms e il JS inutilizzato da 52 a 44 KiB; LCP resta invariato. Il punteggio può variare tra esecuzioni; [report post-rilascio](https://pagespeed.web.dev/analysis/https-meteolivelli-vercel-app/n90zf19urh?form_factor=mobile).
+
+Analytics: la schermata Admin GA4 indicava il corretto dominio e ID stream ma nessun dato ricevuto nelle ultime 48 ore. Tag Assistant, connesso alla Home pubblica in Chrome, ora legge `analytics_storage=Concesso` e gli stati pubblicitari negati; nella sessione non risultano hit `page_view`. Il formato dei comandi dataLayer è stato corretto e pubblicato in `6059b1d` (Production `READY`). La raccolta in Tempo reale non è ancora confermata; la diagnosi non ha cambiato impostazioni della proprietà o protezioni del browser.

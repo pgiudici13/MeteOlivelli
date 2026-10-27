@@ -1,6 +1,10 @@
 import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
+import { BrandMark } from '../components/BrandMark.tsx'
+import { SchoolLogo } from '../components/SchoolLogo.tsx'
+import { SchoolSiteLink } from '../components/SchoolSiteLink.tsx'
+import { SiteFooter } from '../components/SiteFooter.tsx'
 import './InfoPage.css'
 
 const title = 'Informazioni su MeteOlivelli — progetto e stazione meteo'
@@ -25,8 +29,8 @@ export function InfoPage() {
   return <div className="site-shell info-page">
     <a className="skip-link" href="#info-content">Vai al contenuto</a>
     <header className="site-header">
-      <a className="brand" href="/home"><span className="brand-symbol" aria-hidden="true">MO.</span>MeteOlivelli<span className="brand-index"> / 02</span></a>
-      <a className="school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a>
+      <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 02</span></a>
+      <SchoolSiteLink className="school-logo"><SchoolLogo /></SchoolSiteLink>
       <div className="header-actions">
         <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a><a href="/gioca">Gioca</a></nav>
         <ThemeToggle />
@@ -101,7 +105,7 @@ export function InfoPage() {
             <article><h3>Valori assenti o anomali</h3><p>Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.</p></article>
             <article><h3>Prove e misure</h3><p>Il sito avvisa che possono essere presenti dati fittizi. I campioni sintetici servono a provare il funzionamento e non descrivono il tempo a Pavia né le letture dei sensori.</p></article>
             <article><h3>Freschezza</h3><p>L’aggiornamento della pagina non conferma che il sensore abbia appena misurato. Finché orologio, cadenza e catena di acquisizione non sono verificati, la freschezza resta non determinabile.</p></article>
-            <article><h3>Stime sperimentali</h3><p>Le stime, quando disponibili, sono calcoli statistici basati sulle osservazioni ammesse. Non provengono da un servizio meteorologico e non dichiarano pioggia, sole o certezza del tempo.</p></article>
+            <article><h3>Previsioni meteo</h3><p>Le previsioni della stazione saranno mostrate solo quando osservazioni fisiche datate permetteranno di valutarle. I campioni sintetici si consultano a parte come simulazione e non descrivono il tempo a Pavia; il modello attuale non dichiara pioggia, sole o certezza del tempo.</p></article>
           </div>
           <div className="info-links"><a href="/home">Vai alla Home <span aria-hidden="true">↗</span></a><a href="/privacy">Leggi l’informativa privacy <span aria-hidden="true">↗</span></a></div>
         </section>
@@ -122,6 +126,6 @@ export function InfoPage() {
         <a className="hero-link" href="/home">Vai alle misure <span aria-hidden="true">↗</span></a>
       </section>
     </main>
-    <footer className="site-footer"><a className="school-logo footer-school-logo" href="/info"><img src="/logo-liceo-scientifico-stem-olivelli-pavia.png" alt="Liceo Olivelli — Scientifico + STEM" /></a><p>MeteOlivelli · Il meteo, visto da scuola.</p><p><a href="/home">Home</a> · <a href="/info" aria-current="page">Informazioni</a> · <a href="/gioca">Gioca</a> · <a href="/privacy">Privacy</a></p></footer>
+    <SiteFooter />
   </div>
 }

@@ -32,6 +32,10 @@ export function ThemeToggle() {
     document.documentElement.dataset.theme = theme
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
     if (themeColor) themeColor.content = theme === 'light' ? '#f7f5f2' : '#101010'
+    const favicon = document.querySelector<HTMLLinkElement>('link[data-site-favicon]')
+    if (favicon) favicon.href = theme === 'light' ? '/favicon-light-96.png' : '/favicon-dark-96.png'
+    const brandMark = document.querySelector<HTMLImageElement>('.brand-mark')
+    if (brandMark) brandMark.src = theme === 'light' ? '/brand-mark-light.png' : '/brand-mark-dark.png'
   }, [theme])
 
   function toggleTheme() {

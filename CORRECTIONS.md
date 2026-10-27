@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 23 ottobre 2026, correzioni locali successive all’audit di `6e5f197`. COR-009, COR-011 e COR-012 risolti localmente; COR-010 non modificato su richiesta utente; COR-013 documentale risolto. [Perimetro, prove e limiti](docs/project-review/README.md). Nessuna pubblicazione o modifica remota eseguita.
+Ultima verifica: 26 ottobre 2026, correzioni successive all’audit di `6e5f197`. COR-009–COR-013 risolti; COR-010 e COR-014 inclusi nel commit `775c248`, deploy Production `READY`; ricezione e revoca GA4 restano da verificare live. COR-015 aperto per LCP mobile. [Perimetro, prove e limiti](docs/project-review/README.md).
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
@@ -118,14 +118,13 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-010 — PDF dei grafici privo della provenienza sintetica
 
-- **Stato:** aperto, verificato il 23 ottobre 2026 a `6e5f197`.
+- **Stato:** risolto e pubblicato nel commit `775c248` il 26 ottobre 2026; deploy Production `READY`.
 - **Area/file:** `src/pdf-graphs-document.ts`, `src/pdf-chart.ts`; introdotto con `b714d87` / `5dc40a1`.
 - **Problema/prova:** un input `synthetic` genera tre pagine di grafici senza etichetta sintetica o avvertenza equivalente; la postilla della Home non è nel file. Verificati definizione e testo del PDF reale. Lo stesso input è correttamente etichettato nel PDF cronologia. I conteggi delle medie non esprimono provenienza.
 - **Impatto/priorità:** media; il PDF condiviso può far interpretare dati di prova come osservazioni della stazione.
-- **Correzione proposta:** dichiarare permanentemente la provenienza delle serie effettivamente disegnate, distinguendo sintetici/live e casi misti.
-- **Verifica richiesta:** PDF solo sintetici, solo live e misti in Auto/24h/7g/14g/30g; estrazione testo e controllo visivo di ogni pagina pertinente. [Analisi](docs/project-review/README.md#cor-010--provenienza-persa-nel-pdf-dei-grafici).
-
-- **Decisione successiva dell’utente:** escludere questa correzione perché i sintetici non saranno più usati e verranno eliminati in seguito. Difetto non corretto e non dichiarato risolto; nessuna rimozione dati eseguita o automatizzata.
+- **Correzione:** ogni serie PDF riporta l’origine dei soli campioni effettivamente tracciati: stazione live/storico, sintetica, mista, non specificata o nessuna serie. Le medie mantengono i conteggi per origine.
+- **Verifica:** `npm run check` supera 82 test frontend, inclusi casi sintetici, storici, misti, tutte le finestre, medie e generazione PDF. Test sul documento generato; estrazione/rendering multipagina di ogni variante non eseguiti.
+- **Decisione superata:** la precedente esclusione dell’intervento è superata dalla richiesta del 26 ottobre di correggere tutti i problemi. Nessun dato remoto modificato o cancellato.
 
 ## COR-011 — Cronologia ferma al caricamento iniziale
 
@@ -157,3 +156,40 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** bassa; comportamento, autorizzazioni documentate e stato del lavoro descritti in modo contraddittorio.
 - **Correzione:** aggiornati riepiloghi al checkout, RF6/D11 e prevalenza della richiesta PDF; distinti archivio completo e feed, batch storici e conteggi remoti non riverificati. Conservati i verbali storici, dichiarando che questo audit non riconferma i servizi.
 - **Verifica:** confronto con Git, codice e checkpoint PDF; diff e collegamenti locali controllati. Le correzioni ai testi non risolvono COR-009–COR-012 e non chiudono task remoti o collaudi reali.
+
+## COR-014 — GA4 non mostra eventi del sito
+
+- **Stato:** correzione del dataLayer pubblicata in `6059b1d`; deploy Production `READY` il 26 ottobre 2026. La raccolta degli hit resta non verificata.
+- **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
+- **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Tag Assistant, collegato alla pagina Home pubblica in Chrome, trova `G-F2LRCD93NW` e la destinazione corretta ma riporta “Nessun hit è stato inviato da questo tag” e “Consenso non configurato”. Lo stream GA4 mostra il dominio esatto `https://meteolivelli.vercel.app`, l’ID `G-F2LRCD93NW` e nessun dato nelle ultime 48 ore.
+- **Diagnosi:** `loadGoogleAnalytics()` accodava i comandi con `dataLayer.push(args)`, cioè come array, mentre il formato gtag documentato è `dataLayer.push(arguments)`. Dopo la correzione Tag Assistant vede `analytics_storage=Concesso`, i tre consensi pubblicitari negati e la configurazione del tag. Nella stessa sessione non mostra ancora hit `page_view`; il mancato invio può dipendere da rete o protezione del browser e non è stato attribuito con certezza.
+- **Impatto/priorità:** media; Analytics non consente ancora di valutare visite o comportamento. La presenza dello script non dimostra che la richiesta di misurazione sia partita o sia stata accettata.
+- **Correzione locale del 26 ottobre:** su decisione esplicita dell’utente e sua verifica dichiarata delle condizioni applicabili, GA4, Vercel Analytics e Speed Insights si avviano senza scelta salvata; `Preferenze statistiche` consente opt-out persistente e riattivazione. GA4 mantiene `analytics_storage=granted`, gli storage pubblicitari restano negati e invia un solo `page_view` esplicito (`send_page_view:false`); i comandi ora vengono accodati come oggetti `arguments`. L’opt-out aggiorna GA4, rimuove i cookie `_ga*` accessibili e ricarica.
+- **Verifica:** `npm run check` supera lint, build, 82 test frontend, 46 test Deno e 25 test Python. Dopo il deploy `6059b1d`, Tag Assistant conferma il consenso previsto ma non un hit. **Resta da verificare:** `page_view` in Tag Assistant e Tempo reale, idealmente dopo aver consentito il tracciamento per questo sito nell’antitracker visibile nello screenshot o in un browser senza blocchi. Nessuna impostazione remota o protezione browser è stata cambiata. [Guida ufficiale gtag.js](https://developers.google.com/tag-platform/gtagjs).
+
+
+## COR-015 — Prestazioni mobile da migliorare
+
+- **Stato:** ottimizzazioni pubblicate il 26 ottobre 2026 (`eeb677f`), deploy Production `READY`; LCP 4,1 s ancora da migliorare.
+- **Area/file:** bundle iniziale, logo e presentazione responsive del sito MeteOlivelli.
+- **Problema/prova:** PageSpeed Insights mobile (Lighthouse 13.5, 26 ottobre 2026 alle 12:00) mostra 86/100, LCP 4,1 s, FCP 1,4 s, TBT 0 ms e CLS 0. Il report segnala immagine del logo scolastico sovradimensionata (originale 1041×359 per uno spazio di circa 200 px), assenza di dimensioni dichiarate sulle immagini, circa 310 ms di CSS render-blocking e 68,5 KiB di risparmio potenziale sulle immagini. Nel dettaglio LCP visto nel report precedente, il testo del consenso client-rendered è l’elemento LCP. Search Console non dispone di campioni CrUX sufficienti per classificare i Core Web Vitals di utenti reali; il punteggio è un laboratorio simulato.
+- **Impatto/priorità:** media; LCP oltre 4 s è lento nella simulazione mobile. Accessibilità, best practice e SEO risultano 100 nel medesimo report; CLS è 0, TBT 0 ms.
+- **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
+- **Verifica:** build, lint e 77 test frontend superati. PSI mobile post-rilascio (12:32) sullo stesso URL/form factor: 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms, CLS 0; stima immagini 40 KiB (da 68,5), CSS bloccante 150 ms (da 310), JS inutilizzato 44 KiB (da 52). LCP resta il problema principale e richiede ulteriore intervento; i punteggi singoli oscillano tra run. La preview browser locale era bloccata da `listen EPERM`.
+
+## COR-016 — La persistenza veniva mostrata come previsione
+
+- **Stato:** corretto localmente il 26 ottobre 2026; non ancora pubblicato.
+- **Area/file:** `src/forecast.ts`, `src/components/ForecastSection.tsx`; modello locale `station-statistical-v2`.
+- **Problema/prova:** nello screenshot della Home, +3, +6 e +24 ore ripetono esattamente 17,3 °C, 50,4% e 1014,4 hPa. Il backtest permetteva di selezionare la persistenza quando nessun candidato superava il riferimento; la persistenza copia l’ultima misura per ogni orizzonte.
+- **Impatto/priorità:** alta; la ripetizione della misura sotto una sezione di previsioni può sembrare un valore calcolato per il futuro.
+- **Correzione locale:** versione v3 ritira il risultato quando l’unico metodo selezionato è la persistenza; la UI spiega che l’ultimo valore è un riferimento e non viene ri-etichettato come previsione. La simulazione sintetica rimane separata, e i dati esistenti non diventano prove di meteo reale.
+- **Verifica:** test mirati controllano che serie sintetiche variabili producano risultati diversi agli orizzonti +3/+6 ore, che il +24 ore senza miglioramento e le grandezze stabili restino senza valore, e che un trend verificato resti disponibile. Suite completa in esecuzione; nessuna accuratezza meteorologica o prova su dati fisici attestata.
+
+## COR-017 — Diagnostica Google Tag: host di deploy e stato consenso Ads
+
+- **Stato:** invio limitato al dominio pubblico con correzione locale del 26 ottobre; deploy da verificare.
+- **Area/file:** `src/analytics.ts`; stream GA4 `G-F2LRCD93NW` e Tag Google `GT-MJMHDXK6`.
+- **Problema/prova:** nello screenshot della diagnostica, GA4 segnala zero dati recenti e “domini aggiuntivi”; la configurazione cross-domain contiene già `meteolivelli.vercel.app` e suggerisce tre host specifici di deployment Vercel. La diagnosi del tasso consenso 0% indica tutti i segnali negati.
+- **Correzione locale:** GA4 ora si carica solo sul dominio canonico, così gli URL di deployment non continuano a inviare eventi nello stream di produzione. Non si aggiungono gli host temporanei alle regole cross-domain. Il codice mantiene `ad_user_data` e i segnali pubblicitari negati: il sito non usa personalizzazione Ads e la guida Google specifica che con Consent Mode già attivo non serve un intervento in questo caso.
+- **Verifica:** test locale del gate hostname e della configurazione Consent Mode; `npm run check` e prova `page_view` da browser senza blocchi ancora da completare. I suggerimenti per host che hanno già inviato hit possono restare nella diagnostica finché Google non aggiorna i domini rilevati. Non modificati impostazioni Google Ads, consenso Ads o protezioni browser.

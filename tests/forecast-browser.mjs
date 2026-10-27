@@ -91,8 +91,9 @@ try {
   await check('dieci sintetici pubblicabili nei grafici non producono previsioni', async () => {
     synthetic = true
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
-    await page.waitForFunction(() => document.querySelector('.forecast-section')?.textContent.includes('Servono osservazioni reali'))
+    await page.waitForFunction(() => document.querySelector('.forecast-section [role=status]')?.textContent.includes('Previsioni meteo reali non disponibili'))
     assert.equal(await page.locator('.forecast-value').count(), 0)
+    assert.match(await page.locator('.forecast-simulation summary').innerText(), /dati fittizi, non previsione meteo/)
     await page.locator('.forecast-section').screenshot({ path: `${output}/unavailable.png` })
   })
   assert.deepEqual(errors, [])

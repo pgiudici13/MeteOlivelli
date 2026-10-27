@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
-import { readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
+import { areAnalyticsEnabled, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
 import { createPdfBlob } from '../src/pdf-runtime.ts'
 import { buildPdfChart } from '../src/pdf-chart.ts'
@@ -52,6 +52,44 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   assert.match(page, /aria-label="In breve"/)
 })
 
+test('previsioni reali e simulazione sintetica hanno stati e presentazioni separate', () => {
+  const forecast = readFileSync(new URL('../src/components/ForecastSection.tsx', import.meta.url), 'utf8')
+  assert.match(forecast, /Previsioni meteo reali non disponibili/)
+  assert.match(forecast, /forecast-simulation/)
+  assert.match(forecast, /Mostra simulazione tecnica · dati fittizi, non previsione meteo/)
+  assert.doesNotMatch(forecast, /Stime sperimentali/)
+})
+
+test('logo scolastico in testata apre il sito ufficiale in tutte le pagine', () => {
+  const pages = ['../src/App.tsx', '../src/pages/InfoPage.tsx', '../src/pages/PrivacyPage.tsx', '../src/pages/QuizPage.tsx']
+  for (const path of pages) {
+    const source = readFileSync(new URL(path, import.meta.url), 'utf8')
+    const header = source.match(/<header className="site-header">([\s\S]*?)<\/header>/)?.[1]
+    assert.ok(header, `Intestazione non trovata in ${path}`)
+    assert.match(header, /<SchoolSiteLink className="school-logo"><SchoolLogo \/><\/SchoolSiteLink>/)
+    assert.match(source, /<SiteFooter \/>/)
+  }
+})
+
+test('link esterno della scuola annuncia la nuova scheda e usa la URL centrale', () => {
+  const link = readFileSync(new URL('../src/components/SchoolSiteLink.tsx', import.meta.url), 'utf8')
+  assert.match(link, /href=\{SCHOOL_WEBSITE_URL\}/)
+  assert.match(link, /target="_blank"/)
+  assert.match(link, /rel="noopener noreferrer"/)
+  assert.match(link, /aria-label="Sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda"/)
+})
+
+test('footer completo e copia pubblica della licenza restano coerenti', () => {
+  const footer = readFileSync(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8')
+  for (const text of ['Pietro Giudici', 'Nicholas Borin', 'Liceo Teresio Olivelli di Pavia', 'Visita il sito ufficiale', 'href="/LICENSE"']) {
+    assert.ok(footer.includes(text), `Informazione assente nel footer: ${text}`)
+  }
+  const license = readFileSync(new URL('../LICENSE', import.meta.url), 'utf8')
+  const publicLicense = readFileSync(new URL('../public/LICENSE', import.meta.url), 'utf8')
+  assert.match(license, /Copyright \(c\) 2026 Pietro Giudici, Nicholas Borin, and Liceo Teresio Olivelli di Pavia/)
+  assert.equal(publicLicense, license)
+})
+
 test('PDF: formatta tempi in Europe/Rome, null espliciti e nomi file datati', () => {
   assert.equal(formatReportTime('2026-10-25T00:30:00.000Z'), '25/10/2026, 02:30 CEST')
   assert.equal(formatReportTime('2026-10-25T01:30:00.000Z'), '25/10/2026, 02:30 CET')
@@ -93,6 +131,26 @@ test('PDF grafico: usa le serie e le finestre della UI senza interpolare i vuoti
   assert.match(averages.note, /09:00–18:00/)
   assert.ok(averages.pointCount > 0)
   assert.equal(averages.sampleCount, 2)
+  assert.equal(averages.provenance, 'origine non specificata')
+})
+
+test('PDF grafici: provenienza esatta delle serie sintetiche, storiche e miste', () => {
+  const until = '2026-10-22T12:00:00.000Z'
+  const synthetic = buildPdfChart([
+    row(1, { acquisition_kind: 'synthetic', captured_at: '2026-10-20T10:00:00.000Z' }),
+    row(2, { acquisition_kind: 'synthetic', captured_at: '2026-10-21T10:00:00.000Z' }),
+  ], 'temperature_c', '7g', until)
+  assert.equal(synthetic.provenance, 'sintetica')
+
+  const mixed = buildPdfChart([
+    row(1, { acquisition_kind: 'historical', captured_at: '2026-10-20T10:00:00.000Z' }),
+    row(2, { acquisition_kind: 'synthetic', captured_at: '2026-10-21T10:00:00.000Z' }),
+  ], 'temperature_c', '7g', until)
+  assert.equal(mixed.provenance, 'stazione (storico) e sintetica')
+  const document = buildGraphsDocument([
+    row(1, { acquisition_kind: 'synthetic', captured_at: '2026-10-21T10:00:00.000Z' }),
+  ], '24h', until, new Date(until))
+  assert.ok(document.content.some(item => item.stack?.some(child => child.text === 'Provenienza dei campioni tracciati: sintetica.')))
 })
 
 test('PDF grafici: punti, minimi, massimi e aggregazioni corrispondono alla UI in ogni periodo', () => {
@@ -119,6 +177,7 @@ test('PDF grafici: punti, minimi, massimi e aggregazioni corrispondono alla UI i
     assert.equal(actual.minimum, values.length ? Math.min(...values) : null, `${mode}: minimo`)
     assert.equal(actual.maximum, values.length ? Math.max(...values) : null, `${mode}: massimo`)
     assert.equal(actual.sampleCount, expected.segments.flat().reduce((sum, point) => sum + point.count, 0), `${mode}: campioni di origine`)
+    assert.equal(actual.provenance, 'stazione (live)', `${mode}: provenienza tracciata`)
     assert.match(actual.svg, /<svg[^>]+viewBox="0 0 820 330"/)
   }
 })
@@ -284,7 +343,7 @@ test('PDF download: usa il nome atteso e revoca l’URL temporaneo dopo il click
   assert.throws(() => downloadPdfBlob(new Blob(['test']), 'grafici', new Date(), environment), /non valido/)
 })
 
-test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richiede di nuovo', () => {
+test('statistiche predefinite attive; preferenza di disattivazione persistente fino a riattivazione', () => {
   const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
   const originalNow = Date.now
   const store = new Map()
@@ -292,14 +351,88 @@ test('consenso statistiche: scelta esplicita valida per sei mesi, poi si richied
   Date.now = () => Date.parse('2026-10-23T12:00:00.000Z')
   try {
     assert.equal(readAnalyticsConsent(), null)
+    assert.equal(areAnalyticsEnabled(readAnalyticsConsent()), true)
     assert.equal(saveAnalyticsConsent('denied'), true)
     assert.equal(readAnalyticsConsent(), 'denied')
+    assert.equal(areAnalyticsEnabled(readAnalyticsConsent()), false)
     Date.now = () => Date.parse('2027-04-23T12:00:00.000Z')
-    assert.equal(readAnalyticsConsent(), null)
+    assert.equal(readAnalyticsConsent(), 'denied')
+    assert.equal(saveAnalyticsConsent('granted'), true)
+    assert.equal(areAnalyticsEnabled(readAnalyticsConsent()), true)
   } finally {
     Date.now = originalNow
     if (descriptor) Object.defineProperty(globalThis, 'window', descriptor)
     else delete globalThis.window
+  }
+})
+
+test('GA4: analytics attivi per default, segnali pubblicitari negati e page_view singolo', () => {
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const calls = []
+  const scripts = []
+  const fakeDocument = {
+    title: 'MeteOlivelli | Informazioni',
+    location: { href: 'https://meteolivelli.vercel.app/info', pathname: '/info' },
+    querySelector: selector => scripts.find(script => selector.includes(script.dataset.googleAnalytics)) ?? null,
+    createElement: () => ({ dataset: {}, async: false, src: '' }),
+    head: { append: script => scripts.push(script) },
+  }
+  fakeDocument.location.hostname = 'meteolivelli.vercel.app'
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: fakeDocument })
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { dataLayer: [], location: fakeDocument.location } })
+  try {
+    const originalPush = Array.prototype.push
+    Object.defineProperty(globalThis.window.dataLayer, 'push', { configurable: true, value: (...args) => { calls.push(args[0]); return originalPush.apply(globalThis.window.dataLayer, args) } })
+    loadGoogleAnalytics()
+    loadGoogleAnalytics()
+    assert.equal(scripts.length, 1)
+    assert.equal(Array.isArray(calls[0]), false)
+    const commands = calls.map(command => Array.from(command))
+    assert.equal(commands[0][0], 'consent')
+    assert.equal(commands[0][1], 'default')
+    assert.equal(commands[0][2].analytics_storage, 'granted')
+    assert.equal(commands[0][2].ad_storage, 'denied')
+    assert.equal(commands[0][2].ad_user_data, 'denied')
+    assert.equal(commands[0][2].ad_personalization, 'denied')
+    const config = commands.find(([name]) => name === 'config')
+    assert.equal(config[2].send_page_view, false)
+    const pageViews = commands.filter(([name, event]) => name === 'event' && event === 'page_view')
+    assert.equal(pageViews.length, 1)
+    assert.deepEqual(pageViews[0][2], {
+      page_title: 'MeteOlivelli | Informazioni',
+      page_location: 'https://meteolivelli.vercel.app/info',
+      page_path: '/info',
+    })
+  } finally {
+    if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
+    else delete globalThis.window
+    if (documentDescriptor) Object.defineProperty(globalThis, 'document', documentDescriptor)
+    else delete globalThis.document
+  }
+})
+
+test('GA4: il tag di produzione non invia hit dagli URL specifici dei deploy Vercel', () => {
+  assert.equal(isGoogleAnalyticsHost('meteolivelli.vercel.app'), true)
+  assert.equal(isGoogleAnalyticsHost('meteolivelli-prp9ghkty-pedro13-projects.vercel.app'), false)
+  assert.equal(isGoogleAnalyticsHost('localhost'), false)
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const scripts = []
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { location: { hostname: 'meteolivelli-prp9ghkty-pedro13-projects.vercel.app' } } })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: {
+    querySelector: () => null,
+    createElement: () => ({}),
+    head: { append: script => scripts.push(script) },
+  } })
+  try {
+    loadGoogleAnalytics()
+    assert.deepEqual(scripts, [])
+  } finally {
+    if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
+    else delete globalThis.window
+    if (documentDescriptor) Object.defineProperty(globalThis, 'document', documentDescriptor)
+    else delete globalThis.document
   }
 })
 

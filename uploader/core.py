@@ -28,7 +28,8 @@ def utc_now():
 def validate_config(config):
     required = {"csv_path", "state_dir", "source_id", "endpoint", "delimiter",
                 "decimal_separator", "encoding", "empty_measurement", "header", "live_verified"}
-    if not required.issubset(config) or set(config) - required - {"acquisition_kind"}:
+    optional = {"acquisition_kind", "synthetic_timestamp_column"}
+    if not required.issubset(config) or set(config) - required - optional:
         raise Halt("Configurazione incompleta o con campi sconosciuti.")
     if not all(isinstance(config[k], str) for k in required - {"header", "live_verified"}):
         raise Halt("Tipo di configurazione non valido.")
@@ -39,13 +40,17 @@ def validate_config(config):
     if type(config["live_verified"]) is not bool:
         raise Halt("Conferma temporale non valida.")
     kind = config.get("acquisition_kind", "historical")
+    synthetic_timestamp_column = config.get("synthetic_timestamp_column", False)
     if kind not in ("live", "historical", "synthetic"):
         raise Halt("Tipo di acquisizione non valido.")
+    if type(synthetic_timestamp_column) is not bool or (synthetic_timestamp_column and kind != "synthetic"):
+        raise Halt("La colonna timestamp scenario è ammessa solo per dati synthetic.")
     if kind == "synthetic" and config["live_verified"]:
         raise Halt("Le misure sintetiche non possono essere marcate come live verificato.")
+    expected_fields = 5 if synthetic_timestamp_column else 4
     if config["header"] is not None and (not isinstance(config["header"], list) or
-            len(config["header"]) != 4 or not all(isinstance(v, str) for v in config["header"])):
-        raise Halt("Intestazione esplicita di quattro campi richiesta, oppure null.")
+            len(config["header"]) != expected_fields or not all(isinstance(v, str) for v in config["header"])):
+        raise Halt(f"Intestazione esplicita di {expected_fields} campi richiesta, oppure null.")
     if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}", config["source_id"]):
         raise Halt("Identificatore sorgente non valido.")
     try:
@@ -70,15 +75,16 @@ def parse_row(raw, config, ingestion_id, captured_at):
             raise ValueError
         # Stessa grammatica delle virgolette del parser TypeScript v1.
         pattern = r'(?:"(?:[^"\r\n]|"")*"|[^"\r\n' + re.escape(config["delimiter"]) + r']*)'
-        if not re.fullmatch(pattern + (re.escape(config["delimiter"]) + pattern) * 3, text):
+        expected_fields = 5 if config.get("synthetic_timestamp_column", False) else 4
+        if not re.fullmatch(pattern + (re.escape(config["delimiter"]) + pattern) * (expected_fields - 1), text):
             raise ValueError
         cells = next(csv.reader(io.StringIO(text), delimiter=config["delimiter"], strict=True))
-        if len(cells) != 4:
+        if len(cells) != expected_fields:
             raise ValueError
         values = []
         decimal = re.escape(config["decimal_separator"])
         numeric = rf"[+-]?(?:\d+(?:{decimal}\d+)?|{decimal}\d+)(?:[eE][+-]?\d+)?"
-        for index, cell in enumerate(cells):
+        for index, cell in enumerate(cells[:4]):
             token = cell.strip()
             if not token and index > 0 and config["empty_measurement"] == "null":
                 values.append(None)
@@ -92,6 +98,12 @@ def parse_row(raw, config, ingestion_id, captured_at):
             values.append(value)
         if not 0 <= values[0] <= 9007199254740991:
             raise ValueError
+        if expected_fields == 5:
+            timestamp = cells[4].strip()
+            if not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z", timestamp):
+                raise ValueError
+            parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            captured_at = parsed.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     except (UnicodeError, ValueError, csv.Error, StopIteration):
         return None, "csv_non_valido"
     kind = config.get("acquisition_kind", "historical")

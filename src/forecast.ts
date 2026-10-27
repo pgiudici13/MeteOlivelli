@@ -1,7 +1,7 @@
 import { isSuspect, metrics } from './weather.ts'
 import type { Measurement, Metric } from './weather.ts'
 
-export const FORECAST_VERSION = 'station-statistical-v2'
+export const FORECAST_VERSION = 'station-statistical-v3'
 export const horizons = [
   { hours: 0.5, label: '+30 minuti' },
   { hours: 1, label: '+1 ora' },
@@ -150,9 +150,12 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   for (const candidate of eligible) {
     if (mae(candidate, selection) < mae(method, selection) * 0.95) method = candidate
   }
+  // La persistenza è il riferimento ingenuo, non una previsione informativa:
+  // non riproporre l'ultima misura a tutti gli orizzonti come se fosse un forecast.
+  if (method === 'persistence') return unavailable(metric, 'Nessun metodo ha dimostrato un miglioramento rispetto all’ultimo valore; previsione ritirata.')
   const error = mae(method, holdout)
   const baseline = mae('persistence', holdout)
-  if (method !== 'persistence' && error > baseline) return unavailable(metric, 'Il modello scelto non conferma il miglioramento sui dati di verifica.')
+  if (error > baseline) return unavailable(metric, 'Il modello scelto non conferma il miglioramento sui dati di verifica.')
   const value = predict(points, points.length, hours, method, cadence)
   if (value === null || !physical(metric, value)) return unavailable(metric, 'Le ultime misure non consentono una stima valida.')
   return { metric, value, reason: null, method, mae: error, baselineMae: baseline, cases: holdout.length, selectionCases: selection.length,

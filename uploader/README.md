@@ -35,6 +35,15 @@ assegna `captured_at` sul PC, mantiene `measured_at: null` e aggiunge
 Non rappresenta un'ora di misura della stazione. La modalità `live` resta soggetta
 alla verifica del writer descritta sotto.
 
+Per creare uno scenario sintetico con orari distanziati (senza simularne il tempo
+d'attesa), la sola modalità `synthetic` può abilitare
+`synthetic_timestamp_column: true`. Il CSV passa a cinque campi:
+`contatore_scenario;temperatura;umidità;pressione;captured_at`; l'ultimo deve
+essere un timestamp UTC esplicito con `Z`. Le intestazioni configurate devono
+avere cinque campi. Il timestamp è soltanto l'ora dello scenario sintetico:
+`measured_at` resta null e ogni record conserva provenienza `synthetic`. Questa
+opzione è rifiutata per `live` e `historical`.
+
 Impostare `live_verified: true` solo dopo DATA-01–DATA-03: writer append verificato,
 clock UTC corretto, latenza/buffering noti e completamento riga osservabile. In
 esecuzione continua il timestamp UTC al millisecondo viene assegnato solo a una

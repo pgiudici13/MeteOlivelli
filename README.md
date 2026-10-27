@@ -1,6 +1,23 @@
 # MeteOlivelli
 
-Progetto meteo del liceo Teresio Olivelli a Pavia, di Pietro Giudici e Nicholas Borin.
+**Una piattaforma meteorologica scolastica, aperta alla curiosità e all'apprendimento.**
+
+MeteOlivelli è un progetto sviluppato da **Pietro Giudici e Nicholas Borin**, studenti del Liceo Teresio Olivelli di Pavia. L'obiettivo è rendere consultabili dal web le misurazioni di una stazione meteorologica Arduino della scuola e offrire uno strumento educativo per esplorare temperatura, umidità e pressione nel tempo.
+
+**Sito:** [meteolivelli.vercel.app](https://meteolivelli.vercel.app/) · **Roadmap:** [plan.md](plan.md) · **Come contribuire:** [CONTRIBUTING.md](CONTRIBUTING.md)
+
+> **Stato del progetto — 26 ottobre 2026:** la web app è online, ma l'acquisizione dalla stazione Arduino e dal PC scolastico non è ancora stata collaudata sul campo. Nel database sono presenti dati **sintetici di prova**, non osservazioni meteorologiche reali. La distinzione è essenziale anche quando il sito mostra grafici o simulazioni.
+
+## Cosa offre
+
+- Dashboard responsive con temperatura, umidità, pressione, tema chiaro/scuro e informazioni sui dati.
+- Grafici e storico navigabile, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
+- Sezione educativa **Gioca con il meteo**, con quiz e spiegazioni.
+- Motore di stime sperimentali: valutazioni su misure fisiche valide e simulazioni **separate ed etichettate** sui dati di prova.
+- Backend Supabase con API di lettura e ingestione; uploader Python resiliente con SQLite, ancora da provare sul PC Windows della scuola.
+
+**Flusso previsto, non ancora validato sul dispositivo reale:** sensori → Arduino → file CSV sul PC Windows → uploader Python → Supabase → dashboard web.
+
 
 ## Stato del progetto
 
@@ -10,7 +27,7 @@ La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disp
 
 La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. Con soli dati sintetici è disponibile una simulazione separata, etichettata, per +3, +6 e +24 ore; non è una previsione reale.
 
-**Dati di prova:** l’ultimo batch documentato il 24 ottobre 2026 contiene 241 campioni `synthetic` ogni tre ore, inseriti su richiesta nel database finale. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La postilla pubblica segnala i possibili dati fittizi. [Contratto ed evidenze](docs/data-preview.md).
+**Dati di prova:** l’ultima verifica documentata il 26 ottobre 2026 riporta 251 campioni `synthetic` nel database finale, inclusi 10 aggiunti ai 241 precedenti. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La postilla pubblica segnala i possibili dati fittizi. [Contratto ed evidenze](docs/data-preview.md).
 
 Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Le stime fisiche e la simulazione sintetica usano feed separati; nessuna fonte meteo esterna è integrata.
 
@@ -29,6 +46,8 @@ I verbali documentano i rilasci e le verifiche eseguite in date diverse; il chec
 | [plan.md](plan.md) | Unica roadmap: requisiti, decisioni e limiti |
 | [tasks.md](tasks.md) | Checklist numerata; “Fase 8” indica il blocco 8 |
 | [AGENTS.md](AGENTS.md) | Regole operative prima di intervenire |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Linee guida per issue, pull request e verifiche |
+| [LICENSE](LICENSE) | Testo della licenza MIT proposta per il codice originale |
 | [Frontend](docs/frontend.md) | Pagine, funzioni, polling, provenienza e verifiche |
 | [Design](design.md) | Aspetto, motion, hover e accessibilità |
 | [Campioni di prova](docs/data-preview.md) | Tipo distinto, batch pubblico e prove SQL/API/UI |
@@ -38,6 +57,12 @@ I verbali documentano i rilasci e le verifiche eseguite in date diverse; il chec
 | [Uploader](uploader/README.md) | Acquisizione PC, outbox e limiti Windows |
 
 Il [file Figma Obsidian v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e la [storia delle revisioni](docs/design-review/README.md) documentano il design precedente. Il restyling Factory è stato implementato nel codice; Figma non è stato riallineato. Revisione con il compagno e prove su dispositivi reali restano aperte. Per collaborare preferire branch dedicati e pull request, preservando il lavoro locale.
+
+## Licenza e collaborazione
+
+Il codice originale e la documentazione di MeteOlivelli sono proposti con licenza **MIT** (vedi [LICENSE](LICENSE)), subordinatamente all'approvazione dei titolari dei diritti indicati nel file: Pietro Giudici, Nicholas Borin e Liceo Teresio Olivelli di Pavia. La licenza consente il riutilizzo e la modifica del materiale coperto, conservando la nota di copyright. **Marchi, stemmi e logo scolastico, immagini o altri materiali di terzi non diventano automaticamente disponibili sotto MIT:** verificare separatamente le autorizzazioni e le rispettive licenze.
+
+Siamo due studenti e il progetto è ancora in sviluppo: contributi documentati, segnalazioni riproducibili e correzioni mirate sono benvenuti. Leggere [CONTRIBUTING.md](CONTRIBUTING.md) e aprire una issue prima di modifiche architetturali importanti. Non pubblicare dati personali, credenziali o misurazioni non verificate.
 
 ## Requisiti locali
 
