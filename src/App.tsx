@@ -246,18 +246,25 @@ function App() {
         </div>
         {data.invalidLatestTime && <div className="error-message" role="alert">L’ultima acquisizione ha un orario futuro rispetto al server e non viene mostrata. Verificare l’orologio del PC della stazione.</div>}
         {latestError && <div className="error-message" role="alert">Non è stato possibile aggiornare le misure. Riproviamo automaticamente; gli eventuali valori visibili sono dell’ultima lettura riuscita.</div>}
-        <div className="metric-grid">{metrics.map(metric => <article key={metric.key} className={`metric-card panel tone-${metric.tone}`}>
+        {latestLoaded && !latest ? <div className="station-empty panel" role="status">
+          <span className="station-empty-symbol" aria-hidden="true">—</span>
+          <div>
+            <h3>{latestError ? 'La stazione non è raggiungibile' : historicalOnly ? 'Sono disponibili soltanto dati storici' : 'In attesa delle prime misure'}</h3>
+            <p>{latestError ? 'Non riusciamo ad aggiornare i valori. Riproveremo automaticamente.' : historicalOnly ? 'La stazione non ha ancora inviato nuove letture. Puoi esplorare l’archivio già disponibile.' : 'Qui compariranno temperatura, umidità e pressione quando la stazione invierà i primi dati reali.'}</p>
+            <a href={historicalOnly ? '#history-title' : '/info'}>{historicalOnly ? 'Esplora lo storico' : 'Scopri come funziona la stazione'} <span aria-hidden="true">↗</span></a>
+          </div>
+        </div> : <div className="metric-grid">{metrics.map(metric => <article key={metric.key} className={`metric-card panel tone-${metric.tone}`}>
           <h3>{metric.name}</h3>
           <p className={`metric-value ${!latest || latest[metric.key] === null ? 'value-empty' : ''}`}>
             {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : historicalOnly ? 'Nessuna lettura recente' : 'Nessun dato disponibile'}
           </p>
           <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
           <details className="metric-explanation"><summary><span aria-hidden="true">ⓘ</span> Cosa indica?</summary><p>{metricExplanations[metric.key]}</p></details>
-        </article>)}</div>
-        <div className="weather-summary panel" aria-labelledby="weather-summary-title">
+        </article>)}</div>}
+        {latest && <div className="weather-summary panel" aria-labelledby="weather-summary-title">
           <h3 id="weather-summary-title">Come stanno cambiando le misure?</h3>
           {weatherSummary ? <><ul>{weatherSummary.map(sentence => <li key={sentence}>{sentence}</li>)}</ul><p className="small">Confronto descrittivo fra letture della stazione, non una previsione. Gli intervalli fra misure possono essere diversi.</p></> : <p className="small">La sintesi sarà disponibile quando arriveranno almeno due letture fisiche valide e confrontabili.</p>}
-        </div>
+        </div>}
         {latest && <details className="time-details"><summary>Provenienza degli orari</summary>
           <p>Misura fisica: {formatTime(latest.measured_at)}.</p>
           <p>Acquisizione della riga sul PC: {formatTime(latest.captured_at)}.</p>

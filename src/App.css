@@ -456,6 +456,12 @@ button::after, .hero-link::after { padding: 2px; }
 .chart-methodology { border-top: 1px solid var(--border); padding-top: 12px; color: var(--secondary); font-size: 13px; line-height: 1.65; }
 .chart-methodology summary { color: var(--text); cursor: pointer; padding: 10px 0; min-height: 44px; }
 .chart-methodology p { margin: 8px 0 0; }
+.station-empty { display: flex; align-items: flex-start; gap: 20px; padding: clamp(18px, 3vw, 28px); background: var(--surface-soft); }
+.station-empty-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border: 1px solid var(--border); border-radius: 50%; color: var(--secondary); font-size: 26px; }
+.station-empty h3 { font-size: 18px; font-weight: 500; margin: 0 0 7px; }
+.station-empty p { margin: 0 0 10px; color: var(--secondary); line-height: 1.6; }
+.station-empty a { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; text-underline-offset: 4px; color: var(--text); }
+@media (max-width: 450px) { .station-empty { gap: 12px; } .station-empty-symbol { width: 34px; height: 34px; flex-basis: 34px; } }
 .section-jump-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin: 26px 0 12px; }
 .section-jump-nav span { color: var(--secondary); font-size: 12px; margin-right: 6px; }
 .section-jump-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--text); font-size: 13px; }
