@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
+import { DailyCuriosity } from './components/DailyCuriosity.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
@@ -285,6 +286,7 @@ function App() {
         {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
       <Reveal><ForecastSection /></Reveal>
+      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>
         <h2 id="about-title">Un progetto per osservare e imparare.</h2>

@@ -285,3 +285,7 @@ I grafici espongono statistiche e variazione dei punti disponibili, con media po
 
 La dashboard descrive l'andamento delle tre grandezze esclusivamente confrontando campioni fisici validi con acquisizione datata. Non presenta dati sintetici come osservazioni né interpreta la descrizione come previsione; se i confronti non sono disponibili mostra uno stato esplicito. Il calcolo ha test per misure mancanti, sospette e provenienza non ammessa.
 
+## Curiosità del giorno — 27 ottobre 2026
+
+La pagina iniziale mostra una curiosità educativa tratta dalle domande già verificate del quiz. La selezione è deterministica per giorno civile `Europe/Rome`, uguale per i visitatori e aggiornata mentre la scheda rimane aperta; non dipende dalle misure della stazione. La risposta è spiegata e collegata alla pagina Gioca. Le prove coprono rotazione, stabilità e validità delle risposte.
+
