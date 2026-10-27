@@ -10,6 +10,7 @@ import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspec
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
+import { measurementAge } from './measurement-age.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { SchoolLogo } from './components/SchoolLogo.tsx'
@@ -144,6 +145,7 @@ function App() {
   const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
   const weatherSummary = useMemo(() => describeWeatherChange(latest, rows), [latest, rows])
+  const ageDescription = measurementAge(latest, data.serverUntil)
 
   function applyCustomRange(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -209,7 +211,7 @@ function App() {
           <p className="hero-description">Uno sguardo fuori, un dato alla volta.<br />Temperatura, umidità e pressione, osservate dalla nostra scuola.</p>
           <a className="hero-link" href="#history-title">Esplora le misure <span aria-hidden="true">↗</span></a>
           <p className={`station-status ${latestError ? 'warning' : ''}`} role="status"><span className="status-dot" aria-hidden="true" />{stationStatus}</p>
-          <p className="small freshness-note">{latest ? 'Una lettura è disponibile: la freschezza della misura non è ancora verificata.' : historicalOnly ? 'Sono disponibili solo importazioni storiche: non risultano letture recenti della stazione.' : 'Le osservazioni appariranno appena saranno disponibili.'}</p>
+          <p className="small freshness-note">{ageDescription ?? (historicalOnly ? 'Sono disponibili solo importazioni storiche: non risultano letture recenti della stazione.' : 'Le osservazioni appariranno appena saranno disponibili.')}</p>
         </section></Reveal>
         <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>

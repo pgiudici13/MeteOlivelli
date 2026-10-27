@@ -289,3 +289,7 @@ La dashboard descrive l'andamento delle tre grandezze esclusivamente confrontand
 
 La pagina iniziale mostra una curiosità educativa tratta dalle domande già verificate del quiz. La selezione è deterministica per giorno civile `Europe/Rome`, uguale per i visitatori e aggiornata mentre la scheda rimane aperta; non dipende dalle misure della stazione. La risposta è spiegata e collegata alla pagina Gioca. Le prove coprono rotazione, stabilità e validità delle risposte.
 
+## Età dell'ultima lettura — 27 ottobre 2026
+
+La pagina mostra il tempo trascorso dall'orario della misura fisica attestata, oppure, quando assente, dall'acquisizione PC o dalla ricezione server con etichette distinte. Il calcolo usa l'ora restituita dal backend e non l'orologio del visitatore; date future/non coerenti non producono un'età fittizia. L'indicazione non equivale a certificare la freschezza della misura in assenza di una cadenza verificata.
+
