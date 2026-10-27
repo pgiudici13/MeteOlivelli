@@ -174,9 +174,8 @@ button:disabled { cursor: default; opacity: .45; }
   .hero-instrument .chart svg { max-height: 260px; }
   .metric-grid, .forecast-grid { grid-template-columns: 1fr; }
   .metric-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 20px; }
-  .metric-value { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 28px; margin: 0; text-align: right; }
+  .metric-value { grid-column: 2; grid-row: 1; align-self: center; font-size: 28px; margin: 0; text-align: right; }
   .metric-value.value-empty { font-size: 14px; min-height: 0; max-width: 140px; }
-  .metric-source { grid-column: 1; grid-row: 2; }
   .history-table, .history-table tbody { display: block; }
   .history-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .history-table th:first-child, .history-table th:nth-child(2), .history-table th:nth-child(3), .history-table th:nth-child(4), .history-table th:last-child { width: auto; }

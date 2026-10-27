@@ -258,7 +258,6 @@ function App() {
           <p className={`metric-value ${!latest || latest[metric.key] === null ? 'value-empty' : ''}`}>
             {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : historicalOnly ? 'Nessuna lettura recente' : 'Nessun dato disponibile'}
           </p>
-          <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
           <details className="metric-explanation"><summary><span aria-hidden="true">ⓘ</span> Cosa indica?</summary><p>{metricExplanations[metric.key]}</p></details>
         </article>)}</div>}
         {latest && <div className="weather-summary panel" aria-labelledby="weather-summary-title">

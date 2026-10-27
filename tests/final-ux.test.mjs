@@ -25,3 +25,9 @@ test('grafici: navigazione per punti utilizzabile da touch con etichette accessi
   assert.match(chart, /aria-label=\{`\$\{metric\.name\}: punto successivo`\}/)
   assert.match(styles, /\.chart-touch-controls button \{ min-width: 0; min-height: 44px/)
 })
+
+test('l’orario di acquisizione compare una volta nella sezione, non su ogni scheda', () => {
+  assert.match(app, /Acquisizione sul PC: \$\{formatTime\(latest\.captured_at\)\}/)
+  assert.doesNotMatch(app, /className="small metric-source"/)
+  assert.match(app, /metricExplanations\[metric\.key\]/)
+})
