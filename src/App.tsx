@@ -131,6 +131,7 @@ function App() {
   const [pdfMessage, setPdfMessage] = useState('')
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
+  const [showChronology, setShowChronology] = useState(false)
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
   const completeHistory = useCompleteHistory(data.latestLoaded ? JSON.stringify([data.latest, data.invalidLatestTime]) : null)
@@ -291,7 +292,11 @@ function App() {
         {completeHistory.checkedAt && <p className="small">Cronologia riletta il {formatTime(completeHistory.checkedAt)} · Europe/Rome. Si aggiorna quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto. Per includere importazioni storiche usa “Aggiorna cronologia”.</p>}
         {completeHistory.loading && <p className="empty-state" role="status">{completeHistory.checkedAt ? 'Aggiornamento della cronologia in corso…' : 'Lettura di tutta la cronologia in corso…'}</p>}
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
-        {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
+        {completeHistory.rows.length ? <>
+          <p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati, consultabili giorno per giorno.</p>
+          <button type="button" className="chronology-toggle" aria-expanded={showChronology} aria-controls="chronology-data" onClick={() => setShowChronology(value => !value)}>{showChronology ? 'Nascondi le misurazioni' : 'Mostra le misurazioni'}</button>
+          <div id="chronology-data" hidden={!showChronology}>{showChronology && <HistoryTable key="all-history" rows={completeHistory.rows} />}</div>
+        </> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>

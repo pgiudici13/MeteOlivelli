@@ -13,3 +13,10 @@ test('previsioni e curiosità precedono lo storico completo nella home', () => {
   assert.ok(curiosity > forecast && curiosity < history)
   assert.ok(history < chronology)
 })
+
+test('cronologia estesa solo su richiesta senza nascondere il download PDF', () => {
+  assert.match(app, /useState\(false\).*\n.*const queryPeriod/s)
+  assert.match(app, /aria-expanded=\{showChronology\}/)
+  assert.match(app, /\{showChronology && <HistoryTable/)
+  assert.ok(app.indexOf('downloadHistoryPdf()') < app.indexOf('aria-expanded={showChronology}'))
+})
