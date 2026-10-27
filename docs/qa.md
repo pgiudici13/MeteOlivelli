@@ -179,3 +179,7 @@ Evidenza (screenshot o log depurato):
 Difetto/azione successiva:
 Ripetuta dopo correzione? (sì/no/non applicabile):
 ```
+
+# Controlli continui e budget (27 ottobre 2026)
+
+Il workflow GitHub Actions `verify.yml` esegue `npm ci` e `npm run check` su push e pull request senza credenziali di produzione. Il controllo include build, lint, test frontend/backend/uploader e un budget per gli asset critici iniziali: JavaScript fino a 110 KiB gzip e CSS fino a 10 KiB gzip. I chunk PDF caricati su richiesta non sono compresi nel budget della navigazione iniziale; le prestazioni reali vanno sempre misurate separatamente su dispositivi e reti diversi.
