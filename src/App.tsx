@@ -325,7 +325,7 @@ function App() {
           <p>Misure assenti o indicate come «probabili errate» interrompono il tracciato. Rimangono consultabili nella cronologia.</p>
         </details>
       </section></Reveal>
-      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} selectedRange={customRange} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>

@@ -96,3 +96,37 @@ export function shiftCivilDay(key: string, offset: number) {
   date.setUTCDate(date.getUTCDate() + offset)
   return date.toISOString().slice(0, 10)
 }
+
+/** Statistiche su un intervallo esatto, mai interpolate e senza campioni sintetici. */
+export function collectRangeStatistics(rows: Measurement[], range: { start: number; end: number }, serverUntil: string) {
+  const now = Date.parse(serverUntil)
+  if (!Number.isFinite(now) || !Number.isFinite(range.start) || !Number.isFinite(range.end) || range.start >= range.end) return null
+  type Acc = { sum: number; count: number; minimum: number; maximum: number; hours: Set<number> }
+  const grouped: Partial<Record<Metric, Acc>> = {}
+  let samples = 0
+  for (const row of rows) {
+    if (!['live', 'historical'].includes(row.acquisition_kind ?? '')) continue
+    const time = Date.parse(row.measured_at ?? row.captured_at ?? '')
+    if (!Number.isFinite(time) || time < range.start || time > range.end || time > now) continue
+    let any = false
+    for (const metric of metrics) {
+      const value = row[metric.key]
+      if (value === null || !Number.isFinite(value) || isSuspect(row, metric.key)) continue
+      any = true
+      const acc = grouped[metric.key] ?? { sum: 0, count: 0, minimum: value, maximum: value, hours: new Set<number>() }
+      acc.sum += value
+      acc.count++
+      acc.minimum = Math.min(acc.minimum, value)
+      acc.maximum = Math.max(acc.maximum, value)
+      acc.hours.add(Math.floor(time / 3_600_000))
+      grouped[metric.key] = acc
+    }
+    if (any) samples++
+  }
+  const values: Partial<Record<Metric, MetricStatistics>> = {}
+  for (const metric of metrics) {
+    const item = grouped[metric.key]
+    if (item) values[metric.key] = { count: item.count, minimum: item.minimum, maximum: item.maximum, average: item.sum / item.count, observedHours: item.hours.size }
+  }
+  return { metrics: values, samples }
+}

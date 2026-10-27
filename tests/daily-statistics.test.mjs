@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { aggregatePeriod, collectDailyStatistics, monthExtremes, shiftCivilDay } from '../src/daily-statistics.ts'
+import { aggregatePeriod, collectDailyStatistics, collectRangeStatistics, monthExtremes, shiftCivilDay } from '../src/daily-statistics.ts'
 
 const row = (time, temperature, flags = [], kind = 'live') => ({
   acquisition_kind: kind, ingestion_id: String(time), captured_at: time, measured_at: time,
@@ -71,4 +71,13 @@ test('intervalli civili conservano le date anche con il cambio ora solare', () =
   assert.equal(shiftCivilDay('2026-10-27', -2), '2026-10-25')
   assert.equal(shiftCivilDay('2026-11-01', -7), '2026-10-25')
   assert.equal(shiftCivilDay('2026-01-01', -1), '2025-12-31')
+})
+
+test('intervallo personalizzato seleziona orari esatti, esclude sintetici e valori sospetti', () => {
+  const rows = [row('2026-10-27T09:00:00Z', 9), row('2026-10-27T10:00:00Z', 10), row('2026-10-27T11:00:00Z', 11), row('2026-10-27T10:30:00Z', 100, [], 'synthetic')]
+  const stats = collectRangeStatistics(rows, { start: Date.parse('2026-10-27T09:30:00Z'), end: Date.parse('2026-10-27T11:00:00Z') }, '2026-10-27T12:00:00Z')
+  assert.equal(stats.samples, 2)
+  assert.equal(stats.metrics.temperature_c.minimum, 10)
+  assert.equal(stats.metrics.temperature_c.maximum, 11)
+  assert.equal(stats.metrics.temperature_c.average, 10.5)
 })
