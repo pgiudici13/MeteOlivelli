@@ -4,11 +4,15 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
+import { DailyCuriosity } from './components/DailyCuriosity.tsx'
+import { DailyStatistics } from './components/DailyStatistics.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
+import { measurementAge } from './measurement-age.ts'
+import { metricExplanations } from './metric-explanations.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { SchoolLogo } from './components/SchoolLogo.tsx'
@@ -143,6 +147,7 @@ function App() {
   const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
   const weatherSummary = useMemo(() => describeWeatherChange(latest, rows), [latest, rows])
+  const ageDescription = measurementAge(latest, data.serverUntil)
 
   function applyCustomRange(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -208,7 +213,7 @@ function App() {
           <p className="hero-description">Uno sguardo fuori, un dato alla volta.<br />Temperatura, umidità e pressione, osservate dalla nostra scuola.</p>
           <a className="hero-link" href="#history-title">Esplora le misure <span aria-hidden="true">↗</span></a>
           <p className={`station-status ${latestError ? 'warning' : ''}`} role="status"><span className="status-dot" aria-hidden="true" />{stationStatus}</p>
-          <p className="small freshness-note">{latest ? 'Una lettura è disponibile: la freschezza della misura non è ancora verificata.' : historicalOnly ? 'Sono disponibili solo importazioni storiche: non risultano letture recenti della stazione.' : 'Le osservazioni appariranno appena saranno disponibili.'}</p>
+          <p className="small freshness-note">{ageDescription ?? (historicalOnly ? 'Sono disponibili solo importazioni storiche: non risultano letture recenti della stazione.' : 'Le osservazioni appariranno appena saranno disponibili.')}</p>
         </section></Reveal>
         <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>
@@ -237,6 +242,7 @@ function App() {
             {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : historicalOnly ? 'Nessuna lettura recente' : 'Nessun dato disponibile'}
           </p>
           <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
+          <details className="metric-explanation"><summary><span aria-hidden="true">ⓘ</span> Cosa indica?</summary><p>{metricExplanations[metric.key]}</p></details>
         </article>)}</div>
         <div className="weather-summary panel" aria-labelledby="weather-summary-title">
           <h3 id="weather-summary-title">Come stanno cambiando le misure?</h3>
@@ -284,7 +290,9 @@ function App() {
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
         {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><ForecastSection /></Reveal>
+      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>
         <h2 id="about-title">Un progetto per osservare e imparare.</h2>

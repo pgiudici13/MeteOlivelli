@@ -174,3 +174,7 @@ I grafici mostrano minimo, massimo, media ponderata sul numero dei campioni e va
 
 Sui telefoni fino a 600 px i periodi sono selezionabili in un'unica fila orizzontalmente scorrevole, con target di almeno 44 px. I grafici mantengono lo scorrimento verticale nativo e offrono testo più leggibile; la cronologia ridistribuisce i valori su due colonne, lasciando più spazio alla pressione. Si conserva la struttura visiva Factory e il comportamento desktop. Il collaudo su telefono fisico resta aperto.
 
+## Curiosità quotidiana — 27 ottobre 2026
+
+La nuova scheda educativa riprende colori, tipografia e pannelli esistenti, dopo le previsioni. Non introduce icone decorative, effetti pesanti né interazioni che blocchino la lettura.
+
