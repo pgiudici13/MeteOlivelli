@@ -8,19 +8,19 @@ Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/)
 
 La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disponibile su `/gioca`: presenta dieci domande casuali fra venti curiosità, mescola le risposte e spiega il risultato di ogni scelta.
 
-La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale per +30m/+1h/+24h è sperimentale: le stime restano indisponibili in assenza di osservazioni reali datate e validate; i campioni sintetici non lo alimentano.
+La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. Con soli dati sintetici è disponibile una simulazione separata, etichettata, per +3, +6 e +24 ore; non è una previsione reale.
 
-**Batch documentato in precedenza:** dieci campioni di prova ogni sei ore, inseriti su autorizzazione nel database finale con tipo applicativo `synthetic` e metadati distinti. Il successivo verbale PDF riporta 11 righe sintetiche; il numero corrente nel database non è stato riverificato durante l’audit locale del 23 ottobre. Il sito mostra la postilla **Work in progress · Possibili dati presenti fittizi**. Non sono osservazioni Arduino e non attestano la pipeline scolastica; non esiste un selettore DEMO o un database separato. [Contratto, valori ed evidenze](docs/data-preview.md).
+**Dati di prova:** l’ultimo batch documentato il 24 ottobre 2026 contiene 241 campioni `synthetic` ogni tre ore, inseriti su richiesta nel database finale. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La postilla pubblica segnala i possibili dati fittizi. [Contratto ed evidenze](docs/data-preview.md).
 
-Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Il modello statistico locale usa soltanto osservazioni reali ammesse; nessuna fonte meteo esterna è integrata.
+Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Le stime fisiche e la simulazione sintetica usano feed separati; nessuna fonte meteo esterna è integrata.
 
-Rilasci applicativi verificati: `fab71cb` (UI/postilla), `bce39e2` (provenienza e dati) e `1b29313` (correzione logo). Il checkout `6e5f197` include anche quiz, cronologia completa ed esportazioni PDF; i verbali successivi registrano le pubblicazioni. L’audit del 23 ottobre ha verificato codice e build locale, senza riconfermare lo stato remoto. Git e deploy non sostituiscono il backup. Backup/restore, avvisi e collaudo reale restano aperti nella **Fase 8**.
+I verbali documentano i rilasci e le verifiche eseguite in date diverse; il checkout locale include anche quiz, cronologia completa, PDF e simulazione previsionale. La versione effettivamente distribuita e le funzioni Edge non sono state riconfermate in questa revisione. Restano aperti il collaudo della stazione reale, backup/restore, avvisi e validazione meteorologica: si veda la **Fase 8** in [tasks.md](tasks.md#8-fase-8--backup-gestione-e-rilascio).
 
 **Revisione grafici successiva, pubblicazione richiesta il 22 ottobre:** Auto predefinito, scala adattiva e medie per fascia nell’ultima settimana disponibile; disegno lineare più rapido. Le viste manuali rimangono. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
 
-**Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia. Sono presenti download PDF dei grafici e della cronologia.
+**Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia e raggruppa le pagine per giorno in Europe/Rome. Sono presenti download PDF dei grafici e della cronologia.
 
-**Audit locale del 23 ottobre, `6e5f197`:** build/lint, 72 test frontend, 44 Deno e 23 Python superati. Riprodotti problemi di cursore sub-millisecondo, provenienza nei PDF dei grafici, aggiornamento cronologia e margini della tabella PDF. [Prove, priorità e limiti](docs/project-review/README.md); [registro correzioni](CORRECTIONS.md#cor-009--il-cursore-della-cronologia-perde-i-microsecondi). Successivamente corretti in locale cursore, aggiornamento cronologia e layout PDF (COR-009, COR-011, COR-012); la correzione sulla provenienza sintetica dei PDF grafici (COR-010) è esclusa su richiesta utente. Nessun dato cancellato e nessuna pubblicazione eseguita. Le verifiche finali sono nel verbale collegato.
+**Audit locale del 23 ottobre, `6e5f197`:** build/lint, 72 test frontend, 44 Deno e 23 Python superati. Riprodotti problemi di cursore sub-millisecondo, provenienza nei PDF dei grafici, aggiornamento cronologia e margini della tabella PDF. [Prove, priorità e limiti](docs/project-review/README.md); [registro correzioni](CORRECTIONS.md#cor-009--il-cursore-della-cronologia-perde-i-microsecondi). Successivamente cursore, aggiornamento cronologia e layout PDF sono stati corretti nel codice locale (COR-009, COR-011, COR-012); la correzione della provenienza sintetica nei PDF dei grafici (COR-010) resta esclusa su richiesta utente. Il verbale descrive lo stato della pubblicazione in quella sessione, non prova il deploy corrente.
 
 ## Documentazione e collaborazione
 
@@ -93,7 +93,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 |---|---|
 | `npm run lint` | ESLint su frontend e configurazioni Node; esclude esplicitamente il codice Deno |
 | `npm run build` | TypeScript/Vite e bundle del frontend |
-| `npm run frontend:test` | 26 test Node su contratto di lettura, serie, qualità, polling e freschezza; senza rete o segreti |
+| `npm run frontend:test` | Test Node su lettura, serie, qualità, polling, previsioni e quiz; senza rete o segreti |
 | `npm run backend:check` | Typecheck dei moduli backend con Deno |
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
@@ -101,15 +101,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
-I 41 test backend usano solo dati sintetici: 3 sulla configurazione, 14 su contratto,
-numeri, qualità, UTC, storico e confronto canonico dei retry, 10 sull'adattatore CSV
-provvisorio con dialetto obbligatorio e 14 su handler HTTP, conferme, errori, query
-e adapter RPC simulato. Ordine/unità dichiarati
-dall'utente: secondi dall'accensione, temperatura °C, umidità %, pressione hPa.
-Il campione CSV/writer reale resta da verificare. Le prove BE-07 sul progetto scelto verificano
-RPC, privilegi/RLS e ingestione HTTP sintetica concorrente; fixture rimosse.
-Resta da provare l’acquisizione reale da CSV/Windows. Le prove SQL in `supabase/tests/`
-richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno.
+I test backend usano dati sintetici per configurazione, contratto, adattatore CSV e handler HTTP con store simulati. Ordine e unità dichiarati: secondi dall’accensione, temperatura °C, umidità % e pressione hPa; il campione CSV e il writer reali restano da verificare. Le prove BE-07 hanno verificato RPC, privilegi/RLS e ingestione HTTP sintetica sul progetto autorizzato; le fixture sono state rimosse. Le prove SQL in `supabase/tests/` richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno.
 La suite frontend nativa non richiede nuove dipendenze. Una QA browser opzionale
 con Playwright esterno è descritta in [docs/frontend.md](docs/frontend.md);
 le fixture positive vengono intercettate soltanto nel browser di prova.
@@ -136,7 +128,7 @@ supabase/functions/           Moduli TypeScript per il backend Deno
   _shared/measurement_test.ts Test sintetici sui controlli dati
   _shared/measurement_csv.ts  Adattatore CSV provvisorio con dialetto esplicito
   _shared/measurement_csv_test.ts Test sintetici del parser CSV
-supabase/migrations/          Migrazione applicata in BE-07
+supabase/migrations/          Migrazioni versionate; stato remoto da verificare
 supabase/tests/               Prove SQL con rollback e protocollo concorrenza
 docs/backend-schema.md        Schema, accessi e lettura
 docs/backend-verification.md  Target, prove live, recupero e limiti BE-07
