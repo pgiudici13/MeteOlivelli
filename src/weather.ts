@@ -30,10 +30,12 @@ export function stationMeasurements(rows: Measurement[]): Measurement[] {
   return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
 }
 
-export function isAfterServerTime(value: string, serverUntil: string): boolean {
-  const key = (time: string) => time.replace(/\+00:00$/, 'Z')
+function timestampKey(time: string): string {
+  return time.replace(/\+00:00$/, 'Z')
     .replace(/(?:\.(\d{1,6}))?Z$/, (_, fraction: string = '') => `.${fraction.padEnd(6, '0')}Z`)
-  return key(value) > key(serverUntil)
+}
+export function isAfterServerTime(value: string, serverUntil: string): boolean {
+  return timestampKey(value) > timestampKey(serverUntil)
 }
 
 /** L'ancoraggio non può superare il tempo del server, neppure per arrotondamento. */
@@ -111,10 +113,8 @@ export type PageReader = typeof readPage
 
 /** Ordine della cronologia: confrontare i microsecondi prima dello spareggio UUID. */
 export function compareHistoryMeasurements(a: Measurement, b: Measurement): number {
-  const key = (value: string) => value.replace(/\+00:00$/, 'Z')
-    .replace(/(?:\.(\d{1,6}))?Z$/, (_, fraction: string = '') => `.${fraction.padEnd(6, '0')}Z`)
-  const aTime = key(a.captured_at ?? a.received_at)
-  const bTime = key(b.captured_at ?? b.received_at)
+  const aTime = timestampKey(a.captured_at ?? a.received_at)
+  const bTime = timestampKey(b.captured_at ?? b.received_at)
   return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 
@@ -193,7 +193,7 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
       items.set(item.ingestion_id, item)
     }
     if (!result.next_cursor) {
-      const sorted = [...items.values()].sort((a, b) => Date.parse(a[basis]!) - Date.parse(b[basis]!) || a.ingestion_id.localeCompare(b.ingestion_id))
+      const sorted = [...items.values()].sort((a, b) => compareMeasurements(a, b, basis))
       if (period !== '14g') return sorted
       const cutoff = Date.parse(until!) - 336 * 3600000
       return sorted.filter(item => Date.parse(item[basis]!) >= cutoff)
@@ -205,8 +205,10 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
   throw new Error('Storico oltre il limite di consultazione')
 }
 
-export function compareMeasurements(a: Measurement, b: Measurement): number {
-  return Date.parse(a.captured_at ?? '') - Date.parse(b.captured_at ?? '') || a.ingestion_id.localeCompare(b.ingestion_id)
+export function compareMeasurements(a: Measurement, b: Measurement, basis: ReadPage['time_basis'] = 'captured_at'): number {
+  const aTime = timestampKey(a[basis] ?? '')
+  const bTime = timestampKey(b[basis] ?? '')
+  return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 export function trimHistory(rows: Measurement[], period: Period, serverUntil: string): Measurement[] {
   const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000

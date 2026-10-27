@@ -651,3 +651,11 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 - **Avvio richiesto prima dell'uso reale:** impostare il segreto, verificare l'allowlist CORS se cambia il dominio, poi login corretto/errato, tutte le operazioni su una riga di prova e i controlli di provenienza/qualità.
 - **Limiti del modulo:** richiede `arduino_seconds` perché il contratto v1 lo impone; inserisce come storico e non inventa `captured_at`; modifica e cancellazione non sono annullabili (l'audit non conserva i valori precedenti). La lista mostra le 100 righe più recenti.
 - **Verifiche di rilascio:** login corretto/errato, origine rifiutata, tutte le operazioni su una riga di prova, controlli di provenienza/qualità, audit, visibilità nella dashboard e comportamento sui dati sintetici. Da completare dopo la configurazione del segreto; build, lint, suite locali, migration e deploy già eseguiti.
+
+## Audit finale richiesto — 27 ottobre 2026
+
+Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/push autorizzati dopo i controlli; nessuna applicazione di migrazioni o configurazione remota compresa.
+
+- [x] COR-033: ordine dei grafici corretto anche ai microsecondi, tre regressioni dedicate; `npm run check` superato (101 frontend, 52 Deno, 28 Python nel checkout condiviso). Lo script frontend include automaticamente tutti i file `tests/*.test.mjs`.
+- [ ] Completare revisione UI/browser, area amministrativa, backend/uploader e verifica del rilascio Git.
+- [ ] Rimangono indipendenti: CSV/writer e Windows reali, acquisizione continua, backup/restore, avvisi e validazione meteo.

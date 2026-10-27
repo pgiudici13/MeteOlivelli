@@ -315,3 +315,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto/priorità:** alta; il file risultante non avrebbe conservato i record meteorologici e non avrebbe rilevato alterazioni del ciphertext.
 - **Correzione:** runbook aggiornato con dump separati di ruoli, schema e dati; archivio proposto con cifratura autenticata `age`, checksum, snapshot SQLite coerente dell'outbox e restore isolato. CLI, `psql` e `age` non sono installati qui; Docker è disponibile.
 - **Verifica:** comandi e perimetro confrontati con le guide ufficiali; controllo documentale e `git diff --check`. Resta necessario eseguire export e restore di prova su target autorizzati prima di dichiarare OPS-01 completato.
+
+## COR-033 — Ordine dei grafici perde le frazioni sotto il millisecondo
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/weather.ts`, `tests/weather-order.test.mjs`.
+- **Prova:** due campioni a `.123456Z` e `.123457Z` con UUID in ordine inverso erano invertiti da `readHistory`, sia per acquisizione sia per misura fisica; due test fallivano prima della correzione.
+- **Impatto:** medio; serie e navigazione dei campioni potevano seguire un ordine errato.
+- **Correzione:** confronto UTC normalizzato a sei cifre frazionarie; UUID usato solo a parità di istante.
+- **Verifica:** tre regressioni dedicate e `npm run check` superati; nessuna modifica al contratto remoto.

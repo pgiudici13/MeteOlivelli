@@ -1,5 +1,7 @@
 # Piano di progetto — MeteOlivelli
 
+> **Audit finale richiesto — 27 ottobre 2026:** revisione di codice e UI senza restyling; l’utente autorizza correzioni, test e commit/push dopo ogni risoluzione verificata. Nessuna applicazione di migrazioni o modifica alla configurazione dei servizi inclusa. Gli esiti sono registrati in `tasks.md` e i problemi riprodotti in `CORRECTIONS.md`; collaudo della stazione, backup/restore e validazione previsionale restano criteri separati.
+
 > **Aggiornamento locale — 27 ottobre 2026:** su richiesta rivisti i testi di Informazioni per una presentazione più diretta, senza avvisi provvisori; rimangono spiegazioni accurate su orari, freschezza e previsioni. Il funzionamento continuo della stazione resta da verificare.
 
 > **Decisione del 27 ottobre 2026, implementazione locale:** per la versione finale l’utente chiede di rimuovere l’avviso provvisorio e i riferimenti ai dati fittizi dalla UI. La dashboard, i PDF e le previsioni escludono campioni `synthetic` o con provenienza assente; il database e l’API remoti non sono stati modificati. Con l’ultimo archivio documentato la dashboard locale è vuota fino all’arrivo di misure della stazione. I paragrafi e verbali precedenti sulla simulazione pubblica descrivono la versione storica.

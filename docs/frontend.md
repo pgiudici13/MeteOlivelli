@@ -204,3 +204,11 @@ Analytics: la schermata Admin GA4 indicava il corretto dominio e ID stream ma ne
 - **HistoryTable (AUD-13):** raggruppamento per giorno memoizzato con `useMemo`; nessun cambiamento visibile, meno ricalcoli durante le transizioni di paginazione.
 - **Distribuzione (AUD-16):** `googlead8bb9c28d0d4e51.html` è ora servito da `public/` (prima non entrava in `dist/`); il build genera `dist/404.html` con `noindex` e titolo dedicato, e la SPA rende la pagina “Pagina non trovata” brandizzata. Route esistenti invariate; effetto sul dominio da verificare al prossimo deploy.
 - **PDF (AUD-14):** valutati senza modifiche: pdfmake e font (~1,8 MB) sono caricati solo al primo export, fuori dal bundle iniziale; ridurli degraderebbe i documenti. Nota in `src/pdf-runtime.ts`.
+
+## Audit del 27 ottobre 2026 — precisione delle serie
+
+Le letture paginate dei grafici ordinano acquisizione e misura fisica mantenendo
+le sei cifre frazionarie del server; gli UUID risolvono soltanto gli istanti uguali.
+`tests/weather-order.test.mjs` riproduce l’inversione precedente e confronta anche
+le forme UTC equivalenti. Il comando `npm run frontend:test` include tutti i file
+`tests/*.test.mjs`; i runner `*-browser.mjs` restano separati e opzionali.
