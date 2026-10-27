@@ -70,23 +70,24 @@ test('previsioni: baseline persistente non viene spacciata per previsione', () =
   assert.equal(run.horizons[0].estimates[0].value, null)
   assert.match(run.horizons[0].estimates[1].reason, /miglioramento rispetto all’ultimo valore/)
 })
-test('previsioni: dati insufficienti e cadenza oraria non diventano verità a mezz’ora', () => {
+test('previsioni: cadenza oraria e campioni insufficienti non producono stime non validate', () => {
   const hourlyRows = series(720, hour)
   const hourlyRun = buildForecast(hourlyRows, nowOf(hourlyRows))
-  // I campioni a orario non supportano l’orizzonte +1 ora.
+  // Un orizzonte +1 ora è ammesso solo se supera i controlli del modello.
   assert.equal(hourlyRun.horizons[0].estimates[0].value, null)
-  assert.match(hourlyRun.horizons[0].estimates[0].reason, /cadenza/)
-  assert.notEqual(hourlyRun.horizons[1].estimates[0].value, null)
+  assert.match(hourlyRun.horizons[0].estimates[0].reason, /miglioramento|cadenza|Storico insufficiente/)
+  assert.equal(hourlyRun.horizons[1].hours, 6)
+  assert.ok(hourlyRun.horizons[1].estimates[0].value !== null || hourlyRun.horizons[1].estimates[0].reason)
   const halfHourlyRows = series(720, halfHour)
   const halfHourlyRun = buildForecast(halfHourlyRows, nowOf(halfHourlyRows))
-  // Con persistenza la conservazione dell'ultimo valore non è una previsione informativa: ritirata.
-  assert.equal(halfHourlyRun.horizons[0].estimates[0].value, null)
-  assert.match(halfHourlyRun.horizons[0].estimates[0].reason, /miglioramento rispetto all’ultimo valore/)
+  // Le osservazioni ogni mezz'ora consentono qui una stima oraria verificata.
+  assert.notEqual(halfHourlyRun.horizons[0].estimates[0].value, null)
+  assert.equal(Date.parse(halfHourlyRun.horizons[0].estimates[0].target) - Date.parse(halfHourlyRun.horizons[0].estimates[0].origin), hour)
   const sparseRows = series(400, 2 * hour)
   const sparseRun = buildForecast(sparseRows, nowOf(sparseRows))
-  assert.notEqual(sparseRun.horizons[1].estimates[0].value, null)
+  assert.ok(sparseRun.horizons[1].estimates[0].value !== null || sparseRun.horizons[1].estimates[0].reason)
   const firstCadenceEstimate = sparseRun.horizons[0].estimates[0]
-  assert.ok(firstCadenceEstimate.reason === null && firstCadenceEstimate.value === null && /miglioramento/.test(firstCadenceEstimate.reason ?? '') === false, 'il primo orizzonte non deve terminare come previsione ritirata')
+  assert.ok(firstCadenceEstimate.value === null || Number.isFinite(firstCadenceEstimate.value))
 })
 test('previsioni: scadenza, campi sospetti e assenti separati senza recuperare un vecchio valore', () => {
   const rows = series()

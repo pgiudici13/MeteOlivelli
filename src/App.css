@@ -378,3 +378,52 @@ button::after, .hero-link::after { padding: 2px; }
   .route-not-found-content h1 { font-size: clamp(3.1rem, 13vw, 4.5rem); }
   .route-not-found-content { padding: 5rem 0; }
 }
+.custom-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+.custom-period strong { flex-basis: 100%; }
+.custom-period label { display: grid; gap: 0.35rem; min-width: 0; }
+.custom-period input { min-width: 0; max-width: 100%; padding: 0.65rem; border: 1px solid currentColor; border-radius: 0.4rem; background: transparent; color: inherit; }
+.custom-period .small, .custom-period [role="alert"] { flex-basis: 100%; margin: 0; }
+.chart-statistics { line-height: 1.6; }
+@media (max-width: 640px) {
+  .custom-period { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .custom-period label { width: 100%; }
+  .custom-period input, .custom-period button { width: 100%; }
+}
+.weather-summary { margin-top: 1rem; padding: clamp(1rem, 3vw, 1.5rem); }
+.weather-summary h3 { margin: 0 0 0.75rem; }
+.weather-summary ul { margin: 0 0 0.75rem; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+.weather-summary .small { margin: 0; }
+
+/* Consultazione a una mano: filtri scorrevoli e valori leggibili su telefoni stretti. */
+@media (max-width: 600px) {
+  .period-picker {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .period-picker button {
+    flex: 0 0 auto;
+    min-width: 92px;
+    min-height: 44px;
+    scroll-snap-align: start;
+  }
+  .chart { padding: 16px; gap: 10px; }
+  .chart svg { touch-action: pan-y; min-height: 180px; }
+  .chart svg text { font-size: 11px; }
+  .chart-value { font-size: 26px; }
+  .chart-statistics { margin-top: 0; font-size: 12px; }
+  .metric-value { min-width: 0; overflow-wrap: anywhere; }
+  .history-table tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .history-table td[data-label="Pressione"] { grid-column: 1 / -1; }
+  .pagination button { min-height: 44px; }
+}

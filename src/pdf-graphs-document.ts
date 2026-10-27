@@ -5,11 +5,11 @@ import type { ChartMode, Measurement } from './weather.ts'
 
 const periodName = (period: ChartMode) => period === 'auto' ? 'Auto' : period === '24h' ? '24 ore' : period === '7g' ? '7 giorni' : period === '14g' ? '14 giorni' : '30 giorni'
 
-export function buildGraphsDocument(rows: Measurement[], period: ChartMode, until: string, generatedAt: Date) {
+export function buildGraphsDocument(rows: Measurement[], period: ChartMode, until: string, generatedAt: Date, customRange?: { start: number; end: number }) {
   if (!Number.isFinite(generatedAt.getTime())) throw new Error('Data di generazione non valida')
-  const charts = metrics.map(metric => buildPdfChart(rows, metric.key, period, until))
+  const charts = metrics.map(metric => buildPdfChart(rows, metric.key, period, until, customRange))
   const reportTime = formatReportTime(generatedAt.toISOString())
-  const periodLabel = periodName(period)
+  const periodLabel = customRange ? 'Personalizzato' : periodName(period)
   return {
     pageSize: 'A4',
     pageOrientation: 'landscape',
@@ -30,7 +30,7 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
         unbreakable: true,
         margin: [0, 0, 0, 7],
       })),
-      { text: 'Per 7, 14 e 30 giorni il grafico mostra le medie giornaliere dei campioni validi acquisiti tra le 09:00 e le 18:00 (Europe/Rome). Auto adatta la rappresentazione alla disponibilità dei dati. Valori assenti o segnalati come probabili errati interrompono la linea; non vengono interpolati. I campioni originali restano consultabili nella cronologia del sito.', style: 'footnote', margin: [0, 4, 0, 0] },
+      { text: customRange ? 'Intervallo personalizzato: campioni originali inclusi tra gli estremi selezionati. Valori assenti o sospetti interrompono la linea; non vengono interpolati.' : 'Per 7, 14 e 30 giorni il grafico mostra le medie giornaliere dei campioni validi acquisiti tra le 09:00 e le 18:00 (Europe/Rome). Auto adatta la rappresentazione alla disponibilità dei dati. Valori assenti o segnalati come probabili errati interrompono la linea; non vengono interpolati. I campioni originali restano consultabili nella cronologia del sito.', style: 'footnote', margin: [0, 4, 0, 0] },
     ],
     styles: {
       title: { fontSize: 17, bold: true },

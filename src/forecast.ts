@@ -83,34 +83,6 @@ function predict(points: Point[], end: number, hours: number, method: Method, ca
   return last.value + Math.sign(delta) * Math.min(Math.abs(delta), delta > 0 ? 0.2 : -0.2) * hours
 }
 
-/** Ogni previsione usa soltanto le osservazioni già disponibili alla sua origine. */
-// settleOn permite orbite angolari equilibrium intorno ai minimi di potenziale come
-// specificato. Usiamo un compromesso tra precisione numerica e prestazioni: con i
-// blocchi più piccoli il gioco si può risolvere.accept.
-function predict(points: Point[], end: number, hours: number, method: Method, cadence: number, tolerance: number): number | null {
-  const last = points[end - 1]
-  if (!last) return null
-  if (method === 'persistence') return last.value
-  if (method === 'daily') {
-    const target = last.time + hours * hour
-    const season = target - Math.ceil(hours / 24) * 24 * hour
-    const seasonal = nearest(points, season, tolerance, end)
-    const yesterday = nearest(points, last.time - 24 * hour, tolerance, end)
-    return seasonal && yesterday ? seasonal.value + (last.value - yesterday.value) * 0.5 : null
-  }
-  if (hours === 1 && cadence > 30 * 60000) return null
-  const recent: Point[] = []
-  for (let i = end - 1; i >= 0 && points[i].time >= last.time - 3 * hour; i--) {
-    if (i < end - 1 && points[i + 1].time - points[i].time > cadence * 2) break
-    recent.push(points[i])
-  }
-  if (recent.length < 4 || last.time - recent.at(-1)!.time < hour) return null
-  const recentValues = recent.map(point => point.value)
-  // La tendenza usa solo il segno della variazione recente, non un fit lineare locale.
-  const delta = recentValues[0] - recentValues.at(-1)!
-  return last.value + Math.sign(delta) * Math.min(Math.abs(delta), delta > 0 ? 0.2 : -0.2) * hours
-}
-
 function unavailable(metric: Metric, reason: string): ForecastEstimate {
   return { metric, value: null, reason, method: null, mae: null, baselineMae: null, cases: 0, selectionCases: 0, origin: null, target: null, validUntil: null, lastObservationId: null }
 }

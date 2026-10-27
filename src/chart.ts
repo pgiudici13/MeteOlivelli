@@ -56,7 +56,16 @@ function sourceCounts(row: Measurement): ChartSourceCounts {
 }
 
 /** I punti medi sono derivati per il grafico: non diventano eventi nella cronologia. */
-export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMode, until: string) {
+export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMode, until: string, customRange?: { start: number; end: number }) {
+  if (customRange) {
+    if (!Number.isFinite(customRange.start) || !Number.isFinite(customRange.end) || customRange.start >= customRange.end) throw new Error('Intervallo personalizzato non valido')
+    const selected = rows.filter(row => row.captured_at && Date.parse(row.captured_at) >= customRange.start && Date.parse(row.captured_at) <= customRange.end)
+    const segments = chartSegments(selected, metric).map(segment => segment.map(row => ({
+      id: row.ingestion_id, time: Date.parse(row.captured_at!), value: row[metric] as number, count: 1, label: formatTime(row.captured_at), sources: sourceCounts(row),
+    })))
+    const duration = customRange.end - customRange.start
+    return { segments, timeline: chartTimeline(duration <= 2 * 24 * hour ? '24h' : '7g', until, customRange), averaged: false, note: 'Intervallo personalizzato · campioni originali' }
+  }
   const candidates = rows.filter(row => row.captured_at !== null)
   const dated = mode === 'auto' && candidates.some(row => row.acquisition_kind === 'live') ? candidates.filter(row => row.acquisition_kind === 'live') : candidates
   const first = dated.length ? Date.parse(dated[0].captured_at!) : Date.parse(until)

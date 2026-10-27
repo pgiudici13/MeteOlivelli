@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/create-static-routes.mjs",
+    "perf:check": "node scripts/check-bundle-budget.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "frontend:test": "node --test tests/*.test.mjs",
@@ -16,7 +17,7 @@
     "backend:lint": "deno task --config supabase/functions/deno.json lint",
     "backend:test": "deno task --config supabase/functions/deno.json test",
     "uploader:test": "python3 -m unittest discover -s uploader/tests -v",
-    "check": "npm run lint && npm run build && npm run frontend:test && npm run backend:check && npm run backend:lint && npm run backend:test && npm run uploader:test"
+    "check": "npm run lint && npm run build && npm run perf:check && npm run frontend:test && npm run backend:check && npm run backend:lint && npm run backend:test && npm run uploader:test"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
