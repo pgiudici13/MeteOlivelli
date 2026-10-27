@@ -265,3 +265,9 @@ Il link scolastico del footer include il testo “Visita il sito ufficiale” ne
 accessibile e annuncia la nuova scheda; la freccia è decorativa. Il runner
 `school-link-browser.mjs` verifica quattro pagine e può eseguire la regola axe
 `label-content-name-mismatch` con uno strumento esterno al progetto.
+
+L’ottimizzazione dei font riduce il file inizialmente scaricato del 79,5%:
+72.260 byte anziché 352.240. Il preload punta al subset della UI italiana, che
+include anche simboli di temi e quiz; gli altri alfabeti usano l’originale con
+`unicode-range` disgiunti. Il runner `font-browser.mjs` controlla richieste,
+ingombri dei glifi identici all’originale e disponibilità degli alfabeti ulteriori.

@@ -177,6 +177,8 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Correzione applicata:** logo responsive 220/420 px con dimensioni intrinseche e lazy loading footer; marchio da 128 a 80 px con un solo asset tematico; importazioni dinamiche delle pagine secondarie per ridurre il JavaScript iniziale non usato. La correzione non cambia il consenso.
 - **Verifica:** build, lint e 77 test frontend superati. PSI mobile post-rilascio (12:32) sullo stesso URL/form factor: 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms, CLS 0; stima immagini 40 KiB (da 68,5), CSS bloccante 150 ms (da 310), JS inutilizzato 44 KiB (da 52). LCP resta il problema principale e richiede ulteriore intervento; i punteggi singoli oscillano tra run. La preview browser locale era bloccata da `listen EPERM`.
 
+**Aggiornamento 27 ottobre 2026:** due baseline Lighthouse mobile 13.5 registrano 73/100 con LCP simulato 6,56 s e 88/100 con 3,70 s; LCP osservato rispettivamente 2,73 e 1,54 s. Font precaricato da 352.240 byte, oltre il necessario per la UI italiana. Preparato subset da 72.260 byte (−79,5%), medesimi glifi/assi variabili, originale invariato disponibile per gli altri alfabeti con intervalli CSS disgiunti. Tre prove browser verificano rete, temi, quiz e ingombri identici a 320/390/1280 px; `npm run check` superato. Stato prestazioni da confermare con misura pubblica successiva, non chiuso sulla sola riduzione del file.
+
 ## COR-016 — La persistenza veniva mostrata come previsione
 
 - **Stato:** corretto localmente il 26 ottobre 2026; non ancora pubblicato.

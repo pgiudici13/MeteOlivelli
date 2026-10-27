@@ -161,3 +161,8 @@ movimento ridotto e cleanup restano validi.
 Gli errori di caricamento usano la composizione della pagina 404 già presente:
 titolo leggibile e focalizzato, messaggio italiano, ricarica e ritorno alla home.
 Le preferenze statistiche restano disponibili. Nessun cambio al layout normale.
+
+La UI italiana precarica il subset Inter da circa 71 KiB; l’originale da 344 KiB
+resta disponibile per gli alfabeti ulteriori tramite intervalli Unicode disgiunti.
+Nessun cambio a forme, pesi o ingombri. La rigenerazione e la licenza sono descritte
+in `public/fonts/README.md`; confronto browser eseguito anche su temi e quiz.

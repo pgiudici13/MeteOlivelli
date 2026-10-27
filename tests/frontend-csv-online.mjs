@@ -187,6 +187,6 @@ try {
   assert.deepEqual(assetFailures, [])
   assert.ok([...assets].some(path => path.endsWith('.js')))
   assert.ok([...assets].some(path => path.endsWith('.css')))
-  assert.ok(assets.has('/fonts/InterVariable.woff2'))
+  assert.ok(assets.has('/fonts/InterVariable-latin.woff2'))
   await writeFile(`${output}/results.json`, `${JSON.stringify({ deployment: base.origin, sourceCommit, date: '2026-10-22', csv: csvPath, csvSha256: createHash('sha256').update(csv).digest('hex'), samples: 50, lastValues: samples.at(-1).slice(1), virtualTime: 'Solo fixture browser: 2026-10-22T00:00:00Z + uptime. Nessuna data fisica dedotta.', scope: 'Codice e asset HTTPS online. GET reale vuoto; risposte positive sostituite esclusivamente nel browser di prova. Nessuna scrittura DB o fixture sintetica servita al pubblico.', access: cliAccess ? 'HTML, JS, CSS e font dal preview tramite vercel curl autenticato; stessi byte renderizzati nel browser di prova' : process.env.VERCEL_OIDC_TOKEN ? 'Header OIDC limitato all origine del preview' : 'HTTPS diretto', browser: await browser.version(), results, assets: [...assets].sort(), pageErrors, assetFailures }, null, 2)}\n`)
 } finally { await browser.close() }
