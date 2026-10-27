@@ -217,6 +217,12 @@ button:disabled { cursor: default; opacity: .45; }
   .about-section { margin-top: 40px; padding: 22px; }
 }
 .chart-touch-controls { display: none; }
+.chart-expand-actions { display: flex; justify-content: flex-end; }
+.chart-expand-actions button { min-height: 44px; }
+.chart-expanded { position: fixed; inset: 12px; z-index: 100; overflow: auto; padding: clamp(16px, 3vw, 32px); background: var(--surface-raised); box-shadow: 0 0 0 100vmax #000b; }
+.chart-expanded svg { max-height: 65vh; min-height: 260px; }
+.chart-expanded .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.chart-expanded .chart-touch-controls button { min-height: 44px; }
 @media (max-width: 600px) {
   .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
   .chart-touch-controls button { min-width: 0; min-height: 44px; padding: 8px; font-size: 12px; }
