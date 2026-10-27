@@ -111,7 +111,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
         </svg>
       )}
       {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${metric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
-      <p className="small">{points.length ? `${prepared?.averaged ? 'Min medie' : 'Min'} ${formatValue(min)} · max ${formatValue(max)} ${metric.unit}` : 'Nessuna interpolazione dei dati mancanti.'}</p>
+      <p className="small">{points.length ? `Minimo ${formatValue(min)} · massimo ${formatValue(max)} ${metric.unit}` : 'I valori mancanti non vengono interpolati.'}</p>
       <p className="chart-period-note small">{period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>
   )

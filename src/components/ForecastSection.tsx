@@ -35,7 +35,7 @@ export function ForecastSection() {
     <p className="eyebrow section-index">04 / Previsioni meteo</p>
     <h2 id="forecast-title">Previsioni meteo MeteOlivelli</h2>
     <p className="secondary">Le previsioni di temperatura, umidità e pressione sono mostrate separatamente dalle osservazioni della stazione.</p>
-    <p className="small">La previsione a 24 ore indica il valore atteso tra 24 ore, non le massime e minime del giorno. Questo modello non prevede sole, pioggia o altri fenomeni atmosferici.</p>
+    <p className="small">La previsione a 24 ore indica il valore atteso tra 24 ore, non le massime e minime del giorno. Questo modello non prevede nuvole, pioggia o altri fenomeni atmosferici.</p>
     <div role="status" className="small">{!forecast.loaded ? 'Valutazione dello storico…' : forecast.error ? 'Lettura o calcolo non riusciti. Nuovo tentativo automatico.' : 'Le previsioni della stazione richiedono osservazioni fisiche datate e uno storico verificabile. Gli orari di sola acquisizione sul PC non sono sufficienti.'}</div>
     <div className="forecast-grid">{forecastCards}</div>
     <details className="forecast-method"><summary>Come vengono calcolate le previsioni</summary>

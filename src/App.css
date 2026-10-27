@@ -17,7 +17,7 @@
 a { text-underline-offset: 5px; }
 a:hover { color: var(--contrast-hover); }
 .secondary, .small, .site-footer { color: var(--secondary); }
-.small { font-size: 12px; line-height: 1.5; }
+.small { font-size: 12px; line-height: 1.45; }
 .signal-mark, .status-dot { display: inline-block; width: 6px; height: 6px; flex: 0 0 6px; background: var(--accent); border-radius: 50%; }
 .hero { display: grid; grid-template-columns: 1fr 1.04fr; align-items: center; gap: 64px; padding: 44px 0 88px; }
 .intro { min-width: 0; padding-block: 16px; }
@@ -55,15 +55,15 @@ h3 { font-size: 14px; font-weight: 400; line-height: 1.4; }
 .instrument-footer .signal-mark { width: 5px; height: 5px; margin-right: 5px; }
 .instrument-footer a { text-decoration: none; }
 .instrument-footer a:hover { color: var(--contrast-hover); text-decoration: underline; }
-.latest-section { border-top: 1px solid var(--border); padding-top: 32px; }
-.section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 28px; }
+.latest-section { border-top: 1px solid var(--border); padding-top: 20px; }
+.section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 22px; }
 .section-index { color: var(--secondary); margin-bottom: 12px; }
 .metric-grid, .chart-grid, .forecast-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.metric-card { min-width: 0; padding: 24px; background: var(--surface-raised); }
+.metric-card { min-width: 0; padding: 20px; background: var(--surface-raised); }
 .tone-mint { --tone: var(--accent); }
 .tone-blue, .tone-lilac { --tone: var(--mint); }
 .metric-card h3 { color: var(--secondary); font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; }
-.metric-value { font-size: clamp(28px, 3.65vw, 48px); font-weight: 400; line-height: 1.2; letter-spacing: -.045em; margin-block: 24px; font-variant-numeric: tabular-nums; }
+.metric-value { font-size: clamp(28px, 3.65vw, 48px); font-weight: 400; line-height: 1.2; letter-spacing: -.045em; margin-block: 18px; font-variant-numeric: tabular-nums; }
 .metric-value > span:first-child { white-space: nowrap; }
 .metric-value.value-empty { font-size: 19px; min-height: 58px; display: flex; align-items: center; letter-spacing: -.02em; }
 .quality-warning { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; letter-spacing: 0; color: var(--accent-text); }
@@ -71,7 +71,7 @@ h3 { font-size: 14px; font-weight: 400; line-height: 1.4; }
 .time-details { margin-top: 16px; color: var(--secondary); font-size: 12px; }
 summary { cursor: pointer; width: fit-content; }
 details p { margin-top: 8px; }
-.history-section, .chronology-section, .forecast-section { padding: 40px 0 0; display: grid; gap: 16px; margin-top: 80px; border: 0; border-top: 1px solid var(--border); border-radius: 0; }
+.history-section, .chronology-section, .forecast-section { padding: 32px 0 0; display: grid; gap: 16px; margin-top: 64px; border: 0; border-top: 1px solid var(--border); border-radius: 0; }
 .history-section > .section-index, .chronology-section > .section-index, .forecast-section > .section-index { margin: 0; }
 .period-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 button { min-height: 44px; padding: 12px 18px; border-radius: 3px; border: 1px solid var(--border); background: var(--surface-soft); color: var(--secondary); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms, border-color 150ms; }
@@ -110,11 +110,11 @@ button:disabled { cursor: default; opacity: .45; }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; }
 .pagination p { text-align: center; color: var(--secondary); }
 .pagination-range { color: var(--secondary); }
-.forecast-card { border: 1px solid var(--border); border-radius: 10px; padding: 24px; display: grid; gap: 16px; align-content: start; }
+.forecast-card { border: 1px solid var(--border); border-radius: 10px; padding: 22px; display: grid; gap: 14px; align-content: start; }
 .forecast-card h3 { font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; color: var(--secondary); }
 .forecast-card > p:not(.small) { font-size: 20px; letter-spacing: -.03em; }
 .forecast-estimates { margin: 0; }
-.forecast-estimate + .forecast-estimate { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
+.forecast-estimate + .forecast-estimate { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
 .forecast-estimate dt { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
 .forecast-estimate dd { margin: 0; }
 .forecast-value { display: block; font-size: 28px; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
@@ -123,9 +123,9 @@ button:disabled { cursor: default; opacity: .45; }
 .forecast-unavailable { font-size: 14px; }
 .forecast-evidence, .forecast-method { margin-top: 12px; color: var(--secondary); font-size: 12px; line-height: 1.6; }
 .forecast-evidence p { overflow-wrap: anywhere; }
-.about-section { margin-top: 96px; padding: 48px; background: var(--surface-soft); }
-.about-section h2 { max-width: 600px; font-size: 44px; }
-.about-section p:not(.eyebrow) { margin-top: 24px; max-width: 710px; }
+.about-section { margin-top: 56px; padding: 36px; background: var(--surface-soft); }
+.about-section h2 { max-width: 600px; font-size: 40px; }
+.about-section p:not(.eyebrow) { margin-top: 18px; max-width: 710px; }
 .reflection { color: var(--secondary); font-size: 13px; }
 .site-footer { margin-top: 64px; padding-block: 32px; border-top: 1px solid var(--border); color: var(--secondary); }
 .footer-main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(150px, .75fr) minmax(180px, .9fr); gap: 36px; }
@@ -215,7 +215,7 @@ button:disabled { cursor: default; opacity: .45; }
   .hero-temperature { font-size: 64px; }
   .history-section, .chronology-section, .forecast-section { margin-top: 56px; padding-top: 28px; }
   .period-picker button { min-width: 0; flex: 1; padding-inline: 8px; }
-  .about-section { margin-top: 56px; padding: 24px; }
+  .about-section { margin-top: 40px; padding: 22px; }
 }
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
