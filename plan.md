@@ -1,5 +1,7 @@
 # Piano di progetto — MeteOlivelli
 
+> **Aggiornamento locale — 27 ottobre 2026:** su richiesta rivisti i testi di Informazioni per una presentazione più diretta, senza avvisi provvisori; rimangono spiegazioni accurate su orari, freschezza e previsioni. Il funzionamento continuo della stazione resta da verificare.
+
 > **Decisione del 27 ottobre 2026, implementazione locale:** per la versione finale l’utente chiede di rimuovere l’avviso provvisorio e i riferimenti ai dati fittizi dalla UI. La dashboard, i PDF e le previsioni escludono campioni `synthetic` o con provenienza assente; il database e l’API remoti non sono stati modificati. Con l’ultimo archivio documentato la dashboard locale è vuota fino all’arrivo di misure della stazione. I paragrafi e verbali precedenti sulla simulazione pubblica descrivono la versione storica.
 
 > **Aggiornamento — 23 ottobre 2026:** quiz `/gioca` pubblicato su `main`: 10 domande casuali da 20, opzioni rimescolate, spiegazioni per ogni risposta, ripple localizzato sul pulsante e barra di avanzamento lineare; movimento ridotto rispettato.

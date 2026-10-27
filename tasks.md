@@ -1,5 +1,7 @@
 # Attività operative — MeteOlivelli
 
+**Revisione Informazioni — 27 ottobre 2026:** aggiornati i testi sul progetto, il percorso dati, la freschezza e le previsioni; rimossi i riferimenti a lavori in corso dalla pagina, senza modificare il filtro delle provenienze. `npm run check` e `git diff --check` superati; verifica visiva browser non eseguita.
+
 **Contatto nella pagina Informazioni — 27 ottobre 2026:** aggiunto l’indirizzo richiesto nella sezione team con collegamento alla composizione Gmail. `npm run check` superato (84 test frontend, 46 backend e 25 uploader), audit npm delle dipendenze di produzione senza vulnerabilità e parametri del link verificati localmente. Accesso e composizione effettiva in Gmail non verificati con un account.
 
 > **Aggiornamento locale — 27 ottobre 2026:** UI finale senza avviso provvisorio e senza simulazione; letture e PDF mostrano solo `live`/`historical`, senza modifiche remote. Corretti gestione orologi futuri, isolamento campioni, riattivazione statistiche con storage indisponibile e selezione del giorno. Aggiornati testo licenza e checklist privacy; rimossi asset non referenziati. Test e limiti nella voce conclusiva del registro. Le note precedenti descrivono stati storici.

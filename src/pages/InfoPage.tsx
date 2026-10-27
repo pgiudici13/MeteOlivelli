@@ -66,8 +66,8 @@ export function InfoPage() {
         <section className="info-block info-station" id="station" aria-labelledby="station-title">
           <p className="eyebrow section-index">02 / La stazione</p>
           <h2 id="station-title">Dalla rilevazione alla pagina.</h2>
-          <p>La stazione usa una scheda Arduino GIGA R1 e sensori che forniscono temperatura, umidità e pressione. I modelli dei sensori, la loro taratura e il tipo di pressione rappresentato non sono ancora documentati: per questo il sito non dichiara una precisione strumentale.</p>
-          <div className="info-flow" aria-label="Percorso previsto dei dati">
+          <p>La stazione impiega una scheda Arduino GIGA R1 e sensori per temperatura, umidità e pressione. Il sito presenta le letture disponibili nell’archivio e permette di esplorarne l’andamento nel tempo.</p>
+          <div className="info-flow" aria-label="Percorso dei dati nel progetto">
             <div><span>01</span><strong>Sensori</strong><small>Rilevano le grandezze</small></div>
             <span className="info-flow-arrow" aria-hidden="true">→</span>
             <div><span>02</span><strong>Arduino</strong><small>Raccoglie i valori</small></div>
@@ -76,7 +76,7 @@ export function InfoPage() {
             <span className="info-flow-arrow" aria-hidden="true">→</span>
             <div><span>04</span><strong>Sito</strong><small>Mostra serie e dettagli</small></div>
           </div>
-          <p className="info-note">Questo è il percorso previsto dal progetto. Il funzionamento continuativo del writer e la cadenza effettiva dei sensori sono ancora da verificare sul sistema della stazione.</p>
+          <p className="info-note">Il percorso illustra come il progetto organizza i dati, dalla rilevazione alla consultazione. La disponibilità delle letture dipende dall’acquisizione e dalla connessione della stazione.</p>
           <dl className="info-time-definitions">
             <div><dt>Ora della misura</dt><dd>Quando il sensore ha effettuato la rilevazione, se l’orario fisico è disponibile e verificato.</dd></div>
             <div><dt>Acquisizione sul PC</dt><dd>Quando il computer ha osservato la riga del CSV; non prova da sola quando è avvenuta la misura.</dd></div>
@@ -88,7 +88,7 @@ export function InfoPage() {
         <section className="info-block info-guide" id="reading" aria-labelledby="reading-title">
           <p className="eyebrow section-index">03 / Leggere la Home</p>
           <h2 id="reading-title">Ogni grafico racconta un intervallo preciso.</h2>
-          <p>Il valore in evidenza è l’ultima lettura disponibile nell’archivio. Non è una promessa che la misura sia stata raccolta in questo momento: la freschezza dipende dagli orari e dalla cadenza verificabili.</p>
+          <p>Il valore in evidenza è l’ultima lettura disponibile nell’archivio. Per interpretarla, controlla l’orario riportato e lo stato di aggiornamento.</p>
           <div className="info-periods">
             <article><span>24 ore</span><p>Mostra i singoli campioni, senza medie.</p></article>
             <article><span>7, 14 e 30 giorni</span><p>Mostrano la media giornaliera dei valori validi raccolti fra le 09:00 e le 18:00, ora di Roma.</p></article>
@@ -104,8 +104,8 @@ export function InfoPage() {
           <div className="info-trust-grid">
             <article><h3>Valori assenti o anomali</h3><p>Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.</p></article>
             <article><h3>Provenienza delle misure</h3><p>La Home e i PDF mostrano i campioni con provenienza esplicita dalla stazione. Un orario di acquisizione non sostituisce l’orario effettivo della misura.</p></article>
-            <article><h3>Freschezza</h3><p>L’aggiornamento della pagina non conferma che il sensore abbia appena misurato. Finché orologio, cadenza e catena di acquisizione non sono verificati, la freschezza resta non determinabile.</p></article>
-            <article><h3>Previsioni meteo</h3><p>Le previsioni della stazione saranno mostrate solo quando osservazioni fisiche datate permetteranno di valutarle. Il modello attuale non dichiara pioggia, sole o certezza del tempo.</p></article>
+            <article><h3>Freschezza</h3><p>Lo stato di aggiornamento dipende dagli orari disponibili e dalla cadenza delle misure. Quando queste informazioni non bastano, la freschezza non è determinabile.</p></article>
+            <article><h3>Previsioni meteo</h3><p>Le previsioni sono stime basate sulle osservazioni disponibili e vengono mostrate quando i dati consentono di verificarle. Non prevedono sole, pioggia o altri fenomeni atmosferici.</p></article>
           </div>
           <div className="info-links"><a href="/home">Vai alla Home <span aria-hidden="true">↗</span></a><a href="/privacy">Leggi l’informativa privacy <span aria-hidden="true">↗</span></a></div>
         </section>

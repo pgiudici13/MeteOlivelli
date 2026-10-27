@@ -122,7 +122,7 @@ La route `/info` accompagna il lettore in cinque tappe: progetto, stazione e per
 
 La sezione team include l’invito a scrivere e un indirizzo sottolineato che apre la composizione in Gmail; il link va a capo sugli schermi stretti e segnala la nuova scheda.
 
-Il percorso dei dati è una sequenza numerata di sensori, Arduino, archivio e sito; resta dichiarato come percorso previsto finché writer e cadenza reale non sono verificati. Una legenda testuale distingue misura fisica, acquisizione sul PC e ricezione server. Le viste 24 ore, 7/14/30 giorni e Auto sono spiegate senza far passare le medie per nuove misure. Sezioni in superfici neutre, bordi sottili e tipografia del sito; griglie a due colonne su desktop e a colonna singola su mobile. Il flusso tecnico diventa una griglia 2×2 sugli schermi stretti. Colori semantici seguono entrambi i temi, link restano sottolineabili/focalizzabili e non sono introdotte animazioni aggiuntive.
+Il percorso dei dati è una sequenza numerata di sensori, Arduino, archivio e sito, presentata come organizzazione del progetto senza attestare il funzionamento continuativo della stazione. Una legenda testuale distingue misura fisica, acquisizione sul PC e ricezione server. Le viste 24 ore, 7/14/30 giorni e Auto sono spiegate senza far passare le medie per nuove misure. Sezioni in superfici neutre, bordi sottili e tipografia del sito; griglie a due colonne su desktop e a colonna singola su mobile. Il flusso tecnico diventa una griglia 2×2 sugli schermi stretti. Colori semantici seguono entrambi i temi, link restano sottolineabili/focalizzabili e non sono introdotte animazioni aggiuntive.
 
 
 ## Cronologia e PDF — correzioni locali del 23 ottobre 2026
