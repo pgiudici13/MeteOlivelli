@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createChartLink, readChartLink } from '../src/chart-links.ts'
+import { normalizedHeight, prepareCombinedChart } from '../src/combined-chart.ts'
 
 const chartSource = readFileSync(new URL('../src/components/HistoryChart.tsx', import.meta.url), 'utf8')
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
@@ -30,4 +31,12 @@ test('condivisione: link conserva metrica, periodo e intervallo personalizzato v
   assert.equal(new URL(custom).hash, '#chart-pressure_hpa')
   assert.deepEqual(readChartLink(new URL(custom).search, until), { period: '30g', customRange })
   assert.deepEqual(readChartLink('?period=custom&from=bad&to=bad', until), { period: 'auto', customRange: null })
+})
+
+test('grafico combinato: ogni grandezza usa una scala autonoma, senza punti fittizi', () => {
+  assert.equal(normalizedHeight(5, 5, 5), 0.5)
+  assert.equal(normalizedHeight(15, 10, 20), 0.5)
+  const prepared = prepareCombinedChart([], '24h', '2026-10-27T12:00:00Z')
+  assert.equal(prepared.series.length, 3)
+  assert.ok(prepared.series.every(item => item.min === null && item.segments.length === 0))
 })

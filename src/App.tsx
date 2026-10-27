@@ -2,6 +2,7 @@ import { animate } from 'motion/mini'
 import { AnimatedHeading } from './components/AnimatedHeading.tsx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
+import { CombinedChart } from './components/CombinedChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
@@ -316,6 +317,7 @@ function App() {
         </div>
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
         <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
+        {!historyLoading && !historyError && <CombinedChart rows={rows} period={period} until={data.windowUntil} customRange={customRange} />}
         <p className="small">Le linee rappresentano misure effettive o medie dei campioni disponibili, mai valori inventati.</p>
         <details className="chart-methodology"><summary>Come leggere i grafici e le medie</summary>
           <p>La vista di 24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano medie giornaliere dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome).</p>
