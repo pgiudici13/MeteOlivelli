@@ -472,6 +472,8 @@ button::after, .hero-link::after { padding: 2px; }
 .comparison-card p span, .comparison-card small { color: var(--secondary); }
 .comparison-card strong { font-variant-numeric: tabular-nums; }
 .comparison-delta { border-top: 1px solid var(--border); padding-top: 10px; }
+.comparison-direction { display: block; font-weight: 650; color: var(--text); margin-bottom: 4px; }
+.comparison-direction::first-letter { font-size: 18px; }
 .daily-comparison > .small { margin: 0; }
 @media (max-width: 760px) { .comparison-grid { grid-template-columns: 1fr; } .comparison-selects { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .daily-stats-grid { grid-template-columns: 1fr; } .daily-statistics { margin-top: 48px; } }

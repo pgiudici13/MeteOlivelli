@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { aggregatePeriod, shiftCivilDay } from '../daily-statistics.ts'
 import type { DayStatistics, MetricStatistics } from '../daily-statistics.ts'
 import { formatValue, metrics } from '../weather.ts'
+import { comparisonDirection } from '../comparison-direction.ts'
 
 type Mode = 'days' | 'weeks'
 
@@ -41,12 +42,17 @@ export function DailyComparison({ days, today }: { days: DayStatistics[]; today:
     {!comparable ? <p className="small">Servono almeno due giornate diverse con osservazioni per effettuare il confronto.</p> : <div className="comparison-grid">{metrics.map(metric => {
       const a: MetricStatistics | undefined = left?.[metric.key]
       const b: MetricStatistics | undefined = right?.[metric.key]
+      const delta = a && b ? b.average - a.average : null
+      const direction = delta === null ? null : comparisonDirection(delta)
       return <article className="comparison-card" key={metric.key}>
         <h4>{metric.name}</h4>
         {a && b ? <>
           <p><span>Prima</span><strong>{formatValue(a.average)} {metric.unit}</strong><small>{a.count} campioni</small></p>
           <p><span>Seconda</span><strong>{formatValue(b.average)} {metric.unit}</strong><small>{b.count} campioni</small></p>
-          <p className="comparison-delta">Differenza delle medie: <strong>{b.average - a.average > 0 ? '+' : ''}{formatValue(b.average - a.average)} {metric.unit}</strong></p>
+          <p className={`comparison-delta comparison-${direction!.tone}`}>
+            <span className="comparison-direction" aria-label={direction!.label}>{direction!.symbol} {direction!.label}</span>
+            <span>Differenza delle medie: <strong>{delta! > 0 && Math.round(delta! * 10) !== 0 ? '+' : ''}{formatValue(delta!)} {metric.unit}</strong></span>
+          </p>
         </> : <p className="small">Campioni insufficienti per confrontare questa misura.</p>}
       </article>
     })}</div>}
