@@ -639,11 +639,11 @@ Completati SET-00–SET-04, BE-01–BE-07 sul contratto v1 e UI-01 locale: 13 at
 
 ## Area amministrativa manuale `/data` — attività aggiunta 27 ottobre 2026
 
-- [ ] **Stato: migration applicata e Edge Function attiva v1; Vercel e segreto password ancora da completare, quindi area non operativa.**
+- [ ] **Stato: migration applicata, Edge Function v1 attiva e frontend Production `READY` sul commit `64ced8d`; resta da impostare la password e completare la prova autenticata.**
 - **Ambito:** schermata React non linkata e `noindex`; elenco recente; inserimento, modifica e rimozione con password verificata nell'Edge Function `manage-measurements`.
 - **Database:** migrazione `20261027113158_admin_measurement_writes.sql` applicata a `pvtzncseisbxaaseqfvo`. Grant di update/delete al solo server, RPC invoker e audit ristretto a ID/azione/ora.
 - **Backend:** Edge Function `manage-measurements` attiva v1; richiede `METEOLIVELLI_ADMIN_PASSWORD` da impostare come segreto server con almeno 24 caratteri casuali. Fino a quel momento il backend risponde 503.
-- **Rilascio frontend:** fix 404 e route `/data` in attesa del push su `main` e del deploy Production Vercel.
+- **Rilascio frontend:** fix 404 e route `/data` pubblicati. Verifiche live: `/404` status 404 e layout aggiornato; `/data` status 200 con `noindex, nofollow`.
 - **Avvio richiesto prima dell'uso reale:** impostare il segreto, verificare l'allowlist CORS se cambia il dominio, poi login corretto/errato, tutte le operazioni su una riga di prova e i controlli di provenienza/qualità.
 - **Limiti del modulo:** richiede `arduino_seconds` perché il contratto v1 lo impone; inserisce come storico e non inventa `captured_at`; modifica e cancellazione non sono annullabili (l'audit non conserva i valori precedenti). La lista mostra le 100 righe più recenti.
-- **Verifiche di rilascio:** login corretto/errato, origine rifiutata, tutte le operazioni su una riga di prova, controlli di provenienza/qualità, audit, visibilità nella dashboard e comportamento sui dati sintetici. Nessuna verifica, migrazione o deploy remoto è stata eseguita in questo intervento.
+- **Verifiche di rilascio:** login corretto/errato, origine rifiutata, tutte le operazioni su una riga di prova, controlli di provenienza/qualità, audit, visibilità nella dashboard e comportamento sui dati sintetici. Da completare dopo la configurazione del segreto; build, lint, suite locali, migration e deploy già eseguiti.
