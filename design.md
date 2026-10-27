@@ -120,6 +120,8 @@ Al cambio pagina le righe correnti escono in sequenza con dissolvenza e breve sp
 
 La route `/info` accompagna il lettore in cinque tappe: progetto, stazione e percorso previsto dei dati, guida ai grafici, trasparenza e team. Un indice interno usa link semantici con destinazioni esplicite. L’apertura ha titolo editoriale, introduzione e tre fatti essenziali; la chiusura propone il ritorno alla Home.
 
+La sezione team include l’invito a scrivere e un indirizzo sottolineato che apre la composizione in Gmail; il link va a capo sugli schermi stretti e segnala la nuova scheda.
+
 Il percorso dei dati è una sequenza numerata di sensori, Arduino, archivio e sito; resta dichiarato come percorso previsto finché writer e cadenza reale non sono verificati. Una legenda testuale distingue misura fisica, acquisizione sul PC e ricezione server. Le viste 24 ore, 7/14/30 giorni e Auto sono spiegate senza far passare le medie per nuove misure. Sezioni in superfici neutre, bordi sottili e tipografia del sito; griglie a due colonne su desktop e a colonna singola su mobile. Il flusso tecnico diventa una griglia 2×2 sugli schermi stretti. Colori semantici seguono entrambi i temi, link restano sottolineabili/focalizzabili e non sono introdotte animazioni aggiuntive.
 
 

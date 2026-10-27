@@ -119,6 +119,7 @@ export function InfoPage() {
             <article><span>02</span><strong>Nicholas Borin</strong><small>Studente · Liceo Teresio Olivelli</small></article>
           </div>
           <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e capire quanto ci sia ancora da esplorare.</p>
+          <p className="info-contact">Vuoi chiederci una curiosità? Scrivi alla mail <a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=meteolivelli%40liceoolivelli.pv.it" target="_blank" rel="noopener noreferrer">meteolivelli@liceoolivelli.pv.it <span className="sr-only">(apre Gmail in una nuova scheda)</span></a>.</p>
         </section>
       </div>
       <section className="info-closing" aria-label="Esplora MeteOlivelli">

@@ -46,6 +46,7 @@
 .info-people strong { font-size: 15px; }
 .info-people small { color: var(--secondary); font-size: 11px; }
 .info-team .reflection { max-width: 760px !important; margin-top: 24px !important; font-size: 13px; }
+.info-contact a { color: var(--text); overflow-wrap: anywhere; text-underline-offset: 4px; }
 .info-closing { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; padding: 30px 0; margin-top: 52px; border-block: 1px solid var(--border); }
 .info-closing .eyebrow { margin-bottom: 12px; color: var(--secondary); }
 .info-closing h2 { font-size: clamp(23px, 3vw, 34px); }

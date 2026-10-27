@@ -1,5 +1,7 @@
 # Attività operative — MeteOlivelli
 
+**Contatto nella pagina Informazioni — 27 ottobre 2026:** aggiunto l’indirizzo richiesto nella sezione team con collegamento alla composizione Gmail. `npm run check` superato (84 test frontend, 46 backend e 25 uploader), audit npm delle dipendenze di produzione senza vulnerabilità e parametri del link verificati localmente. Accesso e composizione effettiva in Gmail non verificati con un account.
+
 > **Stato più recente — 26 ottobre 2026:** commit `775c248` pushato su `main`; deploy Vercel Production `READY`. Su richiesta, GA4, Vercel Analytics e Speed Insights partono per default; preferenza di disattivazione persistente. COR-010 corretto nei PDF grafici. Aggiunti tramite uploader Python 10 record `synthetic`, tre ore l’uno, senza modificare i 241 precedenti; Supabase verifica 251 totali, nessuna riga live. Ricezione GA4 e disattivazione end-to-end restano da verificare. LCP 4,1 s e COR-015 restano aperti.
 
 > **Versione:** checklist aggiornata il 26 ottobre 2026; l’audit dei commit fino a `6e5f197` è storico.
