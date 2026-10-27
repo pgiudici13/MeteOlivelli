@@ -671,3 +671,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-043: opt-out sincronizzato fra schede e cookie Google di dominio rimossi; tre regressioni unitari, tre scenari browser e `npm run check` superati.
 - [x] COR-044: ingresso pagine lazy inizializzato dopo Suspense; test chunk ritardato/movimento ridotto e `npm run check` superati.
 - [x] COR-045: schermata accessibile di recupero dagli errori di pagina; due scenari browser e `npm run check` superati.
+- [x] Aggiornati i runner browser previsionali e cronologia al comportamento corrente: persistenza ritirata, sintetici esclusi e limite automatico di un minuto; aggiunta verifica focus ripetuto. Le directory di evidenza possono essere passate come quinto argomento per preservare i verbali storici.
+- [x] Verifica finale software: `npm run check` con 107 frontend, 54 Deno e 28 Python; audit npm ufficiale con zero vulnerabilità; 50 scenari browser negli otto runner, comprese 52 combinazioni responsive. [Verbale corrente](docs/release-audit-20261027.md).

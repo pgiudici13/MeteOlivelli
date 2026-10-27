@@ -69,9 +69,17 @@ try {
     await expectTotal(16)
   })
   await check('ritorno online riconcilia anche senza nuovo latest', async () => {
+    // Focus/online condividono il limite di un minuto introdotto dall'audit AUD-04.
+    await page.clock.runFor(61000)
     historical++
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
     await expectTotal(17)
+  })
+  await check('focus ripetuti entro un minuto non rileggono la cronologia', async () => {
+    const requests = historyRequests
+    await page.evaluate(() => { window.dispatchEvent(new Event('focus')); window.dispatchEvent(new Event('online')) })
+    await page.clock.runFor(1000)
+    assert.equal(historyRequests, requests)
   })
   await check('pagina nascosta non rilegge; ritorno visibile riconcilia', async () => {
     const requests = historyRequests
@@ -82,6 +90,7 @@ try {
     await page.clock.runFor(16000)
     assert.equal(historyRequests, requests)
     historical++
+    await page.clock.runFor(61000)
     await page.evaluate(() => {
       Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
       document.dispatchEvent(new Event('visibilitychange'))
@@ -93,8 +102,9 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
   })
   assert.deepEqual(errors, [])
-  await mkdir('docs/project-review', { recursive: true })
-  await writeFile('docs/project-review/fixes-browser-results.json', JSON.stringify({ fixture: 'synthetic', target: 'build locale con API intercettata', results, errors }, null, 2) + '\n')
+  const output = process.argv[5] ?? 'docs/project-review'
+  await mkdir(output, { recursive: true })
+  await writeFile(`${output}/fixes-browser-results.json`, JSON.stringify({ fixture: 'synthetic', target: 'build locale con API intercettata', results, errors }, null, 2) + '\n')
 } finally {
   await browser.close()
 }

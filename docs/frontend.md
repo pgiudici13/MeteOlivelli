@@ -250,3 +250,13 @@ raggiungibili, e permette di ricaricare realmente il documento per recuperare
 asset/rete. Evita lo schermo bianco e mantiene operative le preferenze statistiche.
 Il runner `page-errors-browser.mjs` blocca Info e Quiz e verifica errore/recupero,
 focus, temi e reflow senza richieste a servizi esterni.
+
+### Prove finali dell’audit — 27 ottobre 2026
+
+`npm run check`: 107 test frontend, 54 backend Deno e 28 uploader Python, build e
+lint superati. Gli otto runner browser coprono 50 scenari (inclusi 52 layout
+responsive), con fixture locali e nessuna scrittura remota. I runner previsionali
+e cronologia sono aggiornati alle decisioni attuali: non pretendono più la
+persistenza come previsione, la simulazione rimossa o riletture senza throttle.
+Directory delle evidenze opzionale al quinto argomento nei quattro runner che
+scrivono screenshot/JSON. [Esiti, target e limiti](release-audit-20261027.md).

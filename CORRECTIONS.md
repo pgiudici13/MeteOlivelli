@@ -1,6 +1,6 @@
 # Registro delle correzioni — MeteOlivelli
 
-Ultima verifica: 26 ottobre 2026, correzioni successive all’audit di `6e5f197`. COR-009–COR-013 risolti; COR-010 e COR-014 inclusi nel commit `775c248`, deploy Production `READY`; ricezione e revoca GA4 restano da verificare live. COR-015 aperto per LCP mobile. [Perimetro, prove e limiti](docs/project-review/README.md).
+Ultima verifica: 27 ottobre 2026. Audit finale: COR-033–COR-045 riprodotti e corretti con regressioni; commit/push autorizzati dall’utente. Le correzioni frontend passano build/lint e prove browser, mentre le Edge Function richiedono pubblicazione separata. COR-015 (LCP), collaudo fisico, backup e attività operative ancora aperte non vengono chiusi dai test locali. Gli stati nei verbali precedenti restano riferiti alle rispettive sessioni.
 
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).

@@ -5,7 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 const { chromium } = await import(process.argv[2] ?? 'playwright')
 const browser = await chromium.launch({ headless: true, ...(process.argv[3] ? { executablePath: process.argv[3] } : {}) })
 const base = process.argv[4] ?? 'http://127.0.0.1:5179'
-const output = 'docs/motion-verification'
+const output = process.argv[5] ?? 'docs/motion-verification'
 await mkdir(output, { recursive: true })
 const results = []
 const errors = []
