@@ -1,5 +1,5 @@
 import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
-import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { BrandMark } from '../components/BrandMark.tsx'
 import { SchoolLogo } from '../components/SchoolLogo.tsx'
@@ -26,8 +26,16 @@ export function QuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [score, setScore] = useState(0)
   const [ripple, setRipple] = useState<QuizRippleGeometry | null>(null)
+  const questionRef = useRef<HTMLLegendElement>(null)
+  const feedbackRef = useRef<HTMLDivElement>(null)
+  const resultRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(updateMetadata, [])
+  useLayoutEffect(() => {
+    if (state === 'playing') {
+      (selectedAnswer === null ? questionRef.current : feedbackRef.current)?.focus()
+    } else if (state === 'complete') resultRef.current?.focus()
+  }, [state, questionIndex, selectedAnswer])
 
   const currentQuestion = questions[questionIndex]
   const answerFeedback = currentQuestion && selectedAnswer !== null
@@ -79,7 +87,7 @@ export function QuizPage() {
         <p className="quiz-lead">Dieci domande, venti curiosità e un cielo pieno di sorprese. Quante ne sai?</p>
       </section>
 
-      <section className="quiz-card panel" aria-live="polite" aria-atomic="true">
+      <section className="quiz-card panel" aria-label="Quiz meteo">
         {state === 'intro' && <div className="quiz-intro">
           <p className="eyebrow section-index">01 / La sfida</p>
           <h2>Pronto a mettere alla prova la tua curiosità?</h2>
@@ -91,7 +99,7 @@ export function QuizPage() {
           <div className="quiz-progress-line"><p className="eyebrow section-index">02 / Domanda {questionIndex + 1} di {questions.length}</p><p className="quiz-score-live">Punteggio <strong>{score}</strong></p></div>
           <div className="quiz-progress" role="progressbar" aria-label="Avanzamento quiz" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1}><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
           <fieldset className="quiz-question">
-            <legend>{currentQuestion.question}</legend>
+            <legend ref={questionRef} tabIndex={-1}>{currentQuestion.question}</legend>
             <div className="quiz-answers">{currentQuestion.answers.map((answer, index) => {
               const answered = selectedAnswer !== null
               const correct = index === currentQuestion.correctIndex
@@ -109,7 +117,7 @@ export function QuizPage() {
               </button>
             })}</div>
           </fieldset>
-          {answerFeedback && <div className={`quiz-feedback ${answerFeedback.isCorrect ? 'is-correct' : 'is-wrong'}`} role="status">
+          {answerFeedback && <div ref={feedbackRef} tabIndex={-1} className={`quiz-feedback ${answerFeedback.isCorrect ? 'is-correct' : 'is-wrong'}`}>
             <div className="quiz-feedback-message">
               <p>{answerFeedback.isCorrect ? 'Risposta corretta.' : `Risposta non corretta. La risposta giusta è: ${answerFeedback.correctAnswer}.`}</p>
               <p className="quiz-explanation">{answerFeedback.explanation}</p>
@@ -121,8 +129,8 @@ export function QuizPage() {
         {state === 'complete' && <div className="quiz-result">
           <p className="eyebrow section-index">03 / Il risultato</p>
           <p className="quiz-score"><strong>{score}</strong><span> / 10</span></p>
-          <h2>{score === 10 ? 'Un vero esperto del meteo!' : score >= 7 ? 'Che bella conoscenza del cielo!' : score >= 4 ? 'La curiosità è già un ottimo inizio.' : 'C’è ancora tanto da scoprire!'}</h2>
-          <p>Hai risposto correttamente a <strong>{score} {score === 1 ? 'domanda' : 'domande'}</strong> su 10.</p>
+          <h2 ref={resultRef} tabIndex={-1} aria-describedby="quiz-result-summary">{score === 10 ? 'Un vero esperto del meteo!' : score >= 7 ? 'Che bella conoscenza del cielo!' : score >= 4 ? 'La curiosità è già un ottimo inizio.' : 'C’è ancora tanto da scoprire!'}</h2>
+          <p id="quiz-result-summary">Hai risposto correttamente a <strong>{score} {score === 1 ? 'domanda' : 'domande'}</strong> su 10.</p>
           <button className="quiz-primary" onClick={startQuiz}>Gioca ancora <span aria-hidden="true">↻</span></button>
         </div>}
       </section>

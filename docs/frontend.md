@@ -229,3 +229,7 @@ lettura fallisce. Il messaggio distingue successo della scrittura ed elenco non
 aggiornato; “Aggiorna elenco” permette di recuperare senza ripetere la scrittura.
 Durante la richiesta campi, uscita e annullamento sono disabilitati. Il runner
 `tests/admin-browser.mjs` esercita questi casi con API interamente intercettata.
+
+Il quiz trasferisce il focus alla domanda dopo l’avvio e ogni avanzamento, alla
+spiegazione dopo la risposta e al risultato finale. Il riepilogo comprende il
+punteggio accessibile; il percorso di dieci domande e replay è collaudato da tastiera.

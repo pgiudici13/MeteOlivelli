@@ -378,3 +378,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; controlli e marchi poco leggibili a larghezze intermedie.
 - **Correzione:** layout tablet esteso fino a 1060 px, nascondendo soltanto il logo di testata; footer conservato.
 - **Verifica:** 52 combinazioni pagina/larghezza, assenza di overflow/sovrapposizioni e footer visibile; `npm run check` superato.
+
+## COR-040 — Il quiz perde il focus durante le transizioni
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/pages/QuizPage.tsx`.
+- **Prova:** iniziare il quiz o passare alla domanda successiva lasciava il focus sul `body`; dopo una risposta veniva disabilitato il pulsante focalizzato.
+- **Impatto:** medio; percorso tastiera e lettura assistita disorientanti.
+- **Correzione:** focus trasferito alla domanda, alla spiegazione e al risultato; punteggio descritto nel riepilogo finale.
+- **Verifica:** dieci domande e nuova partita percorse soltanto con tastiera, focus controllato a ogni passaggio; `npm run check` superato.
