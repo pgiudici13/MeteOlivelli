@@ -59,9 +59,12 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
     const point = points[Math.max(0, Math.min(points.length - 1, index))]
     if (point) setSelection(previous => previous?.id === point.id && previous.series === seriesKey ? previous : { id: point.id, series: seriesKey })
   }
-  function selectAt(clientX: number, svg: SVGSVGElement) {
-    const bounds = svg.getBoundingClientRect()
-    const position = (clientX - bounds.left) / bounds.width * 352
+  function selectAt(clientX: number, clientY: number, svg: SVGSVGElement) {
+    const matrix = svg.getScreenCTM()
+    if (!matrix) return
+    // Il viewBox può avere margini interni quando max-height limita il grafico:
+    // la matrice SVG conserva il punto corretto anche in quel layout.
+    const position = new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse()).x
     const nearest = points.reduce((best, point, index) => Math.abs(x(point) - position) < Math.abs(x(points[best]) - position) ? index : best, 0)
     selectPoint(nearest)
   }
@@ -74,8 +77,8 @@ export function HistoryChart({ metric, rows, loading, error, period, until }: {
       ) : (
         <svg viewBox="0 0 352 210" role="img" tabIndex={0}
           aria-describedby={`${id}-interaction`}
-          onPointerMove={event => { if (event.pointerType !== 'touch') selectAt(event.clientX, event.currentTarget) }}
-          onPointerDown={event => { if (event.pointerType === 'touch') selectAt(event.clientX, event.currentTarget) }}
+          onPointerMove={event => { if (event.pointerType !== 'touch') selectAt(event.clientX, event.clientY, event.currentTarget) }}
+          onPointerDown={event => { if (event.pointerType === 'touch') selectAt(event.clientX, event.clientY, event.currentTarget) }}
           onPointerLeave={event => { if (document.activeElement !== event.currentTarget) setSelection(null) }}
           onFocus={() => selectPoint(points.length - 1)} onBlur={() => setSelection(null)}
           onKeyDown={event => {

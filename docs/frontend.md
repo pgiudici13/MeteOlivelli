@@ -233,3 +233,7 @@ Durante la richiesta campi, uscita e annullamento sono disabilitati. Il runner
 Il quiz trasferisce il focus alla domanda dopo l’avvio e ogni avanzamento, alla
 spiegazione dopo la risposta e al risultato finale. Il riepilogo comprende il
 punteggio accessibile; il percorso di dieci domande e replay è collaudato da tastiera.
+
+L’ispezione mouse/touch dei grafici usa la trasformazione SVG reale: anche quando
+il rapporto del contenitore produce margini laterali, seleziona il campione
+corrispondente al punto indicato. Restano disponibili frecce, Home, End ed Escape.

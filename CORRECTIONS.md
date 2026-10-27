@@ -387,3 +387,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; percorso tastiera e lettura assistita disorientanti.
 - **Correzione:** focus trasferito alla domanda, alla spiegazione e al risultato; punteggio descritto nel riepilogo finale.
 - **Verifica:** dieci domande e nuova partita percorse soltanto con tastiera, focus controllato a ogni passaggio; `npm run check` superato.
+
+## COR-041 — Selezione dei grafici errata con margini SVG
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/components/HistoryChart.tsx`.
+- **Prova:** quando `max-height` lascia margini laterali nel contenitore SVG, il calcolo sull’intera larghezza selezionava un campione diverso da quello puntato.
+- **Impatto:** medio; tooltip con valore/ora sbagliati su tablet e finestre larghe.
+- **Correzione:** coordinate del puntatore convertite nel viewBox con la matrice SVG inversa, condivise fra mouse e touch.
+- **Verifica:** puntamento e tocco sulle coordinate effettive di un grafico con margini a 760 px, tastiera invariata; `npm run check` superato.
