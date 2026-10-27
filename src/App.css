@@ -174,9 +174,8 @@ button:disabled { cursor: default; opacity: .45; }
   .hero-instrument .chart svg { max-height: 260px; }
   .metric-grid, .forecast-grid { grid-template-columns: 1fr; }
   .metric-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 20px; }
-  .metric-value { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 28px; margin: 0; text-align: right; }
+  .metric-value { grid-column: 2; grid-row: 1; align-self: center; font-size: 28px; margin: 0; text-align: right; }
   .metric-value.value-empty { font-size: 14px; min-height: 0; max-width: 140px; }
-  .metric-source { grid-column: 1; grid-row: 2; }
   .history-table, .history-table tbody { display: block; }
   .history-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .history-table th:first-child, .history-table th:nth-child(2), .history-table th:nth-child(3), .history-table th:nth-child(4), .history-table th:last-child { width: auto; }
@@ -216,6 +215,19 @@ button:disabled { cursor: default; opacity: .45; }
   .history-section, .chronology-section, .forecast-section { margin-top: 56px; padding-top: 28px; }
   .period-picker button { min-width: 0; flex: 1; padding-inline: 8px; }
   .about-section { margin-top: 40px; padding: 22px; }
+}
+.chart-touch-controls { display: none; }
+@media (max-width: 600px) {
+  .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
+  .chart-touch-controls button { min-width: 0; min-height: 44px; padding: 8px; font-size: 12px; }
+  .chart-touch-controls span { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .chart-inspection { min-height: 36px; overflow-wrap: anywhere; }
+}
+/* Tastiera, lettori di schermo e comodità di tocco. Mantiene il marker nativo dei dettagli. */
+.metric-explanation summary, .time-details summary, .forecast-method summary, .history-table summary, .comparison-modes button { min-height: 44px; padding-block: 12px; }
+.site-shell a:focus-visible, .site-shell button:focus-visible, .site-shell input:focus-visible, .site-shell select:focus-visible, .site-shell summary:focus-visible, .site-shell svg[tabindex]:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .instrument-time, .hero-secondary-readings dt, .chart-period-note { font-size: 12px; line-height: 1.5; }
 }
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
@@ -456,12 +468,29 @@ button::after, .hero-link::after { padding: 2px; }
 .chart-methodology { border-top: 1px solid var(--border); padding-top: 12px; color: var(--secondary); font-size: 13px; line-height: 1.65; }
 .chart-methodology summary { color: var(--text); cursor: pointer; padding: 10px 0; min-height: 44px; }
 .chart-methodology p { margin: 8px 0 0; }
+.station-empty { display: flex; align-items: flex-start; gap: 20px; padding: clamp(18px, 3vw, 28px); background: var(--surface-soft); }
+.station-empty-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border: 1px solid var(--border); border-radius: 50%; color: var(--secondary); font-size: 26px; }
+.station-empty h3 { font-size: 18px; font-weight: 500; margin: 0 0 7px; }
+.station-empty p { margin: 0 0 10px; color: var(--secondary); line-height: 1.6; }
+.station-empty a { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; text-underline-offset: 4px; color: var(--text); }
+@media (max-width: 450px) { .station-empty { gap: 12px; } .station-empty-symbol { width: 34px; height: 34px; flex-basis: 34px; } }
 .section-jump-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin: 26px 0 12px; }
 .section-jump-nav span { color: var(--secondary); font-size: 12px; margin-right: 6px; }
 .section-jump-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--text); font-size: 13px; }
 .section-jump-nav a:hover, .section-jump-nav a:focus-visible { border-color: var(--accent); background: var(--surface-soft); }
 #latest-title, #forecast-title, #daily-curiosity-title, #history-title, #daily-stats-title, #chronology-title { scroll-margin-top: 24px; }
 @media (max-width: 600px) { .section-jump-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; overscroll-behavior-inline: contain; } .section-jump-nav a, .section-jump-nav span { flex-shrink: 0; } }
+/* Telefoni stretti: nessuna navigazione o azione deve uscire dallo schermo. */
+@media (max-width: 450px) {
+  .site-header { grid-template-columns: minmax(0, 1fr); }
+  .header-actions { align-items: flex-start; }
+  .site-header nav { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; gap: 2px 12px; }
+  .site-header nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+  .theme-toggle { flex-shrink: 0; }
+  .pdf-export-controls button { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; }
+  .chronology-toggle { min-width: 0; width: 100%; }
+  .daily-statistics, .daily-comparison, .comparison-card { min-width: 0; }
+}
 .daily-comparison { border-top: 1px solid var(--border); padding-top: 18px; display: grid; gap: 14px; }
 .daily-comparison h3 { margin: 0; font-size: 19px; }
 .comparison-modes { display: flex; flex-wrap: wrap; gap: 8px; }
