@@ -255,6 +255,8 @@ function App() {
           <p>La ricezione di un campione non dimostra che la misura sia recente. Il contatore Arduino non è una data.</p>
         </details>}
       </section></Reveal>
+      <Reveal><ForecastSection /></Reveal>
+      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <p className="eyebrow section-index">02 / Archivio della stazione</p>
         <h2 id="history-title">Andamento delle misure</h2>
@@ -276,6 +278,7 @@ function App() {
         <div className="history-feedback" role="status" aria-live="polite">{historyLoading ? 'Caricamento dello storico…' : historyError ? 'Storico non aggiornato. Nuovo tentativo automatico.' : rows.length ? `${customRange ? 'Intervallo personalizzato' : periods.find(item => item.value === period)?.label}: ${rows.length} campioni caricati.` : latest ? 'Nessuna misura nel periodo selezionato.' : 'L’archivio non contiene ancora misure in questo periodo.'}</div>
         <div className="chart-grid" aria-busy={historyLoading}>{metrics.map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>          <p className="small">24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano la media giornaliera dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome). In Auto lo storico breve mostra i campioni originali; oltre 7 giorni mostra le medie per fascia dell’ultima settimana disponibile. Un intervallo personalizzato mostra i campioni originali. La cronologia conserva i campioni originali. I valori assenti o “probabili errati” interrompono il tracciato e restano consultabili nella cronologia.</p>
       </section></Reveal>
+      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">
         <p className="eyebrow section-index">03 / I campioni</p>
         <h2 id="chronology-title">Cronologia</h2>
@@ -290,9 +293,6 @@ function App() {
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
         {completeHistory.rows.length ? <><p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati.</p><HistoryTable key="all-history" rows={completeHistory.rows} /></> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}
       </section></Reveal>
-      <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
-      <Reveal><ForecastSection /></Reveal>
-      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">Il progetto / MeteOlivelli</p>
         <h2 id="about-title">Un progetto per osservare e imparare.</h2>
