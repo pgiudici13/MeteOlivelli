@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { filterAnalyticsEvent, revokeAnalyticsConsent, setAnalyticsTrackingEnabled, subscribeAnalyticsConsent } from '../src/analytics.ts'
+import { filterAnalyticsEvent, revokeAnalyticsConsent, setAnalyticsTrackingEnabled, subscribeAnalyticsConsent, trackAnalyticsEvent } from '../src/analytics.ts'
 
 const key = 'meteolivelli-analytics-consent'
 function environment(run) {
@@ -73,4 +73,19 @@ test('statistiche: revoca cancella cookie Google host/domain preservando gli alt
     assert.ok(cookieWrites.some(value => value.startsWith(`${name}=`) && value.includes('domain=audit.meteolivelli.test')))
   }
   assert.ok(cookieWrites.every(value => !value.startsWith('theme=')))
+}))
+
+test('statistiche: eventi applicativi rispettano opt-out e host pubblico', () => environment(({ target, commands }) => {
+  target.location.hostname = 'meteolivelli.vercel.app'
+  trackAnalyticsEvent('quiz_complete', { quiz_name: 'meteo_curiosita', score: 7, score_max: 10 })
+  assert.deepEqual(commands.at(-1), ['event', 'quiz_complete', { quiz_name: 'meteo_curiosita', score: 7, score_max: 10 }])
+  const eventCount = commands.length
+  setAnalyticsTrackingEnabled(false)
+  trackAnalyticsEvent('quiz_complete', { quiz_name: 'meteo_curiosita', score: 10, score_max: 10 })
+  assert.equal(commands.length, eventCount + 1) // solo il comando consent=denied
+  target.location.hostname = 'preview.meteolivelli.vercel.app'
+  setAnalyticsTrackingEnabled(true)
+  const beforePreview = commands.length
+  trackAnalyticsEvent('quiz_start', { quiz_name: 'meteo_curiosita', question_count: 10 })
+  assert.equal(commands.length, beforePreview)
 }))

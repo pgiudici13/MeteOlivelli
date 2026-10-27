@@ -48,7 +48,7 @@ export function AnalyticsConsent() {
     {showChoices && <section className="analytics-consent" aria-labelledby="analytics-consent-title" aria-describedby="analytics-consent-description">
       <div>
         <h2 id="analytics-consent-title">Preferenze statistiche</h2>
-        <p id="analytics-consent-description">Google Analytics, Vercel Analytics e Speed Insights sono attivi per impostazione predefinita per misurare in forma aggregata l’uso e le prestazioni di MeteOlivelli. Puoi disattivarli o riattivarli qui in qualsiasi momento. <a href="/privacy">Leggi l’informativa privacy</a>.</p>
+        <p id="analytics-consent-description">Google Analytics, Vercel Analytics e Speed Insights sono attivi per impostazione predefinita per misurare l’uso e le prestazioni di MeteOlivelli. Per il quiz registriamo avvio e punteggio finale, senza le risposte. Puoi disattivare o riattivare le statistiche qui in qualsiasi momento. <a href="/privacy">Leggi l’informativa privacy</a>.</p>
         {storageError && <p role="alert">Non riesco a salvare questa preferenza nel browser. La scelta vale per questa pagina fino al prossimo caricamento; verifica le impostazioni di archiviazione per conservarla.</p>}
       </div>
       <div className="analytics-consent-actions">

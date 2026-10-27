@@ -8,6 +8,12 @@ export function filterAnalyticsEvent<T>(event: T): T | null {
   return trackingEnabled ? event : null
 }
 
+/** Invia eventi applicativi solo quando il tracker è abilitato; non aggiungere dati personali. */
+export function trackAnalyticsEvent(name: string, parameters: Record<string, string | number | boolean>) {
+  if (!trackingEnabled || !isGoogleAnalyticsHost(window.location.hostname)) return
+  window.gtag?.('event', name, parameters)
+}
+
 export function setAnalyticsTrackingEnabled(enabled: boolean) {
   trackingEnabled = enabled
   window['ga-disable-G-F2LRCD93NW'] = !enabled

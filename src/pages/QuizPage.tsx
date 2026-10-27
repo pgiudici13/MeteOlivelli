@@ -7,6 +7,7 @@ import { SchoolSiteLink } from '../components/SchoolSiteLink.tsx'
 import { SiteFooter } from '../components/SiteFooter.tsx'
 import { drawQuizQuestions, getQuizAnswerFeedback, type QuizQuestion } from '../quiz.ts'
 import { getQuizRippleGeometry, type QuizRippleGeometry } from '../quiz-motion.ts'
+import { trackAnalyticsEvent } from '../analytics.ts'
 import './QuizPage.css'
 
 type QuizState = 'intro' | 'playing' | 'complete'
@@ -49,6 +50,7 @@ export function QuizPage() {
     setScore(0)
     setRipple(null)
     setState('playing')
+    trackAnalyticsEvent('quiz_start', { quiz_name: 'meteo_curiosita', question_count: 10 })
   }
 
   function chooseAnswer(answerIndex: number, event: MouseEvent<HTMLButtonElement>) {
@@ -62,6 +64,12 @@ export function QuizPage() {
   function continueQuiz() {
     if (selectedAnswer === null) return
     if (questionIndex === questions.length - 1) {
+      trackAnalyticsEvent('quiz_complete', {
+        quiz_name: 'meteo_curiosita',
+        score,
+        score_max: questions.length,
+        score_percent: Math.round((score / questions.length) * 100),
+      })
       setState('complete')
       return
     }

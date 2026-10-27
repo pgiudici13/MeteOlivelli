@@ -44,7 +44,7 @@ export function PrivacyPage() {
       </section>
 
       <aside className="privacy-draft" role="note">
-        <strong>Informazioni aggiornate al 26 ottobre 2026</strong>
+        <strong>Informazioni aggiornate al 27 ottobre 2026</strong>
         <p>Le impostazioni degli strumenti possono cambiare. Per i dati tecnici gestiti dai fornitori si applicano anche le loro informative e condizioni; per richieste o chiarimenti puoi contattare direttamente il titolare.</p>
       </aside>
 
@@ -61,7 +61,7 @@ export function PrivacyPage() {
           <ul>
             <li><strong>Connessione e hosting:</strong> per consegnare le pagine e proteggere il servizio i fornitori possono trattare indirizzo IP, data e ora, URL richiesto, stato della risposta e informazioni tecniche di browser/rete. I registri e i tempi effettivi dipendono dai servizi e dai piani attivi.</li>
             <li><strong>Preferenze locali:</strong> il browser salva l’eventuale scelta di disattivare o riattivare le statistiche nella chiave <code>meteolivelli-analytics-consent</code> e, se selezionato, il tema grafico. La preferenza resta fino a una modifica da “Preferenze statistiche” o alla cancellazione dei dati del sito.</li>
-            <li><strong>Google Analytics:</strong> il tag si avvia per impostazione predefinita; puoi disattivarlo da “Preferenze statistiche”. Il sito non invia identificatori di account o eventi personalizzati; i segnali Google Ads e la personalizzazione degli annunci sono disattivati. La proprietà è configurata per conservare i dati degli eventi per 2 mesi e quelli a livello utente per 14 mesi; la reimpostazione del periodo in caso di nuova attività è attiva.</li>
+            <li><strong>Google Analytics:</strong> il tag si avvia per impostazione predefinita; puoi disattivarlo da “Preferenze statistiche”. Per il quiz inviamo l’avvio e il completamento, con il nome del quiz e il punteggio numerico totale; non inviamo risposte, nome, email o identificatori di account. Google Analytics può associare gli eventi ai propri identificatori pseudonimi per produrre statistiche sul numero di utenti e sui risultati aggregati. I segnali Google Ads e la personalizzazione degli annunci sono disattivati. La proprietà è configurata per conservare i dati degli eventi per 2 mesi e quelli a livello utente per 14 mesi; la reimpostazione del periodo in caso di nuova attività è attiva.</li>
             <li><strong>Vercel Web Analytics e Speed Insights:</strong> si avviano per impostazione predefinita e puoi disattivarli dalle preferenze. Vercel Web Analytics dichiara di non usare cookie e mostra dati di traffico aggregati. Speed Insights raccoglie misure tecniche di prestazione associate a informazioni come percorso, dispositivo, browser e sistema operativo; Vercel dichiara che i dati sono anonimi. Il progetto è nel piano Hobby: i dati Web Analytics sono consultabili per 1 mese e la finestra di reporting Speed Insights è di 7 giorni.</li>
             <li><strong>Misure meteorologiche:</strong> la pagina legge dati pubblici dal backend Supabase. La consultazione non richiede un account e il browser non invia misure alla stazione. Le misure pubblicate descrivono la stazione, non il visitatore.</li>
           </ul>
