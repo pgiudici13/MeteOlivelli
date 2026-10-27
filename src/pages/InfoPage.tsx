@@ -103,9 +103,9 @@ export function InfoPage() {
           <h2 id="transparency-title">Anche i limiti fanno parte dei dati.</h2>
           <div className="info-trust-grid">
             <article><h3>Valori assenti o anomali</h3><p>Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.</p></article>
-            <article><h3>Prove e misure</h3><p>Il sito avvisa che possono essere presenti dati fittizi. I campioni sintetici servono a provare il funzionamento e non descrivono il tempo a Pavia né le letture dei sensori.</p></article>
+            <article><h3>Provenienza delle misure</h3><p>La Home e i PDF mostrano i campioni con provenienza esplicita dalla stazione. Un orario di acquisizione non sostituisce l’orario effettivo della misura.</p></article>
             <article><h3>Freschezza</h3><p>L’aggiornamento della pagina non conferma che il sensore abbia appena misurato. Finché orologio, cadenza e catena di acquisizione non sono verificati, la freschezza resta non determinabile.</p></article>
-            <article><h3>Previsioni meteo</h3><p>Le previsioni della stazione saranno mostrate solo quando osservazioni fisiche datate permetteranno di valutarle. I campioni sintetici si consultano a parte come simulazione e non descrivono il tempo a Pavia; il modello attuale non dichiara pioggia, sole o certezza del tempo.</p></article>
+            <article><h3>Previsioni meteo</h3><p>Le previsioni della stazione saranno mostrate solo quando osservazioni fisiche datate permetteranno di valutarle. Il modello attuale non dichiara pioggia, sole o certezza del tempo.</p></article>
           </div>
           <div className="info-links"><a href="/home">Vai alla Home <span aria-hidden="true">↗</span></a><a href="/privacy">Leggi l’informativa privacy <span aria-hidden="true">↗</span></a></div>
         </section>

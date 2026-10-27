@@ -159,7 +159,7 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 
 ## COR-014 — GA4 non mostra eventi del sito
 
-- **Stato:** correzione del dataLayer pubblicata in `6059b1d`; deploy Production `READY` il 26 ottobre 2026. La raccolta degli hit resta non verificata.
+- **Stato:** raccolta verificata il 26 ottobre 2026: `page_view` inviato con HTTP 204 e 9 eventi `page_view` nel report Tempo reale. La completezza dei report ordinari e la revoca sulla nuova versione locale restano da verificare dopo un eventuale rilascio.
 - **Area/file:** raccolta GA4 della proprietà `G-F2LRCD93NW`; consenso in `src/analytics.ts` e `src/components/AnalyticsConsent.tsx`.
 - **Problema/prova:** schermata Analytics fornita dall’utente indica zero utenti/eventi e nessun dato ricevuto. Tag Assistant, collegato alla pagina Home pubblica in Chrome, trova `G-F2LRCD93NW` e la destinazione corretta ma riporta “Nessun hit è stato inviato da questo tag” e “Consenso non configurato”. Lo stream GA4 mostra il dominio esatto `https://meteolivelli.vercel.app`, l’ID `G-F2LRCD93NW` e nessun dato nelle ultime 48 ore.
 - **Diagnosi:** `loadGoogleAnalytics()` accodava i comandi con `dataLayer.push(args)`, cioè come array, mentre il formato gtag documentato è `dataLayer.push(arguments)`. Dopo la correzione Tag Assistant vede `analytics_storage=Concesso`, i tre consensi pubblicitari negati e la configurazione del tag. Nella stessa sessione non mostra ancora hit `page_view`; il mancato invio può dipendere da rete o protezione del browser e non è stato attribuito con certezza.
@@ -193,3 +193,125 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Problema/prova:** nello screenshot della diagnostica, GA4 segnala zero dati recenti e “domini aggiuntivi”; la configurazione cross-domain contiene già `meteolivelli.vercel.app` e suggerisce tre host specifici di deployment Vercel. La diagnosi del tasso consenso 0% indica tutti i segnali negati.
 - **Correzione locale:** GA4 ora si carica solo sul dominio canonico, così gli URL di deployment non continuano a inviare eventi nello stream di produzione. Non si aggiungono gli host temporanei alle regole cross-domain. Il codice mantiene `ad_user_data` e i segnali pubblicitari negati: il sito non usa personalizzazione Ads e la guida Google specifica che con Consent Mode già attivo non serve un intervento in questo caso.
 - **Verifica:** test locale del gate hostname e della configurazione Consent Mode; `npm run check` e prova `page_view` da browser senza blocchi ancora da completare. I suggerimenti per host che hanno già inviato hit possono restare nella diagnostica finché Google non aggiorna i domini rilevati. Non modificati impostazioni Google Ads, consenso Ads o protezioni browser.
+
+
+## COR-018 — Dati di prova presentati come letture della stazione
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** la Home pubblicata presentava campioni `synthetic` come ultima lettura della stazione, con sola postilla generale; una serie mista poteva combinare sintetici e reali nel grafico 24h.
+- **Correzione:** dashboard, previsioni e PDF ammettono solo `live` e `historical`; escluse anche provenienze assenti. Avviso provvisorio e simulazione rimossi dalla UI su richiesta. Database e API restano invariati.
+- **Verifica:** test mirati su feed, grafici e PDF con provenienze miste; browser locale con API reale e fixture intercettata. Nessun dato fisico o collaudo stazione attestato.
+
+## COR-019 — Acquisizione futura impedisce il caricamento Auto
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** fixture con ora PC futura accettata dal validatore; latest HTTP 200 e richiesta Auto HTTP 400. Grafici indisponibili finché l’ancora resta futura.
+- **Correzione e verifica:** confronto con il tempo API anche a precisione microsecondo; il valore futuro è nascosto con avviso e l’archivio viene letto senza ancora futura. Test di recupero quando il tempo server raggiunge il campione e prove esistenti su microsecondi. Nessuna modifica remota.
+
+## COR-020 — Revoca statistiche con storage indisponibile
+
+- **Stato:** corretto localmente, 27 ottobre 2026; comportamento di rete su produzione dopo deploy non verificato.
+- **Prova e impatto:** con `localStorage` non scrivibile la riattivazione lasciava GA4 negato e gli script Vercel già caricati non ricevevano un filtro di arresto.
+- **Correzione e verifica:** flag di disattivazione GA4, aggiornamento consenso e filtro `beforeSend` condiviso per Web Analytics e Speed Insights. Test delle transizioni con storage che genera errore; in browser locale provate disattivazione persistente e riattivazione. Se lo storage è indisponibile, la scelta vale fino al successivo caricamento.
+
+## COR-021 — Cronologia perde il giorno selezionato
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** aggiungendo un giorno più recente, la stessa posizione numerica individuava una data diversa.
+- **Correzione e verifica:** selezione per data civile con ritorno automatico al più recente quando richiesto; browser con fixture intercettata, data del 23 ottobre mantenuta dopo inserimento di un nuovo giorno.
+
+## COR-022 — Checklist privacy e footer MIT incoerenti
+
+- **Stato:** corretto localmente, 27 ottobre 2026.
+- **Prova e impatto:** la checklist descriveva scadenza a sei mesi e consenso preventivo, mentre il client usa default attivo e opt-out persistente; il footer presentava la licenza come definitiva mentre README e CONTRIBUTING la indicano da approvare.
+- **Correzione e verifica:** checklist allineata al comportamento; footer allineato allo stato della proposta. Nessuna approvazione dei titolari dedotta.
+
+## COR-023 — Asset non referenziati
+
+- **Stato:** corretti localmente, 27 ottobre 2026.
+- **Prova e impatto:** `src/assets/hero.png`, `react.svg`, `vite.svg` e `public/icons.svg` senza riferimenti rilevati nel progetto; file superflui.
+- **Correzione e verifica:** rimossi i quattro asset; build e verifiche frontend richieste.
+
+## COR-024 — TypeScript strict disabilitato nel frontend (AUD-05)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `tsconfig.app.json`, `tsconfig.node.json`.
+- **Problema/prova:** nessuna opzione `strict` dichiarata; `npx tsc --showConfig` non ne restituiva alcuna, quindi `tsc -b` non intercettava null-unsafe o `any` impliciti nel client, divergendo dal backend Deno (`"strict": true`).
+- **Impatto/priorità:** media; regressioni di tipizzazione non segnalate in build.
+- **Correzione:** `strict: true` in entrambi i tsconfig; il codice esistente risultava già compatibile (zero errori).
+- **Verifica/Esito:** `npm run check` superato (build con `tsc -b`, lint, 95 test frontend, 47 Deno, 27 Python).
+
+## COR-025 — Cronologia riletta integralmente ad ogni focus della finestra (AUD-04)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `src/use-weather.ts`, `src/weather.ts` (`shouldAutoRefreshHistory`).
+- **Problema/prova:** `useCompleteHistory` rileggeva tutte le pagine dello storico ad ogni `visibilitychange`/`online`; con archivi pluriennali ogni focus scaricava l'intero database.
+- **Impatto/priorità:** media; banda e latenza crescenti con lo storico.
+- **Correzione:** stimoli automatici limitati a una rilettura integrale al minuto; cambio dell'ultima lettura e “Aggiorna cronologia” invariati. Alternativa strutturale (delta su `received_at`) documentata in `plan.md`.
+- **Verifica/Esito:** test di regressione su `shouldAutoRefreshHistory`; test UI aggiornata; `npm run check` superato.
+
+## COR-026 — Dashboard indistinguibile con sole importazioni storiche (AUD-12)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `src/App.tsx`, `src/weather.ts` (`stationStatusText`).
+- **Problema/prova:** con sole righe `historical` la dashboard mostrava “Nessuna misura disponibile” mentre la cronologia era popolata.
+- **Impatto/priorità:** bassa; confusione dell'utente.
+- **Correzione:** stato distinto “Solo dati storici disponibili”, nota dedicata e schede “Nessuna lettura recente”.
+- **Verifica/Esito:** `stationStatusText` estratto con test di regressione; `npm run check` superato.
+
+## COR-027 — File di verifica Google e pagina 404 non serviti dal deploy (AUD-16)
+
+- **Stato:** risolto (27 ottobre 2026, locale; non pubblicato).
+- **Area/file:** `public/googlead8bb9c28d0d4e51.html` (spostato dalla root), `scripts/create-static-routes.mjs`.
+- **Problema/prova:** il file di verifica stava alla root e non entrava in `dist/`; le route inesistenti ricevevano il 404 generico della piattaforma, senza la pagina brandizzata.
+- **Impatto/priorità:** bassa; possibile verifica Search Console inefficace, errore 404 non brandizzato.
+- **Correzione:** file servito da `public/`; il build genera `dist/404.html` con `noindex`, titolo/descrizione dedicati e SPA che rende “Pagina non trovata”; route esistenti invariate.
+- **Verifica richiesta:** dopo il deploy, GET del file di verifica sul dominio e di una route inesistente (atteso status 404 con pagina brandizzata).
+- **Esito locale:** output `dist/` verificato dopo build; effetto sul dominio non verificato in questa sessione.
+
+## COR-028 — Nessun controllo di salute della pipeline (AUD-10)
+
+- **Stato:** in analisi (strumento risolto il 27 ottobre 2026; pianificazione e notifiche aperte).
+- **Area/file:** `scripts/check-station-health.mjs`, `src/station-health.ts`, `tests/station-health.test.mjs`.
+- **Problema/prova:** assenza di un modo automatico di accorgersi di stazione/uploader fermi (OPS-02): un mese di dati mancanti sarebbe passato inosservato.
+- **Impatto/priorità:** media; perdita di dati non rilevata.
+- **Correzione:** controllo in sola lettura sull'endpoint pubblico (contratto, provenienza, età campioni sul tempo server, sincronizzazione orologio) con esiti 0/1/2.
+- **Verifica richiesta:** pianificazione su dispositivo autorizzato e prova di notifica con esito ≠ 0.
+- **Esito:** 6 test di regressione; smoke test reale sull'endpoint pubblico riuscito (avviso corretto: solo campioni sintetici).
+
+## COR-029 — `measured_at` mai valorizzabile dalla pipeline (AUD-03)
+
+- **Stato:** risolto per il supporto (27 ottobre 2026); efficacia dipendente dal writer reale (DATA-01).
+- **Area/file:** `uploader/core.py` (`measured_timestamp_column`), `supabase/functions/_shared/measurement_csv.ts` (`context.measured_at`), `uploader/config.example.json`.
+- **Problema/prova:** nessun componente scriveva `measured_at` (uploader e adapter lo fissavano a `null`): freschezza e previsioni fisiche sarebbero restate permanentemente indisponibili.
+- **Impatto/priorità:** media; requisiti di aggiornamento e stime non verificabili.
+- **Correzione:** colonna opzionale con l'ora di misura **attestata dal writer** (formato UTC rigoroso, esclusa per `synthetic`, incompatibile con la colonna scenario); pass-through esplicito nell'adapter TS. Nessuna data dedotta dall'uptime o inventata.
+- **Verifica richiesta:** al campione CSV reale, verificare che il writer possa produrre l'ora di misura e che la UI la mostri come “Misura”.
+- **Esito:** test Python (live+measured distinte da cattura) e Deno (attestata vs dedotta) superati; decisioni e alternative in `plan.md`.
+
+## COR-030 — Letture `latest`/`all` con ordinamento non indicizzato (AUD-11)
+
+- **Stato:** in analisi — migrazione e test predisposti, **non applicati**.
+- **Area/file:** `supabase/migrations/20261027120000_read_query_indexes.sql`, `supabase/tests/read_query_indexes.sql`.
+- **Problema/prova:** gli ORDER BY di `latest` (priorità live) e `all` (`coalesce(captured_at, received_at)`) non avevano indici corrispondenti: sort lineare per richiesta al crescere dello storico.
+- **Impatto/priorità:** media (scalabilità); la verifica EXPLAIN su volume reale era già tra le verifiche aperte di `docs/backend-schema.md`.
+- **Correzione proposta:** due indici (uno parziale per `latest`, uno su espressione per `all`) e `read_station_measurements` riscritta con rami separati per view/base temporale, stessa semantica.
+- **Verifica richiesta:** eseguire `supabase/tests/` (incluso `read_query_indexes.sql` e `station_backend.sql`) sul target autorizzato, confrontare i risultati con la versione precedente, verificare `EXPLAIN` su volume dichiarato; applicare solo con autorizzazione esplicita.
+
+## COR-031 — Duplicati possibili dopo perdita dello stato uploader (AUD-09)
+
+- **Stato:** in analisi — mitigazioni documentate; alternative di contratto aperte.
+- **Area/file:** `uploader/core.py` (stato/outbox), `docs/operations.md` (regole e query), `plan.md` (alternative).
+- **Problema/prova:** la ricreazione dello stato uploader rilegge righe già inviate assegnando UUID nuovi; il database non deduplica sul contenuto (scelta attestata: valori uguali possono essere misure distinte — test `test_repeated_rows_and_reset_are_different_events`).
+- **Impatto/priorità:** media; possibili righe duplicate con valori identici.
+- **Correzione proposta:** regole operative anti-duplicati, query di rilevamento e backup dell'outbox nel runbook; alternative strutturali (unicità su contenuto+offset, ID deterministici) documentate in `plan.md` con i rischi per il riconoscimento dei riavvii e il vincolo UUID v4 del contratto.
+- **Verifica richiesta:** decisione esplicita insieme a DATA-03; se si implementa un'alternativa, test dedicati su righe ripetute, reset Arduino e replay dopo perdita dello stato.
+
+## COR-032 — Runbook backup non includeva i dati e non autenticava la cifratura
+
+- **Stato:** corretto nella documentazione locale il 27 ottobre 2026; backup e restore non eseguiti.
+- **Area/file:** `docs/operations.md`, runbook AUD-01.
+- **Problema/prova:** il comando `supabase db dump` senza `--data-only` o `--role-only` produce lo schema ma non dati né ruoli, secondo la [documentazione CLI Supabase](https://supabase.com/docs/reference/cli/supabase-db-dump); la bozza archiviava quel solo file. Usava inoltre `openssl enc -aes-256-cbc`, che non fornisce autenticazione dell'artefatto. Il progetto verificato è sul piano Free e i backup gestiti giornalieri documentati da Supabase sono per piani Pro/Team/Enterprise.
+- **Impatto/priorità:** alta; il file risultante non avrebbe conservato i record meteorologici e non avrebbe rilevato alterazioni del ciphertext.
+- **Correzione:** runbook aggiornato con dump separati di ruoli, schema e dati; archivio proposto con cifratura autenticata `age`, checksum, snapshot SQLite coerente dell'outbox e restore isolato. CLI, `psql` e `age` non sono installati qui; Docker è disponibile.
+- **Verifica:** comandi e perimetro confrontati con le guide ufficiali; controllo documentale e `git diff --check`. Resta necessario eseguire export e restore di prova su target autorizzati prima di dichiarare OPS-01 completato.

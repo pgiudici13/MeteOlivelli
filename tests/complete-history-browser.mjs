@@ -12,7 +12,8 @@ let historical = 0
 let fail = false
 let historyRequests = 0
 const row = index => ({
-  acquisition_kind: 'synthetic',
+  // La fixture è inventata e intercettata localmente, ma esercita il contratto live.
+  acquisition_kind: 'live',
   ingestion_id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   temperature_c: 20 + index / 10, humidity_pct: 60, pressure_hpa: 1015,
   captured_at: new Date(Date.UTC(2026, 9, 21 + Math.floor(index / 6), 8, index % 6)).toISOString(),
@@ -54,14 +55,14 @@ try {
     historical = 1
     await page.getByRole('button', { name: 'Aggiorna cronologia', exact: true }).click()
     await expectTotal(15)
-    assert.match(await page.locator('.pagination p').textContent(), /Pagina 2 di/)
+    assert.match(await page.locator('.pagination p').textContent(), /Giorno 2 di/)
   })
   await check('errore conserva campioni e pagina, retry recupera', async () => {
     fail = true
     await page.getByRole('button', { name: 'Aggiorna cronologia', exact: true }).click()
     await page.locator('.chronology-section .warning').waitFor()
     assert.equal(await total.textContent(), '15 campioni registrati.')
-    assert.match(await page.locator('.pagination p').textContent(), /Pagina 2 di/)
+    assert.match(await page.locator('.pagination p').textContent(), /Giorno 2 di/)
     fail = false
     historical++
     await page.getByRole('button', { name: 'Riprova', exact: true }).click()

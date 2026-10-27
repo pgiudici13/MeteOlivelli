@@ -1,4 +1,12 @@
-# Frontend — stato e verifiche locali al 26 ottobre 2026
+# Frontend — stato e verifiche
+
+## Aggiornamento locale — 27 ottobre 2026
+
+La dashboard, le previsioni e i PDF mostrano solo campioni con provenienza esplicita `live` o `historical`: `synthetic` e provenienza non specificata sono esclusi, senza cancellare i dati dal backend. La simulazione pubblica e la postilla provvisoria sono rimosse localmente. L’API remota può ancora restituire i campioni di prova; finché sono gli unici presenti, la dashboard locale mostra gli stati vuoti. Una acquisizione futura rispetto al server non è mostrata, produce un avviso e non blocca i grafici; la cronologia conserva il giorno selezionato quando arrivano altri giorni.
+
+Con storage indisponibile la revoca applica il flag di disabilitazione Google e filtra gli invii Vercel già caricati; la riattivazione ripristina i segnali nella pagina corrente. La preferenza non salvabile non persiste al caricamento successivo. I paragrafi successivi sono verbali storici se descrivono postilla, simulazione o funzionamento precedente. Nessun deploy eseguito.
+
+Il 26 ottobre Tempo reale GA4 mostrava 2 utenti e 9 `page_view` negli ultimi 30 minuti; la richiesta di raccolta ha ricevuto HTTP 204. I report ordinari restavano a zero nel periodo precedente.
 
 ## Preferenze statistiche e privacy — comportamento locale aggiornato il 26 ottobre 2026
 
@@ -187,3 +195,12 @@ PageSpeed Insights mobile (Lighthouse 13.5, report delle 12:00) mostra 86/100; F
 Correzioni locali: introdotte versioni del logo scolastico a 220 e 420 px, scelte con `srcSet`/`sizes`, dimensioni intrinseche per evitare spazio non riservato e caricamento lazy del solo logo nel footer. Il logo in testata usa sorgenti responsive; le icone del marchio sono ridotte da 128 a 80 px e viene richiesto un solo asset per tema. Le pagine Info, Privacy e Quiz vengono caricate con chunk separati quando si visita la route; la home non importa più quei moduli inizialmente. La nuova analisi dopo il deploy `eeb677f` misura 85/100, LCP 4,1 s, FCP 1,4 s, TBT 40 ms e CLS 0. Il risparmio immagini stimato è sceso da 68,5 a 40 KiB, il CSS render-blocking da 310 a 150 ms e il JS inutilizzato da 52 a 44 KiB; LCP resta invariato. Il punteggio può variare tra esecuzioni; [report post-rilascio](https://pagespeed.web.dev/analysis/https-meteolivelli-vercel-app/n90zf19urh?form_factor=mobile).
 
 Analytics: la schermata Admin GA4 indicava il corretto dominio e ID stream ma nessun dato ricevuto nelle ultime 48 ore. Tag Assistant, connesso alla Home pubblica in Chrome, ora legge `analytics_storage=Concesso` e gli stati pubblicitari negati; nella sessione non risultano hit `page_view`. Il formato dei comandi dataLayer è stato corretto e pubblicato in `6059b1d` (Production `READY`). La raccolta in Tempo reale non è ancora confermata; la diagnosi non ha cambiato impostazioni della proprietà o protezioni del browser.
+
+## Remediation audit 27 ottobre 2026 — comportamento UI e qualità
+
+- **Solo dati storici (AUD-12):** senza letture recenti della stazione ma con importazioni `historical` in cronologia, lo stato diventa “Solo dati storici disponibili” con nota dedicata nell'eroe e “Nessuna lettura recente” nelle schede, invece di un archivio apparentemente vuoto. Logica pura `stationStatusText` in `weather.ts`, testata.
+- **Riletture della cronologia (AUD-04):** cambio dell'ultima lettura e “Aggiorna cronologia” rileggono sempre; i soli stimoli ritorno-pagina/rete sono limitati a una rilettura integrale al minuto (`shouldAutoRefreshHistory`, `HISTORY_AUTO_REFRESH_MIN_MS`). Test di regressione dedicati.
+- **TypeScript strict (AUD-05):** attivo su `tsconfig.app.json` e `tsconfig.node.json`; il codice esistente era già compatibile, la build intercetta ora futuri errori di tipizzazione.
+- **HistoryTable (AUD-13):** raggruppamento per giorno memoizzato con `useMemo`; nessun cambiamento visibile, meno ricalcoli durante le transizioni di paginazione.
+- **Distribuzione (AUD-16):** `googlead8bb9c28d0d4e51.html` è ora servito da `public/` (prima non entrava in `dist/`); il build genera `dist/404.html` con `noindex` e titolo dedicato, e la SPA rende la pagina “Pagina non trovata” brandizzata. Route esistenti invariate; effetto sul dominio da verificare al prossimo deploy.
+- **PDF (AUD-14):** valutati senza modifiche: pdfmake e font (~1,8 MB) sono caricati solo al primo export, fuori dal bundle iniziale; ridurli degraderebbe i documenti. Nota in `src/pdf-runtime.ts`.

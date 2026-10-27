@@ -180,3 +180,22 @@ Deno.test('CSV: storico, retry, reset e righe identiche rispettano provenienza e
   assert(first.raw_row === another.raw_row)
   assert(!('boot_id' in first.measurement) && !('received_at' in first.measurement))
 })
+
+Deno.test('CSV: measured_at solo se attestato dal chiamante, mai dedotto', () => {
+  const attested = valid(parseMeasurementCsvRow('1;21;55;1013', dialect, {
+    ...context,
+    measured_at: '2026-10-22T07:58:00.000Z',
+  }))
+  assert(attested.measurement.measured_at === '2026-10-22T07:58:00.000Z')
+  // Il contratto normalizza gli istanti a millisecondi UTC.
+  assert(attested.measurement.captured_at === '2026-10-22T08:00:00.000Z')
+  const implicit = valid(parseMeasurementCsvRow('1;21;55;1013', dialect, context))
+  assert(implicit.measurement.measured_at === null)
+  // Un'ora di misura non è ammessa per i campioni sintetici.
+  const synthetic = parseMeasurementCsvRow('1;21;55;1013', dialect, {
+    ...context,
+    acquisition_kind: 'synthetic',
+    measured_at: '2026-10-22T07:58:00.000Z',
+  })
+  assert(!synthetic.ok && synthetic.stage === 'measurement')
+})

@@ -28,7 +28,7 @@ def utc_now():
 def validate_config(config):
     required = {"csv_path", "state_dir", "source_id", "endpoint", "delimiter",
                 "decimal_separator", "encoding", "empty_measurement", "header", "live_verified"}
-    optional = {"acquisition_kind", "synthetic_timestamp_column"}
+    optional = {"acquisition_kind", "synthetic_timestamp_column", "measured_timestamp_column"}
     if not required.issubset(config) or set(config) - required - optional:
         raise Halt("Configurazione incompleta o con campi sconosciuti.")
     if not all(isinstance(config[k], str) for k in required - {"header", "live_verified"}):
@@ -43,11 +43,18 @@ def validate_config(config):
     synthetic_timestamp_column = config.get("synthetic_timestamp_column", False)
     if kind not in ("live", "historical", "synthetic"):
         raise Halt("Tipo di acquisizione non valido.")
-    if type(synthetic_timestamp_column) is not bool or (synthetic_timestamp_column and kind != "synthetic"):
+    measured_timestamp_column = config.get("measured_timestamp_column", False)
+    if type(synthetic_timestamp_column) is not bool or type(measured_timestamp_column) is not bool:
+        raise Halt("Configurazione colonne timestamp non valida.")
+    if synthetic_timestamp_column and measured_timestamp_column:
+        raise Halt("Una sola colonna timestamp è ammessa.")
+    if synthetic_timestamp_column and kind != "synthetic":
         raise Halt("La colonna timestamp scenario è ammessa solo per dati synthetic.")
+    if measured_timestamp_column and kind == "synthetic":
+        raise Halt("La colonna timestamp di misura è esclusa dai dati synthetic.")
     if kind == "synthetic" and config["live_verified"]:
         raise Halt("Le misure sintetiche non possono essere marcate come live verificato.")
-    expected_fields = 5 if synthetic_timestamp_column else 4
+    expected_fields = 5 if (synthetic_timestamp_column or measured_timestamp_column) else 4
     if config["header"] is not None and (not isinstance(config["header"], list) or
             len(config["header"]) != expected_fields or not all(isinstance(v, str) for v in config["header"])):
         raise Halt(f"Intestazione esplicita di {expected_fields} campi richiesta, oppure null.")
@@ -69,13 +76,15 @@ def validate_config(config):
 
 def parse_row(raw, config, ingestion_id, captured_at):
     """Dialetto obbligatorio; nessuna inferenza del formato reale o correzione dei numeri."""
+    measured_at = None
     try:
         text = raw.decode(config["encoding"])
         if any(c in text for c in "\r\n\ufeff"):
             raise ValueError
         # Stessa grammatica delle virgolette del parser TypeScript v1.
         pattern = r'(?:"(?:[^"\r\n]|"")*"|[^"\r\n' + re.escape(config["delimiter"]) + r']*)'
-        expected_fields = 5 if config.get("synthetic_timestamp_column", False) else 4
+        expected_fields = 5 if (config.get("synthetic_timestamp_column", False)
+                                or config.get("measured_timestamp_column", False)) else 4
         if not re.fullmatch(pattern + (re.escape(config["delimiter"]) + pattern) * (expected_fields - 1), text):
             raise ValueError
         cells = next(csv.reader(io.StringIO(text), delimiter=config["delimiter"], strict=True))
@@ -103,7 +112,13 @@ def parse_row(raw, config, ingestion_id, captured_at):
             if not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z", timestamp):
                 raise ValueError
             parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-            captured_at = parsed.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+            normalized = parsed.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+            # Scenario: la colonna fissa l'ora di acquisizione; misura: attesta
+            # l'ora fisica della lettura senza inventarla. Mai dedotte dall'uptime.
+            if config.get("synthetic_timestamp_column"):
+                captured_at = normalized
+            else:
+                measured_at = normalized
     except (UnicodeError, ValueError, csv.Error, StopIteration):
         return None, "csv_non_valido"
     kind = config.get("acquisition_kind", "historical")
@@ -114,7 +129,7 @@ def parse_row(raw, config, ingestion_id, captured_at):
         "arduino_seconds": values[0], "temperature_c": values[1], "humidity_pct": values[2],
         "pressure_hpa": values[3], "acquisition_kind": kind if kind == "synthetic" else
             ("live" if captured_at else "historical"),
-        "captured_at": captured_at, "measured_at": None,
+        "captured_at": captured_at, "measured_at": measured_at,
     }
     if kind == "synthetic":
         payload["_provenance"] = {"kind": "synthetic"}

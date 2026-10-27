@@ -34,7 +34,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 2. Usare la palette neutra con arancio/verde solo per segnali e dati; mantenere leggibili selezione dei filtri, avvisi e unità anche senza colore.
 3. Conservare layout, tabella equivalente, nomi accessibili dei grafici, focus visibile e gestione di movimento ridotto; niente lampeggi prima dell’ingresso.
 4. Non introdurre valori, punti o curve inventati per riempire la UI. Animare la presentazione dei campioni ricevuti, preservando interruzioni, qualità e provenienza.
-5. Non togliere la postilla mentre sono esposti i campioni sintetici autorizzati; non usare l’aspetto “live” per attestare freschezza non verificata.
+5. La versione finale locale non espone campioni sintetici e non mostra la postilla provvisoria; non usare l’aspetto “live” per attestare freschezza non verificata.
 6. Aggiornare questo file se cambiano token, layout o motion. Registrare requisiti nuovi in `plan.md`, verifiche in `tasks.md` e soltanto bug verificati in `CORRECTIONS.md`.
 
 ## Aspetto e struttura
@@ -44,7 +44,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 - Marchio MeteOlivelli: sole delineato con raggi alternati, derivato dal favicon originale e rifinito per la lettura a dimensione ridotta. Varianti coordinate in oro su antracite per dark mode e antracite/oro su avorio per clear mode; intestazione e favicon seguono il tema attivo. Il logo ufficiale del Liceo resta separato e invariato.
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
-- Postilla visibile sopra il contenuto: “Work in progress · Possibili dati presenti fittizi”. Rimane fuori dalle animazioni. [Dati pubblici di prova e vincoli](docs/data-preview.md).
+- Nessuna postilla provvisoria nella versione finale locale: i campioni di prova e quelli privi di provenienza sono esclusi dalla visualizzazione. [Dati di prova e vincoli](docs/data-preview.md).
 
 ## Coreografia degli ingressi
 

@@ -14,12 +14,42 @@ uptime, tre numeri `double precision` nullabili, tipo di acquisizione, istanti
 `captured_at`/`measured_at` nullabili e `received_at` assegnato dal DB. Conserva
 anche payload normalizzato, testo JSON originale accettato e flag qualità con
 versione. Il CSV originale resta sul PC: non è contenuto nel contratto HTTP v1.
-Non si deducono sessioni Arduino. Nessuna cancellazione o modifica di misure.
+Non si deducono sessioni Arduino.
 
 Chiave primaria `(source_id, ingestion_id)`, senza unicità su uptime o valori.
 Indici parziali per `(source_id, captured_at, ingestion_id)` dei soli eventi live
 e per `(source_id, measured_at, ingestion_id)` datati. Lo storico non datato rimane
 archiviato; un import storico non diventa l'evento live corrente.
+
+## Area amministrativa `/data` — rilascio 27 ottobre 2026
+
+La route non compare nella navigazione ed è `noindex`, ma l'URL non è una misura
+di sicurezza. Il browser chiede la password; l'Edge Function
+`manage-measurements` la verifica sul server tramite `METEOLIVELLI_ADMIN_PASSWORD`.
+Il browser la mantiene solo in memoria durante la sessione e non la scrive in
+localStorage. La funzione espone soltanto le righe della sorgente configurata,
+limita la lista alle 100 più recenti e accetta inserimento, correzione e rimozione.
+Non espone la chiave service role. La password deve essere un segreto casuale di
+almeno 24 caratteri; l'handler limita i tentativi per IP nell'istanza Edge e
+controlla l'origine browser consentita.
+
+La migrazione `20261027113158_admin_measurement_writes.sql` concede UPDATE/DELETE
+solo a `service_role`, crea RPC invoker non pubbliche e una tabella di audit che
+registra ID, azione e istante (non i valori precedenti). La cancellazione rimuove
+la misura dalla tabella primaria; l'audit conserva solo l'identificativo e il
+fatto che sia stata eliminata. L'inserimento manuale produce una riga `historical`;
+chiede esplicitamente il contatore Arduino richiesto dal contratto attuale e
+accetta la data fisica solo se digitata. La funzione non crea `captured_at`. Una
+correzione aggiorna il payload normalizzato e i flag qualità, lasciando intatto
+`raw_payload` come prova del record originariamente ricevuto.
+
+La migrazione è stata applicata al progetto MeteOlivelli e la Edge Function è
+`ACTIVE` v1. `METEOLIVELLI_ADMIN_PASSWORD` non è ancora configurata: perciò le
+richieste operative rispondono 503 e la pagina non consente ancora accesso.
+Rimane necessario impostare il segreto dal pannello Supabase, controllare il
+dominio CORS effettivo e verificare login/CRUD con una riga di prova approvata.
+Il conteggio tentativi è in memoria per istanza e si azzera con il riavvio; non
+è un limite durevole contro attacchi distribuiti.
 
 L'RPC `ingest_station_measurement` esegue INSERT ON CONFLICT DO NOTHING e, in un
 comando successivo della stessa funzione VOLATILE, legge il record già commesso:

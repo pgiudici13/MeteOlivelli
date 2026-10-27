@@ -1,5 +1,7 @@
 # Backend: setup locale e controllo dati
 
+> **Aggiornamento locale 27 ottobre 2026:** il feed previsionale pubblico richiede `measured_at` ed esclude i campioni sintetici; la modalità di simulazione rimane soltanto nel motore e nei test isolati. La UI e i PDF escludono anche le righe senza provenienza esplicita. Il contratto e l’API remoti non sono stati modificati. Le descrizioni precedenti della simulazione pubblica sono storiche.
+
 > **Aggiornamento 24 ottobre:** tipo applicativo `synthetic` distinto; batch pubblico corrente di 241 campioni amministrativi ogni tre ore, in sostituzione dei record presenti; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti agli aggiornamenti sintetici.
 
 ## Cosa è pronto
@@ -91,6 +93,7 @@ aggiunta a `.env.local`.
 | `STATION_INGEST_TOKEN` | Endpoint e futuro uploader | Token dedicato, almeno 32 caratteri; esempio vuoto |
 | `STATION_SOURCE_ID` | Endpoint server | Sorgente associata al token; esempio vuoto |
 | `SUPABASE_SERVICE_ROLE_KEY` | Solo runtime Edge | Credenziale DB privilegiata; mai browser/uploader; esempio vuoto |
+| `METEOLIVELLI_ADMIN_PASSWORD` | Solo `manage-measurements` Edge Function | Segreto casuale ≥24 caratteri; mai frontend/uploader; esempio vuoto |
 
 Questi sono nomi definiti per il progetto; non descrivono il contenuto dei file
 locali o delle configurazioni remote, che non è stato letto. `SUPABASE_URL` è una
@@ -354,3 +357,26 @@ Scadenza al primo fra istante previsto e `ultima misura + cadenza recente + 20 m
 Le letture dello storico avvengono al cambiamento di latest, dopo un errore e comunque ogni cinque minuti per recuperare aggiornamenti storici che non cambiano latest. Input uguali non riavviano il modello. Il riferimento è il tempo dell’API; l’orologio locale serve soltanto ad avanzarlo fra le letture. Cambiare il periodo dei grafici non cambia training o risultati. La lettura previsionale è separata e non può bloccare osservazioni/grafici.
 
 **Stato aggiornato 26 ottobre:** una query aggregata in sola lettura sul progetto Supabase MeteOlivelli ha restituito 251 righe `synthetic`, nessuna con `measured_at`; non è quindi presente uno storico fisico per calibrare o verificare il modello. La Home tiene le simulazioni sintetiche separate e non mostra i loro valori come previsioni reali. La modalità fisica continua a richiedere `measured_at`; alla verifica precedente l’API fisica era vuota. La prova UI del commit `240e9e6` aveva rivelato che i sintetici importati insieme non superavano il backtest basato su `received_at`; la simulazione ora usa il tempo di scenario per ricostruire l’ordine temporale. Il 26 ottobre è stato corretto il caso osservato in cui la persistenza ripeteva l’ultima misura su tutti gli orizzonti: quando non è dimostrato un metodo migliore, il risultato ora è indisponibile; test mirati verificano anche che una serie variabile produca valori distinti agli orizzonti supportati. Le pagine della cronologia sono raggruppate per giorno Europe/Rome. Build/test verificano il comportamento software, non l’accuratezza meteorologica. WX-01/WX-02 restano parziali per misure/clock reali, calibrazione e valutazione prospettica.
+
+## `measured_at`: effettivo vs stimato — AUD-03 (27 ottobre 2026)
+
+Il contratto v1 distingue già `measured_at` (istante della misura), `captured_at`
+(acquisizione sul PC) e `received_at` (ricezione server). Regola aggiornata:
+
+- **Effettivo:** solo un'ora attestata dalla sorgente (writer o orologio della
+  stazione) può diventare `measured_at`. L'uploader la acquisisce con la chiave
+  opzionale `measured_timestamp_column`; l'adapter TS la riceve come
+  `context.measured_at` e non la deduce mai dalla riga CSV.
+- **Stimato:** la ricostruzione dall'uptime Arduino (ancoraggio uptime→orologio)
+  **non è implementata**. Se mai introdotta richiederà metodo documentato,
+  incertezza numerica e un campo di qualità esplicito; non deve falsare
+  `measured_at` (plan.md §6 “Tempo, ordinamento e reset Arduino”).
+- **Assente:** senza attestazione `measured_at` resta `null`; la UI mostra
+  “Orario della misura non disponibile”, la freschezza resta “non determinabile”
+  e le stime fisiche restano indisponibili. Nessuna data viene inventata.
+
+Conseguenze attese: con il writer attuale (formato dichiarato senza ora assoluta)
+la colonna resterà disattivata e `measured_at` nullo; quando DATA-01 fornirà il
+campione reale si valuterà se il writer può produrre l'ora di misura. Il test di
+regressione `CSV: measured_at solo se attestato dal chiamante, mai dedotto` copre
+il passaggio; il caso live+measured è coperto dai test Python dell'uploader.

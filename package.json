@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/create-static-routes.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "frontend:test": "node --test tests/frontend.test.mjs tests/forecast.test.mjs tests/quiz.test.mjs",
+    "frontend:test": "node --test tests/frontend.test.mjs tests/forecast.test.mjs tests/quiz.test.mjs tests/station-health.test.mjs",
     "backend:check": "deno task --config supabase/functions/deno.json check",
     "backend:lint": "deno task --config supabase/functions/deno.json lint",
     "backend:test": "deno task --config supabase/functions/deno.json test",

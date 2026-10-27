@@ -24,6 +24,12 @@ const routes = [
     title: 'Gioca con il meteo — MeteOlivelli',
     description: 'Dieci domande casuali sulle curiosità del meteo. Mettiti alla prova con MeteOlivelli.',
   },
+  {
+    path: 'data',
+    title: 'Gestione delle misure — MeteOlivelli',
+    description: 'Area riservata per la gestione delle misure MeteOlivelli.',
+    noindex: true,
+  },
 ]
 
 for (const route of routes) {
@@ -37,5 +43,19 @@ for (const route of routes) {
     .replace(/<meta property="og:description" content="[^"]*"\s*\/>/, `<meta property="og:description" content="${route.description}" />`)
     .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="https://meteolivelli.vercel.app/${route.path === 'home' ? '' : route.path}" />`)
     .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="https://meteolivelli.vercel.app/${route.path === 'home' ? '' : route.path}" />`)
+    .replace('<meta name="theme-color"', `${route.noindex ? '<meta name="robots" content="noindex, nofollow" />\n    ' : ''}<meta name="theme-color"`)
   await writeFile(join(directory, 'index.html'), html)
 }
+
+// 404.html: la piattaforma lo serve con status 404 per le route inesistenti;
+// l'app client mostra poi la pagina "Pagina non trovata" brandizzata (SiteRoute).
+const notFound = template
+  .replace(/    <script type="application\/ld\+json">[\s\S]*?    <\/script>\n/, '')
+  .replace(/<title>[^<]*<\/title>/, '<title>Pagina non trovata — MeteOlivelli</title>')
+  .replace(/<meta name="description" content="[^"]*"\s*\/>/, '<meta name="description" content="La pagina richiesta non è disponibile. Torna alla home di MeteOlivelli per consultare le misure della stazione." />')
+  .replace(/<meta property="og:title" content="[^"]*"\s*\/>/, '<meta property="og:title" content="Pagina non trovata — MeteOlivelli" />')
+  .replace(/<meta property="og:description" content="[^"]*"\s*\/>/, '<meta property="og:description" content="La pagina richiesta non è disponibile." />')
+  .replace(/\n\s*<meta property="og:url" content="[^"]*"\s*\/>/, '')
+  .replace(/\n\s*<link rel="canonical" href="[^"]*"\s*\/>/, '')
+  .replace('<meta name="theme-color"', '<meta name="robots" content="noindex" />\n    <meta name="theme-color"')
+await writeFile(join(outputDirectory, '404.html'), notFound)

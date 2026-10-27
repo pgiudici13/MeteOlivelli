@@ -6,14 +6,16 @@ MeteOlivelli è un progetto sviluppato da **Pietro Giudici e Nicholas Borin**, s
 
 **Sito:** [meteolivelli.vercel.app](https://meteolivelli.vercel.app/) · **Roadmap:** [plan.md](plan.md) · **Come contribuire:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-> **Stato del progetto — 26 ottobre 2026:** la web app è online, ma l'acquisizione dalla stazione Arduino e dal PC scolastico non è ancora stata collaudata sul campo. Nel database sono presenti dati **sintetici di prova**, non osservazioni meteorologiche reali. La distinzione è essenziale anche quando il sito mostra grafici o simulazioni.
+> **Aggiornamento locale — 27 ottobre 2026:** la dashboard finale mostra solo campioni con provenienza `live` o `historical`; esclude quelli sintetici o senza provenienza anche dai PDF e dalle previsioni. La versione pubblicata non è stata ancora riconfermata.
+
+> **Stato del progetto — 26 ottobre 2026 (storico):** la web app è online, ma l'acquisizione dalla stazione Arduino e dal PC scolastico non è ancora stata collaudata sul campo. Nel database sono presenti dati **sintetici di prova**, non osservazioni meteorologiche reali. La distinzione è essenziale anche quando il sito mostra grafici o simulazioni.
 
 ## Cosa offre
 
 - Dashboard responsive con temperatura, umidità, pressione, tema chiaro/scuro e informazioni sui dati.
 - Grafici e storico navigabile, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
 - Sezione educativa **Gioca con il meteo**, con quiz e spiegazioni.
-- Motore di stime sperimentali: valutazioni su misure fisiche valide e simulazioni **separate ed etichettate** sui dati di prova.
+- Motore di stime sperimentali: valutazioni su misure fisiche datate e verificabili.
 - Backend Supabase con API di lettura e ingestione; uploader Python resiliente con SQLite, ancora da provare sul PC Windows della scuola.
 
 **Flusso previsto, non ancora validato sul dispositivo reale:** sensori → Arduino → file CSV sul PC Windows → uploader Python → Supabase → dashboard web.
@@ -25,19 +27,19 @@ Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/)
 
 La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disponibile su `/gioca`: presenta dieci domande casuali fra venti curiosità, mescola le risposte e spiega il risultato di ogni scelta.
 
-La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. Con soli dati sintetici è disponibile una simulazione separata, etichettata, per +3, +6 e +24 ore; non è una previsione reale.
+La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. La revisione locale esclude le simulazioni dalla dashboard.
 
-**Dati di prova:** l’ultima verifica documentata il 26 ottobre 2026 riporta 251 campioni `synthetic` nel database finale, inclusi 10 aggiunti ai 241 precedenti. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La postilla pubblica segnala i possibili dati fittizi. [Contratto ed evidenze](docs/data-preview.md).
+**Dati di prova:** l’ultima verifica documentata il 26 ottobre 2026 riporta 251 campioni `synthetic` nel database finale, inclusi 10 aggiunti ai 241 precedenti. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La revisione locale nasconde questi campioni e rimuove la postilla provvisoria. [Contratto ed evidenze](docs/data-preview.md).
 
-Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Le stime fisiche e la simulazione sintetica usano feed separati; nessuna fonte meteo esterna è integrata.
+Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Le stime fisiche usano soltanto osservazioni reali ammesse; nessuna fonte meteo esterna è integrata.
 
-I verbali documentano i rilasci e le verifiche eseguite in date diverse; il checkout locale include anche quiz, cronologia completa, PDF e simulazione previsionale. La versione effettivamente distribuita e le funzioni Edge non sono state riconfermate in questa revisione. Restano aperti il collaudo della stazione reale, backup/restore, avvisi e validazione meteorologica: si veda la **Fase 8** in [tasks.md](tasks.md#8-fase-8--backup-gestione-e-rilascio).
+I verbali documentano i rilasci e le verifiche eseguite in date diverse; il checkout locale include anche quiz, cronologia completa, PDF e previsioni basate sulle misure fisiche. La versione effettivamente distribuita e le funzioni Edge non sono state riconfermate in questa revisione. Restano aperti il collaudo della stazione reale, backup/restore, avvisi e validazione meteorologica: si veda la **Fase 8** in [tasks.md](tasks.md#8-fase-8--backup-gestione-e-rilascio).
 
 **Revisione grafici successiva, pubblicazione richiesta il 22 ottobre:** Auto predefinito, scala adattiva e medie per fascia nell’ultima settimana disponibile; disegno lineare più rapido. Le viste manuali rimangono. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
 
 **Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia e raggruppa le pagine per giorno in Europe/Rome. Sono presenti download PDF dei grafici e della cronologia.
 
-**Audit locale del 23 ottobre, `6e5f197`:** build/lint, 72 test frontend, 44 Deno e 23 Python superati. Riprodotti problemi di cursore sub-millisecondo, provenienza nei PDF dei grafici, aggiornamento cronologia e margini della tabella PDF. [Prove, priorità e limiti](docs/project-review/README.md); [registro correzioni](CORRECTIONS.md#cor-009--il-cursore-della-cronologia-perde-i-microsecondi). Successivamente cursore, aggiornamento cronologia e layout PDF sono stati corretti nel codice locale (COR-009, COR-011, COR-012); la correzione della provenienza sintetica nei PDF dei grafici (COR-010) resta esclusa su richiesta utente. Il verbale descrive lo stato della pubblicazione in quella sessione, non prova il deploy corrente.
+**Audit locale del 23 ottobre, `6e5f197`:** build/lint, 72 test frontend, 44 Deno e 23 Python superati. Riprodotti problemi di cursore sub-millisecondo, provenienza nei PDF dei grafici, aggiornamento cronologia e margini della tabella PDF. [Prove, priorità e limiti](docs/project-review/README.md); [registro correzioni](CORRECTIONS.md#cor-009--il-cursore-della-cronologia-perde-i-microsecondi). Successivamente cursore, aggiornamento cronologia e layout PDF sono stati corretti nel codice locale (COR-009, COR-011, COR-012); la correzione della provenienza sintetica nei PDF dei grafici (COR-010), inizialmente esclusa, è stata successivamente effettuata. Il verbale descrive lo stato della pubblicazione in quella sessione, non prova il deploy corrente.
 
 ## Documentazione e collaborazione
 
@@ -123,6 +125,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run backend:lint` | Lint e formato dei file backend con Deno |
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
 | `npm run uploader:test` | Test sintetici Python con SQLite temporaneo, senza rete; richiede `python3` |
+| `node scripts/check-station-health.mjs` | Controllo salute pipeline in sola lettura (endpoint, provenienza, età campioni, orologio); esito 0/1/2 |
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 

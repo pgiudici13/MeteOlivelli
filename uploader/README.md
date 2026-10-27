@@ -189,3 +189,41 @@ Bearer` e autorizzazione della sorgente nell'handler. La distinzione tra control
 JWT della piattaforma e autenticazione applicativa è documentata da
 [Supabase](https://supabase.com/docs/guides/functions/auth); nessuna configurazione
 del backend è stata modificata in questa fase.
+
+## Colonna timestamp di misura (AUD-03, 27 ottobre 2026)
+
+Chiave opzionale `measured_timestamp_column` (booleana, default `false`): quando
+è `true` il CSV ha una quinta colonna con l'**ora di misura attestata dal writer**
+(formato UTC rigoroso `AAAA-MM-GGTHH:MM:SS[.mmm]Z`, come il timestamp scenario).
+Il valore diventa `measured_at` dell'evento; `captured_at` resta l'osservazione
+sul PC secondo le regole usuali. Ammessa per `acquisition_kind` `live` e
+`historical`, **mai** per `synthetic`; incompatibile con
+`synthetic_timestamp_column`. La colonna non esiste o non è attendibile: tenere
+`false`, perché `measured_at` nullo è preferibile a una data inventata; la
+ricostruzione da uptime Arduino non è implementata e non è equivalente.
+
+## Collaudo del primo avvio (AUD-02 / REL-01)
+
+Checklist per il primo contatto con la sorgente reale; ogni passo va documentato
+con esito. Finché non è completata, i dati della stazione non sono attestati.
+
+1. Campione reale del CSV del writer (anche poche righe): annotare separatore,
+   decimali, eventuale intestazione, encoding e numero di colonne. **Non** usare
+   `tests/fixtures/Prova misure.csv` come riferimento: è sintetico e non compatibile.
+2. Allineare `config.json` al dialetto osservato; per il primo invio usare
+   `acquisition_kind: "historical"` (o `live` con `live_verified: true` solo dopo
+   aver verificato il comportamento del writer).
+3. `python -m uploader --config <cfg> --initialize` su una cartella di stato nuova
+   **e conservarne subito una copia di backup** (vedi runbook in
+   [operations.md](../docs/operations.md)).
+4. `python -m uploader --config <cfg> --status`: attese righe in `pending`, zero
+   in `quarantine`. Righe in quarantena con `csv_non_valido` ⇒ dialetto errato:
+   correggere la configurazione, non lo stato.
+5. Primo invio reale con `--once` (storico) oppure avvio continuo con
+   `live_verified` se l'ora PC è attendibile; verificare le ricevute e la
+   comparsa in dashboard con `scripts/check-station-health.mjs`.
+6. Provare esplicitamente: riavvio del PC (ripresa dallo stesso outbox),
+   interruzione di rete e ripresa, reset di Arduino (il contatore riparte senza
+   duplicati né date inventate) e writer che aggiunge righe durante l'esecuzione.
+7. Registrare gli esiti in `tasks.md` (UP-01–UP-04, REL-01) prima di dichiarare
+   operativa la catena di acquisizione.

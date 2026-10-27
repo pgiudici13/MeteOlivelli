@@ -13,10 +13,14 @@ export interface CsvDialect {
   empty_measurement: 'reject' | 'null'
 }
 
-export type CsvEventContext = Pick<
-  Measurement,
-  'source_id' | 'ingestion_id' | 'acquisition_kind' | 'captured_at'
->
+export interface CsvEventContext extends
+  Pick<
+    Measurement,
+    'source_id' | 'ingestion_id' | 'acquisition_kind' | 'captured_at'
+  > {
+  /** Eventuale ora di misura attestata dalla sorgente; assente se non disponibile. */
+  measured_at?: string | null
+}
 
 export interface CsvIssue {
   field: '$' | 'arduino_seconds' | 'temperature_c' | 'humidity_pct' | 'pressure_hpa'
@@ -115,8 +119,9 @@ export function parseMeasurementCsvRow(
     pressure_hpa: values[3],
     acquisition_kind: context.acquisition_kind,
     captured_at: context.captured_at,
-    // Il formato sorgente dichiarato dall'utente non contiene un'ora assoluta.
-    measured_at: null,
+    // Il CSV v1 non contiene un'ora assoluta: measured_at è solo quello attestato
+    // dal chiamante (writer o orologio della sorgente), mai dedotto o inventato.
+    measured_at: context.measured_at ?? null,
   }, ranges)
   return result.ok
     ? { ...result, raw_row: rawRow }

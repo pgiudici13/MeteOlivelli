@@ -9,5 +9,6 @@
   "empty_measurement": "reject",
   "header": null,
   "live_verified": false,
-  "acquisition_kind": "historical"
+  "acquisition_kind": "historical",
+  "measured_timestamp_column": false
 }

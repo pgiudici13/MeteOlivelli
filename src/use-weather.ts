@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createWeatherFeed, initialWeatherState } from './weather-feed.ts'
-import { readAllHistory } from './weather.ts'
+import { readAllHistory, shouldAutoRefreshHistory, stationMeasurements } from './weather.ts'
 import type { Measurement, Period } from './weather.ts'
 
 export function useWeather(period: Period, anchorToLatest = false) {
@@ -25,19 +25,26 @@ export function useWeather(period: Period, anchorToLatest = false) {
 export function useCompleteHistory(latestId: string | null) {
   const [state, setState] = useState<{ rows: Measurement[]; loading: boolean; error: boolean; checkedAt: string | null }>({ rows: [], loading: true, error: false, checkedAt: null })
   const [attempt, setAttempt] = useState(0)
+  const lastAutoRefresh = useRef(-Infinity)
   useEffect(() => {
     if (latestId === null) return
     const controller = new AbortController()
     let active = true
     void readAllHistory(controller.signal).then(
-      rows => { if (active) setState({ rows, loading: false, error: false, checkedAt: new Date().toISOString() }) },
+      rows => { if (active) setState({ rows: stationMeasurements(rows), loading: false, error: false, checkedAt: new Date().toISOString() }) },
       () => { if (active) setState(previous => ({ ...previous, loading: false, error: true })) },
     )
     return () => { active = false; controller.abort() }
   }, [attempt, latestId])
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState === 'visible') setAttempt(value => value + 1)
+      // Il cambio dell’ultima lettura rilegge sempre; ritorno alla pagina e rete
+      // sono stimoli costosi da non ripetere ad ogni focus della finestra.
+      if (document.visibilityState !== 'visible') return
+      const now = Date.now()
+      if (!shouldAutoRefreshHistory(lastAutoRefresh.current, now)) return
+      lastAutoRefresh.current = now
+      setAttempt(value => value + 1)
     }
     document.addEventListener('visibilitychange', refresh)
     window.addEventListener('online', refresh)
@@ -47,6 +54,7 @@ export function useCompleteHistory(latestId: string | null) {
     }
   }, [])
   return { ...state, retry: () => {
+    lastAutoRefresh.current = Date.now()
     setState(previous => ({ ...previous, loading: true, error: false }))
     setAttempt(value => value + 1)
   } }

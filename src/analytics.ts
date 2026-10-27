@@ -1,6 +1,18 @@
 const measurementId = 'G-F2LRCD93NW'
 const consentKey = 'meteolivelli-analytics-consent'
 const publicHostname = 'meteolivelli.vercel.app'
+let trackingEnabled = true
+
+/** Valutato al momento dell'invio anche dagli script già caricati. */
+export function filterAnalyticsEvent<T>(event: T): T | null {
+  return trackingEnabled ? event : null
+}
+
+export function setAnalyticsTrackingEnabled(enabled: boolean) {
+  trackingEnabled = enabled
+  window['ga-disable-G-F2LRCD93NW'] = !enabled
+  if (enabled) window.gtag?.('consent', 'update', { analytics_storage: 'granted' })
+}
 
 export function isGoogleAnalyticsHost(hostname: string) {
   return hostname === publicHostname
@@ -75,6 +87,7 @@ export function loadGoogleAnalytics() {
 }
 
 export function revokeAnalyticsConsent() {
+  setAnalyticsTrackingEnabled(false)
   const saved = saveAnalyticsConsent('denied')
   window.gtag?.('consent', 'update', { analytics_storage: 'denied' })
   for (const cookie of document.cookie.split(';')) {
@@ -88,5 +101,6 @@ declare global {
   interface Window {
     dataLayer?: unknown[]
     gtag?: (...args: unknown[]) => void
+    'ga-disable-G-F2LRCD93NW'?: boolean
   }
 }

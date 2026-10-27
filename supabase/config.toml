@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.read-measurements]
 verify_jwt = false
+
+[functions.manage-measurements]
+verify_jwt = false

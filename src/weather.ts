@@ -25,6 +25,26 @@ export interface ReadPage {
   until: string
   time_basis: 'captured_at' | 'measured_at'
 }
+/** La dashboard finale mostra solo campioni con provenienza della stazione esplicita. */
+export function stationMeasurements(rows: Measurement[]): Measurement[] {
+  return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
+}
+
+export function isAfterServerTime(value: string, serverUntil: string): boolean {
+  const key = (time: string) => time.replace(/\+00:00$/, 'Z')
+    .replace(/(?:\.(\d{1,6}))?Z$/, (_, fraction: string = '') => `.${fraction.padEnd(6, '0')}Z`)
+  return key(value) > key(serverUntil)
+}
+
+/** L'ancoraggio non può superare il tempo del server, neppure per arrotondamento. */
+export function historyAnchor(capturedAt: string | null | undefined, serverUntil: string): string | null {
+  if (!capturedAt) return null
+  const time = Date.parse(capturedAt)
+  const serverTime = Date.parse(serverUntil)
+  if (!Number.isFinite(time) || !Number.isFinite(serverTime) || isAfterServerTime(capturedAt, serverUntil)) return null
+  const fraction = capturedAt.match(/\.(\d+)/)?.[1] ?? ''
+  return new Date(Math.min(serverTime, time + (/[1-9]/.test(fraction.slice(3)) ? 1 : 0))).toISOString()
+}
 export const metrics = [
   { key: 'temperature_c', name: 'Temperatura', unit: '°C', tone: 'mint' },
   { key: 'humidity_pct', name: 'Umidità', unit: '%', tone: 'blue' },
@@ -143,6 +163,16 @@ export async function readAllHistory(signal: AbortSignal, reader: PageReader = r
   return [...items.values()].sort(compareHistoryMeasurements)
 }
 
+/** Rilettura integrale costosa: gli stimoli automatici di rete/visibilità sono limitati. */
+export const HISTORY_AUTO_REFRESH_MIN_MS = 60000
+export function shouldAutoRefreshHistory(
+  lastRefreshAt: number,
+  now: number,
+  minIntervalMs: number = HISTORY_AUTO_REFRESH_MIN_MS,
+): boolean {
+  return !Number.isFinite(lastRefreshAt) || now - lastRefreshAt >= minIntervalMs
+}
+
 export async function readHistory(period: Period, signal: AbortSignal, reader: PageReader = readPage, basis: 'captured_at' | 'measured_at' = 'captured_at'): Promise<Measurement[]> {
   const items = new Map<string, Measurement>()
   const cursors = new Set<string>()
@@ -205,6 +235,24 @@ export function getFreshness(row: Measurement | null, now: number, verifiedCaden
   const measured = Date.parse(row.measured_at)
   if (!Number.isFinite(measured) || measured > now) return 'unknown'
   return now > measured + verifiedCadenceMs + 20 * 60000 ? 'delayed' : 'current'
+}
+
+export interface StationStatusInput {
+  latestLoaded: boolean
+  invalidLatestTime: boolean
+  latestError: boolean
+  freshness: Freshness
+  historicalOnly: boolean
+}
+/** Stato della stazione per l’utente; le sole importazioni storiche non sono letture recenti. */
+export function stationStatusText(input: StationStatusInput): string {
+  if (!input.latestLoaded) return 'Caricamento delle misure…'
+  if (input.invalidLatestTime) return 'Orario dell’ultima acquisizione non valido'
+  if (input.latestError) return 'Aggiornamento non riuscito'
+  if (input.freshness === 'empty') return input.historicalOnly ? 'Solo dati storici disponibili' : 'Nessuna misura disponibile'
+  if (input.freshness === 'delayed') return 'Stazione in ritardo'
+  if (input.freshness === 'current') return 'Misure aggiornate'
+  return 'Freschezza non determinabile'
 }
 
 // Ogni valore nullo/sospetto interrompe la linea; i valori originali restano nella tabella.
