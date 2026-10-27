@@ -223,6 +223,10 @@ button:disabled { cursor: default; opacity: .45; }
 .chart-expanded svg { max-height: 65vh; min-height: 260px; }
 .chart-expanded .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
 .chart-expanded .chart-touch-controls button { min-height: 44px; }
+.history-date-search { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.history-date-search label { color: var(--secondary); font-size: 13px; }
+.history-date-search input { min-height: 44px; min-width: 0; max-width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; background: var(--surface-raised); color: var(--text); font: inherit; }
+.history-date-search p { flex-basis: 100%; color: var(--secondary); font-size: 12px; }
 @media (max-width: 600px) {
   .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
   .chart-touch-controls button { min-width: 0; min-height: 44px; padding: 8px; font-size: 12px; }

@@ -39,6 +39,8 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   const [transition, setTransition] = useState<'idle' | 'exiting' | 'entering'>('idle')
   const [nextDay, setNextDay] = useState<string | null>(null)
   const [direction, setDirection] = useState<'older' | 'newer'>('older')
+  const [requestedDate, setRequestedDate] = useState('')
+  const [dateError, setDateError] = useState('')
   // Raggruppamento costoso solo quando cambiano i campioni, non a ogni render di transizione.
   const days = useMemo(() => groupHistoryByLocalDay([...rows].reverse()), [rows])
   const pages = days.length
@@ -80,6 +82,8 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
 
   function changePage(target: number) {
     if (transition !== 'idle' || target < 0 || target >= pages || target === current) return
+    setRequestedDate(days[target].key)
+    setDateError('')
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setSelectedDay(target === 0 ? null : days[target].key)
       return
@@ -90,6 +94,17 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
   }
 
   return <>
+    {pages > 1 && <div className="history-date-search">
+      <label htmlFor="history-jump-date">Vai direttamente a una data</label>
+      <input id="history-jump-date" type="date" value={requestedDate || visibleDay?.key || ''} min={days.at(-1)?.key} max={days[0]?.key} disabled={transition !== 'idle'} onChange={event => {
+        const key = event.target.value
+        setRequestedDate(key)
+        const index = days.findIndex(day => day.key === key)
+        if (index < 0) setDateError('Nessuna misurazione registrata in questa data. Scegli un giorno presente nell’archivio.')
+        else { setDateError(''); changePage(index) }
+      }} />
+      {dateError && <p role="status">{dateError}</p>}
+    </div>}
     {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} acquisiti in questo giorno</p></div>}
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
