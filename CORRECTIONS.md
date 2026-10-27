@@ -423,3 +423,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** basso; animazioni incoerenti in base alla velocità della rete/cache.
 - **Correzione:** wrapper Motion montato dentro Suspense dopo il contenuto, mantenendo un solo insieme di listener e cleanup.
 - **Verifica:** prova browser con chunk ritardato e movimento ridotto dinamico; `npm run check` superato.
+
+## COR-045 — Errore di caricamento di una pagina lascia lo schermo bianco
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/components/PageErrorBoundary.tsx`, `src/main.tsx`, `tests/page-errors-browser.mjs`.
+- **Prova:** bloccando il modulo Informazioni o Quiz, React svuotava la radice: nessun titolo/contenuto e preferenze statistiche scomparse.
+- **Impatto:** alto su rete instabile o durante il rinnovo degli asset di un deploy.
+- **Correzione:** recupero accessibile con messaggio italiano, titolo focalizzato, ricarica e ritorno alla home; preferenze statistiche disponibili anche dopo l’errore, senza dettagli tecnici esposti.
+- **Verifica:** due scenari browser completi, entrambi i temi a 320/1280 px, ricarica e home dopo recupero della rete; `npm run check` superato.

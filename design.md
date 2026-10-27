@@ -157,3 +157,7 @@ Gli ingressi della pagina vengono inizializzati dopo che il contenuto lazy è
 pronto dentro Suspense, mantenendo un solo insieme di listener. Il caricamento
 lento dei moduli non salta più la preparazione delle sezioni fuori schermo;
 movimento ridotto e cleanup restano validi.
+
+Gli errori di caricamento usano la composizione della pagina 404 già presente:
+titolo leggibile e focalizzato, messaggio italiano, ricarica e ritorno alla home.
+Le preferenze statistiche restano disponibili. Nessun cambio al layout normale.
