@@ -120,7 +120,7 @@ function App() {
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
-  const completeHistory = useCompleteHistory(data.latestLoaded ? data.latest?.ingestion_id ?? 'empty' : null)
+  const completeHistory = useCompleteHistory(data.latestLoaded ? JSON.stringify([data.latest, data.invalidLatestTime]) : null)
   const latest = data.latest
   const matchingHistory = data.period === queryPeriod && data.anchorToLatest === (period === 'auto')
   const historyLoading = !matchingHistory || !data.historyLoaded

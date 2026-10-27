@@ -22,12 +22,12 @@ export function useWeather(period: Period, anchorToLatest = false) {
   return state
 }
 
-export function useCompleteHistory(latestId: string | null) {
+export function useCompleteHistory(latestSignature: string | null) {
   const [state, setState] = useState<{ rows: Measurement[]; loading: boolean; error: boolean; checkedAt: string | null }>({ rows: [], loading: true, error: false, checkedAt: null })
   const [attempt, setAttempt] = useState(0)
   const lastAutoRefresh = useRef(-Infinity)
   useEffect(() => {
-    if (latestId === null) return
+    if (latestSignature === null) return
     const controller = new AbortController()
     let active = true
     void readAllHistory(controller.signal).then(
@@ -35,7 +35,7 @@ export function useCompleteHistory(latestId: string | null) {
       () => { if (active) setState(previous => ({ ...previous, loading: false, error: true })) },
     )
     return () => { active = false; controller.abort() }
-  }, [attempt, latestId])
+  }, [attempt, latestSignature])
   useEffect(() => {
     const refresh = () => {
       // Il cambio dell’ultima lettura rilegge sempre; ritorno alla pagina e rete

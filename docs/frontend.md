@@ -212,3 +212,9 @@ le sei cifre frazionarie del server; gli UUID risolvono soltanto gli istanti ugu
 `tests/weather-order.test.mjs` riproduce l’inversione precedente e confronta anche
 le forme UTC equivalenti. Il comando `npm run frontend:test` include tutti i file
 `tests/*.test.mjs`; i runner `*-browser.mjs` restano separati e opzionali.
+
+Le serie vengono inoltre riconciliate ogni cinque minuti mentre la pagina è
+visibile, per recepire modifiche e cancellazioni precedenti all’ultima lettura.
+Il polling di 15 secondi resta leggero prima della soglia. La cronologia completa
+si aggiorna anche quando cambia il contenuto dell’ultimo UUID; per altre modifiche
+retroattive rimane disponibile il comando “Aggiorna cronologia”.

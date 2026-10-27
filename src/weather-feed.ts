@@ -22,6 +22,7 @@ export function initialWeatherState(period: Period, anchorToLatest = false): Wea
 export function createWeatherFeed(period: Period, publish: (state: WeatherState) => void, reader: PageReader = readPage, options: { anchorToLatest?: boolean } = {}) {
   let state = initialWeatherState(period, Boolean(options.anchorToLatest))
   let signature: string | undefined
+  let historyCheckedAt = -Infinity
   let busy = false
   let stopped = false
   const controller = new AbortController()
@@ -30,6 +31,8 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
       if (busy || stopped) return
       busy = true
       let historyStarted = false
+      // Una modifica/cancellazione retroattiva non cambia necessariamente latest.
+      const reconcileHistory = Date.now() - historyCheckedAt >= 5 * 60000
       let serverUntil: string | null = null
       const updateHistory = async () => {
         historyStarted = true
@@ -43,10 +46,11 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
             return page
           })
           state = { ...state, history: stationMeasurements(history), windowUntil, historyLoaded: true, historyError: false }
+          historyCheckedAt = Date.now()
         } catch { state = { ...state, historyLoaded: true, historyError: true } }
       }
       // Prima apertura: richieste indipendenti in parallelo.
-      const historyRequest = !options.anchorToLatest && (!state.historyLoaded || state.historyError) ? updateHistory() : Promise.resolve()
+      const historyRequest = !options.anchorToLatest && (!state.historyLoaded || state.historyError || reconcileHistory) ? updateHistory() : Promise.resolve()
       try {
         const response = await reader(new URLSearchParams({ view: 'latest' }), controller.signal)
         serverUntil = response.until
@@ -56,7 +60,7 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
         const latest = invalidLatestTime ? null : candidate
         const nextSignature = JSON.stringify([response.items, invalidLatestTime])
         state = { ...state, latest, invalidLatestTime, latestLoaded: true, latestError: false, checkedAt: Date.now() }
-        if ((nextSignature !== signature || !state.historyLoaded || state.historyError) && !historyStarted) await updateHistory()
+        if ((nextSignature !== signature || !state.historyLoaded || state.historyError || reconcileHistory) && !historyStarted) await updateHistory()
         // Anche senza nuovi campioni la finestra deve avanzare, senza nuove letture di serie.
         const windowUntil = options.anchorToLatest ? state.windowUntil ?? response.until : response.until
         state = { ...state, windowUntil, history: trimHistory(state.history, period, windowUntil) }

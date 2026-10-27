@@ -333,3 +333,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; interfaccia priva di una risposta coerente durante un errore di configurazione.
 - **Correzione:** handler isolato dall’avvio del server, validazione URL protetta e 503 gestito; nessun segreto incluso nelle risposte.
 - **Verifica:** cinque nuovi test locali coprono configurazione, origine, password, blocco tentativi, validazione, CRUD ed errori DB; `npm run check` superato (104 frontend, 52 Deno, 28 Python nel checkout condiviso). Nessuna richiesta amministrativa remota.
+
+## COR-035 — Correzioni delle misure non riconciliate nella pagina aperta
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/weather-feed.ts`, `src/use-weather.ts`, `src/App.tsx`.
+- **Prova:** modifiche/cancellazioni precedenti a `latest` lasciavano curve obsolete senza limite; una modifica dello stesso UUID più recente aggiornava le card ma non la cronologia.
+- **Impatto:** alto per la coerenza dei dati mostrati.
+- **Correzione:** grafici riconciliati ogni cinque minuti a pagina visibile; cronologia completa legata alla firma dell’ultima misura, con polling leggero invariato.
+- **Verifica:** tre regressioni unitari, prova browser con stesso UUID e `npm run check` superati. Errori di riconciliazione conservano i valori e ritentano al ciclo successivo.
