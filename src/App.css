@@ -434,3 +434,8 @@ button::after, .hero-link::after { padding: 2px; }
 .daily-curiosity-answer { color: var(--text); font-weight: 600; }
 .daily-curiosity a { width: fit-content; margin-top: 8px; color: var(--text); text-underline-offset: 4px; }
 @media (max-width: 600px) { .daily-curiosity { margin-top: 48px; } }
+.metric-explanation { margin-top: 4px; min-width: 0; font-size: 12px; color: var(--secondary); }
+.metric-explanation summary { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-weight: 550; }
+.metric-explanation summary span { font-size: 17px; }
+.metric-explanation p { margin: 6px 0 0; line-height: 1.6; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .metric-explanation { grid-column: 1 / -1; } }

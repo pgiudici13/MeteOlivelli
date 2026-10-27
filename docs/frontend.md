@@ -293,3 +293,7 @@ La pagina iniziale mostra una curiosità educativa tratta dalle domande già ver
 
 La pagina mostra il tempo trascorso dall'orario della misura fisica attestata, oppure, quando assente, dall'acquisizione PC o dalla ricezione server con etichette distinte. Il calcolo usa l'ora restituita dal backend e non l'orologio del visitatore; date future/non coerenti non producono un'età fittizia. L'indicazione non equivale a certificare la freschezza della misura in assenza di una cadenza verificata.
 
+## Spiegazioni delle grandezze — 27 ottobre 2026
+
+Le tre schede principali espongono una spiegazione apribile da tastiera tramite `details/summary`, con definizione accessibile di temperatura dell'aria, umidità relativa e pressione atmosferica. Non inferiscono fenomeni meteo non misurati e non richiedono nuove API.
+

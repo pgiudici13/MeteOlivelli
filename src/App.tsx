@@ -11,6 +11,7 @@ import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
 import { measurementAge } from './measurement-age.ts'
+import { metricExplanations } from './metric-explanations.ts'
 import { ThemeToggle } from './components/ThemeToggle.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { SchoolLogo } from './components/SchoolLogo.tsx'
@@ -240,6 +241,7 @@ function App() {
             {!latestLoaded ? 'Caricamento…' : latest ? <Value row={latest} metric={metric} /> : latestError ? 'Lettura non disponibile' : historicalOnly ? 'Nessuna lettura recente' : 'Nessun dato disponibile'}
           </p>
           <p className="small metric-source">{latest ? `Acquisizione PC · ${formatTime(latest.captured_at, true)}` : `Unità di misura: ${metric.unit}`}</p>
+          <details className="metric-explanation"><summary><span aria-hidden="true">ⓘ</span> Cosa indica?</summary><p>{metricExplanations[metric.key]}</p></details>
         </article>)}</div>
         <div className="weather-summary panel" aria-labelledby="weather-summary-title">
           <h3 id="weather-summary-title">Come stanno cambiando le misure?</h3>
