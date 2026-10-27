@@ -324,3 +324,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; serie e navigazione dei campioni potevano seguire un ordine errato.
 - **Correzione:** confronto UTC normalizzato a sei cifre frazionarie; UUID usato solo a parità di istante.
 - **Verifica:** tre regressioni dedicate e `npm run check` superati; nessuna modifica al contratto remoto.
+
+## COR-034 — Configurazione invalida dell’API amministrativa senza risposta gestita
+
+- **Stato:** risolto localmente il 27 ottobre 2026; deployment Edge separato ancora necessario.
+- **Area/file:** `supabase/functions/manage-measurements/handler.ts` e relativo test.
+- **Prova:** un URL backend malformato generava un’eccezione fuori dal gestore degli errori, senza risposta JSON/CORS.
+- **Impatto:** medio; interfaccia priva di una risposta coerente durante un errore di configurazione.
+- **Correzione:** handler isolato dall’avvio del server, validazione URL protetta e 503 gestito; nessun segreto incluso nelle risposte.
+- **Verifica:** cinque nuovi test locali coprono configurazione, origine, password, blocco tentativi, validazione, CRUD ed errori DB; `npm run check` superato (104 frontend, 52 Deno, 28 Python nel checkout condiviso). Nessuna richiesta amministrativa remota.

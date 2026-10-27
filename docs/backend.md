@@ -380,3 +380,12 @@ la colonna resterà disattivata e `measured_at` nullo; quando DATA-01 fornirà i
 campione reale si valuterà se il writer può produrre l'ora di misura. Il test di
 regressione `CSV: measured_at solo se attestato dal chiamante, mai dedotto` copre
 il passaggio; il caso live+measured è coperto dai test Python dell'uploader.
+
+### Audit amministrazione — 27 ottobre 2026
+
+`manage-measurements/handler.ts` è separato dall’entrypoint per consentire prove
+senza avviare un server o leggere segreti. URL backend invalidi restituiscono
+503 JSON con gli header CORS previsti. I test usano credenziali inventate e
+trasporto in memoria per configurazione, autenticazione, validazione e CRUD.
+Le correzioni locali della funzione richiedono un deployment Edge separato:
+il push Git del frontend non lo esegue.

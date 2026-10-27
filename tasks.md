@@ -659,3 +659,4 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-033: ordine dei grafici corretto anche ai microsecondi, tre regressioni dedicate; `npm run check` superato (101 frontend, 52 Deno, 28 Python nel checkout condiviso). Lo script frontend include automaticamente tutti i file `tests/*.test.mjs`.
 - [ ] Completare revisione UI/browser, area amministrativa, backend/uploader e verifica del rilascio Git.
 - [ ] Rimangono indipendenti: CSV/writer e Windows reali, acquisizione continua, backup/restore, avvisi e validazione meteo.
+- [x] COR-034: handler amministrativo testabile e 503/CORS per configurazione invalida; cinque regressioni Deno, `npm run check` superato. Il push del sorgente non pubblica l’Edge Function.
