@@ -54,7 +54,11 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
       } else setTransition('idle')
     }
     const sign = direction === 'older' ? 1 : -1
-    const animations = Array.from(tableRef.current.querySelectorAll('tbody tr'), (row, index) => animate(row,
+    const body = tableRef.current.tBodies[0]
+    // Una giornata molto fitta non deve creare migliaia di animazioni o attese
+    // proporzionali al numero di campioni. Per quelle pagine si anima il gruppo.
+    const targets = body.rows.length > 12 ? [body] : Array.from(body.rows)
+    const animations = targets.map((row, index) => animate(row,
       transition === 'exiting'
         ? { opacity: [1, 0], transform: ['translateY(0px)', `translateY(${sign * 6}px)`] }
         : { opacity: [0, 1], transform: [`translateY(${-sign * 6}px)`, 'translateY(0px)'] },

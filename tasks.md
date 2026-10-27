@@ -667,3 +667,4 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] COR-039: testata tablet senza sovrapposizioni e logo footer preservato; 52 combinazioni browser e `npm run check` superati.
 - [x] COR-040: focus quiz su domanda, feedback e risultato; partita completa e replay da tastiera, `npm run check` superato.
 - [x] COR-041: selezione mouse/touch corretta nei grafici con margini SVG; regressione browser e `npm run check` superati.
+- [x] COR-042: durata e numero di animazioni cronologia limitati; prova browser con 300 campioni e `npm run check` superati.

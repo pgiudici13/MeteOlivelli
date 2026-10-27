@@ -396,3 +396,12 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** medio; tooltip con valore/ora sbagliati su tablet e finestre larghe.
 - **Correzione:** coordinate del puntatore convertite nel viewBox con la matrice SVG inversa, condivise fra mouse e touch.
 - **Verifica:** puntamento e tocco sulle coordinate effettive di un grafico con margini a 760 px, tastiera invariata; `npm run check` superato.
+
+## COR-042 — Cambio giorno rallentato dal numero di campioni
+
+- **Stato:** risolto il 27 ottobre 2026.
+- **Area/file:** `src/App.tsx`, transizioni della cronologia.
+- **Prova:** il ritardo `index * .025` cresceva senza limite: mille righe richiedevano circa 25 secondi per la sola coda di ogni transizione, lasciando la paginazione bloccata.
+- **Impatto:** alto per giornate fitte; interazione apparentemente ferma.
+- **Correzione:** massimo dodici animazioni per riga; oltre dodici campioni viene animato il corpo della tabella come gruppo, senza eliminare dati.
+- **Verifica:** giornata da 300 campioni con cambio pagina completato sotto 2,5 secondi, conteggi conservati; `npm run check` superato.

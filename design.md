@@ -147,3 +147,8 @@ Con movimento ridotto gli ingressi e le microinterazioni sono esclusi e gli effe
 Tra 761 e 1060 px la testata usa due colonne e nasconde il solo logo scolastico
 centrale; il logo del footer resta visibile. Oltre 1060 px torna la testata a tre
 colonne. Verificate 52 combinazioni pagina/larghezza senza sovrapposizioni o overflow.
+
+Le transizioni della cronologia animano singolarmente fino a dodici righe; oltre
+questa soglia animano il corpo della tabella come gruppo. Durata e numero di
+animazioni restano limitati anche per giornate fitte, mantenendo tutte le righe e
+il rispetto del movimento ridotto.
