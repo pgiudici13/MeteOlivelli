@@ -45,7 +45,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Nessuna postilla provvisoria nella versione finale locale: i campioni di prova e quelli privi di provenienza sono esclusi dalla visualizzazione. [Dati di prova e vincoli](docs/data-preview.md).
-- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. Le linee divisorie delle sezioni Cronologia, Grafici e Previsioni non ricevono il riflesso al passaggio del puntatore. La Home termina con il progetto e non include più il glossario.
+- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. I bordi usano un solo contorno reale, senza livelli luminosi sovrapposti; hover e focus cambiano il colore del contorno senza alterare dimensioni o posizione. La Home termina con il progetto e non include più il glossario.
 
 ## Coreografia degli ingressi
 
@@ -63,11 +63,9 @@ Una nuova serie o un grafico ricreato dopo loading/errore può avviare un nuovo 
 
 Focus tastiera rivela subito il contenitore; movimento ridotto cancella effetti in corso e stati nascosti anche se cambiato durante la visita. Senza supporto observer/animazioni il contenuto resta visibile. Observer, listener e animazioni hanno cleanup. Scroll manuale nativo, scroll morbido soltanto per collegamenti ad ancore, disattivato con movimento ridotto.
 
-## Riflesso sui bordi
+## Bordi, controlli e focus
 
-Gradiente bianco radiale ritagliato al contorno tramite maschera, centrato sul puntatore. Raggio 220 px sui pannelli, 180 px su pulsanti/CTA; bordo luminoso 1 px sulle schede, 2 px sui pulsanti, dissolvenza 220 ms. Segue il puntatore con interpolazione 0,18 per frame; con movimento ridotto segue immediatamente. Il ciclo si ferma a convergenza e viene cancellato all’uscita/smontaggio.
-
-È attivo solo il bersaglio più vicino: pannelli, schede, grafici, pulsanti abilitati, link, dettagli e controlli. I divisori di sezione non reagiscono al passaggio sui filtri. Nessun cambiamento di dimensioni/layout; nessun cursore artificiale. Su touch l’effetto è escluso; focus tastiera bianco indipendente dall’hover. Link e dettagli hanno sottolineatura, righe cronologia un riscontro discreto.
+Ogni controllo e superficie usa il proprio bordo reale da 1 px, senza pseudo-elementi di riflesso sovrapposti. Hover rinforza il colore del bordo con una transizione breve; non crea rettangoli parziali né modifica il layout. I raggi condivisi sono 3 px per controlli e CTA, 8 px per schede interne e 10 px per pannelli; il dialogo grafico usa 12 px. Campi e pulsanti hanno un’altezza utile di almeno 44 px. Il focus da tastiera resta visibile con contorno verde menta di 2 px e offset di 2 px. I divisori di sezione mantengono il loro bordo superiore neutro.
 
 I grafici di temperatura, umidità e pressione seguono immediatamente la sezione “Le ultime misure”. Il loro ordine è selezionabile e ognuno mantiene colore, scala e unità propri.
 

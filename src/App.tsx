@@ -14,7 +14,6 @@ import { WeatherRecords } from './components/WeatherRecords.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, observationTime, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
-import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
 import { measurementAge } from './measurement-age.ts'
 import { localDateTimeValue, readChartLink } from './chart-links.ts'
@@ -155,7 +154,6 @@ function App() {
     return () => cancelAnimationFrame(frame)
   }, [])
 
-  useBorderLight()
   const initialChartLink = useMemo(() => readChartLink(window.location.search), [])
   const [period, setPeriod] = useState<ChartMode>(initialChartLink.period)
   const [customStart, setCustomStart] = useState(() => initialChartLink.customRange ? localDateTimeValue(initialChartLink.customRange.start) : '')

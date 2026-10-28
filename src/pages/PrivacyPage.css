@@ -1,6 +1,6 @@
 .privacy-page .privacy-hero { max-width: 860px; padding: 76px 0 44px; }
 .privacy-page h1 { margin-top: 28px; }
-.privacy-draft { margin: 0 0 32px; padding: 20px 24px; border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: 6px; background: var(--surface-soft); }
+.privacy-draft { margin: 0 0 32px; padding: 20px 24px; border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: var(--radius-inset); background: var(--surface-soft); }
 .privacy-draft strong { font-size: 14px; font-weight: 500; }
 .privacy-draft p { margin: 8px 0 0; color: var(--secondary); font-size: 13px; line-height: 1.65; }
 .privacy-sections { border-top: 1px solid var(--border); }
