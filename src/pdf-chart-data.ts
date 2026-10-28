@@ -1,4 +1,4 @@
-import { historyAnchor, observationTime, readObservationHistory, readPage, stationMeasurements } from './weather.ts'
+import { historyAnchor, readObservationHistory, readPage, stationMeasurements } from './weather.ts'
 import type { ChartMode, Measurement, PageReader } from './weather.ts'
 
 export async function readFreshChartData(period: ChartMode, signal: AbortSignal, reader: PageReader = readPage): Promise<{ rows: Measurement[]; until: string }> {
@@ -9,7 +9,7 @@ export async function readFreshChartData(period: ChartMode, signal: AbortSignal,
     const latest = await reader(new URLSearchParams({ view: 'latest' }), signal)
     if (latest.items.length > 1 || latest.next_cursor) throw new Error('Ultimo campione incoerente')
     const latestMeasurement = stationMeasurements(latest.items)[0]
-    anchor = historyAnchor(latestMeasurement ? observationTime(latestMeasurement) : null, latest.until)
+    anchor = historyAnchor(latestMeasurement?.measured_at, latest.until)
   }
   const history = await readObservationHistory(apiPeriod, signal, async (params, requestSignal) => {
     if (anchor) params.set('until', anchor)

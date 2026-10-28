@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs'
 
 const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const styles = readFileSync(new URL('../src/App.css', import.meta.url), 'utf8')
+const quizStyles = readFileSync(new URL('../src/pages/QuizPage.css', import.meta.url), 'utf8')
+const borderLight = readFileSync(new URL('../src/use-border-light.ts', import.meta.url), 'utf8')
 
 test('stazione priva di letture: un solo stato informativo al posto delle tre schede vuote', () => {
   assert.match(app, /latestLoaded && !latest \? <div className="station-empty panel"/)
@@ -36,6 +38,16 @@ test('focus evidente e aree di tocco per dettagli, pulsanti e grafici', () => {
   assert.match(styles, /\.site-shell svg\[tabindex\]:focus-visible \{ outline: 3px solid var\(--mint\)/)
   assert.match(styles, /\.metric-explanation summary, \.time-details summary, \.forecast-method summary, \.history-table summary/)
   assert.match(styles, /min-height: 44px; padding-block: 12px/)
+})
+
+test('azioni con forma uniforme, divisori senza riflesso e glossario rimosso', () => {
+  assert.match(styles, /^button \{[^}]*border-radius: 3px/m)
+  assert.match(styles, /\.theme-toggle \{[^}]*border-radius: 3px/)
+  assert.match(styles, /\.comparison-modes button \{[^}]*border-radius: 3px/)
+  assert.match(styles, /\.section-jump-nav a \{[^}]*border-radius: 3px/)
+  assert.match(quizStyles, /\.quiz-answer \{[^}]*border-radius: 3px/)
+  assert.match(borderLight, /\.panel:not\(\.history-section\):not\(\.chronology-section\):not\(\.forecast-section\)/)
+  assert.doesNotMatch(app, /MeteorologyGlossary|glossario/i)
 })
 
 test('contrasto dei testi secondari e degli avvisi supera il rapporto WCAG AA 4,5:1', () => {

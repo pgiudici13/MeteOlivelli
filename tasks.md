@@ -706,3 +706,6 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Modifica locale a RPC, handler, feed, asse temporale dei grafici/PDF, riepilogo e testo `/data`; conservati i file utente già modificati in `docs/backend-schema.md` e `tasks.md`.
 - [ ] Verificare build/lint e l'esito della query SQL/API; applicare la migration, aggiornare l'Edge Function e pubblicare il frontend per rendere il comportamento effettivo sul sito.
 - [ ] Nessuna suite di test eseguita in questa sessione.
+
+- [x] Su richiesta utente, grafici e PDF usano solo `measured_at`; righe senza ora fisica attestata escluse dalle serie e didascalia aggiornata. `npm run build`, `npm run lint`, 67 test mirati e `git diff --check` superati. Suite frontend completa: 160/161; resta fallito il test di ordine sezioni `tests/ux-order.test.mjs`, non relativo alla modifica. Deno/Python non rieseguiti; nessuna modifica remota o pubblicazione.
+- [x] Revisione UI successiva: rimosso il glossario; raggi dei pulsanti uniformati a 3 px; riflesso escluso dai divisori di sezione per evitare il bordo verticale. `npm run build`, `npm run lint`, tutti i 161 test frontend e `git diff --check` superati. Corretta anche la query del test d’ordine, che confrontava la sezione grafici invece della cronologia completa.

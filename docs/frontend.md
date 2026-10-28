@@ -4,6 +4,8 @@
 
 La sezione di confronto combinato è stata rimossa; i tre grafici singoli seguono subito “Le ultime misure”. Il riflesso al bordo segue il puntatore su pannelli, schede, collegamenti, pulsanti e controlli, un solo bersaglio alla volta; touch escluso.
 
+I grafici e i relativi PDF usano esclusivamente `measured_at` per ordinamento, finestre, posizionamento e ancoraggio Auto. Le righe senza orario fisico attestato non vengono tracciate: `captured_at` e `received_at` non sono ripieghi per l’asse dei grafici. I campioni aggregati mantengono la regola corrente delle medie e dichiarano che i punti sono collocati al centro della giornata/fascia.
+
 ## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
 
 Il dialogo dei grafici ora occupa l’area della pagina, si apre con un ingresso breve e blocca lo scroll del contenuto sottostante. All’apertura seleziona Auto; nel dialogo si possono scegliere temperatura, umidità o pressione e i periodi Auto, 24 ore, 7, 14 o 30 giorni. La vista ampia aumenta l’altezza del grafico e mantiene l’asse verticale adattato ai soli valori validi. Chiusura con pulsante, Esc o click sul fondale; focus e scroll vengono ripristinati. Le animazioni rispettano `prefers-reduced-motion`. I periodi alternativi usano le righe già caricate, entro il limite del feed corrente.
@@ -164,7 +166,7 @@ Verifiche locali: `npm run build`, `npm run lint`, 41 test frontend e `git diff 
 
 ## Esportazione PDF
 
-La sezione Archivio offre “Scarica PDF dei grafici” per il periodo selezionato. Al clic il browser rilegge lo storico aggiornato; Auto legge prima l’ultimo campione e ancora i dati al suo `captured_at`. Il documento usa `prepareChart`, come la UI: tre grafici vettoriali con unità e finestre coerenti, medie 09:00–18:00 per 7/14/30 giorni e interruzioni sui dati null/sospetti. Per i grafici aggregati dichiara sia il numero delle medie disegnate sia i campioni validi da cui derivano. Il PDF annota istante di generazione, periodo e regole di lettura.
+La sezione Archivio offre “Scarica PDF dei grafici” per il periodo selezionato. Al clic il browser rilegge lo storico aggiornato; Auto legge prima l’ultimo campione e ancora i dati al suo `measured_at`. Il documento usa `prepareChart`, come la UI: tre grafici vettoriali con unità e finestre coerenti, medie 09:00–18:00 per 7/14/30 giorni e interruzioni sui dati null/sospetti. Per i grafici aggregati dichiara sia il numero delle medie disegnate sia i campioni validi da cui derivano. Il PDF annota istante di generazione, periodo e regole di lettura.
 
 La sezione Cronologia offre “Scarica PDF della cronologia completa”. Al clic ripete `readAllHistory`, completa tutte le pagine `period=all` e rifiuta errori o cursori incoerenti prima di creare il file. La tabella A4 orizzontale contiene una riga per campione, intestazione ripetuta, acquisizione sul PC, misura fisica, ricezione server e temperatura/umidità/pressione. Null, probabili errori e campioni `SINTETICO` sono indicati; i campioni senza acquisizione usano la ricezione solo per l’ordinamento e non la presentano come ora di misura. La generazione avviene nel browser sul contenuto appena letto; nessun file è salvato sul server.
 

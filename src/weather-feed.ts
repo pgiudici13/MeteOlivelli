@@ -38,7 +38,7 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
       const updateHistory = async () => {
         historyStarted = true
         try {
-          const anchor = options.anchorToLatest && serverUntil ? historyAnchor(state.latest ? observationTime(state.latest) : null, serverUntil) : null
+          const anchor = options.anchorToLatest && serverUntil ? historyAnchor(state.latest?.measured_at, serverUntil) : null
           const history = await readObservationHistory(period, controller.signal, async (params, signal) => {
             if (anchor) params.set('until', anchor)
             return reader(params, signal)

@@ -7,7 +7,6 @@ import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
 import { DailyStatistics } from './components/DailyStatistics.tsx'
 import { WeatherRecords } from './components/WeatherRecords.tsx'
-import { MeteorologyGlossary } from './components/MeteorologyGlossary.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
 import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, observationTime, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
@@ -361,7 +360,6 @@ function App() {
         <p className="secondary">MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia, realizzato da Pietro Giudici e Nicholas Borin. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.</p>
         <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.</p>
       </section></Reveal>
-      <Reveal><MeteorologyGlossary /></Reveal>
     </main>
     <SiteFooter />
   </div>

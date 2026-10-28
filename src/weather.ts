@@ -218,7 +218,7 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
   throw new Error('Storico oltre il limite di consultazione')
 }
 
-/** Unisce le letture per acquisizione PC e per ora fisica, così include lo storico manuale senza inventare captured_at. */
+/** Grafici e PDF usano solo l’ora fisica attestata: captured_at/received_at non sono ripieghi. */
 export async function readObservationHistory(
   period: Period,
   signal: AbortSignal,
@@ -226,25 +226,18 @@ export async function readObservationHistory(
   untilOverride: string | null = null,
 ): Promise<{ rows: Measurement[]; until: string }> {
   let until = untilOverride
-  const readBasis = (basis: 'captured_at' | 'measured_at') => readHistory(period, signal, async (params, requestSignal) => {
+  const measuredRows = await readHistory(period, signal, async (params, requestSignal) => {
     if (until) params.set('until', until)
     const page = await reader(params, requestSignal)
     if (until !== null && page.until !== until) throw new Error('Finestra delle misure incoerente')
     until = page.until
     return page
-  }, basis)
-
-  const capturedRows = await readBasis('captured_at')
-  const measuredRows = await readBasis('measured_at')
+  }, 'measured_at')
   if (!until) throw new Error('Finestra delle misure non disponibile')
   const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000
   const start = Date.parse(until) - duration
-  const rows = new Map<string, Measurement>()
-  for (const row of [...capturedRows, ...measuredRows]) {
-    const time = observationTime(row)
-    if (time && Date.parse(time) >= start && Date.parse(time) <= Date.parse(until)) rows.set(row.ingestion_id, row)
-  }
-  return { rows: [...rows.values()].sort(compareHistoryMeasurements), until }
+  const rows = measuredRows.filter(row => row.measured_at && Date.parse(row.measured_at) >= start && Date.parse(row.measured_at) <= Date.parse(until!))
+  return { rows: rows.sort(compareHistoryMeasurements), until }
 }
 
 export function compareMeasurements(a: Measurement, b: Measurement, basis: ReadPage['time_basis'] = 'captured_at'): number {

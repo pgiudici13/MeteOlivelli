@@ -45,6 +45,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Nessuna postilla provvisoria nella versione finale locale: i campioni di prova e quelli privi di provenienza sono esclusi dalla visualizzazione. [Dati di prova e vincoli](docs/data-preview.md).
+- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. Le linee divisorie delle sezioni Cronologia, Grafici e Previsioni non ricevono il riflesso al passaggio del puntatore. La Home termina con il progetto e non include più il glossario.
 
 ## Coreografia degli ingressi
 
