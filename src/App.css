@@ -578,3 +578,45 @@ button::after, .hero-link::after { padding: 2px; }
 .daily-comparison > .small { margin: 0; }
 @media (max-width: 760px) { .comparison-grid { grid-template-columns: 1fr; } .comparison-selects { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .daily-stats-grid { grid-template-columns: 1fr; } .daily-statistics { margin-top: 48px; } }
+
+/* Controlli condivisi per lingua e unità sotto il footer. */
+.site-header { grid-template-columns: auto minmax(100px, 1fr) auto; gap: 20px; }
+.site-header .school-logo { width: min(150px, 100%); }
+.header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px 16px; max-width: 670px; }
+.site-header nav { flex-wrap: wrap; gap: 12px 20px; }
+.display-preferences { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.language-picker, .temperature-picker { display: flex; gap: 3px; }
+.language-picker button, .temperature-picker button { min-height: 44px; min-width: 36px; padding: 5px; display: grid; align-content: center; justify-items: center; gap: 1px; background: transparent; color: var(--secondary); }
+.language-picker button > span:first-child { font-size: 19px; line-height: 1.2; }
+.language-code { font: 9px/1.2 ui-monospace, monospace; }
+.language-picker button[aria-pressed="true"], .temperature-picker button[aria-pressed="true"] { color: var(--text); border-color: var(--text); background: var(--surface-raised); }
+.display-preferences-error { position: absolute; top: 100%; right: 0; max-width: 240px; padding: 8px; z-index: 2; background: var(--surface); border: 1px solid var(--border); font-size: 12px; }
+@media (max-width: 1200px) {
+  .site-header { grid-template-columns: auto 1fr; }
+  .site-header > .school-logo { display: none; }
+}
+@media (max-width: 760px) {
+  .site-header { grid-template-columns: 1fr; padding-block: 18px; gap: 16px; }
+  .site-header > .school-logo { display: block; grid-column: 1; grid-row: auto; width: 160px; justify-self: start; }
+  .header-actions { grid-column: 1; width: 100%; justify-self: stretch; justify-content: flex-start; gap: 12px; }
+  .site-header nav { width: 100%; justify-content: flex-start; gap: 12px 20px; }
+  .display-preferences { gap: 6px; }
+  .language-picker button, .temperature-picker button { min-width: 32px; }
+}
+@media (max-width: 370px) {
+  .header-actions { column-gap: 2px; }
+  .language-picker button, .temperature-picker button { min-width: 30px; padding-inline: 4px; }
+}
+
+/* Lingua e unità seguono il contenuto del footer. */
+.site-language-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 0 28px; border-top: 1px solid var(--border); }
+.site-language-bar > span { font-size: 12px; color: var(--secondary); }
+.site-language-bar .language-picker button { min-width: 44px; }
+.site-language-bar .display-preferences-error { position: static; margin: 0; }
+.site-language-bar button:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+@media (max-width: 450px) {
+  .site-language-bar { flex-direction: column; align-items: flex-start; }
+}
+.route-not-found { grid-template-rows: auto 1fr auto auto; }
+.route-not-found-header { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.route-not-found-header { justify-content: space-between; }

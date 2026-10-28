@@ -25,10 +25,10 @@ Deno.test('Auto normalizza il timestamp PostgreSQL per il validatore API reale',
     )
     if (!query) throw new Error('Richiesta client rifiutata dal validatore API')
     return Promise.resolve({
-      items: [row],
+      items: query.basis === 'measured_at' ? [] : [row],
       next_cursor: null,
       until: query.until,
-      time_basis: 'captured_at',
+      time_basis: query.basis,
     })
   }, { anchorToLatest: true })
   await feed.refresh()

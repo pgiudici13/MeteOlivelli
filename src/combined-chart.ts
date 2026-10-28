@@ -1,10 +1,11 @@
+import { getLocale } from './preferences.ts'
 import { prepareChart } from './chart.ts'
 import { metrics } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 
-export function prepareCombinedChart(rows: Measurement[], mode: ChartMode, until: string, range?: { start: number; end: number }) {
+export function prepareCombinedChart(rows: Measurement[], mode: ChartMode, until: string, range?: { start: number; end: number }, locale = getLocale()) {
   const series = metrics.map(metric => {
-    const prepared = prepareChart(rows, metric.key, mode, until, range)
+    const prepared = prepareChart(rows, metric.key, mode, until, range, locale)
     const points = prepared.segments.flat()
     const values = points.map(point => point.value)
     return { metric, segments: prepared.segments, min: values.length ? Math.min(...values) : null, max: values.length ? Math.max(...values) : null, timeline: prepared.timeline }

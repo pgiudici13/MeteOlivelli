@@ -1,15 +1,16 @@
+import { getLocale } from './preferences.ts'
 import { chartSegments, formatTime, isSuspect, observationTime } from './weather.ts'
 import type { Period, ChartMode, Measurement, Metric } from './weather.ts'
 
 const hour = 3600000
-const clock = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', hourCycle: 'h23' })
-const timeLabel = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })
-const dateLabel = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit' })
+const clock = new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', hour: '2-digit', hourCycle: 'h23' })
 const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Rome', weekday: 'short' })
 export interface TimeTick { time: number; label: string; major: boolean }
 
 /** Finestra mobile API, con separatori di calendario in Europe/Rome (anche al cambio d'ora). */
-export function chartTimeline(period: Period, until: string, range?: { start: number; end: number }) {
+export function chartTimeline(period: Period, until: string, range?: { start: number; end: number }, locale = getLocale()) {
+  const timeLabel = new Intl.DateTimeFormat(locale, { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+  const dateLabel = new Intl.DateTimeFormat(locale, { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit' })
   const end = range?.end ?? Date.parse(until)
   if (!Number.isFinite(end)) throw new Error('Fine della finestra non valida')
   const start = range?.start ?? end - (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * hour
@@ -56,7 +57,7 @@ function sourceCounts(row: Measurement): ChartSourceCounts {
 }
 
 /** I punti medi sono derivati per il grafico: non diventano eventi nella cronologia. */
-export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMode, until: string, customRange?: { start: number; end: number }) {
+export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMode, until: string, customRange?: { start: number; end: number }, locale = getLocale()) {
   if (customRange) {
     if (!Number.isFinite(customRange.start) || !Number.isFinite(customRange.end) || customRange.start >= customRange.end) throw new Error('Intervallo personalizzato non valido')
     const selected = rows.filter(row => {
@@ -67,7 +68,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
       id: row.ingestion_id, time: Date.parse(observationTime(row)!), value: row[metric] as number, count: 1, label: formatTime(observationTime(row)), sources: sourceCounts(row),
     })))
     const duration = customRange.end - customRange.start
-    return { segments, timeline: chartTimeline(duration <= 2 * 24 * hour ? '24h' : '7g', until, customRange), averaged: false, note: 'Intervallo personalizzato · campioni originali' }
+    return { segments, timeline: chartTimeline(duration <= 2 * 24 * hour ? '24h' : '7g', until, customRange, locale), averaged: false, note: 'Intervallo personalizzato · campioni originali' }
   }
   const candidates = rows.filter(row => observationTime(row) !== null)
   const dated = mode === 'auto' && candidates.some(row => row.acquisition_kind === 'live')
@@ -83,7 +84,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
     const span = Math.max(last - first, hour)
     const range = mode === 'auto' && dated.length ? { start: last - span, end: last } : undefined
     const basis = mode === 'auto' ? (span <= 24 * hour ? '24h' : '7g') : mode
-    return { segments, timeline: chartTimeline(basis, until, range), averaged, note: mode === 'auto' ? 'Auto · campioni originali · intervallo adattato ai dati' : '' }
+    return { segments, timeline: chartTimeline(basis, until, range, locale), averaged, note: mode === 'auto' ? 'Auto · campioni originali · intervallo adattato ai dati' : '' }
   }
   const finalDay = dayKey(mode === 'auto' ? last : Date.parse(until))
   const shiftDay = (offset: number) => new Date(Date.parse(`${finalDay}T00:00:00Z`) + offset * 24 * hour).toISOString().slice(0, 10)
@@ -140,5 +141,5 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   if (segment.length) segments.push(segment)
   const timelinePeriod = mode === 'auto' ? '7g' : mode
   const note = mode === 'auto' ? 'Auto · ultime 7 giornate disponibili · medie per fascia 00–12 / 12–17 / 17–24' : `Media giornaliera 09:00–18:00 · ${days} giorni`
-  return { segments, timeline: chartTimeline(timelinePeriod, until, { start, end }), averaged, note }
+  return { segments, timeline: chartTimeline(timelinePeriod, until, { start, end }, locale), averaged, note }
 }

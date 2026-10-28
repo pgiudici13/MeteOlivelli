@@ -1,6 +1,6 @@
 /** Termini semplici, rivolti a chiunque visiti il sito. */
 export const meteorologyGlossary = [
-  { term: 'Temperatura', definition: 'Indica quanto è calda o fredda l’aria. La stazione la esprime in gradi Celsius (°C).' },
+  { term: 'Temperatura', definition: 'Indica quanto è calda o fredda l’aria. La stazione registra gradi Celsius (°C); puoi visualizzarli anche in Fahrenheit (°F).' },
   { term: 'Umidità relativa', definition: 'Percentuale che confronta il vapore acqueo presente nell’aria con il massimo possibile alla stessa temperatura. Non corrisponde alla probabilità di pioggia.' },
   { term: 'Pressione atmosferica', definition: 'È la forza esercitata dall’aria su una superficie. Qui è espressa in ettopascal (hPa); dipende anche dalla quota della stazione.' },
   { term: 'Misurazione', definition: 'È un valore rilevato dai sensori in un certo momento. Descrive una condizione osservata, non ciò che accadrà.' },

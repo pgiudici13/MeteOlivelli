@@ -1,3 +1,5 @@
+import { translate } from '../i18n.ts'
+import { usePreferences } from '../use-preferences.ts'
 import { AnimatedHeading } from '../components/AnimatedHeading.tsx'
 import { useEffect } from 'react'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
@@ -11,9 +13,9 @@ const title = 'Informazioni su MeteOlivelli — progetto e stazione meteo'
 const description = 'Scopri MeteOlivelli: il progetto meteo scolastico del Liceo Teresio Olivelli di Pavia, la stazione, i grafici, la provenienza dei dati e il team.'
 
 function setMetadata() {
-  document.title = title
+  document.title = translate(title)
   const descriptionTag = document.querySelector<HTMLMetaElement>('meta[name="description"]')
-  if (descriptionTag) descriptionTag.content = description
+  if (descriptionTag) descriptionTag.content = translate(description)
   let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
   if (!canonical) {
     canonical = document.createElement('link')
@@ -24,107 +26,108 @@ function setMetadata() {
 }
 
 export function InfoPage() {
-  useEffect(setMetadata, [])
+  const preferences = usePreferences()
+  useEffect(setMetadata, [preferences])
 
   return <div className="site-shell info-page">
-    <a className="skip-link" href="#info-content">Vai al contenuto</a>
+    <a className="skip-link" href="#info-content">{translate("Vai al contenuto")}</a>
     <header className="site-header">
-      <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / 02</span></a>
+      <a className="brand" href="/home"><BrandMark />{translate("MeteOlivelli")}<span className="brand-index"> / 02</span></a>
       <SchoolSiteLink className="school-logo"><SchoolLogo /></SchoolSiteLink>
       <div className="header-actions">
-        <nav aria-label="Navigazione principale"><a href="/home">Home</a><a href="/info" aria-current="page">Informazioni</a><a href="/gioca">Gioca</a></nav>
+        <nav aria-label={translate("Navigazione principale")}><a href="/home">{translate("Home")}</a><a href="/info" aria-current="page">{translate("Informazioni")}</a><a href="/gioca">{translate("Gioca")}</a></nav>
         <ThemeToggle />
       </div>
     </header>
     <main id="info-content" tabIndex={-1}>
       <section className="info-hero" aria-labelledby="info-title">
-        <p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> Pavia · Progetto scolastico</p>
-        <AnimatedHeading id="info-title" lines={["La stazione,", "vista da vicino"]} />
-        <p className="info-lead">Un progetto scolastico per osservare i dati meteo, capire da dove arrivano e imparare a leggerli con attenzione.</p>
-        <div className="info-highlights" aria-label="In breve">
-          <p><strong>Pavia</strong><span>Il territorio osservato</span></p>
-          <p><strong>3 grandezze</strong><span>Temperatura, umidità, pressione</span></p>
-          <p><strong>Un progetto</strong><span>Scienza e tecnologia a scuola</span></p>
+        <p className="eyebrow"><span className="signal-mark" aria-hidden="true" />{translate(" Pavia · Progetto scolastico")}</p>
+        <AnimatedHeading id="info-title" lines={translate(["La stazione,", "vista da vicino"])} />
+        <p className="info-lead">{translate("Un progetto scolastico per osservare i dati meteo, capire da dove arrivano e imparare a leggerli con attenzione.")}</p>
+        <div className="info-highlights" aria-label={translate("In breve")}>
+          <p><strong>{translate("Pavia")}</strong><span>{translate("Il territorio osservato")}</span></p>
+          <p><strong>{translate("3 grandezze")}</strong><span>{translate("Temperatura, umidità, pressione")}</span></p>
+          <p><strong>{translate("Un progetto")}</strong><span>{translate("Scienza e tecnologia a scuola")}</span></p>
         </div>
       </section>
 
-      <nav className="info-toc" aria-label="In questa pagina">
-        <span className="eyebrow">Esplora</span>
-        <a href="#project">Il progetto</a><a href="#station">La stazione</a>
-        <a href="#reading">Come leggere i dati</a><a href="#transparency">Trasparenza</a>
-        <a href="#team">Il team</a>
+      <nav className="info-toc" aria-label={translate("In questa pagina")}>
+        <span className="eyebrow">{translate("Esplora")}</span>
+        <a href="#project">{translate("Il progetto")}</a><a href="#station">{translate("La stazione")}</a>
+        <a href="#reading">{translate("Come leggere i dati")}</a><a href="#transparency">{translate("Trasparenza")}</a>
+        <a href="#team">{translate("Il team")}</a>
       </nav>
 
       <div className="info-grid">
         <section className="info-block" id="project" aria-labelledby="project-title">
-          <p className="eyebrow section-index">01 / Il progetto</p>
-          <h2 id="project-title">Un piccolo osservatorio, costruito a scuola.</h2>
-          <p>MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Mette insieme una stazione scolastica e un sito pubblico per seguire tre grandezze: temperatura, umidità e pressione.</p>
-          <p>L’obiettivo è rendere i dati facili da esplorare e, allo stesso tempo, spiegare con chiarezza come vengono raccolti. Un grafico è utile quando sappiamo che cosa rappresenta ogni punto e quali limiti ha la serie.</p>
+          <p className="eyebrow section-index">{translate("01 / Il progetto")}</p>
+          <h2 id="project-title">{translate("Un piccolo osservatorio, costruito a scuola.")}</h2>
+          <p>{translate("MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Mette insieme una stazione scolastica e un sito pubblico per seguire tre grandezze: temperatura, umidità e pressione.")}</p>
+          <p>{translate("L’obiettivo è rendere i dati facili da esplorare e, allo stesso tempo, spiegare con chiarezza come vengono raccolti. Un grafico è utile quando sappiamo che cosa rappresenta ogni punto e quali limiti ha la serie.")}</p>
         </section>
 
         <section className="info-block info-station" id="station" aria-labelledby="station-title">
-          <p className="eyebrow section-index">02 / La stazione</p>
-          <h2 id="station-title">Dalla rilevazione alla pagina.</h2>
-          <p>La stazione impiega una scheda Arduino GIGA R1 e sensori per temperatura, umidità e pressione. Il sito presenta le letture disponibili nell’archivio e permette di esplorarne l’andamento nel tempo.</p>
-          <div className="info-flow" aria-label="Percorso dei dati nel progetto">
-            <div><span>01</span><strong>Sensori</strong><small>Rilevano le grandezze</small></div>
+          <p className="eyebrow section-index">{translate("02 / La stazione")}</p>
+          <h2 id="station-title">{translate("Dalla rilevazione alla pagina.")}</h2>
+          <p>{translate("La stazione impiega una scheda Arduino GIGA R1 e sensori per temperatura, umidità e pressione. Il sito presenta le letture disponibili nell’archivio e permette di esplorarne l’andamento nel tempo.")}</p>
+          <div className="info-flow" aria-label={translate("Percorso dei dati nel progetto")}>
+            <div><span>01</span><strong>{translate("Sensori")}</strong><small>{translate("Rilevano le grandezze")}</small></div>
             <span className="info-flow-arrow" aria-hidden="true">→</span>
-            <div><span>02</span><strong>Arduino</strong><small>Raccoglie i valori</small></div>
+            <div><span>02</span><strong>{translate("Arduino")}</strong><small>{translate("Raccoglie i valori")}</small></div>
             <span className="info-flow-arrow" aria-hidden="true">→</span>
-            <div><span>03</span><strong>Archivio</strong><small>Conserva le letture</small></div>
+            <div><span>03</span><strong>{translate("Archivio")}</strong><small>{translate("Conserva le letture")}</small></div>
             <span className="info-flow-arrow" aria-hidden="true">→</span>
-            <div><span>04</span><strong>Sito</strong><small>Mostra serie e dettagli</small></div>
+            <div><span>04</span><strong>{translate("Sito")}</strong><small>{translate("Mostra serie e dettagli")}</small></div>
           </div>
-          <p className="info-note">Il percorso illustra come il progetto organizza i dati, dalla rilevazione alla consultazione. La disponibilità delle letture dipende dall’acquisizione e dalla connessione della stazione.</p>
+          <p className="info-note">{translate("Il percorso illustra come il progetto organizza i dati, dalla rilevazione alla consultazione. La disponibilità delle letture dipende dall’acquisizione e dalla connessione della stazione.")}</p>
           <dl className="info-time-definitions">
-            <div><dt>Ora della misura</dt><dd>Quando il sensore ha effettuato la rilevazione, se l’orario fisico è disponibile e verificato.</dd></div>
-            <div><dt>Acquisizione sul PC</dt><dd>Quando il computer ha osservato la riga del CSV; non prova da sola quando è avvenuta la misura.</dd></div>
-            <div><dt>Ricezione</dt><dd>Quando il server ha ricevuto il record; non rende recente una misura più vecchia.</dd></div>
+            <div><dt>{translate("Ora della misura")}</dt><dd>{translate("Quando il sensore ha effettuato la rilevazione, se l’orario fisico è disponibile e verificato.")}</dd></div>
+            <div><dt>{translate("Acquisizione sul PC")}</dt><dd>{translate("Quando il computer ha osservato la riga del CSV; non prova da sola quando è avvenuta la misura.")}</dd></div>
+            <div><dt>{translate("Ricezione")}</dt><dd>{translate("Quando il server ha ricevuto il record; non rende recente una misura più vecchia.")}</dd></div>
           </dl>
-          <p>La Home rilegge l’ultimo dato ogni 15 secondi mentre la pagina è visibile. È l’intervallo di aggiornamento del sito: non indica ogni quanto il sensore effettua una misura.</p>
+          <p>{translate("La Home rilegge l’ultimo dato ogni 15 secondi mentre la pagina è visibile. È l’intervallo di aggiornamento del sito: non indica ogni quanto il sensore effettua una misura.")}</p>
         </section>
 
         <section className="info-block info-guide" id="reading" aria-labelledby="reading-title">
-          <p className="eyebrow section-index">03 / Leggere la Home</p>
-          <h2 id="reading-title">Ogni grafico racconta un intervallo preciso.</h2>
-          <p>Il valore in evidenza è l’ultima lettura disponibile nell’archivio. Per interpretarla, controlla l’orario riportato e lo stato di aggiornamento.</p>
+          <p className="eyebrow section-index">{translate("03 / Leggere la Home")}</p>
+          <h2 id="reading-title">{translate("Ogni grafico racconta un intervallo preciso.")}</h2>
+          <p>{translate("Il valore in evidenza è l’ultima lettura disponibile nell’archivio. Per interpretarla, controlla l’orario riportato e lo stato di aggiornamento.")}</p>
           <div className="info-periods">
-            <article><span>24 ore</span><p>Mostra i singoli campioni, senza medie.</p></article>
-            <article><span>7, 14 e 30 giorni</span><p>Mostrano la media giornaliera dei valori validi raccolti fra le 09:00 e le 18:00, ora di Roma.</p></article>
-            <article><span>Auto</span><p>Adatta l’asse allo storico breve; oltre sette giorni riassume le ultime sette date in tre fasce: 00–12, 12–17 e 17–24.</p></article>
+            <article><span>{translate("24 ore")}</span><p>{translate("Mostra i singoli campioni, senza medie.")}</p></article>
+            <article><span>{translate("7, 14 e 30 giorni")}</span><p>{translate("Mostrano la media giornaliera dei valori validi raccolti fra le 09:00 e le 18:00, ora di Roma.")}</p></article>
+            <article><span>{translate("Auto")}</span><p>{translate("Adatta l’asse allo storico breve; oltre sette giorni riassume le ultime sette date in tre fasce: 00–12, 12–17 e 17–24.")}</p></article>
           </div>
-          <p>Le medie servono a leggere l’andamento: non sono nuove misurazioni e non sostituiscono le righe originali della cronologia.</p>
-          <a className="hero-link" href="/home#history-title">Esplora grafici e cronologia <span aria-hidden="true">↗</span></a>
+          <p>{translate("Le medie servono a leggere l’andamento: non sono nuove misurazioni e non sostituiscono le righe originali della cronologia.")}</p>
+          <a className="hero-link" href="/home#history-title">{translate("Esplora grafici e cronologia ")}<span aria-hidden="true">↗</span></a>
         </section>
 
         <section className="info-block info-transparency" id="transparency" aria-labelledby="transparency-title">
-          <p className="eyebrow section-index">04 / Trasparenza</p>
-          <h2 id="transparency-title">Anche i limiti fanno parte dei dati.</h2>
+          <p className="eyebrow section-index">{translate("04 / Trasparenza")}</p>
+          <h2 id="transparency-title">{translate("Anche i limiti fanno parte dei dati.")}</h2>
           <div className="info-trust-grid">
-            <article><h3>Valori assenti o anomali</h3><p>Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.</p></article>
-            <article><h3>Provenienza delle misure</h3><p>La Home e i PDF mostrano i campioni con provenienza esplicita dalla stazione. Un orario di acquisizione non sostituisce l’orario effettivo della misura.</p></article>
-            <article><h3>Freschezza</h3><p>Lo stato di aggiornamento dipende dagli orari disponibili e dalla cadenza delle misure. Quando queste informazioni non bastano, la freschezza non è determinabile.</p></article>
-            <article><h3>Previsioni meteo</h3><p>Le previsioni sono stime basate sulle osservazioni disponibili e vengono mostrate quando i dati consentono di verificarle. Non prevedono sole, pioggia o altri fenomeni atmosferici.</p></article>
+            <article><h3>{translate("Valori assenti o anomali")}</h3><p>{translate("Un dato mancante resta indicato come non disponibile. I valori segnalati come sospetti vengono conservati e marcati: non sono corretti in silenzio e non diventano zeri.")}</p></article>
+            <article><h3>{translate("Provenienza delle misure")}</h3><p>{translate("La Home e i PDF mostrano i campioni con provenienza esplicita dalla stazione. Un orario di acquisizione non sostituisce l’orario effettivo della misura.")}</p></article>
+            <article><h3>{translate("Freschezza")}</h3><p>{translate("Lo stato di aggiornamento dipende dagli orari disponibili e dalla cadenza delle misure. Quando queste informazioni non bastano, la freschezza non è determinabile.")}</p></article>
+            <article><h3>{translate("Previsioni meteo")}</h3><p>{translate("Le previsioni sono stime basate sulle osservazioni disponibili e vengono mostrate quando i dati consentono di verificarle. Non prevedono sole, pioggia o altri fenomeni atmosferici.")}</p></article>
           </div>
-          <div className="info-links"><a href="/home">Vai alla Home <span aria-hidden="true">↗</span></a><a href="/privacy">Leggi l’informativa privacy <span aria-hidden="true">↗</span></a></div>
+          <div className="info-links"><a href="/home">{translate("Vai alla Home ")}<span aria-hidden="true">↗</span></a><a href="/privacy">{translate("Leggi l’informativa privacy ")}<span aria-hidden="true">↗</span></a></div>
         </section>
 
         <section className="info-block info-team" id="team" aria-labelledby="team-title">
-          <p className="eyebrow section-index">05 / Il team</p>
-          <h2 id="team-title">Dati, domande, curiosità.</h2>
-          <p>MeteOlivelli è ideato e realizzato da due studenti del Liceo Teresio Olivelli di Pavia.</p>
+          <p className="eyebrow section-index">{translate("05 / Il team")}</p>
+          <h2 id="team-title">{translate("Dati, domande, curiosità.")}</h2>
+          <p>{translate("MeteOlivelli è ideato e realizzato da due studenti del Liceo Teresio Olivelli di Pavia.")}</p>
           <div className="info-people">
-            <article><span>01</span><strong>Pietro Giudici</strong><small>Studente · Liceo Teresio Olivelli</small></article>
-            <article><span>02</span><strong>Nicholas Borin</strong><small>Studente · Liceo Teresio Olivelli</small></article>
+            <article><span>01</span><strong>{translate("Pietro Giudici")}</strong><small>{translate("Studente · Liceo Teresio Olivelli")}</small></article>
+            <article><span>02</span><strong>{translate("Nicholas Borin")}</strong><small>{translate("Studente · Liceo Teresio Olivelli")}</small></article>
           </div>
-          <p className="reflection">Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e capire quanto ci sia ancora da esplorare.</p>
-          <p className="info-contact">Vuoi chiederci una curiosità? Scrivi alla mail <a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=meteolivelli%40liceoolivelli.pv.it" target="_blank" rel="noopener noreferrer">meteolivelli@liceoolivelli.pv.it <span className="sr-only">(apre Gmail in una nuova scheda)</span></a>.</p>
+          <p className="reflection">{translate("Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e capire quanto ci sia ancora da esplorare.")}</p>
+          <p className="info-contact">{translate("Vuoi chiederci una curiosità? Scrivi alla mail ")}<a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=meteolivelli%40liceoolivelli.pv.it" target="_blank" rel="noopener noreferrer">{translate("meteolivelli@liceoolivelli.pv.it ")}<span className="sr-only">{translate("(apre Gmail in una nuova scheda)")}</span></a>.</p>
         </section>
       </div>
-      <section className="info-closing" aria-label="Esplora MeteOlivelli">
-        <div><p className="eyebrow">Dalla scuola, un’occhiata al cielo</p><h2>Le osservazioni cominciano da qui.</h2></div>
-        <a className="hero-link" href="/home">Vai alle misure <span aria-hidden="true">↗</span></a>
+      <section className="info-closing" aria-label={translate("Esplora MeteOlivelli")}>
+        <div><p className="eyebrow">{translate("Dalla scuola, un’occhiata al cielo")}</p><h2>{translate("Le osservazioni cominciano da qui.")}</h2></div>
+        <a className="hero-link" href="/home">{translate("Vai alle misure ")}<span aria-hidden="true">↗</span></a>
       </section>
     </main>
     <SiteFooter />

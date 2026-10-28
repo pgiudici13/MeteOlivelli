@@ -20,10 +20,10 @@ for (const anchorToLatest of [false, true]) {
     let rows = [row(1, 19), latest], histories = 0, state
     const feed = createWeatherFeed(anchorToLatest ? '30g' : '24h', value => { state = value }, async params => {
       const history = params.get('view') === 'history'
-      if (history) histories++
+      if (history && params.get('basis') !== 'measured_at') histories++
       return {
-        items: history ? structuredClone(rows) : [latest], next_cursor: null,
-        until: params.get('until') ?? new Date(now).toISOString(), time_basis: 'captured_at',
+        items: history ? (params.get('basis') === 'measured_at' ? [] : structuredClone(rows)) : [latest], next_cursor: null,
+        until: params.get('until') ?? new Date(now).toISOString(), time_basis: params.get('basis') ?? 'captured_at',
       }
     }, { anchorToLatest })
     try {
@@ -58,8 +58,8 @@ test('grafici: errore nella riconciliazione conserva i valori e ritenta al ciclo
   const feed = createWeatherFeed('30g', value => { state = value }, async params => {
     const history = params.get('view') === 'history'
     if (history && fail) throw new Error('Guasto sintetico')
-    return { items: history ? structuredClone(rows) : [latest], next_cursor: null,
-      until: params.get('until') ?? new Date(now).toISOString(), time_basis: 'captured_at' }
+    return { items: history ? (params.get('basis') === 'measured_at' ? [] : structuredClone(rows)) : [latest], next_cursor: null,
+      until: params.get('until') ?? new Date(now).toISOString(), time_basis: params.get('basis') ?? 'captured_at' }
   }, { anchorToLatest: true })
   try {
     await feed.refresh()

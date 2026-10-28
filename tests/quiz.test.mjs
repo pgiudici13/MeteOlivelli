@@ -106,7 +106,7 @@ test('le animazioni restano confinate alla domanda, alle risposte e al feedback'
   assert.match(styles, /--quiz-ripple-wrong:\s*rgb\(255 126 111 \/ 76%\)/)
   assert.match(styles, /\.quiz-answer-result-mark\s*\{[^}]*18px/)
   assert.match(page, /aria-hidden="true">✓/)
-  assert.match(page, /aria-hidden="true">×/)
+  assert.match(page, /aria-hidden="true">\{translate\("×"\)\}/)
   assert.match(styles, /width:\s*calc\(var\(--quiz-ripple-radius[^)]*\) \* 2\); height:\s*calc\(var\(--quiz-ripple-radius/)
   assert.match(styles, /@keyframes quiz-answer-ripple/)
   assert.match(styles, /scale\(0\)/)

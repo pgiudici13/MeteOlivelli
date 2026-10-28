@@ -1,5 +1,7 @@
 # Backend v1 — schema, accessi e verifica
 
+> **Sincronizzazione locale 28 ottobre:** le letture aggiornate includono le misure manuali tramite `measured_at`, mantenendo l’eventuale `captured_at` distinto. L’etichetta `time_label` di latest specifica che si usa l’acquisizione sul PC quando l’ora fisica manca; per uno storico richiesto con `basis=measured_at` indica soltanto l’ora fisica. La modifica al sorgente della funzione è locale e richiede un deploy separato; non attesta lo stato dell’API remota. COR-057 descrive la correzione.
+
 > **Aggiornamento 24 ottobre:** il tipo applicativo `synthetic` è distinto; il batch pubblico corrente comprende 241 campioni amministrativi ogni tre ore, in sostituzione dei record presenti; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti agli aggiornamenti sintetici.
 
 Specifica locale del blocco 5 di `tasks.md`, 22 ottobre 2026. Usa il contratto JSON
@@ -84,13 +86,18 @@ nei documenti o con comandi che li stampano.
 
 ## Lettura pubblica v1
 
-GET `read-measurements?view=latest`: ultimo evento live ordinato per captured_at e
-UUID, tutte e tre le schede appartengono allo stesso evento (null e sospetti inclusi).
+Nel sorgente locale aggiornato, GET `read-measurements?view=latest` seleziona il
+record `live` o `historical` più recente usando `measured_at`, altrimenti
+`captured_at` e infine `received_at`, con UUID come spareggio. La ricezione resta
+distinta e non diventa un’ora di misura. Tutte le schede appartengono allo stesso
+evento, inclusi valori nulli e sospetti.
 
 GET `read-measurements?view=history&period=24h|7g|30g&basis=captured_at|measured_at` per le serie temporali; `period=all&basis=captured_at` è riservato alla cronologia completa e include anche i record privi di `captured_at`.
 serie cronologica, limiti [inizio, fine], `limit` 1–500 (default 100), `until` UTC
-opzionale, `cursor` opaco restituito dal server. Default basis captured_at, con
-etichetta «ora di acquisizione sul PC»; measured_at è una serie distinta. Le righe
+opzionale, `cursor` opaco restituito dal server. Il default è `basis=captured_at`:
+per le righe live usa l’acquisizione, mentre le misure manuali usano l’ora fisica.
+La UI consulta anche la serie `measured_at` e usa l’ora fisica quando disponibile.
+Le righe
 sospette sono restituite con flag, non interpolate né corrette: il frontend deve
 escluderle dalla linea principale per campo e renderle consultabili. Colonne
 pubbliche: ingestion_id, tre valori/unità implicite nei nomi, captured_at,

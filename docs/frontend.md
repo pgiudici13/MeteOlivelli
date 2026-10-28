@@ -1,10 +1,41 @@
 # Frontend — stato e verifiche
 
+## Sincronizzazione locale con `main` — 28 ottobre 2026
+
+Il branch delle lingue è stato aggiornato linearmente al commit `81c2d0a` di `main`. Sono stati integrati il nuovo dialogo dei grafici, l’area amministrativa e l’inclusione delle misure reali inserite manualmente, mantenendo traduzioni, provenienza e scelta °C/°F. Il PDF non presenta `measured_at` come ora di acquisizione su PC (COR-057). Il controllo iniziale del dispositivo e la barra sotto il footer restano attivi; le diciture nuove sono disponibili nelle cinque lingue.
+
+La suite `npm run check` è passata: build/lint, budget iniziale, 167 test frontend, 55 Deno e 28 Python. Il test browser `tests/main-sync-browser.mjs`, con API e misure di prova intercettate localmente, verifica insieme osservazione manuale, cronologia, grafico ingrandito, cambio di grandezza/periodo, inglese e Fahrenheit. Il runner delle preferenze ha superato 18 casi; tre scenari amministrativi hanno verificato modifica, recupero dopo errore e provenienza manuale in inglese. Nessuna prova di dispositivo fisico, deploy delle funzioni o applicazione di migrazioni eseguita.
+
 ## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
 
 Il dialogo dei grafici ora occupa l’area della pagina, si apre con un ingresso breve e blocca lo scroll del contenuto sottostante. All’apertura seleziona Auto; nel dialogo si possono scegliere temperatura, umidità o pressione e i periodi Auto, 24 ore, 7, 14 o 30 giorni. La vista ampia aumenta l’altezza del grafico e mantiene l’asse verticale adattato ai soli valori validi. Chiusura con pulsante, Esc o click sul fondale; focus e scroll vengono ripristinati. Le animazioni rispettano `prefers-reduced-motion`. I periodi alternativi usano le righe già caricate, entro il limite del feed corrente.
 
 Verifiche locali: `npm run lint` e `npm run build` superati; test mirati UI (`tests/data-experience.test.mjs`, `tests/final-ux.test.mjs`) 10/10. La suite completa frontend ha 148 test superati e 11 falliti su 159: casi preesistenti del feed/Auto, PDF e aspettative obsolete sull’inclusione manuale; i test del dialogo e dei controlli touch passano. `npm run check` si interrompe alla suite frontend e quindi non completa i controlli Deno/Python. Nessuna verifica visuale browser, modifica remota, commit, push o deploy effettuati.
+
+## Cinque lingue e Fahrenheit — aggiornamento locale del 28 ottobre 2026
+
+**Verifica della disposizione finale:** build, lint, budget iniziale e 164 test frontend superati. Il runner `tests/language-footer-browser.mjs` ha superato 18 casi: lingue regionali del dispositivo, ripiego italiano, priorità della scelta salvata, storage bloccato, ordine delle preferenze, persistenza e barra con bandiere e °C/°F sotto il footer nelle quattro pagine pubbliche a 320/1280 px, senza rimando in alto o overflow. Ripassati anche i 10 casi delle lettere A/B/C e i 3 scenari di recupero pagina. API intercettate solo in locale; nessuna pubblicazione o prova su dispositivi fisici. I runner con aspettative italiane usati qui impostano esplicitamente `locale: 'it-IT'`.
+
+Nel branch `codex/multilingual-temperature`, la barra sotto il footer offre italiano, inglese britannico, spagnolo, francese e tedesco insieme al selettore °C/°F. La testata non contiene selettori né rimandi al cambio lingua. Celsius resta il default; la lingua iniziale segue il dispositivo fra quelle supportate, con italiano come ripiego. `src/locales/` contiene quattro cataloghi locali caricati su richiesta; non vengono trasmessi testi o misure a servizi di traduzione. `src/i18n.ts` traduce stringhe e messaggi con segnaposto, preservando numeri e componenti React; `use-preferences.ts` aggiorna i componenti senza rimontare la pagina. Quiz, curiosità, glossario, cronologia, stati vuoti/errori, navigazione, nomi accessibili, metadati e PDF seguono la selezione. Un errore nel download del catalogo conserva la lingua corrente e permette di riprovare.
+
+I marcatori A/B/C delle opzioni del quiz restano identici in ogni lingua e sono esclusi dalla traduzione. COR-056 corregge la “A” interpretata come preposizione; il runner mirato `tests/quiz-labels-browser.mjs` verifica tutte le cinque lingue prima e dopo la scelta di una risposta (10 combinazioni). Build, lint e 162 test frontend superati dopo la correzione locale.
+
+`navigator.languages`, seguito da `navigator.language`, determina la prima lingua supportata nell’ordine di preferenza del dispositivo, riconoscendo anche varianti regionali come `en-US`, `es-MX`, `fr-CA` e `de-AT`. Una lingua valida già salvata ha precedenza; in assenza di scelta, anche con storage bloccato, si usa il dispositivo. Senza corrispondenze si usa l’italiano. `meteolivelli-display` salva lingua e unità in `localStorage`. Il sito recupera preferenze malformate con valori predefiniti e sincronizza le scelte tra schede; se lo storage è bloccato, la scelta funziona nella pagina corrente. Il controllo °C/°F è indipendente dalla bandiera. L’informativa segnala queste preferenze locali; il fuso della stazione resta `Europe/Rome` anche quando cambia il formato della data.
+
+`preferences.ts` applica °F = °C × 9/5 + 32 ai soli valori assoluti di temperatura, e × 9/5 a variazioni ed errori. Ultima lettura, cronologia, grafici/assi/tooltip, statistiche, confronti, record, sintesi e previsioni mostrano la stessa scala. Null, qualità, umidità e pressione non cambiano. Nessuna conversione modifica oggetti ricevuti, soglie, aggregazioni, modello, CSV o database. I PDF convertono una sola volta, mantengono la lingua fissata alla composizione anche nei footer e conservano la provenienza; la form amministrativa indica e accetta Celsius in modo esplicito.
+
+**Verifiche della prima revisione, con controlli nella testata:** `npm run build`, `npm run lint`, `npm run perf:check` e 162 test frontend superati. I cinque test in `tests/localization.test.mjs` verificano punti noti Celsius/Fahrenheit, negativi/null, differenze senza offset, preferenze invalide, copertura di quiz/glossario/testi accessibili, segnaposto, durate, date e PDF senza alterare gli input. `tests/localization-browser.mjs` ha superato cinque scenari Chrome, incluse 80 combinazioni responsive (5 lingue × Home/Informazioni/Privacy/Gioca × 320/390/900/1280 px), persistenza, storage bloccato e conservazione della partita durante il cambio lingua. Dati inventati e intercettati solo in locale, senza scritture remote. Runner con Playwright esterno al progetto, stesso schema degli altri collaudi browser:
+
+```sh
+node tests/localization-browser.mjs /percorso/playwright/index.mjs /percorso/chrome http://127.0.0.1:5179
+```
+
+
+Verifiche browser aggiuntive superate: 3 scenari di recupero pagina e 7 sulle previsioni con worker reale; rifinitura finale a 320 px verificata in 10 combinazioni (5 lingue × tema chiaro/scuro), selettori e tema sulla stessa riga senza overflow. Schermate desktop/mobile ispezionate localmente; misure inventate soltanto nelle fixture, marcate nelle schermate.
+
+**Limite della regressione storica (COR-055):** il runner opzionale `tests/frontend-browser.mjs` si arresta alla prima asserzione, che richiede le tre schede vuote della vecchia UI anziché l’attuale stato unico `.station-empty`, già presente prima di questo intervento. Non è incluso fra i collaudi superati e richiede riallineamento separato.
+
+Queste prove non certificano traduzioni professionali, accessibilità completa, dispositivi fisici o dati della stazione. Nessuna pubblicazione inclusa. Restano gli avvisi Vite dei chunk PDF lazy oltre 500 kB; budget iniziale rispettato, cataloghi separati dal caricamento italiano.
 
 ## Aggiornamento locale — 27 ottobre 2026
 

@@ -8,7 +8,7 @@ const errors = []
 const results = []
 try {
   for (const [path, module, selector] of [['/info', 'InfoPage', '.info-page'], ['/gioca', 'QuizPage', '.quiz-page']]) {
-    const context = await browser.newContext()
+    const context = await browser.newContext({ locale: 'it-IT' })
     let blockModule = true
     await context.route('**/*', route => {
       const url = new URL(route.request().url())
@@ -48,7 +48,7 @@ try {
     results.push(path)
     console.log(`OK ${path}: errore gestito, temi/reflow, preferenze, ricarica e ritorno home`)
   }
-  const malformedContext = await browser.newContext()
+  const malformedContext = await browser.newContext({ locale: 'it-IT' })
   await malformedContext.route('**/*', route => {
     const url = new URL(route.request().url())
     if (url.origin === base.origin) return route.continue()

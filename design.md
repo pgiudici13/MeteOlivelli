@@ -184,5 +184,16 @@ La nuova scheda educativa riprende colori, tipografia e pannelli esistenti, dopo
 
 ## Area amministrativa `/data` — 28 ottobre 2026
 
-La pagina riservata usa la stessa identità del sito: marchio e controllo tema in testata, canvas e pannelli condivisi, titoli editoriali regolari e accento solo per stati/azioni distruttive. Il login occupa una scheda compatta; dopo l'accesso, stato e azioni stanno in una barra dedicata, il modulo usa una griglia a quattro colonne che diventa due e poi una, e l'archivio presenta il tipo di riga prima dei timestamp. Pulsanti e campi hanno bordi contenuti e target touch comodi; la tabella scorre orizzontalmente su viewport stretti invece di schiacciare i valori. Ogni misura manuale è marcata “Inserimento manuale”. La pagina resta `noindex` e fuori dai menu. La cronologia pubblica segnala queste righe come “Storico · inserimento manuale”; non le usa per grafici, statistiche, record o previsioni.
+La pagina riservata usa la stessa identità del sito: marchio e controllo tema in testata, canvas e pannelli condivisi, titoli editoriali regolari e accento solo per stati/azioni distruttive. Il login occupa una scheda compatta; dopo l'accesso, stato e azioni stanno in una barra dedicata, il modulo usa una griglia a quattro colonne che diventa due e poi una, e l'archivio presenta il tipo di riga prima dei timestamp. Pulsanti e campi hanno bordi contenuti e target touch comodi; la tabella scorre orizzontalmente su viewport stretti invece di schiacciare i valori. Ogni misura manuale è marcata “Inserimento manuale”. La pagina resta `noindex` e fuori dai menu. La cronologia pubblica segnala queste righe come inserite manualmente; possono contribuire a grafici, statistiche, record e previsioni usando l’ora fisica della misura.
 
+
+
+## Lingue e unità — 28 ottobre 2026
+
+Sotto il footer, dopo autori, licenza e note dati, una barra separata da un bordo sottile riunisce le cinque bandiere 🇮🇹 🇬🇧 🇪🇸 🇫🇷 🇩🇪 con codici IT/EN/ES/FR/DE e il selettore °C/°F. La disposizione finale richiesta rimuove sia i controlli sia il rimando “Lingua del sito” dalla testata; lì resta il cambio tema. La barra appare anche dopo il footer delle schermate di errore e alla fine della pagina amministrativa.
+
+La selezione attiva è indicata dal bordo e da `aria-pressed`; ogni bandiera ha nome della lingua, tooltip e attributo `lang`. I due gruppi hanno etichette accessibili distinte: scegliere una bandiera non forza l’unità. In orizzontale la didascalia precede i controlli; sugli schermi piccoli i gruppi vanno a capo senza overflow. I pulsanti sono alti almeno 44 px e le bandiere hanno anche larghezza minima 44 px; focus visibile e temi esistenti sono conservati.
+
+Al primo accesso la lingua segue l’ordine degli idiomi preferiti del dispositivo fra i cinque disponibili; una scelta salvata prevale e l’italiano è il ripiego quando non ci sono corrispondenze. Celsius rimane indipendente dalla lingua. Il cambio lingua aggiorna i testi e `html[lang]` senza rimontare la pagina o azzerare il quiz.
+
+Il cambio unità converte soltanto la presentazione; valori nulli restano assenti e valori sospetti conservano le segnalazioni. I grafici mantengono dati e geometria canonici, con assi, tooltip e riepiloghi coerenti con l’unità scelta. I PDF adottano lingua e unità della generazione. L’area amministrativa conserva esplicitamente Celsius per la scrittura del contratto dati.

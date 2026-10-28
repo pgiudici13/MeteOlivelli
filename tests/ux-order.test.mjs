@@ -17,7 +17,7 @@ test('previsioni e curiosità precedono lo storico completo nella home', () => {
 test('cronologia estesa solo su richiesta senza nascondere il download PDF', () => {
   assert.match(app, /useState\(false\).*\n.*const queryPeriod/s)
   assert.match(app, /aria-expanded=\{showChronology\}/)
-  assert.match(app, /\{showChronology && <HistoryTable/)
+  assert.match(app, /\{translate\(showChronology && <HistoryTable/)
   assert.ok(app.indexOf('downloadHistoryPdf()') < app.indexOf('aria-expanded={showChronology}'))
 })
 
@@ -28,7 +28,7 @@ test('spiegazioni tecniche dei grafici disponibili su richiesta', () => {
 })
 
 test('navigazione rapida collega le sei sezioni realmente presenti', () => {
-  assert.match(app, /<nav className="section-jump-nav" aria-label="Vai a una sezione della homepage">/)
+  assert.match(app, /<nav className="section-jump-nav" aria-label=\{translate\("Vai a una sezione della homepage"\)\}>/)
   for (const id of ['latest-title', 'forecast-title', 'daily-curiosity-title', 'history-title', 'daily-stats-title', 'chronology-title']) {
     assert.ok(app.includes(`href="#${id}"`))
     const targets = [app, readFileSync(new URL('../src/components/ForecastSection.tsx', import.meta.url), 'utf8'), readFileSync(new URL('../src/components/DailyCuriosity.tsx', import.meta.url), 'utf8'), readFileSync(new URL('../src/components/DailyStatistics.tsx', import.meta.url), 'utf8')]

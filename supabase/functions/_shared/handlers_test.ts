@@ -204,9 +204,14 @@ Deno.test('read vuota esplicita, CORS e rifiuto scritture', async () => {
   const result = await response.json()
   assert(response.status === 200 && result.items.length === 0 && result.next_cursor === null)
   assert(
-    result.time_label === 'ora di acquisizione sul PC' &&
+    result.time_label ===
+        'ora della misura fisica, se disponibile; altrimenti acquisizione sul PC' &&
       response.headers.get('access-control-allow-origin') === '*',
   )
+  const measured = await handler(
+    new Request('https://example.test/?view=history&period=24h&basis=measured_at'),
+  )
+  assert((await measured.json()).time_label === 'ora della misura fisica')
   assert((await handler(request())).status === 405)
   assert(
     (await handler(new Request('https://example.test/', { method: 'OPTIONS' }))).status === 204,

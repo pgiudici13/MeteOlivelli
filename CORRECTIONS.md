@@ -500,3 +500,24 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** misure reali inserite manualmente non comparivano nel sito come osservazioni e non contribuivano ai calcoli.
 - **Correzione richiesta:** mantenerle marcate nel database, includerle in ultime misure, grafici, statistiche, record e previsioni usando `measured_at`, preservando `captured_at` nullo e l'etichetta del metodo. I campioni sintetici restano esclusi.
 - **Verifica richiesta:** build/lint, SQL RPC e API con riga manuale; deploy della migration e della Edge Function, rilascio frontend e prova pubblica della riga in grafici/calcoli.
+
+## COR-055 — Runner browser storico non allineato allo stato vuoto corrente
+
+- **Stato:** verificato il 28 ottobre 2026; runner opzionale da riallineare separatamente.
+- **Prova:** `tests/frontend-browser.mjs:52` richiede tre `.metric-value` con “Nessun dato disponibile”, ma con risposta API vuota il ramo `latestLoaded && !latest` già presente in `HEAD` mostra la scheda unica `.station-empty`, quindi trova zero elementi. Il primo scenario termina prima dei successivi.
+- **Impatto:** il vecchio runner non può attestare la regressione completa del checkout corrente; non è un errore delle cinque lingue o della conversione. I 162 test Node e i cinque scenari dedicati al multilingua passano indipendentemente.
+- **Verifica richiesta:** aggiornare il runner opzionale agli stati vuoti e all’apertura esplicita della cronologia correnti, mantenendo il controllo di assenza di valori inventati; rieseguire l’intero runner. Nessun comportamento applicativo modificato per soddisfare l’asserzione storica.
+
+## COR-056 — La lettera A delle risposte viene tradotta come preposizione
+
+- **Stato:** corretto localmente il 28 ottobre 2026 nel branch `codex/multilingual-temperature`.
+- **Prova:** segnalazione dell’utente per inglese, spagnolo, francese e tedesco. Prima della correzione, il test browser riproduce `['To', 'B', 'C']` in inglese: il marcatore generato da `String.fromCharCode` veniva passato al traduttore, che interpretava “A” come la preposizione italiana.
+- **Impatto:** la prima opzione del quiz aveva un identificatore diverso a seconda della lingua.
+- **Correzione e verifica:** esclusi dalla traduzione i soli marcatori delle risposte; testi e normali preposizioni continuano a essere tradotti. `tests/quiz-labels-browser.mjs` verifica A/B/C nelle cinque lingue, prima e dopo una risposta (10 combinazioni, nessun errore JavaScript). Build, lint e tutti i 162 test frontend superati; nessuna pubblicazione.
+
+## COR-057 — Provenienza degli orari descritta in modo ambiguo
+
+- **Stato:** corretto localmente il 28 ottobre 2026 durante la sincronizzazione con `main`.
+- **Prova:** il nuovo `time_label` della risposta latest dichiarava sempre l’ora fisica, anche quando la misura ne era priva e usava `captured_at`. Inoltre il PDF collocava l’ora `measured_at` di una misura manuale nella colonna “Acquisizione · PC”, benché `captured_at` fosse nullo.
+- **Impatto:** un’ora di acquisizione poteva essere interpretata come misura fisica e viceversa, oscurando la distinzione fra i due tempi.
+- **Correzione e verifica:** l’etichetta API distingue il possibile ripiego sull’acquisizione; nel PDF la colonna acquisizione indica l’assenza dell’ora e l’inserimento manuale, mentre l’ora fisica rimane nella propria colonna. Aggiornati gli equivalenti testi accessibili e la traduzione del PDF; test Deno su entrambe le etichette e test frontend con misura manuale in inglese e Fahrenheit. Modifiche locali: la funzione remota non è stata distribuita.

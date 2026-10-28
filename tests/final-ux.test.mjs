@@ -9,7 +9,7 @@ test('stazione priva di letture: un solo stato informativo al posto delle tre sc
   assert.match(app, /latestLoaded && !latest \? <div className="station-empty panel"/)
   assert.match(app, /historicalOnly \? 'Sono disponibili soltanto dati storici'/)
   assert.match(app, /'In attesa delle prime misure'/)
-  assert.match(app, /\{latest && <div className="weather-summary panel"/)
+  assert.match(app, /\{translate\(latest && <div className="weather-summary panel"/)
 })
 
 test('controlli mobili: testata flessibile, bersagli ampi e PDF a tutta larghezza', () => {
@@ -21,8 +21,8 @@ test('controlli mobili: testata flessibile, bersagli ampi e PDF a tutta larghezz
 test('grafici: navigazione per punti utilizzabile da touch con etichette accessibili', () => {
   const chart = readFileSync(new URL('../src/components/HistoryChart.tsx', import.meta.url), 'utf8')
   assert.match(chart, /className="chart-touch-controls" role="group"/)
-  assert.match(chart, /aria-label=\{`\$\{shownMetric\.name\}: punto precedente`\}/)
-  assert.match(chart, /aria-label=\{`\$\{shownMetric\.name\}: punto successivo`\}/)
+  assert.match(chart, /aria-label=\{translate\(`\$\{shownMetric\.name\}: punto precedente`\)\}/)
+  assert.match(chart, /aria-label=\{translate\(`\$\{shownMetric\.name\}: punto successivo`\)\}/)
   assert.match(styles, /\.chart-touch-controls button \{ min-width: 0; min-height: 44px/)
 })
 

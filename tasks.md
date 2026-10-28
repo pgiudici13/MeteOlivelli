@@ -1,5 +1,7 @@
 # Attività operative — MeteOlivelli
 
+> **28 ottobre 2026 — Fase 7 / UI-I18N:** funzionalità multilingua e °C/°F implementata localmente nel branch `codex/multilingual-temperature`, su richiesta esplicita. Lingua iniziale del dispositivo, scelta salvata prioritaria e italiano come ripiego; bandiere e °C/°F sotto il footer, senza rimando in alto. Traduzioni locali senza provider esterno. Nessun commit, push o rilascio incluso.
+
 **Revisione Informazioni — 27 ottobre 2026:** aggiornati i testi sul progetto, il percorso dati, la freschezza e le previsioni; rimossi i riferimenti a lavori in corso dalla pagina, senza modificare il filtro delle provenienze. `npm run check` e `git diff --check` superati; verifica visiva browser non eseguita.
 
 **Contatto nella pagina Informazioni — 27 ottobre 2026:** aggiunto l’indirizzo richiesto nella sezione team con collegamento alla composizione Gmail. `npm run check` superato (84 test frontend, 46 backend e 25 uploader), audit npm delle dipendenze di produzione senza vulnerabilità e parametri del link verificati localmente. Accesso e composizione effettiva in Gmail non verificati con un account.
@@ -349,6 +351,25 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **File principali:** `src/App.tsx`, CSS, `src/components/HistoryChart.tsx`, `Reveal.tsx`, `src/motion.ts`, `src/use-border-light.ts`, adapter e hook dati.
 - **Limiti:** revisione con il compagno e dispositivi reali ancora aperti; Figma Obsidian v5 non è stato riallineato al restyling Factory. Freschezza reale e UI-02/WX non sono chiusi dalla pubblicazione.
 - **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), [Fase 8](#8-fase-8--backup-gestione-e-rilascio).
+
+### UI-I18N — Cinque lingue e selezione Celsius/Fahrenheit (28 ottobre 2026)
+
+- [x] Sincronizzazione con `main` `81c2d0a`: risolte le sovrapposizioni fra misure manuali, nuovo grafico ingrandito, area amministrativa, traduzioni e Fahrenheit; mantenuti separati gli orari fisici e di acquisizione (COR-057). `npm run check`: 167 frontend, 55 Deno, 28 Python, build/lint e budget iniziale superati. Browser con API intercettate: misura manuale, grafico/periodi e Fahrenheit, 18 casi lingua/footer; esito area amministrativa registrato nella guida frontend. Nessuna modifica remota o migrazione applicata.
+- [x] Disposizione finale richiesta: lingue e °C/°F sotto il footer su tutte le pagine; rimosso il rimando in alto. Rilevamento ordinato da `navigator.languages`/`navigator.language`, varianti regionali, priorità alla scelta salvata e ripiego italiano. I dettagli delle verifiche correnti sono in `docs/frontend.md`.
+- [x] Verifica finale della disposizione: build, lint, budget iniziale e 164 test frontend superati; 18 casi Chrome per lingua automatica, preferenze, storage e layout su quattro pagine a 320/1280 px, più 10 casi A/B/C e 3 recuperi pagina. Nessuna pubblicazione o verifica su dispositivi fisici.
+
+- [x] COR-056: lettere A/B/C delle opzioni escluse dalla traduzione; regressione Chrome in cinque lingue prima/dopo la risposta (10 combinazioni), build/lint e 162 test frontend superati. Correzione locale sullo stesso branch, senza pubblicazione.
+- [x] Cinque bandiere nella barra sotto il footer comune: italiano, inglese britannico, spagnolo, francese e tedesco; nomi accessibili, lingua attiva e navigazione da tastiera.
+- [x] Tradotti contenuti, messaggi dinamici, etichette dei grafici, cronologia, glossario, curiosità, quiz completo, privacy, errori, metadati e PDF; il quiz conserva domanda, scelta e punteggio al cambio lingua.
+- [x] Scelta indipendente °C/°F su ultima misura, grafici, tooltip, sintesi, riepiloghi, confronti, record e previsioni; PDF coerenti. Differenze ed errori usano il fattore 1,8 senza offset. Dati, soglie e calcoli meteorologici restano in Celsius; l’inserimento amministrativo mantiene l’etichetta esplicita °C del contratto.
+- [x] Preferenze locali `meteolivelli-display`, recupero dei valori non validi, funzionamento nella pagina senza storage e cataloghi aggiuntivi caricati solo alla selezione. Nessuna richiesta di traduzione esterna.
+- [x] Build, lint, budget iniziale e 162 test frontend superati, inclusi 5 test mirati per conversione, copertura dei cataloghi, messaggi e PDF. Chrome locale: 5 scenari dedicati, comprese 80 combinazioni responsive (5 lingue × 4 pagine × 320/390/900/1280 px), senza overflow, sovrapposizioni o errori JavaScript.
+- **Limiti:** dati dei test intercettati e inventati solo nel browser locale; non attestano misure della stazione o validazione meteorologica. Nessun test su dispositivi fisici, certificazione di traduzione professionale o pubblicazione. I chunk PDF lazy mantengono l’avviso Vite oltre 500 kB già presente.
+- **Riferimenti:** [plan.md](plan.md), [design.md](design.md), [docs/frontend.md](docs/frontend.md), `tests/localization.test.mjs` e `tests/localization-browser.mjs`.
+
+Verifiche browser aggiuntive superate: 3 scenari di recupero pagina e 7 sulle previsioni con worker reale; rifinitura finale a 320 px verificata in 10 combinazioni (5 lingue × tema chiaro/scuro), selettori e tema sulla stessa riga senza overflow. Schermate desktop/mobile ispezionate localmente; misure inventate soltanto nelle fixture, marcate nelle schermate.
+
+**Limite della regressione storica (COR-055):** il runner opzionale `tests/frontend-browser.mjs` si arresta alla prima asserzione, che richiede le tre schede vuote della vecchia UI anziché l’attuale stato unico `.station-empty`, già presente prima di questo intervento. Non è incluso fra i collaudi superati e richiede riallineamento separato.
 
 ### GAME-01 — Aggiungere il quiz “Gioca con il meteo”
 

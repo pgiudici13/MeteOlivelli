@@ -1,3 +1,4 @@
+import { getLocale, displayValue } from './preferences.ts'
 // Contratto pubblico BE-06. Nessun import del runtime server nel browser.
 export type Period = '24h' | '7g' | '14g' | '30g'
 export type ChartMode = Period | 'auto'
@@ -133,7 +134,6 @@ export function compareHistoryMeasurements(a: Measurement, b: Measurement): numb
 
 export interface HistoryDay { key: string; label: string; rows: Measurement[] }
 const romeDayParts = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' })
-const romeDayLabel = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: 'long', day: 'numeric' })
 function localDay(value: string): string {
   const parts = Object.fromEntries(romeDayParts.formatToParts(new Date(value)).map(part => [part.type, part.value]))
   return `${parts.year}-${parts.month}-${parts.day}`
@@ -146,7 +146,7 @@ export function groupHistoryByLocalDay(rows: Measurement[]): HistoryDay[] {
     const key = localDay(timestamp)
     let day = days.at(-1)
     if (!day || day.key !== key) {
-      day = { key, label: romeDayLabel.format(new Date(timestamp)), rows: [] }
+      day = { key, label: new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(timestamp)), rows: [] }
       days.push(day)
     }
     day.rows.push(row)
@@ -263,12 +263,13 @@ export function trimHistory(rows: Measurement[], period: Period, serverUntil: st
 export function isSuspect(row: Measurement, field: Metric): boolean {
   return row.quality_flags.some(flag => flag.field === field && flag.code !== 'missing_value')
 }
-export function formatValue(value: number | null): string {
-  return value === null ? 'Dato assente' : new Intl.NumberFormat('it-IT', { useGrouping: false, minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)
+export function formatValue(value: number | null, metric?: string, difference = false, locale = getLocale()): string {
+  value = displayValue(value, metric, difference)
+  return value === null ? 'Dato assente' : new Intl.NumberFormat(locale, { useGrouping: false, minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)
 }
 export function formatTime(value: string | null, short = false): string {
   if (!value) return 'Orario sconosciuto'
-  return new Intl.DateTimeFormat('it-IT', {
+  return new Intl.DateTimeFormat(getLocale(), {
     timeZone: 'Europe/Rome', ...(short ? {} : { day: '2-digit', month: 'short', year: 'numeric' }),
     hour: '2-digit', minute: '2-digit',
   }).format(new Date(value))
@@ -314,4 +315,9 @@ export function chartSegments(rows: Measurement[], field: Metric): Measurement[]
   }
   if (current.length) result.push(current)
   return result
+}
+
+/** Etichetta del giorno civile; il fuso della stazione resta invariato. */
+export function formatCivilDay(key: string) {
+  return new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(`${key}T12:00:00Z`))
 }

@@ -30,17 +30,17 @@ test('dashboard e PDF escludono campioni sintetici e provenienza non specificata
   const synthetic = row(3, { acquisition_kind: 'synthetic' })
   const unknown = row(4)
   assert.deepEqual(stationMeasurements([live, historical, synthetic, unknown]), [live, historical])
-  const manual = row(5, { acquisition_kind: 'historical', entry_method: 'manual', captured_at: null })
-  assert.deepEqual(stationMeasurements([live, manual]), [live])
+  const manual = row(5, { acquisition_kind: 'historical', entry_method: 'manual', captured_at: null, measured_at: '2026-10-22T05:00:00.000Z' })
+  assert.deepEqual(stationMeasurements([live, manual]), [live, manual])
   assert.deepEqual(publicHistoryMeasurements([live, manual, synthetic]), [live, manual])
   assert.equal(parsePage(page([manual])).items[0].entry_method, 'manual')
   let state
-  const feed = createWeatherFeed('24h', value => { state = value }, async params => page(params.get('view') === 'latest' ? [synthetic] : [live, synthetic, unknown]))
+  const feed = createWeatherFeed('24h', value => { state = value }, async params => ({ ...page(params.get('view') === 'latest' ? [synthetic] : params.get('basis') === 'measured_at' ? [] : [live, synthetic, unknown]), time_basis: params.get('basis') ?? 'captured_at' }))
   await feed.refresh()
   assert.equal(state.latest, null)
   assert.deepEqual(state.history.map(item => item.ingestion_id), [live.ingestion_id])
   feed.stop()
-  const reader = async params => params.get('view') === 'latest' ? page([synthetic]) : page([live, synthetic, unknown])
+  const reader = async params => ({ ...page(params.get('view') === 'latest' ? [synthetic] : params.get('basis') === 'measured_at' ? [] : [live, synthetic, unknown]), time_basis: params.get('basis') ?? 'captured_at' })
   const chart = await readFreshChartData('24h', signal(), reader)
   assert.deepEqual(chart.rows.map(item => item.ingestion_id), [live.ingestion_id])
   const pdf = await createFreshHistoryPdf(signal(), async () => page([live, historical, synthetic, unknown]), async () => new Blob(['pdf']))
@@ -53,7 +53,7 @@ test('Auto evita ancoraggi futuri e recupera quando il tempo server raggiunge il
   const calls = []
   const feed = createWeatherFeed('30g', value => { state = value }, async params => {
     calls.push(new URLSearchParams(params))
-    return { ...page(params.get('view') === 'latest' ? [future] : []), until: params.get('until') ?? now }
+    return { ...page(params.get('view') === 'latest' ? [future] : []), until: params.get('until') ?? now, time_basis: params.get('basis') ?? 'captured_at' }
   }, { anchorToLatest: true })
   await feed.refresh()
   assert.equal(state.invalidLatestTime, true)
@@ -118,8 +118,8 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
   const links = [...page.matchAll(/<a href="#([^"]+)"/g)].map((match) => match[1])
   assert.ok(links.length >= 5)
   assert.ok(links.every((id) => ids.has(id)), `Destinazioni dell’indice non trovate: ${links.filter((id) => !ids.has(id)).join(', ')}`)
-  assert.match(page, /aria-label="In questa pagina"/)
-  assert.match(page, /aria-label="In breve"/)
+  assert.match(page, /aria-label=\{translate\("In questa pagina"\)\}/)
+  assert.match(page, /aria-label=\{translate\("In breve"\)\}/)
 })
 
 test('la sezione previsioni presenta soltanto osservazioni fisiche', () => {
@@ -146,7 +146,7 @@ test('link esterno della scuola annuncia la nuova scheda e usa la URL centrale',
   assert.match(link, /target="_blank"/)
   assert.match(link, /rel="noopener noreferrer"/)
   assert.match(link, /ariaLabel = 'Sito ufficiale del Liceo Teresio Olivelli, si apre in una nuova scheda'/)
-  assert.match(link, /aria-label=\{ariaLabel\}/)
+  assert.match(link, /aria-label=\{translate\(ariaLabel\)\}/)
 })
 
 test('footer completo e copia pubblica della licenza restano coerenti', () => {
@@ -286,9 +286,9 @@ test('PDF grafici: aggiorna dati al clic e ancora Auto all’ultima acquisizione
     calls.push(new URLSearchParams(params))
     return params.get('view') === 'latest'
       ? page([latest])
-      : { ...page([latest]), until: params.get('until') }
+      : { ...page(params.get('basis') === 'measured_at' ? [] : [latest]), until: params.get('until'), time_basis: params.get('basis') ?? 'captured_at' }
   })
-  assert.equal(calls.length, 2)
+  assert.equal(calls.length, 3)
   assert.equal(calls[0].get('view'), 'latest')
   assert.equal(calls[1].get('period'), '30g')
   assert.equal(calls[1].get('until'), latest.captured_at)
@@ -635,6 +635,7 @@ test('polling: storico iniziale, nessun ricaricamento se ultima invariata, nuovo
   let published
   const feed = createWeatherFeed('24h', state => { published = state }, async params => {
     if (params.get('view') === 'latest') return page([latest])
+    if (params.get('basis') === 'measured_at') return { ...page([]), time_basis: 'measured_at' }
     historyCalls++
     return page([latest])
   })
@@ -651,9 +652,9 @@ test('polling: storico iniziale, nessun ricaricamento se ultima invariata, nuovo
 test('polling: errore conserva dati e recupero ricarica storico senza duplicati', async () => {
   let fail = false
   let published
-  const feed = createWeatherFeed('24h', state => { published = state }, async () => {
+  const feed = createWeatherFeed('24h', state => { published = state }, async params => {
     if (fail) throw new Error('Offline sintetico')
-    return page([row(1, { acquisition_kind: 'live' })])
+    return { ...page(params.get('basis') === 'measured_at' ? [] : [row(1, { acquisition_kind: 'live' })]), time_basis: params.get('basis') ?? 'captured_at' }
   })
   await feed.refresh()
   fail = true
@@ -671,7 +672,7 @@ test('polling: errori indipendenti di storico e ultima misura', async () => {
   let historyFail = true
   const feed = createWeatherFeed('7g', state => { published = state }, async params => {
     if (params.get('view') === 'history' && historyFail) throw new Error('Fixture')
-    return page([row()])
+    return { ...page(params.get('basis') === 'measured_at' ? [] : [row()]), time_basis: params.get('basis') ?? 'captured_at' }
   })
   await feed.refresh()
   assert.equal(published.historyError, true)
@@ -802,6 +803,7 @@ test('Auto: lettura ancorata all’ultima misura anche se la stazione è ferma d
   let calls = 0
   const feed = createWeatherFeed('30g', state => { published = state }, async params => {
     if (params.get('view') === 'latest') return page([old])
+    if (params.get('basis') === 'measured_at') return { ...page([]), until: old.captured_at, time_basis: 'measured_at' }
     calls++
     assert.equal(params.get('until'), old.captured_at)
     return { ...page([old]), until: old.captured_at }
@@ -822,6 +824,7 @@ test('Auto: timestamp PostgreSQL normalizzati, inclusi microsecondi e paginazion
     let calls = 0
     const feed = createWeatherFeed('30g', state => { published = state }, async params => {
       if (params.get('view') === 'latest') return parsePage(page([old]))
+      if (params.get('basis') === 'measured_at') return parsePage({ ...page([]), until: anchor, time_basis: 'measured_at' })
       calls++
       assert.equal(params.get('until'), anchor)
       const cursor = btoa(JSON.stringify(['30g', 'captured_at', anchor, new Date(captured).toISOString(), old.ingestion_id]))

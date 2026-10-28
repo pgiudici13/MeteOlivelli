@@ -1,3 +1,6 @@
+import { localizePdf } from './pdf-localization.ts'
+import { formatValue } from './weather.ts'
+import { displayUnit } from './preferences.ts'
 import { buildPdfChart } from './pdf-chart.ts'
 import { formatReportTime } from './pdf-export.ts'
 import { metrics } from './weather.ts'
@@ -10,7 +13,7 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
   const charts = metrics.map(metric => buildPdfChart(rows, metric.key, period, until, customRange))
   const reportTime = formatReportTime(generatedAt.toISOString())
   const periodLabel = customRange ? 'Personalizzato' : periodName(period)
-  return {
+  return localizePdf({
     pageSize: 'A4',
     pageOrientation: 'landscape',
     pageMargins: [36, 52, 36, 42],
@@ -22,9 +25,9 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
       ...charts.map((chart, index) => ({
         ...(index ? { pageBreak: 'before' as const } : {}),
         stack: [
-          { text: `${chart.metric.name} · ${chart.metric.unit}`, style: 'heading', margin: [0, 5, 0, 1] },
+          { text: `${chart.metric.name} · ${displayUnit(chart.metric.key)}`, style: 'heading', margin: [0, 5, 0, 1] },
           { svg: chart.svg, width: 735, height: 296, margin: [0, 0, 0, 0] },
-          { text: chart.pointCount ? `${chart.averaged ? `${chart.pointCount} ${period === 'auto' ? 'medie per fascia' : 'medie giornaliere'} da ${chart.sampleCount} campioni validi` : `${chart.pointCount} campioni validi`} · ${chart.minimum === null ? 'nessun valore' : `min ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.minimum)} ${chart.metric.unit} · max ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(chart.maximum!)} ${chart.metric.unit}`}` : 'Nessun valore valido da tracciare nel periodo.', style: 'caption' },
+          { text: chart.pointCount ? `${chart.averaged ? `${chart.pointCount} ${period === 'auto' ? 'medie per fascia' : 'medie giornaliere'} da ${chart.sampleCount} campioni validi` : `${chart.pointCount} campioni validi`} · ${chart.minimum === null ? 'nessun valore' : `min ${formatValue(chart.minimum, chart.metric.key)} ${displayUnit(chart.metric.key)} · max ${formatValue(chart.maximum!, chart.metric.key)} ${displayUnit(chart.metric.key)}`}` : 'Nessun valore valido da tracciare nel periodo.', style: 'caption' },
           { text: `Provenienza dei campioni tracciati: ${chart.provenance}.`, style: 'caption' },
           ...(chart.note ? [{ text: chart.note, style: 'caption' }] : []),
         ],
@@ -42,5 +45,5 @@ export function buildGraphsDocument(rows: Measurement[], period: ChartMode, unti
     },
     header: () => ({ text: `MeteOlivelli · Grafici · ${periodLabel} · Europe/Rome`, alignment: 'left', margin: [36, 20, 36, 0], fontSize: 8, color: '#68625D' }),
     footer: (currentPage: number, pageCount: number) => ({ text: `MeteOlivelli · Grafici · Pagina ${currentPage} di ${pageCount}`, alignment: 'right', margin: [36, 0, 36, 16], fontSize: 8, color: '#68625D' }),
-  }
+    })
 }

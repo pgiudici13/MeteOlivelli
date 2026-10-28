@@ -1,3 +1,5 @@
+import { translate } from '../i18n.ts'
+import { usePreferences } from '../use-preferences.ts'
 import { useEffect, useState } from 'react'
 
 type Theme = 'light' | 'dark'
@@ -17,6 +19,7 @@ function getSystemTheme(): Theme {
 }
 
 export function ThemeToggle() {
+  usePreferences()
   const [savedTheme, setSavedTheme] = useState<Theme | null>(getSavedTheme)
   const [systemTheme, setSystemTheme] = useState<Theme>(getSystemTheme)
   const theme = savedTheme ?? systemTheme
@@ -52,11 +55,11 @@ export function ThemeToggle() {
     className="theme-toggle"
     type="button"
     role="switch"
-    aria-label="Tema chiaro"
+    aria-label={translate("Tema chiaro")}
     aria-checked={theme === 'light'}
-    title={theme === 'light' ? 'Passa al tema scuro' : 'Passa al tema chiaro'}
+    title={translate(theme === 'light' ? 'Passa al tema scuro' : 'Passa al tema chiaro')}
     onClick={toggleTheme}
   >
-    <span aria-hidden="true">{theme === 'light' ? '☼' : '☾'}</span>
+    <span aria-hidden="true">{translate(theme === 'light' ? '☼' : '☾')}</span>
   </button>
 }

@@ -15,8 +15,8 @@ test('grafici ingrandibili con dialogo, Escape, focus e chiusura', () => {
   assert.match(chartSource, /openerRef\.current\?\.focus\(\)/)
   assert.match(chartSource, /document\.body\.style\.overflow = 'hidden'/)
   assert.match(chartSource, /setExpandedPeriod\('auto'\)/)
-  assert.match(chartSource, /role="group" aria-label="Grandezza"/)
-  assert.match(chartSource, /role="group" aria-label="Periodo del grafico"/)
+  assert.match(chartSource, /role="group" aria-label=\{translate\('Grandezza'\)\}/)
+  assert.match(chartSource, /role="group" aria-label=\{translate\('Periodo del grafico'\)\}/)
   assert.match(chartSource, /event\.target === event\.currentTarget/)
 })
 

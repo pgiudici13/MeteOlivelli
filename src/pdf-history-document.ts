@@ -1,3 +1,5 @@
+import { localizePdf } from './pdf-localization.ts'
+import { displayUnit } from './preferences.ts'
 import { formatReportTime, formatReportValue } from './pdf-export.ts'
 import { compareHistoryMeasurements, metrics } from './weather.ts'
 import type { Measurement } from './weather.ts'
@@ -6,7 +8,7 @@ const text = (value: string, options: Record<string, unknown> = {}) => ({ text: 
 const time = (value: string | null) => value ? formatReportTime(value) : '—'
 
 function valueCell(row: Measurement, key: typeof metrics[number]['key'], unit: string): string {
-  const value = formatReportValue(row[key], unit)
+  const value = formatReportValue(row[key], unit, key)
   return row.quality_flags.some(flag => flag.field === key && flag.label === 'probabile errato') ? `${value} †` : value
 }
 
@@ -14,11 +16,11 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
   if (!Number.isFinite(generatedAt.getTime())) throw new Error('Data di generazione non valida')
   const ordered = [...rows].sort(compareHistoryMeasurements)
   const body = [
-    [text('N.', { style: 'tableHeader' }), text('Acquisizione · PC', { style: 'tableHeader' }), text('Misura fisica', { style: 'tableHeader' }), text('Ricezione', { style: 'tableHeader' }), ...metrics.map(metric => text(`${metric.name} · ${metric.unit}`, { style: 'tableHeader' }))],
+    [text('N.', { style: 'tableHeader' }), text('Acquisizione · PC', { style: 'tableHeader' }), text('Misura fisica', { style: 'tableHeader' }), text('Ricezione', { style: 'tableHeader' }), ...metrics.map(metric => text(`${metric.name} · ${displayUnit(metric.key)}`, { style: 'tableHeader' }))],
     ...ordered.map((row, index) => [
       String(index + 1),
       row.entry_method === 'manual'
-        ? `${row.measured_at ? time(row.measured_at) : 'Orario misura non disponibile'} · INSERIMENTO MANUALE`
+        ? 'Senza acquisizione · INSERIMENTO MANUALE'
         : row.captured_at ? `${time(row.captured_at)}${row.acquisition_kind === 'synthetic' ? ' · SINTETICO' : ''}` : `Senza acquisizione\nRicevuto: ${time(row.received_at)}`,
       time(row.measured_at),
       time(row.received_at),
@@ -27,7 +29,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
       valueCell(row, metrics[2].key, metrics[2].unit),
     ]),
   ]
-  return {
+  return localizePdf({
     pageSize: 'A4',
     pageOrientation: 'landscape',
     pageMargins: [28, 48, 28, 38],
@@ -48,7 +50,7 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
           paddingBottom: () => 4,
         },
       },
-      { text: 'Gli orari di acquisizione sul PC, della misura fisica e della ricezione server sono distinti. “—” indica un orario o valore assente. † indica un valore segnalato dal controllo qualità come probabile errato. I campioni senza ora di acquisizione sono ordinati per ricezione, riportata separatamente.', style: 'footnote', margin: [0, 8, 0, 0] },
+      { text: 'Gli orari di acquisizione sul PC, della misura fisica e della ricezione server sono distinti. “—” indica un orario o valore assente. † indica un valore segnalato dal controllo qualità come probabile errato. I campioni senza ora di misura e acquisizione sono ordinati per ricezione, riportata separatamente.', style: 'footnote', margin: [0, 8, 0, 0] },
     ],
     styles: {
       title: { fontSize: 16, bold: true },
@@ -58,5 +60,5 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
     },
     header: () => ({ text: 'MeteOlivelli · Cronologia · Orari Europe/Rome', margin: [28, 18, 28, 0], fontSize: 8, color: '#68625D' }),
     footer: (currentPage: number, pageCount: number) => ({ text: `MeteOlivelli · Cronologia · Pagina ${currentPage} di ${pageCount}`, alignment: 'right', margin: [28, 0, 28, 14], fontSize: 7, color: '#68625D' }),
-  }
+    })
 }
