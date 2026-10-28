@@ -2,7 +2,6 @@ import { animate } from 'motion/mini'
 import { AnimatedHeading } from './components/AnimatedHeading.tsx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
-import { CombinedChart } from './components/CombinedChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
@@ -300,8 +299,6 @@ function App() {
           <p>La ricezione di un campione non dimostra che la misura sia recente. Il contatore Arduino non è una data.</p>
         </details>}
       </section></Reveal>
-      <Reveal><ForecastSection /></Reveal>
-      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <p className="eyebrow section-index">02 / Archivio della stazione</p>
         <h2 id="history-title">Andamento delle misure</h2>
@@ -328,7 +325,6 @@ function App() {
         </label>
         <p className="small">La scelta viene ricordata solo su questo dispositivo. Tutti e tre i grafici restano disponibili.</p>
         <div className="chart-grid" aria-busy={historyLoading}>{orderedMetrics(firstChart).map(metric => <HistoryChart period={period} until={data.windowUntil} customRange={customRange} key={metric.key} metric={metric} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />)}</div>
-        {!historyLoading && !historyError && <CombinedChart rows={rows} period={period} until={data.windowUntil} customRange={customRange} />}
         <p className="small">Le linee rappresentano misure effettive o medie dei campioni disponibili, mai valori inventati.</p>
         <details className="chart-methodology"><summary>Come leggere i grafici e le medie</summary>
           <p>La vista di 24 ore mostra tutti i campioni. Le viste da 7, 14 e 30 giorni mostrano medie giornaliere dei campioni validi acquisiti fra le 09:00 e le 18:00 (Europe/Rome).</p>
@@ -336,6 +332,8 @@ function App() {
           <p>Misure assenti o indicate come «probabili errate» interrompono il tracciato. Rimangono consultabili nella cronologia.</p>
         </details>
       </section></Reveal>
+      <Reveal><ForecastSection /></Reveal>
+      <Reveal><DailyCuriosity /></Reveal>
       <Reveal><DailyStatistics rows={completeHistory.rows} serverUntil={data.serverUntil} selectedRange={customRange} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><WeatherRecords rows={completeHistory.rows} until={data.serverUntil} loading={completeHistory.loading} /></Reveal>
       <Reveal><section className="panel chronology-section" aria-labelledby="chronology-title">

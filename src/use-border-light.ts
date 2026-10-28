@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const targets = '.hero-instrument, .metric-card, .chart-grid .chart, .forecast-card, .about-section, button:not(:disabled), .hero-link'
+const targets = '.panel, .metric-card, .chart, .forecast-card, .about-section, .weather-records, .meteorology-glossary, .range-statistics, button:not(:disabled), a[href], summary, input:not(:disabled), select:not(:disabled), textarea:not(:disabled)'
 
 export function useBorderLight() {
   useEffect(() => {

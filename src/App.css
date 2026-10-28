@@ -60,8 +60,9 @@ h3 { font-size: 14px; font-weight: 400; line-height: 1.4; }
 .section-index { color: var(--secondary); margin-bottom: 12px; }
 .metric-grid, .chart-grid, .forecast-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .metric-card { min-width: 0; padding: 20px; background: var(--surface-raised); }
-.tone-mint { --tone: var(--accent); }
-.tone-blue, .tone-lilac { --tone: var(--mint); }
+.tone-mint { --tone: var(--metric-temperature); }
+.tone-blue { --tone: var(--metric-humidity); }
+.tone-lilac { --tone: var(--metric-pressure); }
 .metric-card h3 { color: var(--secondary); font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; }
 .metric-value { font-size: clamp(28px, 3.65vw, 48px); font-weight: 400; line-height: 1.2; letter-spacing: -.045em; margin-block: 18px; font-variant-numeric: tabular-nums; }
 .metric-value > span:first-child { white-space: nowrap; }
@@ -221,19 +222,6 @@ button:disabled { cursor: default; opacity: .45; }
 .chart-expand-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .chart-expand-actions button { min-height: 44px; }
 .chart-share-message { overflow-wrap: anywhere; }
-.combined-chart { padding: 20px; display: grid; gap: 12px; min-width: 0; }
-.combined-chart h3 { font-size: 18px; }
-.combined-chart svg { display: block; width: 100%; height: auto; }
-.combined-chart svg text { font: 12px ui-monospace, monospace; fill: var(--secondary); }
-.combined-series polyline { stroke-width: 3; vector-effect: non-scaling-stroke; }
-.combined-series-0 { stroke: var(--accent); fill: var(--accent); }
-.combined-series-1 { stroke: var(--mint); fill: var(--mint); stroke-dasharray: 8 5; }
-.combined-series-2 { stroke: var(--text); fill: var(--text); stroke-dasharray: 2 5; }
-.combined-legend { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; list-style: none; }
-.combined-legend li { border-left: 3px solid var(--accent); padding-left: 10px; display: grid; gap: 3px; font-size: 12px; }
-.combined-legend-1 { border-color: var(--mint) !important; }
-.combined-legend-2 { border-color: var(--text) !important; }
-.combined-legend span { color: var(--secondary); }
 .range-statistics { border-top: 1px solid var(--border); padding-top: 18px; display: grid; gap: 12px; }
 .range-statistics h3 { font-size: 18px; }
 .weather-records { margin-top: 24px; padding: clamp(22px, 4vw, 36px); display: grid; gap: 16px; }
@@ -248,7 +236,6 @@ button:disabled { cursor: default; opacity: .45; }
 .glossary-grid summary { cursor: pointer; font-weight: 650; }
 .glossary-grid details p { margin: 12px 0 0; line-height: 1.6; color: var(--muted); }
 @media (max-width: 760px) { .glossary-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .combined-chart { padding: 14px; } .combined-legend { grid-template-columns: 1fr; } }
 .chart-lightbox { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: clamp(8px, 1.6vw, 24px); background: rgb(0 0 0 / .76); animation: chart-backdrop-in 180ms ease-out both; }
 .chart-expanded { position: relative; width: min(100%, 1840px); height: min(100%, 1100px); overflow: auto; overscroll-behavior: contain; padding: clamp(18px, 3vw, 48px); background: var(--surface-raised); box-shadow: 0 24px 100px rgb(0 0 0 / .34); border-radius: 12px; animation: chart-dialog-in 260ms cubic-bezier(.2, .8, .2, 1) both; }
 .chart-expanded h3 { font-size: 13px; }
@@ -260,6 +247,7 @@ button:disabled { cursor: default; opacity: .45; }
 .chart-expanded-group { display: flex; flex-wrap: wrap; gap: 6px; }
 .chart-expanded-group button { min-height: 40px; padding: 8px 14px; }
 .chart-expanded-group button[aria-pressed="true"] { color: var(--contrast-text); background: var(--contrast-bg); border-color: var(--contrast-bg); }
+.chart-expanded .chart-expanded-group:first-child button[aria-pressed="true"] { color: var(--surface); background: var(--tone); border-color: var(--tone); }
 .chart-expanded-periods button[aria-pressed="true"] { color: var(--text); background: var(--surface-soft); border-color: var(--accent); }
 .chart-expanded .chart-expand-actions { margin-left: auto; }
 .chart-expanded .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
@@ -370,10 +358,10 @@ html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 }
 
 /* Riflesso localizzato: il gradiente è ritagliato al solo bordo. */
-:where(.hero-instrument, .metric-card, .chart-grid .chart, .forecast-card, .about-section, button, .hero-link) {
+:where(.panel, .metric-card, .chart, .forecast-card, .about-section, .weather-records, .meteorology-glossary, .range-statistics, button, a[href], summary, input, select, textarea) {
   position: relative;
 }
-:where(.hero-instrument, .metric-card, .chart-grid .chart, .forecast-card, .about-section, button, .hero-link)::after {
+:where(.panel, .metric-card, .chart, .forecast-card, .about-section, .weather-records, .meteorology-glossary, .range-statistics, button, a[href], summary, input, select, textarea)::after {
   content: "";
   position: absolute;
   inset: -1px;

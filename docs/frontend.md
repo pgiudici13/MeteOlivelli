@@ -1,5 +1,9 @@
 # Frontend — stato e verifiche
 
+## Revisione visuale 28 ottobre 2026
+
+La sezione di confronto combinato è stata rimossa; i tre grafici singoli seguono subito “Le ultime misure”. Il riflesso al bordo segue il puntatore su pannelli, schede, collegamenti, pulsanti e controlli, un solo bersaglio alla volta; touch escluso.
+
 ## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
 
 Il dialogo dei grafici ora occupa l’area della pagina, si apre con un ingresso breve e blocca lo scroll del contenuto sottostante. All’apertura seleziona Auto; nel dialogo si possono scegliere temperatura, umidità o pressione e i periodi Auto, 24 ore, 7, 14 o 30 giorni. La vista ampia aumenta l’altezza del grafico e mantiene l’asse verticale adattato ai soli valori validi. Chiusura con pulsante, Esc o click sul fondale; focus e scroll vengono ripristinati. Le animazioni rispettano `prefers-reduced-motion`. I periodi alternativi usano le righe già caricate, entro il limite del feed corrente.

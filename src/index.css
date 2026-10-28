@@ -3,6 +3,7 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --page-bg: #101010; --surface: #101010; --surface-raised: #171615; --surface-soft: #1d1a18; --chart-bg: #141312;
   --text: #eeeeee; --secondary: #b8b3b0; --mint: #a0ca92;
+  --metric-temperature: #ee6018; --metric-humidity: #61a9e8; --metric-pressure: #c29bff;
   --contrast-text: #101010; --contrast-bg: #eeeeee; --contrast-hover: #fafafa;
   --border: #3d3a39; --border-strong: #4d4947; --gridline: #34312e;
   --highlight: #ffffff; --glow-rgb: 255 255 255; --accent: #ee6018; --accent-text: #ee6018; --accent-soft: #ee9166;
@@ -12,6 +13,7 @@
 :root[data-theme="light"] {
   --page-bg: #f7f5f2; --surface: #ffffff; --surface-raised: #efede9; --surface-soft: #ebe8e3; --chart-bg: #faf9f7;
   --text: #211f1d; --secondary: #68625d; --mint: #54734a;
+  --metric-temperature: #a54017; --metric-humidity: #176ba5; --metric-pressure: #7650a5;
   --contrast-text: #f7f5f2; --contrast-bg: #252320; --contrast-hover: #090908;
   --border: #d5d0ca; --border-strong: #bdb6ae; --gridline: #dedad5;
   --highlight: #282522; --glow-rgb: 40 37 34; --accent-text: #a54017; --accent-soft: #a54017;
