@@ -69,7 +69,7 @@ Il riflesso radiale segue il puntatore soltanto sul bordo dei pannelli, grafici,
 
 Motion accompagna l’apertura del grafico ingrandito e il passaggio fra le domande del quiz: la barra avanza dal livello precedente a quello effettivo. Le animazioni sono annullate quando si attiva il movimento ridotto e i pulsanti non si spostano.
 
-Una linea arancione sul bordo sinistro indica l’avanzamento nella pagina, con un breve assestamento; lo scroll manuale resta nativo. Il footer offre un collegamento per tornare in cima con scorrimento morbido, disattivato con movimento ridotto. Su schermi desktop con puntatore preciso il cursore usa una freccia personalizzata, con accento arancione sui controlli; i campi di testo conservano il cursore di sistema.
+Una linea arancione sul bordo sinistro indica l’avanzamento nella pagina, con un breve assestamento; lo scroll manuale resta nativo. Il footer offre un collegamento per tornare in cima con scorrimento morbido, disattivato con movimento ridotto. Su schermi desktop con puntatore preciso il cursore usa un punto bianco pieno e un anello sottile che lo segue con una lieve inerzia; sui controlli l’anello si allarga leggermente e con movimento ridotto segue subito il puntatore; i campi di testo conservano il cursore di sistema.
 
 I grafici di temperatura, umidità e pressione seguono immediatamente la sezione “Le ultime misure”. Il loro ordine è selezionabile e ognuno mantiene colore, scala e unità propri.
 

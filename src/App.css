@@ -313,9 +313,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 .page-top-anchor { display: block; height: 0; outline: none; }
 .scroll-progress { position: fixed; z-index: 50; top: 0; bottom: 0; left: 0; width: 3px; background: var(--border); pointer-events: none; }
 .scroll-progress span { display: block; width: 100%; height: 100%; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform 140ms ease-out; }
+.cursor-ring { position: fixed; z-index: 2000; left: 0; top: 0; width: 15px; height: 15px; border: 1px solid white; border-radius: 50%; box-shadow: 0 0 0 1px #101010, 0 0 10px #ffffff40; opacity: 0; pointer-events: none; will-change: transform; }
+.cursor-ring.is-interactive { width: 17px; height: 17px; }
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='28' viewBox='0 0 24 28'%3E%3Cpath d='M3 2v20l5-5 4 8 3-2-4-8h8z' fill='%23101010' stroke='%23f3f0eb' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='5' cy='5' r='1.6' fill='%23ee6018'/%3E%3C/svg%3E") 3 2, auto; }
-  a[href], button:not(:disabled), summary, select { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='28' viewBox='0 0 24 28'%3E%3Cpath d='M3 2v20l5-5 4 8 3-2-4-8h8z' fill='%23101010' stroke='%23ee6018' stroke-width='1.8' stroke-linejoin='round'/%3E%3Ccircle cx='5' cy='5' r='1.6' fill='%23f3f0eb'/%3E%3C/svg%3E") 3 2, pointer; }
+  body { cursor: url('/cursors/orbit.svg?v=4') 14 14, auto; }
+  :is(.site-shell, .data-admin, .route-not-found) :is(a[href], button:not(:disabled), summary, select) { cursor: url('/cursors/orbit.svg?v=4') 14 14, pointer; }
 }
 .hero > div { min-width: 0; }
 

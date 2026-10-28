@@ -6,6 +6,7 @@ import { lazy, Suspense, useEffect, type ReactNode } from 'react'
 import App from './App.tsx'
 import { BrandMark } from './components/BrandMark.tsx'
 import { ScrollProgress } from './components/ScrollProgress.tsx'
+import { CursorRing } from './components/CursorRing.tsx'
 
 const InfoPage = lazy(() => import('./pages/InfoPage.tsx').then(({ InfoPage }) => ({ default: InfoPage })))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage.tsx').then(({ PrivacyPage }) => ({ default: PrivacyPage })))
@@ -15,7 +16,7 @@ const DataAdminPage = lazy(() => import('./pages/DataAdminPage.tsx').then(({ Dat
 // Dentro Suspense: inizializza gli ingressi solo dopo il caricamento della pagina.
 function PageMotion({ children }: { children: ReactNode }) {
   usePageMotion()
-  return <><span id="page-top" tabIndex={-1} className="page-top-anchor" /><ScrollProgress />{children}</>
+  return <><span id="page-top" tabIndex={-1} className="page-top-anchor" /><ScrollProgress /><CursorRing />{children}</>
 }
 
 export function SiteRoute() {
