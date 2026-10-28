@@ -55,7 +55,7 @@ export function PrivacyPage() {
         <section className="privacy-block" aria-labelledby="controller-title">
           <p className="eyebrow section-index">{translate("01 / Titolare")}</p>
           <h2 id="controller-title">{translate("Chi gestisce il trattamento.")}</h2>
-          <p>{translate("Il titolare del trattamento è ")}<strong>{translate("Pietro Giudici")}</strong>{translate(". Per richieste relative alla privacy: ")}<a href="mailto:Pietro.giudici@hotmail.com">{translate("Pietro.giudici@hotmail.com")}</a>.</p>
+          <p>{translate("La gestione dei dati è affidata a Pietro Giudici e Nicholas Borin. Per richieste relative alla privacy:")} {' '}<a href="mailto:meteolivelli@liceoolivelli.pv.it">meteolivelli@liceoolivelli.pv.it</a>.</p>
         </section>
 
         <section className="privacy-block" aria-labelledby="data-title">

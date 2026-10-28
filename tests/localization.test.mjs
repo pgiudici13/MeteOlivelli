@@ -61,7 +61,7 @@ test('la lingua salvata prevale sul dispositivo; dati assenti o invalidi usano l
 })
 
 test('tutte le lingue coprono quiz, spiegazioni e testi statici accessibili', async () => {
-  const allowed = new Set(['MeteOlivelli', '°C', 'hPa', 'Pietro Giudici', 'Nicholas Borin', 'meteolivelli@liceoolivelli.pv.it', 'Pietro.giudici@hotmail.com', 'meteolivelli-analytics-consent'])
+  const allowed = new Set(['MeteOlivelli', '°C', 'hPa', 'Pietro Giudici', 'Nicholas Borin', 'meteolivelli@liceoolivelli.pv.it', 'meteolivelli-analytics-consent'])
   const required = quizQuestions.flatMap(q => [q.question, ...q.answers, q.explanation])
   required.push(...Object.values(metricExplanations))
   for (const file of readdirSync(new URL('../src', import.meta.url), { recursive: true }).filter(name => name.endsWith('.tsx'))) {

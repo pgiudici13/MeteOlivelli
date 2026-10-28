@@ -706,6 +706,7 @@ export default {
   ". Finestra completa:": ". Ventana completa:",
   ". Tutti i campioni sono consultabili sotto.": ". Todas las muestras pueden consultarse abajo.",
   ". Per richieste relative alla privacy:": ". Para solicitudes de privacidad:",
+  "La gestione dei dati è affidata a Pietro Giudici e Nicholas Borin. Per richieste relative alla privacy:": "Los datos son gestionados por Pietro Giudici y Nicholas Borin. Para consultas sobre privacidad:",
   "Caricamento…": "Cargando…",
   "Accesso…": "Accediendo…",
   "Salvataggio…": "Guardando…",

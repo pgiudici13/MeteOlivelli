@@ -706,6 +706,7 @@ export default {
   ". Finestra completa:": ". Gesamtes Zeitfenster:",
   ". Tutti i campioni sono consultabili sotto.": ". Alle Messwerte sind unten einsehbar.",
   ". Per richieste relative alla privacy:": ". Für Datenschutzanfragen:",
+  "La gestione dei dati è affidata a Pietro Giudici e Nicholas Borin. Per richieste relative alla privacy:": "Die Daten werden von Pietro Giudici und Nicholas Borin verwaltet. Für Datenschutzanfragen:",
   "Caricamento…": "Wird geladen…",
   "Accesso…": "Anmeldung…",
   "Salvataggio…": "Speichern…",
