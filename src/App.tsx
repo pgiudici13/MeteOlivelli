@@ -1,5 +1,5 @@
 import { formatCivilDay } from './weather.ts'
-import { displayUnit } from './preferences.ts'
+import { displayUnit, getLocale } from './preferences.ts'
 import { translate } from './i18n.ts'
 import { usePreferences } from './use-preferences.ts'
 import { animate } from 'motion/mini'
@@ -183,6 +183,9 @@ function App() {
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
   const weatherSummary = useMemo(() => describeWeatherChange(latest, rows, preferences.temperatureUnit, preferences.language), [latest, rows, preferences.temperatureUnit, preferences.language])
   const ageDescription = measurementAge(latest, data.serverUntil)
+  const nextExpectedMeasurement = latest?.entry_method === 'manual' || !latest?.captured_at
+    ? null
+    : new Date(new Date(latest.captured_at).getTime() + 3 * 60 * 60 * 1000)
 
   function applyCustomRange(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -261,6 +264,7 @@ function App() {
             </div>))}</dl>
           </div>
           <p className="instrument-time">{translate(!latestLoaded ? 'Connessione alle misure…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? latest.entry_method === 'manual' ? `Inserita manualmente · misurata ${formatTime(latest.measured_at)}` : `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'La prima misura della stazione non è ancora arrivata')}</p>
+          {translate(nextExpectedMeasurement && Number.isFinite(nextExpectedMeasurement.getTime()) && <p className="next-measurement-note">{translate(`Prossima misurazione attesa: ${new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Rome' }).format(nextExpectedMeasurement)} · cadenza di 3 ore`)}</p>)}
           <HistoryChart shareable={false} period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" />{translate(" Osservazioni · ")}{translate(periods.find(item => item.value === period)?.label)}</span><a href="#history-title">{translate("Cambia periodo ↗")}</a></div>
         </section></Reveal>

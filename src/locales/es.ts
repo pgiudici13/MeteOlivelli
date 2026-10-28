@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Prossima misurazione attesa: {0} · cadenza di 3 ore": "Próxima medición prevista: {0} · cada 3 horas",
   "Torna su": "Volver arriba",
   "Probabile errato": "Probablemente erróneo",
   "Vai direttamente a una data": "Ir a una fecha",

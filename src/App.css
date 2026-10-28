@@ -45,6 +45,7 @@ h3 { font-size: 14px; font-weight: 400; line-height: 1.4; }
 .hero-secondary-readings dd { margin: 2px 0 0; font-size: 16px; font-variant-numeric: tabular-nums; }
 .hero-secondary-readings .quality-warning { display: block; font-size: 10px; }
 .instrument-time { font: 10px/1.5 ui-monospace, monospace; color: var(--secondary); }
+.next-measurement-note { margin: 4px 0 0; color: var(--muted); font: 10px/1.45 ui-monospace, monospace; }
 .hero-instrument .chart { border: 0; background: transparent; padding: 0; margin-top: 24px; --tone: var(--accent); gap: 0; }
 .hero-instrument .chart h3, .hero-instrument .chart-value { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .hero-instrument .chart-gridline { stroke: var(--gridline); }

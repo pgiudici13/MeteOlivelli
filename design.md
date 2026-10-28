@@ -1,5 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
+Sotto l’orario dell’ultima lettura della stazione, la Home mostra in corpo piccolo la prossima misurazione attesa, calcolata tre ore dopo l’ultima acquisizione PC e formattata in Europe/Rome. È un’indicazione basata sulla cadenza dichiarata dall’utente; non compare per dati manuali o senza orario di acquisizione.
+
 La pagina quiz `/gioca` usa gli stessi token, testata, footer e temi del sito. Le risposte corrette e sbagliate hanno superfici verdi e rosse semantiche ad alto contrasto, accompagnate da ✓/×. Il ripple circolare nasce nel punto di contatto e si espande sul pulsante scelto tramite trasformazione, per una resa affidabile anche su touch. Con `prefers-reduced-motion` resta il colore di esito senza movimento. Il quiz è responsive.
 
 Aggiornato il 22 ottobre 2026. Per ogni modifica visiva consultare questo file insieme ad `AGENTS.md`. Requisiti e priorità restano in `plan.md`; l’esecuzione è in `tasks.md`. Questo documento specifica il design e non autorizza modifiche o pubblicazioni ulteriori.

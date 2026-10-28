@@ -715,6 +715,8 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 
 ## `/data`: storico manuale, grafica e modello a tabella singola — 28 ottobre 2026
 
+**Prossima misurazione in Home — 28 ottobre 2026:** aggiunto sotto l’ultima lettura un orario atteso in piccolo, calcolato dall’acquisizione PC +3 ore e localizzato in Europe/Rome. Testo tradotto nelle cinque lingue; escluso per misure manuali o prive di `captured_at`. La cadenza è dichiarata dall’utente, mentre ancoraggio e regolarità sul CSV reale restano da verificare. `npm run build`, `npm run lint`, `npm run frontend:test` (169 test) e `git diff --check` superati. La build mantiene l’avviso già noto per i chunk PDF oltre 500 kB.
+
 - [x] Le righe manuali sono etichettate nello storico pubblico e isolate da grafici, previsioni, statistiche e record; aggiornamento automatico della cronologia completa ogni cinque minuti quando visibile.
 - [x] Area `/data` ridisegnata secondo `design.md`, responsive e coerente con tema, marchio, form e tabella del sito.
 - [x] Migration predisposta per marcare lo storico esistente, rimuovere l'audit vuoto e aggiornare le RPC, senza applicare la migration AUD-11.
