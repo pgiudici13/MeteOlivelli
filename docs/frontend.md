@@ -1,5 +1,11 @@
 # Frontend — stato e verifiche
 
+## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
+
+Il dialogo dei grafici ora occupa l’area della pagina, si apre con un ingresso breve e blocca lo scroll del contenuto sottostante. All’apertura seleziona Auto; nel dialogo si possono scegliere temperatura, umidità o pressione e i periodi Auto, 24 ore, 7, 14 o 30 giorni. La vista ampia aumenta l’altezza del grafico e mantiene l’asse verticale adattato ai soli valori validi. Chiusura con pulsante, Esc o click sul fondale; focus e scroll vengono ripristinati. Le animazioni rispettano `prefers-reduced-motion`. I periodi alternativi usano le righe già caricate, entro il limite del feed corrente.
+
+Verifiche locali: `npm run lint` e `npm run build` superati; test mirati UI (`tests/data-experience.test.mjs`, `tests/final-ux.test.mjs`) 10/10. La suite completa frontend ha 148 test superati e 11 falliti su 159: casi preesistenti del feed/Auto, PDF e aspettative obsolete sull’inclusione manuale; i test del dialogo e dei controlli touch passano. `npm run check` si interrompe alla suite frontend e quindi non completa i controlli Deno/Python. Nessuna verifica visuale browser, modifica remota, commit, push o deploy effettuati.
+
 ## Aggiornamento locale — 27 ottobre 2026
 
 Revisione successiva: la cronologia specifica che il giorno è quello di acquisizione oppure, se mancante, di ricezione. Le medie dei periodi manuali includono le misure ammesse sia live sia storiche; Auto mantiene la priorità live prevista. Nell'area amministrativa, se una scrittura riesce ma la successiva rilettura fallisce, nuove scritture e azioni sulle righe restano disabilitate fino al recupero dell'elenco. Le previsioni correnti usano gli orizzonti +1, +6 e +24 ore; il feed pubblico esclude i sintetici. Correzioni locali, non pubblicate in questa sessione.

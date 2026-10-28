@@ -359,6 +359,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Analytics quiz — 27 ottobre 2026:** eventi `quiz_start` e `quiz_complete` implementati e inviati su `main`; GA4 contiene dimensione `Quiz` (`quiz_name`), metriche `Punteggio quiz` (`score`) e `Punteggio percentuale quiz` (`score_percent`) e metrica calcolata `Punteggio medio per tentativo`. Build, lint e 130 test frontend superati dopo il merge degli aggiornamenti remoti; deploy Production `READY`. Test casuale sul sito: 5/10; GA4 Tempo reale mostra un `quiz_complete` con `score=5`. Nessuna risposta o identificatore dichiarativo inviati.
 - **Riferimento:** [plan.md](plan.md) e [documentazione frontend](docs/frontend.md).
 
+**Fase 7 / UI-01 — vista grafici ingrandita, 28 ottobre 2026:** sostituita la scheda fissa priva di fondale con un dialogo a tutta pagina animato; blocco e ripristino scroll, chiusura con Esc/fondale/pulsante e focus gestito. All’apertura Auto; selettori per le tre grandezze e periodi Auto/24h/7g/14g/30g, con grafico più alto e scala automatica. `npm run lint` e `npm run build` superati; test UI mirati 10/10. Suite frontend completa: 148/159, con 11 fallimenti di feed/Auto, PDF e aspettative manuali non causati dalla vista; suite `npm run check` non prosegue ai controlli Deno/Python dopo il fallimento frontend. Specifiche aggiornate in `design.md` e `docs/frontend.md`; nessun intervento remoto o pubblicazione.
+
 ### UI-02 — Aggiornare automaticamente la pagina e calcolare il ritardo
 
 - [ ] **Stato: implementazione locale provvisoria verificata; cadenza/ancoraggio e prova con inserimento reale ancora necessari.**

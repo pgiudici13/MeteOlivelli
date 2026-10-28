@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { prepareChart } from '../chart.ts'
 import { summarizeChart } from '../chart-summary.ts'
 import { animateOnEntrance } from '../motion.ts'
-import { formatValue, metrics } from '../weather.ts'
+import { formatValue, metrics, periods } from '../weather.ts'
 import { createChartLink } from '../chart-links.ts'
 import type { Measurement, ChartMode } from '../weather.ts'
 
@@ -18,16 +18,32 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
   const id = useId()
   const [selection, setSelection] = useState<{ id: string; series: string } | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const [expandedMetricKey, setExpandedMetricKey] = useState<typeof metrics[number]['key']>(metric.key)
+  const [expandedPeriod, setExpandedPeriod] = useState<ChartMode>('auto')
   const [shareMessage, setShareMessage] = useState('')
   const ref = useRef<HTMLElement>(null)
   const openerRef = useRef<HTMLButtonElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const wasExpandedRef = useRef(false)
+  const shownMetric = expanded ? metrics.find(item => item.key === expandedMetricKey) ?? metric : metric
+  const shownPeriod = expanded ? expandedPeriod : period
+  useLayoutEffect(() => {
+    if (!expanded) return
+    const previousOverflow = document.body.style.overflow
+    const previousPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.body.style.paddingRight = previousPaddingRight
+    }
+  }, [expanded])
   useEffect(() => {
     if (expanded) { wasExpandedRef.current = true; closeRef.current?.focus() }
     else if (wasExpandedRef.current) openerRef.current?.focus()
   }, [expanded])
-  const prepared = useMemo(() => until ? prepareChart(rows, metric.key, period, until, customRange ?? undefined) : null, [rows, metric.key, period, until, customRange])
+  const prepared = useMemo(() => until ? prepareChart(rows, shownMetric.key, shownPeriod, until, expanded ? undefined : customRange ?? undefined) : null, [rows, shownMetric.key, shownPeriod, until, customRange, expanded])
   const segments = prepared?.segments ?? []
   const points = segments.flat()
   const values = points.map(point => point.value)
@@ -68,7 +84,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
       element.querySelector<SVGElement>('.chart-reveal-mask')?.style.removeProperty('width')
       element.querySelectorAll<SVGElement>('.chart-gridline').forEach(line => line.style.removeProperty('opacity'))
     })
-  }, [seriesKey, period, loading, error])
+  }, [seriesKey, shownPeriod, loading, error])
   const active = selection?.series === seriesKey ? points.find(point => point.id === selection.id) : undefined
   const activeIndex = active ? points.indexOf(active) : points.length - 1
   function selectPoint(index: number) {
@@ -95,18 +111,26 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
         if (event.shiftKey && document.activeElement === controls[0]) { event.preventDefault(); controls.at(-1)?.focus() }
         else if (!event.shiftKey && document.activeElement === controls.at(-1)) { event.preventDefault(); controls[0].focus() }
       }}>
-      <h3 id={`${id}-title`}>{metric.name} · {metric.unit}</h3>
+      <h3 id={`${id}-title`}>{shownMetric.name} · {shownMetric.unit}</h3>
+      {expanded && <div className="chart-expanded-controls">
+        <div className="chart-expanded-group" role="group" aria-label="Grandezza">
+          {metrics.map(item => <button key={item.key} type="button" aria-pressed={shownMetric.key === item.key} onClick={() => { setExpandedMetricKey(item.key); setSelection(null) }}>{item.name}</button>)}
+        </div>
+        <div className="chart-expanded-group chart-expanded-periods" role="group" aria-label="Periodo del grafico">
+          {periods.map(item => <button key={item.value} type="button" aria-pressed={shownPeriod === item.value} onClick={() => { setExpandedPeriod(item.value); setSelection(null) }}>{item.label}</button>)}
+        </div>
+      </div>}
       <div className="chart-expand-actions">
-        {!expanded ? <button ref={openerRef} type="button" onClick={() => setExpanded(true)} aria-label={`Ingrandisci il grafico di ${metric.name}`}>Ingrandisci ↗</button>
-          : <button ref={closeRef} type="button" onClick={() => setExpanded(false)} aria-label={`Chiudi il grafico ingrandito di ${metric.name}`}>Chiudi ×</button>}
+        {!expanded ? <button ref={openerRef} type="button" onClick={() => { setExpandedMetricKey(metric.key); setExpandedPeriod('auto'); setExpanded(true) }} aria-label={`Ingrandisci il grafico di ${metric.name}`}>Ingrandisci ↗</button>
+          : <button ref={closeRef} type="button" onClick={() => setExpanded(false)} aria-label={`Chiudi il grafico ingrandito di ${shownMetric.name}`}>Chiudi ×</button>}
         {shareable && <button type="button" onClick={async () => {
-          const link = createChartLink(window.location.origin, period, metric.key, customRange)
-          try { await navigator.clipboard.writeText(link); setShareMessage('Collegamento copiato.') }
+          const link = createChartLink(window.location.origin, shownPeriod, shownMetric.key, expanded ? null : customRange)
+          try { await navigator.clipboard.writeText(createChartLink(window.location.origin, shownPeriod, shownMetric.key, expanded ? null : customRange)); setShareMessage('Collegamento copiato.') }
           catch { setShareMessage(`Copia il collegamento: ${link}`) }
-        }} aria-label={`Copia il link al grafico di ${metric.name}`}>Condividi ↗</button>}
+        }} aria-label={`Copia il link al grafico di ${shownMetric.name}`}>Condividi ↗</button>}
       </div>
       {shareMessage && <p className="chart-share-message small" role="status">{shareMessage}</p>}
-      <p className="chart-value">{prepared?.averaged && <span className="chart-average-label">Ultima media · </span>}{last ? `${formatValue(last.value)} ${metric.unit}` : 'Nessun valore disponibile'}</p>
+      <p className="chart-value">{prepared?.averaged && <span className="chart-average-label">Ultima media · </span>}{last ? `${formatValue(last.value)} ${shownMetric.unit}` : 'Nessun valore disponibile'}</p>
       {loading || error || !points.length || !timeline ? (
         <div className="chart-empty">{loading ? 'Caricamento del grafico…' : error ? 'Grafico temporaneamente non disponibile.' : rows.length ? 'Nessun valore valido da tracciare. Consulta i campioni nella tabella.' : 'Il grafico apparirà quando saranno disponibili misure in questo periodo.'}</div>
       ) : (
@@ -123,7 +147,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
             const index = active ? points.indexOf(active) : points.length - 1
             selectPoint(event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1 : index + (event.key === 'ArrowLeft' ? -1 : 1))
           }} aria-labelledby={`${id}-title ${id}-desc`}>
-          <desc id={`${id}-desc`}>{points.length} {prepared?.averaged ? 'medie giornaliere calcolate dai campioni validi' : 'campioni validi'}, minimo {formatValue(min)} e massimo {formatValue(max)} {metric.unit}. {prepared?.averaged ? 'Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.' : 'Asse orizzontale: acquisizione sul PC, Europe/Rome.'} Valori assenti o sospetti interrompono la linea. Da {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start)} a {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end)}. Finestra completa: {period === 'auto' ? 'adattata ai dati' : period === '24h' ? '24 ore' : period === '7g' ? '7 giorni' : period === '14g' ? '14 giorni' : '30 giorni'}. Tutti i campioni sono consultabili sotto.</desc>
+          <desc id={`${id}-desc`}>{points.length} {prepared?.averaged ? 'medie giornaliere calcolate dai campioni validi' : 'campioni validi'}, minimo {formatValue(min)} e massimo {formatValue(max)} {shownMetric.unit}. {prepared?.averaged ? 'Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.' : 'Asse orizzontale: acquisizione sul PC, Europe/Rome.'} Valori assenti o sospetti interrompono la linea. Da {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start)} a {new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end)}. Finestra completa: {shownPeriod === 'auto' ? 'adattata ai dati' : shownPeriod === '24h' ? '24 ore' : shownPeriod === '7g' ? '7 giorni' : shownPeriod === '14g' ? '14 giorni' : '30 giorni'}. Tutti i campioni sono consultabili sotto.</desc>
           <defs><clipPath id={`${id}-reveal`}><rect className="chart-reveal-mask" x={revealStart} y="12" width={revealWidth} height="168" /></clipPath></defs>
           {timeline.ticks.map(tick => <g key={tick.time}>
             <line x1={toX(tick.time)} x2={toX(tick.time)} y1="16" y2="176" className={`chart-time-gridline ${tick.major ? 'major' : 'minor'}`} />
@@ -135,7 +159,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
           })}
           <g clipPath={`url(#${id}-reveal)`} className="chart-series">{segments.map((segment, index) => <g key={index}>
             {segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>}
-            {segment.map(row => <circle key={row.id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{row.label} · {formatValue(row.value)} {metric.unit}</title></circle>)}
+            {segment.map(row => <circle key={row.id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{row.label} · {formatValue(row.value)} {shownMetric.unit}</title></circle>)}
           </g>)}</g>
           {active && <g className="chart-selection" aria-hidden="true">
             <line x1={x(active)} x2={x(active)} y1="16" y2="176" />
@@ -145,15 +169,15 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
           <text x="336" y="202" textAnchor="end">{timeline.endLabel}</text>
         </svg>
       )}
-      {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${metric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
-      {points.length > 1 && <div className="chart-touch-controls" role="group" aria-label={`Scorri i valori di ${metric.name}`}>
-        <button type="button" disabled={activeIndex <= 0} onClick={() => selectPoint(activeIndex - 1)} aria-label={`${metric.name}: punto precedente`}>← Precedente</button>
+      {points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{active ? `${active.label} · ${formatValue(active.value)} ${shownMetric.unit}` : 'Esplora i valori con puntatore, tocco o tasti ← →.'}</p>}
+      {points.length > 1 && <div className="chart-touch-controls" role="group" aria-label={`Scorri i valori di ${shownMetric.name}`}>
+        <button type="button" disabled={activeIndex <= 0} onClick={() => selectPoint(activeIndex - 1)} aria-label={`${shownMetric.name}: punto precedente`}>← Precedente</button>
         <span className="small">{activeIndex + 1} di {points.length}</span>
-        <button type="button" disabled={activeIndex >= points.length - 1} onClick={() => selectPoint(activeIndex + 1)} aria-label={`${metric.name}: punto successivo`}>Successivo →</button>
+        <button type="button" disabled={activeIndex >= points.length - 1} onClick={() => selectPoint(activeIndex + 1)} aria-label={`${shownMetric.name}: punto successivo`}>Successivo →</button>
       </div>}
-      <p className="chart-statistics small">{summary ? `Minimo ${formatValue(summary.minimum)} · massimo ${formatValue(summary.maximum)} · media ${formatValue(summary.average)} ${metric.unit} (${summary.samples} campioni validi)${summary.change === null ? '' : ` · variazione dall’ultimo punto ${summary.change > 0 ? '+' : ''}${formatValue(summary.change)} ${metric.unit}`}` : 'I valori mancanti non vengono interpolati.'}</p>
-      <p className="chart-period-note small">{customRange ? 'Intervallo personalizzato · tutti i campioni validi' : period === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : period === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${period === '7g' ? '7' : period === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
+      <p className="chart-statistics small">{summary ? `Minimo ${formatValue(summary.minimum)} · massimo ${formatValue(summary.maximum)} · media ${formatValue(summary.average)} ${shownMetric.unit} (${summary.samples} campioni validi)${summary.change === null ? '' : ` · variazione dall’ultimo punto ${summary.change > 0 ? '+' : ''}${formatValue(summary.change)} ${shownMetric.unit}`}` : 'I valori mancanti non vengono interpolati.'}</p>
+      <p className="chart-period-note small">{!expanded && customRange ? 'Intervallo personalizzato · tutti i campioni validi' : shownPeriod === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : shownPeriod === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${shownPeriod === '7g' ? '7' : shownPeriod === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`}</p>
     </article>
   )
-  return expanded ? createPortal(chart, document.body) : chart
+  return expanded ? createPortal(<div className="chart-lightbox" onMouseDown={event => { if (event.target === event.currentTarget) setExpanded(false) }}>{chart}</div>, document.body) : chart
 }

@@ -90,6 +90,10 @@ Nella vista aggregata, per ogni giorno si calcola la media aritmetica dei valori
 
 Le viste manuali comprendono 24h/7g/14g/30g: 24h mostra i campioni originali; 7g/14g/30g mostrano una media per giorno fra le 09:00 incluse e le 18:00 escluse in Europe/Rome. La cronologia Auto conserva i campioni originali dei 30 giorni caricati. I pulsanti sono cinque e devono restare utilizzabili a 320 px. La maschera lineare e gli ingressi sono stati accelerati ai tempi della tabella; movimento ridotto e assenza di lampeggi restano obbligatori.
 
+### Grafico ingrandito
+
+“Ingrandisci” apre un dialogo a tutta pagina con fondale attenuato e ingresso breve; il corpo della pagina non scorre e il dialogo contiene il proprio scroll. Auto è preselezionato. I controlli permettono di scegliere temperatura, umidità o pressione e Auto/24h/7g/14g/30g sugli stessi campioni già caricati. Auto mantiene la finestra/aggregazione definita sopra e l’asse verticale si adatta ai valori validi effettivi. La chiusura avviene con pulsante, Esc o click sul fondale; focus intrappolato/restaurato, scroll bloccato e movimento ridotto sono requisiti.
+
 
 ## Misure compatte nel pannello iniziale — 23 ottobre 2026
 

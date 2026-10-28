@@ -8,11 +8,16 @@ const chartSource = readFileSync(new URL('../src/components/HistoryChart.tsx', i
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
 
 test('grafici ingrandibili con dialogo, Escape, focus e chiusura', () => {
-  assert.match(chartSource, /createPortal\(chart, document\.body\)/)
+  assert.match(chartSource, /createPortal\(<div className="chart-lightbox"/)
   assert.match(chartSource, /role=\{expanded \? 'dialog'/)
   assert.match(chartSource, /aria-modal=\{expanded \|\| undefined\}/)
   assert.match(chartSource, /event\.key === 'Escape'/)
   assert.match(chartSource, /openerRef\.current\?\.focus\(\)/)
+  assert.match(chartSource, /document\.body\.style\.overflow = 'hidden'/)
+  assert.match(chartSource, /setExpandedPeriod\('auto'\)/)
+  assert.match(chartSource, /role="group" aria-label="Grandezza"/)
+  assert.match(chartSource, /role="group" aria-label="Periodo del grafico"/)
+  assert.match(chartSource, /event\.target === event\.currentTarget/)
 })
 
 test('cronologia: data esatta consultabile con feedback per le date assenti', () => {
