@@ -1,5 +1,7 @@
 # Frontend — stato e verifiche
 
+La barra laterale mostra la posizione di scroll della pagina e si aggiorna anche quando cambiano le dimensioni del contenuto. Il collegamento «Torna su» nel footer porta all’inizio e trasferisce lì il focus; lo scroll manuale rimane nativo. Il cursore personalizzato è riservato a desktop con puntatore preciso; movimento ridotto disattiva le transizioni.
+
 ## Integrazione locale con main — 28 ottobre 2026
 
 Integrati i cambiamenti fino a `79ea8e8`: grafici dopo le ultime misure e basati su `measured_at`, senza confronto combinato e glossario. Le descrizioni accessibili dell’asse e dell’esclusione delle misure senza orario fisico sono tradotte nelle quattro lingue aggiuntive. Build, lint, budget, 169 test frontend, 55 Deno e 28 Python superati. Nessuna prova browser nuova o pubblicazione.

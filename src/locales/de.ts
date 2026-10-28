@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Torna su": "Zurück nach oben",
   "Probabile errato": "Vermutlich fehlerhaft",
   "Vai direttamente a una data": "Direkt zu einem Datum",
   "Nessuna misurazione registrata in questa data. Scegli un giorno presente nell’archivio.": "Keine Messungen an diesem Datum. Wähle einen Tag aus dem Archiv.",

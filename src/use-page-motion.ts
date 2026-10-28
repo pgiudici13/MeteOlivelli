@@ -2,9 +2,11 @@ import { useLayoutEffect } from 'react'
 import { animate } from 'motion/mini'
 import type { AnimationPlaybackControls } from 'motion'
 import { animateOnEntrance, entranceTiming } from './motion.ts'
+import { useBorderLight } from './use-border-light.ts'
 
 /** Un solo insieme di listener, anche per i controlli creati dopo una lettura. */
 export function usePageMotion() {
+  useBorderLight()
   useLayoutEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     const running = new Map<Element, AnimationPlaybackControls>()
@@ -19,49 +21,46 @@ export function usePageMotion() {
         { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'] }, entranceTiming)]))
     })
     const target = (event: Event) => event.target instanceof Element
-      ? event.target.closest<HTMLElement>('button:not(:disabled):not(.quiz-answer), .hero-link, .header-actions nav a') : null
-    function move(element: HTMLElement, transform: string) {
+      ? event.target.closest<HTMLElement>('button:not(:disabled), .hero-link, .back-to-top, .section-jump-nav a') : null
+    function feedback(element: HTMLElement, filter: string) {
       touched.add(element)
       running.get(element)?.stop()
-      if (media.matches) { element.style.removeProperty('transform'); return }
-      const animation = animate(element, { transform }, { duration: 0.16, ease: 'easeOut' })
+      if (media.matches) { element.style.removeProperty('filter'); return }
+      const animation = animate(element, { filter }, { duration: 0.14, ease: 'easeOut' })
       running.set(element, animation)
-      void animation.then(() => { if (running.get(element) === animation) running.delete(element) })
-    }
-    const over = (event: PointerEvent) => {
-      const element = target(event)
-      if (element && event.pointerType === 'mouse' && !element.contains(event.relatedTarget as Node | null)) move(element, 'translateY(-2px) scale(1)')
-    }
-    const out = (event: PointerEvent) => {
-      const element = target(event)
-      if (element && !element.contains(event.relatedTarget as Node | null)) move(element, 'translateY(0px) scale(1)')
+      void animation.then(() => {
+        if (running.get(element) === animation) {
+          running.delete(element)
+          if (filter === 'brightness(1)') { element.style.removeProperty('filter'); touched.delete(element) }
+        }
+      })
     }
     let pressed: HTMLElement | null = null
     const down = (event: PointerEvent) => {
+      if (event.button !== 0) return
       pressed = target(event)
-      if (pressed) move(pressed, 'translateY(0px) scale(0.97)')
+      if (pressed) feedback(pressed, 'brightness(0.88)')
     }
-    const up = () => { if (pressed) move(pressed, 'translateY(0px) scale(1)'); pressed = null }
+    const up = () => { if (pressed) feedback(pressed, 'brightness(1)'); pressed = null }
     const reset = () => {
-      running.forEach((animation, element) => { animation.cancel(); (element as HTMLElement).style.removeProperty('transform') })
+      pressed = null
+      running.forEach(animation => animation.cancel())
       running.clear()
-      touched.forEach(element => element.style.removeProperty('transform'))
+      touched.forEach(element => element.style.removeProperty('filter'))
       touched.clear()
     }
-    document.addEventListener('pointerover', over)
-    document.addEventListener('pointerout', out)
     document.addEventListener('pointerdown', down)
     window.addEventListener('pointerup', up)
     window.addEventListener('pointercancel', up)
+    window.addEventListener('blur', reset)
     media.addEventListener('change', reset)
     return () => {
       reset()
       cleanups.forEach(cleanup => cleanup())
-      document.removeEventListener('pointerover', over)
-      document.removeEventListener('pointerout', out)
       document.removeEventListener('pointerdown', down)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', up)
+      window.removeEventListener('blur', reset)
       media.removeEventListener('change', reset)
     }
   }, [])

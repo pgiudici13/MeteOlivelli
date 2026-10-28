@@ -10,6 +10,7 @@ import { SiteFooter } from '../components/SiteFooter.tsx'
 import { drawQuizQuestions, getQuizAnswerFeedback, type QuizQuestion } from '../quiz.ts'
 import { getQuizRippleGeometry, type QuizRippleGeometry } from '../quiz-motion.ts'
 import { trackAnalyticsEvent } from '../analytics.ts'
+import { animate } from 'motion/mini'
 import './QuizPage.css'
 
 type QuizState = 'intro' | 'playing' | 'complete'
@@ -33,8 +34,25 @@ export function QuizPage() {
   const questionRef = useRef<HTMLLegendElement>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
   const resultRef = useRef<HTMLHeadingElement>(null)
+  const progressRef = useRef<HTMLSpanElement>(null)
+  const previousProgress = useRef(0)
 
   useEffect(updateMetadata, [preferences])
+  useLayoutEffect(() => {
+    if (state !== 'playing' || !questions.length || !progressRef.current) {
+      previousProgress.current = 0
+      return
+    }
+    const next = (questionIndex + 1) / questions.length
+    const previous = previousProgress.current
+    previousProgress.current = next
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (preference.matches) return
+    const animation = animate(progressRef.current, { transform: [`scaleX(${previous})`, `scaleX(${next})`] }, { duration: 0.45, ease: 'easeOut' })
+    const stop = () => { if (preference.matches) animation.cancel() }
+    preference.addEventListener('change', stop)
+    return () => { preference.removeEventListener('change', stop); animation.cancel() }
+  }, [state, questionIndex, questions.length])
   useLayoutEffect(() => {
     if (state === 'playing') {
       (selectedAnswer === null ? questionRef.current : feedbackRef.current)?.focus()
@@ -106,10 +124,10 @@ export function QuizPage() {
           <button className="quiz-primary" onClick={startQuiz}>{translate("Inizia il quiz ")}<span aria-hidden="true">↗</span></button>
         </div>)}
 
-        {translate(state === 'playing' && currentQuestion && <div className="quiz-playing" key={questionIndex}>
+        {translate(state === 'playing' && currentQuestion && <div className="quiz-playing">
           <div className="quiz-progress-line"><p className="eyebrow section-index">{translate("02 / Domanda ")}{translate(questionIndex + 1)}{translate(" di ")}{translate(questions.length)}</p><p className="quiz-score-live">{translate("Punteggio ")}<strong>{translate(score)}</strong></p></div>
-          <div className="quiz-progress" role="progressbar" aria-label={translate("Avanzamento quiz")} aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1}><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
-          <fieldset className="quiz-question">
+          <div className="quiz-progress" role="progressbar" aria-label={translate("Avanzamento quiz")} aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1}><span ref={progressRef} style={{ transform: `scaleX(${(questionIndex + 1) / questions.length})` }} /></div>
+          <fieldset className="quiz-question" key={questionIndex}>
             <legend ref={questionRef} tabIndex={-1}>{translate(currentQuestion.question)}</legend>
             <div className="quiz-answers">{translate(currentQuestion.answers.map((answer, index) => {
               const answered = selectedAnswer !== null

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const styles = readFileSync(new URL('../src/App.css', import.meta.url), 'utf8')
 const quizStyles = readFileSync(new URL('../src/pages/QuizPage.css', import.meta.url), 'utf8')
+const borderLight = readFileSync(new URL('../src/use-border-light.ts', import.meta.url), 'utf8')
 
 test('stazione priva di letture: un solo stato informativo al posto delle tre schede vuote', () => {
   assert.match(app, /latestLoaded && !latest \? <div className="station-empty panel"/)
@@ -39,14 +40,23 @@ test('focus evidente e aree di tocco per dettagli, pulsanti e grafici', () => {
   assert.match(styles, /min-height: 44px; padding-block: 12px/)
 })
 
-test('azioni con forma uniforme, bordi senza livelli sovrapposti e glossario rimosso', () => {
+test('azioni con forma uniforme, riflesso hover confinato al bordo e glossario rimosso', () => {
   assert.match(styles, /^button \{[^}]*border-radius: var\(--radius-control\)/m)
   assert.match(styles, /\.theme-toggle \{[^}]*border-radius: var\(--radius-control\)/)
   assert.match(styles, /\.comparison-modes button \{[^}]*border-radius: var\(--radius-control\)/)
   assert.match(styles, /\.section-jump-nav a \{[^}]*border-radius: var\(--radius-control\)/)
   assert.match(quizStyles, /\.quiz-answer \{[^}]*border-radius: var\(--radius-control\)/)
-  assert.doesNotMatch(styles, /data-border-light|radial-gradient\(var\(--light-radius/)
-  assert.match(styles, /:where\(\.hero-instrument, \.panel, \.metric-card, \.chart, \.forecast-card/)
+  assert.match(styles, /radial-gradient\(circle var\(--light-radius/)
+  assert.match(styles, /mask-composite: exclude/)
+  assert.match(styles, /\[data-border-light\]::before \{ opacity: \.9/)
+  assert.match(styles, /\.hero-instrument \.chart::before \{ display: none/)
+  assert.match(styles, /\.section-jump-nav a/)
+  assert.match(styles, /\.chart svg \{[^}]*outline: none/)
+  assert.match(styles, /\.chart svg:focus-visible \{ outline: 2px solid var\(--tone\)/)
+  assert.match(borderLight, /requestAnimationFrame\(draw\)/)
+  assert.match(borderLight, /removeAttribute\('data-border-light'\)/)
+  assert.match(borderLight, /element\?\.matches\('\.hero-instrument \.chart'\)/)
+  assert.match(readFileSync(new URL('../src/use-page-motion.ts', import.meta.url), 'utf8'), /useBorderLight\(\)/)
   assert.doesNotMatch(app, /MeteorologyGlossary|glossario/i)
 })
 

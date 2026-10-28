@@ -32,6 +32,19 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
   const shownMetric = expanded ? metrics.find(item => item.key === expandedMetricKey) ?? metric : metric
   const shownPeriod = expanded ? expandedPeriod : period
   useLayoutEffect(() => {
+    const dialog = ref.current
+    if (!expanded || !dialog) return
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (preference.matches) return
+    const backdrop = dialog.parentElement
+    const animations = [animate(dialog, { opacity: [0, 1], transform: ['translateY(12px) scale(0.985)', 'translateY(0px) scale(1)'] }, { duration: 0.26, ease: 'easeOut' })]
+    if (backdrop) animations.push(animate(backdrop, { opacity: [0, 1] }, { duration: 0.18, ease: 'easeOut' }))
+    const cancel = () => animations.forEach(animation => animation.cancel())
+    const onPreference = () => { if (preference.matches) cancel() }
+    preference.addEventListener('change', onPreference)
+    return () => { preference.removeEventListener('change', onPreference); cancel() }
+  }, [expanded])
+  useLayoutEffect(() => {
     if (!expanded) return
     const previousOverflow = document.body.style.overflow
     const previousPaddingRight = document.body.style.paddingRight

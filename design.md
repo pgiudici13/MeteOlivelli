@@ -45,7 +45,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Nessuna postilla provvisoria nella versione finale locale: i campioni di prova e quelli privi di provenienza sono esclusi dalla visualizzazione. [Dati di prova e vincoli](docs/data-preview.md).
-- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. I bordi usano un solo contorno reale, senza livelli luminosi sovrapposti; hover e focus cambiano il colore del contorno senza alterare dimensioni o posizione. La Home termina con il progetto e non include più il glossario.
+- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. Il riflesso resta confinato ai bordi; hover e focus non alterano dimensioni o posizione dei controlli. La Home termina con il progetto e non include più il glossario.
 
 ## Coreografia degli ingressi
 
@@ -65,7 +65,11 @@ Focus tastiera rivela subito il contenitore; movimento ridotto cancella effetti 
 
 ## Bordi, controlli e focus
 
-Ogni controllo e superficie usa il proprio bordo reale da 1 px, senza pseudo-elementi di riflesso sovrapposti. Hover rinforza il colore del bordo con una transizione breve; non crea rettangoli parziali né modifica il layout. I raggi condivisi sono 3 px per controlli e CTA, 8 px per schede interne e 10 px per pannelli; il dialogo grafico usa 12 px. Campi e pulsanti hanno un’altezza utile di almeno 44 px. Il focus da tastiera resta visibile con contorno verde menta di 2 px e offset di 2 px. I divisori di sezione mantengono il loro bordo superiore neutro.
+Il riflesso radiale segue il puntatore soltanto sul bordo dei pannelli, grafici, schede, controlli e azioni. È ritagliato al contorno interno con maschera, non sporge dalla superficie e non cambia il layout; scompare appena il puntatore esce dal bersaglio. I divisori e i grafici senza bordo interno restano esclusi; nel grafico del hero il bersaglio del riflesso è il pannello esterno. Nei controlli il riflesso è contenuto entro 2 px, nelle schede entro 1 px. Hover cambia il bordo con una transizione breve; il focus da tastiera resta visibile con contorno verde menta di 2 px e offset di 2 px. I raggi condivisi sono 3 px per controlli e CTA, 8 px per schede interne e 10 px per pannelli; il dialogo grafico usa 12 px. Campi e pulsanti hanno un’altezza utile di almeno 44 px.
+
+Motion accompagna l’apertura del grafico ingrandito e il passaggio fra le domande del quiz: la barra avanza dal livello precedente a quello effettivo. Le animazioni sono annullate quando si attiva il movimento ridotto e i pulsanti non si spostano.
+
+Una linea arancione sul bordo sinistro indica l’avanzamento nella pagina, con un breve assestamento; lo scroll manuale resta nativo. Il footer offre un collegamento per tornare in cima con scorrimento morbido, disattivato con movimento ridotto. Su schermi desktop con puntatore preciso il cursore usa una freccia personalizzata, con accento arancione sui controlli; i campi di testo conservano il cursore di sistema.
 
 I grafici di temperatura, umidità e pressione seguono immediatamente la sezione “Le ultime misure”. Il loro ordine è selezionabile e ognuno mantiene colore, scala e unità propri.
 
@@ -143,7 +147,7 @@ Revisione locale richiesta dall’utente: `motion/mini` gestisce ingressi, diseg
 
 - Titolo delle quattro pagine: parole intere in sequenza, dissolvenza e +12 px in 480 ms; ritardo 45 ms limitato a 200 ms. Spazi, a-capo, reflow e semantica del singolo h1 conservati. Nessun effetto macchina da scrivere o lettere casuali sui dati.
 - Informazioni e Privacy: sezioni autonome in ingresso una sola volta, 420 ms e +10 px. La Home conserva observer individuali per le schede; postilla fuori dagli effetti.
-- Pulsanti abilitati e link di navigazione/CTA: hover −2 px, pressione scala 0,97, ritorno in 160 ms. Un solo insieme di listener con cleanup gestisce anche i controlli dinamici. Le risposte quiz conservano il proprio ripple e le animazioni dedicate.
+- Pulsanti abilitati e CTA restano fermi: Motion anima un lieve cambio di luminosità durante la pressione e il ritorno in 140 ms. Un solo insieme di listener con cleanup gestisce anche i controlli dinamici. Le risposte quiz conservano il proprio ripple e le animazioni dedicate.
 - Cronologia: uscita e ingresso delle righe in 180 ms per fase, ritardo 25 ms fra righe; la fase successiva segue il completamento effettivo, senza timer a durata stimata. Movimento ridotto anche durante un passaggio completa subito il cambio.
 - Grafici: maschera lineare in 700 ms e griglia in 220 ms conservate, ora tramite Motion. Il puntatore o il tocco selezionano il punto più vicino; focus e frecce scorrono i punti, Home/End raggiungono gli estremi, Escape chiude la selezione. Un cursore verticale e una didascalia mostrano soltanto il valore e l’etichetta del punto esistente, incluse le medie dichiarate. Nessuna curva o misura intermedia creata.
 

@@ -33,6 +33,7 @@ export function SiteFooter() {
       <p>{translate("© 2026 Pietro Giudici, Nicholas Borin e Liceo Teresio Olivelli di Pavia.")}</p>
       <p>{translate("Per il codice è proposta la ")}<a href="/LICENSE">{translate("licenza MIT")}</a>{translate(", subordinata all’approvazione dei titolari; marchi e logo scolastico restano dei rispettivi titolari.")}</p>
       <p>{translate("In Home, le ultime misure vengono verificate ogni 15 secondi a pagina visibile.")}</p>
+      <a className="back-to-top" href="#page-top">{translate("Torna su")} <span aria-hidden="true">↑</span></a>
     </div>
   </footer><SiteLanguageBar /></>
 }
