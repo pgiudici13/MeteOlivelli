@@ -534,7 +534,7 @@ button::before, .hero-link::before { padding: 2px; }
 .section-jump-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin: 26px 0 12px; }
 .section-jump-nav span { color: var(--secondary); font-size: 12px; margin-right: 6px; }
 .section-jump-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-control); text-decoration: none; color: var(--text); font-size: 13px; }
-.section-jump-nav a:hover, .section-jump-nav a:focus-visible { border-color: var(--accent); background: var(--surface-soft); }
+.section-jump-nav a:hover, .section-jump-nav a:focus-visible { border-color: var(--border-strong); background: var(--surface-soft); }
 #latest-title, #forecast-title, #daily-curiosity-title, #history-title, #daily-stats-title, #chronology-title { scroll-margin-top: 24px; }
 @media (max-width: 600px) { .section-jump-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; overscroll-behavior-inline: contain; } .section-jump-nav a, .section-jump-nav span { flex-shrink: 0; } }
 /* Telefoni stretti: nessuna navigazione o azione deve uscire dallo schermo. */

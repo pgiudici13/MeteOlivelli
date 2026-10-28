@@ -743,3 +743,6 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Cursore ridisegnato sulla reference dell’utente: punto e anello bianchi con alone morbido e punto di clic centrale. `npm run check` e `git diff --check` superati; anteprima locale aggiornata.
 - [x] Ridotta la dimensione del cursore da 48 a 28 px mantenendo il punto di clic centrale; `npm run check` superato.
 - [x] Aggiunta una lieve inerzia all’anello del cursore, con punto di clic nativo immediato e rispetto del movimento ridotto. `npm run check` e `git diff --check` superati.
+
+- [x] Uniformato l’hover dei collegamenti rapidi: bordo neutro al posto dell’arancione, riflesso e focus mantenuti. `npm run check` e `git diff --check` superati.
+- [x] Controllo finale degli stati hover, focus e disabilitati: collegamenti rapidi uniformati, selezioni dei grafici distinte dai semplici hover; suite completa `npm run check` superata.
