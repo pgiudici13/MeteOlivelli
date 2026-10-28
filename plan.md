@@ -1205,3 +1205,7 @@ La richiesta del 23 ottobre escluse COR-010; tale decisione è stata superata il
 ## Aggiornamento 28 ottobre 2026 — area amministrativa e tabella unica
 
 Su richiesta, `/data` usa la grafica coerente col sito e le misure inserite manualmente compaiono nella cronologia con etichetta esplicita; restano escluse da grafici, statistiche e previsioni. Un marcatore nel payload della singola riga mantiene la provenienza senza una seconda tabella dati. L'audit delle modifiche/cancellazioni è stato rimosso perché la tabella dedicata era vuota; questa scelta riduce le possibilità di recupero senza backup. Migrazione Supabase applicata e verificata (252 righe; una manuale, 251 sintetiche; una sola tabella base `public`); Edge Functions `read-measurements` v9 e `manage-measurements` v5 attive. Il frontend locale è pronto e testato; resta la pubblicazione frontend.
+
+## Aggiornamento decisione utente — misure manuali reali, 28 ottobre 2026
+
+L'utente chiarisce che i valori inseriti a mano rappresentano misure reali. Il marcatore `_entry_method = "manual"` resta nel payload database e viene esposto al client solo come `entry_method`; il sito li include in ultima misura, grafici, statistiche, record e previsioni. Per l'asse temporale si usa `measured_at`, lasciando `captured_at` nullo se non c'è stata acquisizione PC. L'etichetta manuale rimane visibile per distinguere il metodo di registrazione. I campioni `synthetic` restano esclusi. Questa decisione supera l'esclusione manuale descritta nei paragrafi precedenti.

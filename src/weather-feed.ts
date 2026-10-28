@@ -1,4 +1,4 @@
-import { historyAnchor, isAfterServerTime, readPage, readHistory, stationMeasurements, trimHistory } from './weather.ts'
+import { historyAnchor, isAfterServerTime, observationTime, readPage, readObservationHistory, stationMeasurements, trimHistory } from './weather.ts'
 import type { Measurement, PageReader, Period } from './weather.ts'
 
 export interface WeatherState {
@@ -38,15 +38,12 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
       const updateHistory = async () => {
         historyStarted = true
         try {
-          const anchor = options.anchorToLatest && serverUntil ? historyAnchor(state.latest?.captured_at, serverUntil) : null
-          let windowUntil: string | null = null
-          const history = await readHistory(period, controller.signal, async (params, signal) => {
+          const anchor = options.anchorToLatest && serverUntil ? historyAnchor(state.latest ? observationTime(state.latest) : null, serverUntil) : null
+          const history = await readObservationHistory(period, controller.signal, async (params, signal) => {
             if (anchor) params.set('until', anchor)
-            const page = await reader(params, signal)
-            windowUntil = page.until
-            return page
-          })
-          state = { ...state, history: stationMeasurements(history), windowUntil, historyLoaded: true, historyError: false }
+            return reader(params, signal)
+          }, anchor)
+          state = { ...state, history: stationMeasurements(history.rows), windowUntil: anchor ?? history.until, historyLoaded: true, historyError: false }
           historyCheckedAt = Date.now()
         } catch { state = { ...state, historyLoaded: true, historyError: true } }
       }
@@ -57,7 +54,8 @@ export function createWeatherFeed(period: Period, publish: (state: WeatherState)
         serverUntil = response.until
         if (response.items.length > 1 || response.next_cursor) throw new Error('Ultima misura incoerente')
         const candidate = stationMeasurements(response.items)[0] ?? null
-        const invalidLatestTime = Boolean(candidate?.captured_at && isAfterServerTime(candidate.captured_at, response.until))
+        const candidateTime = candidate ? observationTime(candidate) : null
+        const invalidLatestTime = Boolean(candidateTime && isAfterServerTime(candidateTime, response.until))
         const latest = invalidLatestTime ? null : candidate
         const nextSignature = JSON.stringify([response.items, invalidLatestTime])
         state = { ...state, latest, invalidLatestTime, latestLoaded: true, latestError: false, checkedAt: Date.now(), serverUntil: response.until }

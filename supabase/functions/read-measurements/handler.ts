@@ -111,7 +111,9 @@ export function createReadHandler(config: {
         // Normalizzare UTC senza troncare la chiave temporale PostgreSQL.
         const time = query.period === 'all'
           ? last.captured_at ?? last.received_at
-          : last[query.basis]
+          : query.basis === 'captured_at'
+            ? last.entry_method === 'manual' ? last.measured_at ?? last.captured_at : last.captured_at
+            : last.measured_at
         const normalizedTime = cursorTimestamp(time)
         if (!normalizedTime || !uuid(last.ingestion_id)) {
           throw new Error('Cursore database non valido')
@@ -132,9 +134,9 @@ export function createReadHandler(config: {
           next_cursor: nextCursor,
           until: query.until,
           time_basis: query.view === 'latest' ? 'captured_at' : query.basis,
-          time_label: query.view === 'latest' || query.basis === 'captured_at'
-            ? 'ora di acquisizione sul PC'
-            : 'ora di misura',
+          time_label: query.view === 'latest' || query.basis === 'measured_at'
+            ? 'ora della misura fisica'
+            : 'ora della misura fisica, se disponibile; altrimenti acquisizione sul PC',
         },
         200,
         { ...cors, 'Cache-Control': 'public, max-age=10' },

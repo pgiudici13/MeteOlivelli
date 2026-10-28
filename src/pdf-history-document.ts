@@ -17,7 +17,9 @@ export function buildHistoryDocument(rows: Measurement[], generatedAt: Date) {
     [text('N.', { style: 'tableHeader' }), text('Acquisizione · PC', { style: 'tableHeader' }), text('Misura fisica', { style: 'tableHeader' }), text('Ricezione', { style: 'tableHeader' }), ...metrics.map(metric => text(`${metric.name} · ${metric.unit}`, { style: 'tableHeader' }))],
     ...ordered.map((row, index) => [
       String(index + 1),
-      row.captured_at ? `${time(row.captured_at)}${row.acquisition_kind === 'synthetic' ? ' · SINTETICO' : ''}` : `Senza acquisizione\nRicevuto: ${time(row.received_at)}`,
+      row.entry_method === 'manual'
+        ? `${row.measured_at ? time(row.measured_at) : 'Orario misura non disponibile'} · INSERIMENTO MANUALE`
+        : row.captured_at ? `${time(row.captured_at)}${row.acquisition_kind === 'synthetic' ? ' · SINTETICO' : ''}` : `Senza acquisizione\nRicevuto: ${time(row.received_at)}`,
       time(row.measured_at),
       time(row.received_at),
       valueCell(row, metrics[0].key, metrics[0].unit),

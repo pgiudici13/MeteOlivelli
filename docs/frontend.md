@@ -307,7 +307,7 @@ La dashboard calcola minimo, massimo, media e numero dei campioni validi per la 
 
 ## Area amministrativa e storico manuale — 28 ottobre 2026
 
-La route `/data` mantiene l'autenticazione server-side e ora segue la gerarchia visuale MeteOlivelli: testata col marchio e tema, hero sobrio, schede piatte, form reflow e archivio con provenienza esplicita. Le righe inserite manualmente conservano `_entry_method: "manual"` nel payload della stessa misura; la lettura completa le espone nella cronologia con etichetta “Storico · inserimento manuale”. Dashboard, grafici, statistiche, record e previsioni le escludono. La pagina aperta aggiorna la cronologia completa ogni cinque minuti mentre è visibile; il comando manuale resta disponibile.
+La route `/data` mantiene l'autenticazione server-side e ora segue la gerarchia visuale MeteOlivelli: testata col marchio e tema, hero sobrio, schede piatte, form reflow e archivio con provenienza esplicita. Le righe inserite manualmente conservano `_entry_method: "manual"` nel payload della stessa misura; la lettura pubblica le include come misure reali, con etichetta di inserimento manuale. Dashboard, grafici, statistiche, record e previsioni le includono usando `measured_at`; `captured_at` resta nullo quando manca una reale acquisizione PC. I sintetici restano esclusi. La pagina aperta aggiorna la cronologia completa ogni cinque minuti mentre è visibile; il comando manuale resta disponibile.
 
-La lista amministrativa identifica inoltre le righe come stazione, storico, inserimento manuale o sintetico. L'area resta non indicizzata e non compare nei menu. Test Node/Deno coprono il filtro dai calcoli e la conservazione del marcatore.
+La lista amministrativa identifica inoltre le righe come stazione, storico, inserimento manuale o sintetico. L'area resta non indicizzata e non compare nei menu. La risposta dell'RPC continua a esporre solo `entry_method`, senza il payload privato.
 

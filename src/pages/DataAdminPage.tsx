@@ -158,7 +158,7 @@ export function DataAdminPage() {
             <label>Pressione · hPa<input type="number" step="any" value={value.pressure_hpa ?? ''} onChange={event => setNumber('pressure_hpa', event.target.value)} /></label>
             <label>Data e ora della misura · ora locale<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
           </fieldset>
-          <p id="data-admin-note" className="data-admin-note">Le misure inserite a mano sono pubblicate solo nella cronologia e identificate come storico manuale. Il contatore è richiesto dal formato attuale; lascia vuoti i valori non disponibili. L’ora di acquisizione sul PC resta vuota.</p>
+          <p id="data-admin-note" className="data-admin-note">Inserisci misure reali: il database le contrassegna come manuali e il sito le include in grafici, statistiche, record e previsioni usando questo orario. Il contatore è richiesto dal formato attuale; lascia vuoti i valori non disponibili. L’ora di acquisizione sul PC resta vuota.</p>
           <div className="data-admin-actions"><button className="data-admin-primary" disabled={busy || listStale}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi misura'} <span aria-hidden="true">↗</span></button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
         </form>
         <section className="data-admin-list" aria-labelledby="data-list-title">

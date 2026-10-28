@@ -696,4 +696,11 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] `npm run check` e `git diff --check` superati: build, lint, budget bundle, frontend, Deno e uploader. La build conserva l'avviso già noto per i chunk PDF >500 kB.
 - [x] Migrazione `20261028075721_one_table_manual_history` applicata a Supabase; verifica SQL: 1 tabella base pubblica, 252 misure, 1 storico manuale marcato e tabella audit assente. RPC read restituisce 1 `entry_method=manual` e 251 `synthetic`.
 - [x] Edge Function aggiornate: `read-measurements` v9 e `manage-measurements` v5, entrambe `ACTIVE`; `verify_jwt=false` conservato, autenticazione admin gestita nel codice.
-- [ ] Resta il rilascio del frontend su Vercel e la verifica pubblica via browser/API. Il database non conserverà audit di update/delete; predisporre backup prima dell'uso operativo.
+- [x] Frontend Production `READY` sul commit `107c3f5`; API pubblica e homepage verificate: la misura manuale compare nella cronologia con etichetta e resta esclusa da statistiche/record della stazione. Il database non conserverà audit di update/delete; predisporre backup prima dell'uso operativo.
+
+### Aggiornamento 28 ottobre — le misure manuali sono osservazioni reali
+
+- [x] Decisione utente: conservare il marcatore database `entry_method=manual`, ma includere queste misure reali in ultimo valore, grafici, statistiche, record e previsioni. Etichettare la modalità d'inserimento e usare `measured_at`; non assegnare un `captured_at` artificiale. Continuare a escludere `synthetic` dal sito.
+- [x] Modifica locale a RPC, handler, feed, asse temporale dei grafici/PDF, riepilogo e testo `/data`; conservati i file utente già modificati in `docs/backend-schema.md` e `tasks.md`.
+- [ ] Verificare build/lint e l'esito della query SQL/API; applicare la migration, aggiornare l'Edge Function e pubblicare il frontend per rendere il comportamento effettivo sul sito.
+- [ ] Nessuna suite di test eseguita in questa sessione.

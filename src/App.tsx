@@ -10,7 +10,7 @@ import { DailyStatistics } from './components/DailyStatistics.tsx'
 import { WeatherRecords } from './components/WeatherRecords.tsx'
 import { MeteorologyGlossary } from './components/MeteorologyGlossary.tsx'
 import { useCompleteHistory, useWeather } from './use-weather.ts'
-import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, periods, stationStatusText } from './weather.ts'
+import { formatTime, formatValue, getFreshness, groupHistoryByLocalDay, isSuspect, metrics, observationTime, periods, stationStatusText } from './weather.ts'
 import type { Measurement, ChartMode } from './weather.ts'
 import { useBorderLight } from './use-border-light.ts'
 import { describeWeatherChange } from './weather-summary.ts'
@@ -110,13 +110,13 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
       }} />
       {dateError && <p role="status">{dateError}</p>}
     </div>}
-    {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'campione' : 'campioni'} · giorno di acquisizione o, se assente, di ricezione</p></div>}
+    {visibleDay && <div className="history-day-heading"><h3>{visibleDay.label}</h3><p className="small">{visible.length} {visible.length === 1 ? 'misura' : 'misure'} · giorno della misura; se manca, acquisizione o ricezione</p></div>}
     <div className="history-table-wrap" aria-busy={transition !== 'idle'}>
     <table ref={tableRef} className={`history-table ${transition === 'exiting' ? 'is-exiting' : transition === 'entering' ? 'is-entering' : ''}`} data-direction={direction} key={current}>
-      <caption className="sr-only">Campioni del {visibleDay?.label ?? 'giorno selezionato'} in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione. Valori sospetti segnalati per campo.</caption>
-      <thead><tr><th scope="col">Acquisizione / ricezione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
+      <caption className="sr-only">Misure del {visibleDay?.label ?? 'giorno selezionato'} in ordine dal più recente. I valori sospetti sono segnalati per campo.</caption>
+      <thead><tr><th scope="col">Misura / acquisizione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
-        <th scope="row">{row.entry_method === 'manual' && <span className="history-origin">Storico · inserimento manuale</span>}{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
+        <th scope="row">{row.entry_method === 'manual' && <span className="history-origin">Misura reale · inserita manualmente</span>}{row.measured_at ? <><span>Misurata </span><time dateTime={row.measured_at}>{formatTime(row.measured_at)}</time></> : row.captured_at ? <><span>Acquisita </span><time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time></> : <><span>Senza orario della misura</span><br /><time dateTime={row.received_at}>Ricevuta {formatTime(row.received_at)}</time></>}</th>
         {metrics.map(metric => <td key={metric.key} data-label={metric.name}><Value row={row} metric={metric} /></td>)}
         <td className="sample-details" data-label="Tempi e qualità"><details><summary>Dettagli campione</summary>
           <p>{row.measured_at ? `Misura: ${formatTime(row.measured_at)}.` : 'Orario della misura non disponibile.'}</p>
@@ -247,7 +247,7 @@ function App() {
         </section></Reveal>
         <Reveal><section className="hero-instrument" aria-labelledby="temperature-title" aria-busy={!latestLoaded}>
           <div className="instrument-heading"><h2 id="temperature-title">All’Olivelli / Temperatura</h2><span aria-hidden="true">↗</span></div>
-          <p className="instrument-caption">Ultima lettura della stazione</p>
+          <p className="instrument-caption">{latest?.entry_method === 'manual' ? 'Ultima misura reale inserita manualmente' : 'Ultima lettura della stazione'}</p>
           <div className="hero-readings">
             <p className="hero-temperature">{latestLoaded && latest && latest.temperature_c !== null ? <Value row={latest} metric={metrics[0]} /> : <><span>—</span><span className="temperature-unit"> °C</span></>}</p>
             <dl className="hero-secondary-readings">{metrics.slice(1).map(metric => <div key={metric.key}>
@@ -255,7 +255,7 @@ function App() {
               <dd>{latestLoaded && latest ? <Value row={latest} metric={metric} /> : `— ${metric.unit}`}</dd>
             </div>)}</dl>
           </div>
-          <p className="instrument-time">{!latestLoaded ? 'Connessione alla stazione…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'Il primo campione della stazione non è ancora arrivato'}</p>
+          <p className="instrument-time">{!latestLoaded ? 'Connessione alle misure…' : latestError ? 'Aggiornamento non riuscito · eventuale valore conservato' : latest ? latest.entry_method === 'manual' ? `Inserita manualmente · misurata ${formatTime(latest.measured_at)}` : `Acquisizione PC · ${formatTime(latest.captured_at)}` : 'La prima misura della stazione non è ancora arrivata'}</p>
           <HistoryChart shareable={false} period={period} until={data.windowUntil} customRange={customRange} metric={metrics[0]} rows={rows} loading={historyLoading} error={historyError && !historyLoading} />
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" /> Osservazioni · {periods.find(item => item.value === period)?.label}</span><a href="#history-title">Cambia periodo ↗</a></div>
         </section></Reveal>
@@ -271,9 +271,9 @@ function App() {
       </nav>
       <Reveal><section className="latest-section" aria-labelledby="latest-title" aria-busy={!latestLoaded}>
         <div className="section-heading"><div><p className="eyebrow section-index">01 / Osservazioni</p><h2 id="latest-title">Le ultime misure</h2></div>
-          <p className="small">{latest ? `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
+          <p className="small">{latest ? latest.entry_method === 'manual' ? `Misurata: ${formatTime(observationTime(latest))} · inserita manualmente` : `Acquisizione sul PC: ${formatTime(latest.captured_at)} · Europe/Rome` : 'In attesa del primo campione della stazione.'}</p>
         </div>
-        {data.invalidLatestTime && <div className="error-message" role="alert">L’ultima acquisizione ha un orario futuro rispetto al server e non viene mostrata. Verificare l’orologio del PC della stazione.</div>}
+        {data.invalidLatestTime && <div className="error-message" role="alert">L’ultima misura ha un orario futuro rispetto al server e non viene mostrata. Verificare l’orario inserito.</div>}
         {latestError && <div className="error-message" role="alert">Non è stato possibile aggiornare le misure. Riproviamo automaticamente; gli eventuali valori visibili sono dell’ultima lettura riuscita.</div>}
         {latestLoaded && !latest ? <div className="station-empty panel" role="status">
           <span className="station-empty-symbol" aria-hidden="true">—</span>
@@ -352,7 +352,7 @@ function App() {
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
         {completeHistory.rows.length ? <>
           <p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati, consultabili giorno per giorno.</p>
-          <p className="small">Le righe “Storico · inserimento manuale” sono pubbliche in questa cronologia; restano escluse da grafici, previsioni e statistiche della stazione.</p>
+          <p className="small">Le misure inserite manualmente sono reali e partecipano a grafici, statistiche, record e previsioni usando l’orario della misura. Il database conserva comunque il contrassegno del metodo di inserimento.</p>
           <button type="button" className="chronology-toggle" aria-expanded={showChronology} aria-controls="chronology-data" onClick={() => setShowChronology(value => !value)}>{showChronology ? 'Nascondi le misurazioni' : 'Mostra le misurazioni'}</button>
           <div id="chronology-data" hidden={!showChronology}>{showChronology && <HistoryTable key="all-history" rows={completeHistory.rows} />}</div>
         </> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}

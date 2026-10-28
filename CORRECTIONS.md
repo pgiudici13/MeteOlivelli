@@ -492,3 +492,11 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Prova:** il nuovo collegamento ai grafici decodificava il frammento URL senza gestire errori; aprendo `/home#%`, `decodeURIComponent` sollevava `URIError` e attivava la schermata di errore.
 - **Impatto:** home non consultabile tramite un collegamento malformato.
 - **Correzione e verifica:** ignorato il frammento non valido, lasciando invariati i collegamenti validi; regressione browser dedicata.
+
+## COR-054 — Misure manuali reali escluse dalle serie pubbliche
+
+- **Stato:** correzione locale in preparazione al rilascio, 28 ottobre 2026.
+- **Prova:** l'RPC pubblico espone le righe con `entry_method=manual` nella cronologia `all`, ma le esclude dalle query temporali; `stationMeasurements` le rimuoveva inoltre da ultimo valore, grafici e feed delle previsioni. Il form admin registra `measured_at` e lascia `captured_at` nullo.
+- **Impatto:** misure reali inserite manualmente non comparivano nel sito come osservazioni e non contribuivano ai calcoli.
+- **Correzione richiesta:** mantenerle marcate nel database, includerle in ultime misure, grafici, statistiche, record e previsioni usando `measured_at`, preservando `captured_at` nullo e l'etichetta del metodo. I campioni sintetici restano esclusi.
+- **Verifica richiesta:** build/lint, SQL RPC e API con riga manuale; deploy della migration e della Edge Function, rilascio frontend e prova pubblica della riga in grafici/calcoli.

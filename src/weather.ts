@@ -26,14 +26,19 @@ export interface ReadPage {
   until: string
   time_basis: 'captured_at' | 'measured_at'
 }
-/** Serie usate per dashboard e calcoli: esclude le righe inserite manualmente. */
+/** Misure reali: le righe inserite a mano restano storiche, ma partecipano alle serie. */
 export function stationMeasurements(rows: Measurement[]): Measurement[] {
-  return rows.filter(row => (row.acquisition_kind === 'live' || row.acquisition_kind === 'historical') && row.entry_method !== 'manual')
+  return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
 }
 
-/** Cronologia pubblica: include i record storici manuali, che restano etichettati. */
+/** Cronologia pubblica delle misure reali, con provenienza manuale disponibile per l'etichetta. */
 export function publicHistoryMeasurements(rows: Measurement[]): Measurement[] {
   return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
+}
+
+/** Ora della misura fisica, con l'acquisizione PC come ripiego per le misure senza measured_at. */
+export function observationTime(row: Measurement): string | null {
+  return row.measured_at ?? row.captured_at
 }
 
 function timestampKey(time: string): string {
@@ -121,8 +126,8 @@ export type PageReader = typeof readPage
 
 /** Ordine della cronologia: confrontare i microsecondi prima dello spareggio UUID. */
 export function compareHistoryMeasurements(a: Measurement, b: Measurement): number {
-  const aTime = timestampKey(a.captured_at ?? a.received_at)
-  const bTime = timestampKey(b.captured_at ?? b.received_at)
+  const aTime = timestampKey(observationTime(a) ?? a.received_at)
+  const bTime = timestampKey(observationTime(b) ?? b.received_at)
   return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 
@@ -133,11 +138,11 @@ function localDay(value: string): string {
   const parts = Object.fromEntries(romeDayParts.formatToParts(new Date(value)).map(part => [part.type, part.value]))
   return `${parts.year}-${parts.month}-${parts.day}`
 }
-/** Raggruppa le righe per giorno civile di Pavia; usa received_at solo se manca captured_at. */
+/** Raggruppa per giorno della misura; usa la ricezione solo se entrambi gli orari mancano. */
 export function groupHistoryByLocalDay(rows: Measurement[]): HistoryDay[] {
   const days: HistoryDay[] = []
   for (const row of rows) {
-    const timestamp = row.captured_at ?? row.received_at
+    const timestamp = observationTime(row) ?? row.received_at
     const key = localDay(timestamp)
     let day = days.at(-1)
     if (!day || day.key !== key) {
@@ -197,14 +202,14 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
     if (until !== null && result.until !== until) throw new Error('Finestra dello storico incoerente')
     until = result.until
     for (const item of result.items) {
-      if (!item[basis]) throw new Error('Acquisizione non datata nello storico')
+      if (!(basis === 'captured_at' ? observationTime(item) : item.measured_at)) throw new Error('Misura non datata nello storico')
       items.set(item.ingestion_id, item)
     }
     if (!result.next_cursor) {
       const sorted = [...items.values()].sort((a, b) => compareMeasurements(a, b, basis))
       if (period !== '14g') return sorted
       const cutoff = Date.parse(until!) - 336 * 3600000
-      return sorted.filter(item => Date.parse(item[basis]!) >= cutoff)
+      return sorted.filter(item => Date.parse(basis === 'captured_at' ? observationTime(item)! : item.measured_at!) >= cutoff)
     }
     if (cursors.has(result.next_cursor)) throw new Error('Cursore ripetuto')
     cursor = result.next_cursor
@@ -213,15 +218,47 @@ export async function readHistory(period: Period, signal: AbortSignal, reader: P
   throw new Error('Storico oltre il limite di consultazione')
 }
 
+/** Unisce le letture per acquisizione PC e per ora fisica, così include lo storico manuale senza inventare captured_at. */
+export async function readObservationHistory(
+  period: Period,
+  signal: AbortSignal,
+  reader: PageReader = readPage,
+  untilOverride: string | null = null,
+): Promise<{ rows: Measurement[]; until: string }> {
+  let until = untilOverride
+  const readBasis = (basis: 'captured_at' | 'measured_at') => readHistory(period, signal, async (params, requestSignal) => {
+    if (until) params.set('until', until)
+    const page = await reader(params, requestSignal)
+    if (until !== null && page.until !== until) throw new Error('Finestra delle misure incoerente')
+    until = page.until
+    return page
+  }, basis)
+
+  const capturedRows = await readBasis('captured_at')
+  const measuredRows = await readBasis('measured_at')
+  if (!until) throw new Error('Finestra delle misure non disponibile')
+  const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000
+  const start = Date.parse(until) - duration
+  const rows = new Map<string, Measurement>()
+  for (const row of [...capturedRows, ...measuredRows]) {
+    const time = observationTime(row)
+    if (time && Date.parse(time) >= start && Date.parse(time) <= Date.parse(until)) rows.set(row.ingestion_id, row)
+  }
+  return { rows: [...rows.values()].sort(compareHistoryMeasurements), until }
+}
+
 export function compareMeasurements(a: Measurement, b: Measurement, basis: ReadPage['time_basis'] = 'captured_at'): number {
-  const aTime = timestampKey(a[basis] ?? '')
-  const bTime = timestampKey(b[basis] ?? '')
+  const aTime = timestampKey((basis === 'captured_at' ? observationTime(a) : a.measured_at) ?? '')
+  const bTime = timestampKey((basis === 'captured_at' ? observationTime(b) : b.measured_at) ?? '')
   return (aTime < bTime ? -1 : aTime > bTime ? 1 : 0) || a.ingestion_id.localeCompare(b.ingestion_id)
 }
 export function trimHistory(rows: Measurement[], period: Period, serverUntil: string): Measurement[] {
   const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000
   const start = Date.parse(serverUntil) - duration
-  return rows.filter(row => row.captured_at !== null && Date.parse(row.captured_at) >= start)
+  return rows.filter(row => {
+    const time = observationTime(row)
+    return time !== null && Date.parse(time) >= start
+  })
 }
 export function isSuspect(row: Measurement, field: Metric): boolean {
   return row.quality_flags.some(flag => flag.field === field && flag.code !== 'missing_value')
@@ -270,7 +307,7 @@ export function chartSegments(rows: Measurement[], field: Metric): Measurement[]
   const result: Measurement[][] = []
   let current: Measurement[] = []
   for (const row of rows) {
-    if (row[field] === null || isSuspect(row, field) || !row.captured_at) {
+    if (row[field] === null || isSuspect(row, field) || !observationTime(row)) {
       if (current.length) result.push(current)
       current = []
     } else current.push(row)
