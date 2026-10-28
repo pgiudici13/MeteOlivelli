@@ -10,6 +10,7 @@ export interface QualityFlag {
 }
 export interface Measurement {
   acquisition_kind?: 'live' | 'historical' | 'synthetic'
+  entry_method?: 'manual' | null
   ingestion_id: string
   temperature_c: number | null
   humidity_pct: number | null
@@ -25,8 +26,13 @@ export interface ReadPage {
   until: string
   time_basis: 'captured_at' | 'measured_at'
 }
-/** La dashboard finale mostra solo campioni con provenienza della stazione esplicita. */
+/** Serie usate per dashboard e calcoli: esclude le righe inserite manualmente. */
 export function stationMeasurements(rows: Measurement[]): Measurement[] {
+  return rows.filter(row => (row.acquisition_kind === 'live' || row.acquisition_kind === 'historical') && row.entry_method !== 'manual')
+}
+
+/** Cronologia pubblica: include i record storici manuali, che restano etichettati. */
+export function publicHistoryMeasurements(rows: Measurement[]): Measurement[] {
   return rows.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
 }
 
@@ -75,7 +81,8 @@ export function parsePage(value: unknown): ReadPage {
     throw new Error('Risposta non valida')
   }
   const items = value.items.map((row: unknown): Measurement => {
-    if (!isObject(row) || (row.acquisition_kind !== undefined && !['live', 'historical', 'synthetic'].includes(String(row.acquisition_kind))) || typeof row.ingestion_id !== 'string' ||
+    if (!isObject(row) || (row.acquisition_kind !== undefined && !['live', 'historical', 'synthetic'].includes(String(row.acquisition_kind))) ||
+      (row.entry_method !== undefined && row.entry_method !== null && row.entry_method !== 'manual') || typeof row.ingestion_id !== 'string' ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(row.ingestion_id) ||
       !metrics.every(({ key }) => row[key] === null || (typeof row[key] === 'number' && Number.isFinite(row[key]))) ||
       !(row.captured_at === null || isTimestamp(row.captured_at)) ||
@@ -89,6 +96,7 @@ export function parsePage(value: unknown): ReadPage {
     // Proiezione esplicita: nessun campo interno propagato ai componenti.
     return {
       ...(row.acquisition_kind === undefined ? {} : { acquisition_kind: row.acquisition_kind as Measurement['acquisition_kind'] }),
+      ...(row.entry_method === undefined ? {} : { entry_method: row.entry_method as Measurement['entry_method'] }),
       ingestion_id: row.ingestion_id, temperature_c: row.temperature_c as number | null,
       humidity_pct: row.humidity_pct as number | null, pressure_hpa: row.pressure_hpa as number | null,
       captured_at: row.captured_at, measured_at: row.measured_at, received_at: row.received_at,

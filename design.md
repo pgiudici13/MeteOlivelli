@@ -178,3 +178,7 @@ Sui telefoni fino a 600 px i periodi sono selezionabili in un'unica fila orizzon
 
 La nuova scheda educativa riprende colori, tipografia e pannelli esistenti, dopo le previsioni. Non introduce icone decorative, effetti pesanti né interazioni che blocchino la lettura.
 
+## Area amministrativa `/data` — 28 ottobre 2026
+
+La pagina riservata usa la stessa identità del sito: marchio e controllo tema in testata, canvas e pannelli condivisi, titoli editoriali regolari e accento solo per stati/azioni distruttive. Il login occupa una scheda compatta; dopo l'accesso, stato e azioni stanno in una barra dedicata, il modulo usa una griglia a quattro colonne che diventa due e poi una, e l'archivio presenta il tipo di riga prima dei timestamp. Pulsanti e campi hanno bordi contenuti e target touch comodi; la tabella scorre orizzontalmente su viewport stretti invece di schiacciare i valori. Ogni misura manuale è marcata “Inserimento manuale”. La pagina resta `noindex` e fuori dai menu. La cronologia pubblica segnala queste righe come “Storico · inserimento manuale”; non le usa per grafici, statistiche, record o previsioni.
+

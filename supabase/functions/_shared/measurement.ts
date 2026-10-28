@@ -13,6 +13,7 @@ export interface Measurement {
   captured_at: string | null
   measured_at: string | null
   _provenance?: { kind: 'synthetic' }
+  _entry_method?: 'manual'
 }
 
 export interface QualityFlag {

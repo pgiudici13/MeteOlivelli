@@ -99,6 +99,7 @@ Deno.test('Admin valida date e valori prima delle scritture e conserva i flag di
   const body = calls[0].body
   const measurement = body.p_measurement as Record<string, unknown>
   assert(measurement.acquisition_kind === 'historical')
+  assert(measurement._entry_method === 'manual')
   assert(measurement.captured_at === null)
   assert(measurement.measured_at === input.measured_at)
   assert(measurement.humidity_pct === 150)
@@ -127,6 +128,7 @@ Deno.test('Admin aggiorna conservando identità e provenienza, gestisce righe ma
   assert((await handler(request('PATCH', input))).status === 200)
   const measurement = calls[1].body?.p_measurement as Record<string, unknown>
   assert(measurement.ingestion_id === id && measurement.acquisition_kind === 'live')
+  assert(measurement._entry_method === 'manual')
   assert(measurement.captured_at === '2026-10-27T09:00:00+00:00')
   assert((await handler(request('DELETE'))).status === 200)
   assert(calls[2].url.endsWith('/rpc/admin_delete_station_measurement'))

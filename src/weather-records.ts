@@ -10,6 +10,7 @@ export function collectWeatherRecords(rows: Measurement[], serverUntil: string):
   if (!Number.isFinite(until)) return {}
   const records: WeatherRecords = {}
   for (const row of rows) {
+    if (row.entry_method === 'manual') continue
     if (row.acquisition_kind !== 'live' && row.acquisition_kind !== 'historical') continue
     const measuredAt = row.measured_at ?? row.captured_at
     if (!measuredAt) continue

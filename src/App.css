@@ -104,6 +104,7 @@ button:disabled { cursor: default; opacity: .45; }
 .history-table tbody th { color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .history-table tbody td:not(.sample-details) { font-variant-numeric: tabular-nums; }
 .history-day-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.history-origin { display: block; width: fit-content; margin-bottom: 4px; padding: 3px 5px; border: 1px solid var(--border-strong); color: var(--secondary); font: 9px/1.4 ui-monospace, monospace; letter-spacing: .035em; text-transform: uppercase; }
 .history-day-heading h3 { font-size: 18px; font-weight: 450; }
 .history-day-heading p { margin: 0; }
 .sample-details { color: var(--secondary); font-size: 12px; }

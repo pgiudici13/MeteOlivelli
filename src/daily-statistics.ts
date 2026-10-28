@@ -25,6 +25,7 @@ export function collectDailyStatistics(rows: Measurement[], serverUntil: string)
   type Acc = { sum: number; count: number; minimum: number; maximum: number; hours: Set<number> }
   const grouped = new Map<string, { first: number; last: number; metrics: Partial<Record<Metric, Acc>> }>()
   for (const row of rows) {
+    if (row.entry_method === 'manual') continue
     if (!['live', 'historical'].includes(row.acquisition_kind ?? '')) continue
     const stamp = row.measured_at ?? row.captured_at
     if (!stamp) continue
@@ -105,6 +106,7 @@ export function collectRangeStatistics(rows: Measurement[], range: { start: numb
   const grouped: Partial<Record<Metric, Acc>> = {}
   let samples = 0
   for (const row of rows) {
+    if (row.entry_method === 'manual') continue
     if (!['live', 'historical'].includes(row.acquisition_kind ?? '')) continue
     const time = Date.parse(row.measured_at ?? row.captured_at ?? '')
     if (!Number.isFinite(time) || time < range.start || time > range.end || time > now) continue

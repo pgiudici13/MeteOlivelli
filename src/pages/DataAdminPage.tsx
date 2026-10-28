@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
+import { BrandMark } from '../components/BrandMark.tsx'
+import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { dateInput, measurementTime } from '../admin-time.ts'
 import './DataAdminPage.css'
 
@@ -8,11 +10,12 @@ type Row = {
   temperature_c: number | null
   humidity_pct: number | null
   pressure_hpa: number | null
-  acquisition_kind: string
+  acquisition_kind: 'live' | 'historical' | 'synthetic'
   captured_at: string | null
   measured_at: string | null
   received_at: string
   quality_flags: { field: string; label: string }[]
+  entry_method: 'manual' | null
 }
 type FormValue = Omit<Pick<Row, 'arduino_seconds' | 'temperature_c' | 'humidity_pct' | 'pressure_hpa'>, 'arduino_seconds'> & { arduino_seconds: number | null; measured_at: string }
 const endpoint = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/manage-measurements'
@@ -29,6 +32,10 @@ async function api(password: string, method: string, body?: unknown, id?: string
   })
   if (!response.ok) throw new Error(response.status === 401 ? 'Password non corretta.' : response.status === 403 ? 'Origine non autorizzata.' : 'Operazione non riuscita. Verifica la configurazione e riprova.')
   return response.status === 204 ? null : response.json()
+}
+
+function kindLabel(row: Row) {
+  return row.entry_method === 'manual' ? 'Inserimento manuale' : row.acquisition_kind === 'live' ? 'Stazione' : row.acquisition_kind === 'synthetic' ? 'Sintetico' : 'Storico'
 }
 
 export function DataAdminPage() {
@@ -121,40 +128,53 @@ export function DataAdminPage() {
     setValue(current => ({ ...current, [key]: raw === '' ? null : Number(raw) }))
   }
 
-  return <main className="data-admin">
-    <a href="/home">← Torna al sito</a>
-    <p className="eyebrow">Area riservata</p>
-    <h1>Gestione delle misure</h1>
-    <p>Inserisci, correggi o rimuovi misure nel database. Le date inserite sono l’ora della misura, non l’ora di ricezione.</p>
-    {!password ? <form className="data-admin-login" onSubmit={login}>
-      <label>Password amministratore<input autoComplete="current-password" type="password" value={enteredPassword} disabled={busy} onChange={event => setEnteredPassword(event.target.value)} required /></label>
-      <button disabled={busy}>{busy ? 'Accesso…' : 'Accedi'}</button>
-    </form> : <>
-      <div className="data-admin-toolbar"><p>Connesso · {rows.length} delle ultime 100 misure</p><div className="data-admin-actions"><button type="button" className="quiet-button" disabled={busy} onClick={() => void reloadRows()}>Aggiorna elenco</button><button type="button" className="quiet-button" disabled={busy} onClick={logout}>Esci</button></div></div>
-      <form id="data-form" className="data-admin-form" onSubmit={save}>
-        <h2>{editing ? 'Modifica misura' : 'Aggiungi misura'}</h2>
-        <fieldset className="data-admin-fields" disabled={busy || listStale}>
-          <label>Secondi Arduino<input type="number" min="0" max="9007199254740991" step="any" value={value.arduino_seconds ?? ''} onChange={event => setNumber('arduino_seconds', event.target.value)} required /></label>
-          <label>Temperatura (°C)<input type="number" step="any" value={value.temperature_c ?? ''} onChange={event => setNumber('temperature_c', event.target.value)} /></label>
-          <label>Umidità (%)<input type="number" step="any" value={value.humidity_pct ?? ''} onChange={event => setNumber('humidity_pct', event.target.value)} /></label>
-          <label>Pressione (hPa)<input type="number" step="any" value={value.pressure_hpa ?? ''} onChange={event => setNumber('pressure_hpa', event.target.value)} /></label>
-          <label>Data e ora della misura (ora locale)<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
-        </fieldset>
-        <p className="data-admin-note">Il contatore è richiesto dal formato attuale del database. Lascia vuoti i valori non disponibili. Una misura inserita a mano viene registrata come storica; l’orario di acquisizione sul PC resta vuoto. Le modifiche ricalcolano i flag qualità e conservano il payload originale; l’audit registra l’ID e l’operazione.</p>
-        <div className="data-admin-actions"><button disabled={busy || listStale}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi al database'}</button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
-      </form>
-      <section className="data-admin-list" aria-labelledby="data-list-title">
-        <h2 id="data-list-title">Misure recenti</h2>
-        {rows.length === 0 ? <p>Non ci sono misure da mostrare.</p> : <div className="data-admin-table-wrap"><table>
-          <thead><tr><th>Ricevuta</th><th>Misurata</th><th>°C</th><th>%</th><th>hPa</th><th>Contatore</th><th>Azioni</th></tr></thead>
-          <tbody>{rows.map(row => <tr key={row.ingestion_id}>
-            <td>{new Date(row.received_at).toLocaleString('it-IT')}</td><td>{row.measured_at ? new Date(row.measured_at).toLocaleString('it-IT') : '—'}</td>
-            <td>{row.temperature_c ?? '—'}</td><td>{row.humidity_pct ?? '—'}</td><td>{row.pressure_hpa ?? '—'}</td><td>{row.arduino_seconds}</td>
-            <td className="data-admin-row-actions"><button type="button" disabled={busy || listStale} onClick={() => edit(row)}>Modifica</button><button type="button" className="danger-button" disabled={busy || listStale} onClick={() => void remove(row)}>Rimuovi</button></td>
-          </tr>)}</tbody>
-        </table></div>}
+  return <div className="site-shell data-admin-shell">
+    <a className="skip-link" href="#admin-content">Vai al contenuto</a>
+    <header className="site-header data-admin-header">
+      <a className="brand" href="/home"><BrandMark />MeteOlivelli<span className="brand-index"> / Dati</span></a>
+      <div className="data-admin-header-actions"><a href="/home">Torna al sito <span aria-hidden="true">↗</span></a><ThemeToggle /></div>
+    </header>
+    <main id="admin-content" className="data-admin" tabIndex={-1}>
+      <section className="data-admin-hero" aria-labelledby="admin-title">
+        <div><p className="eyebrow"><span className="signal-mark" aria-hidden="true" /> AREA RISERVATA · PAVIA</p><h1 id="admin-title">Misure,<br /><span>senza sorprese.</span></h1></div>
+        <p className="data-admin-lead">Gestisci le letture dell’archivio. Le misure inserite qui vengono marcate come storiche e restano distinguibili dai dati acquisiti dalla stazione.</p>
       </section>
-    </>}
-    <p className="data-admin-status" role="status" aria-live="polite">{message}</p>
-  </main>
+      {!password ? <form className="data-admin-login" onSubmit={login}>
+        <p className="eyebrow section-index">ACCESSO · 01</p>
+        <h2>Entra nell’area dati</h2>
+        <label>Password amministratore<input autoComplete="current-password" type="password" value={enteredPassword} disabled={busy} onChange={event => setEnteredPassword(event.target.value)} required /></label>
+        <button className="data-admin-primary" disabled={busy}>{busy ? 'Accesso…' : 'Accedi'} <span aria-hidden="true">↗</span></button>
+      </form> : <>
+        <div className="data-admin-toolbar">
+          <p className="data-admin-session">Sessione amministrativa attiva · {rows.length} di 100 righe recenti</p>
+          <div className="data-admin-actions"><button type="button" className="quiet-button" disabled={busy} onClick={() => void reloadRows()}>Aggiorna elenco</button><button type="button" className="quiet-button" disabled={busy} onClick={logout}>Esci</button></div>
+        </div>
+        <form id="data-form" className="data-admin-form" onSubmit={save}>
+          <div className="data-admin-section-head"><div><p className="eyebrow section-index">01 / INSERIMENTO</p><h2>{editing ? 'Modifica misura' : 'Aggiungi misura'}</h2></div></div>
+          <fieldset className="data-admin-fields" disabled={busy || listStale}>
+            <label>Secondi Arduino<input type="number" min="0" max="9007199254740991" step="any" value={value.arduino_seconds ?? ''} onChange={event => setNumber('arduino_seconds', event.target.value)} required /></label>
+            <label>Temperatura · °C<input type="number" step="any" value={value.temperature_c ?? ''} onChange={event => setNumber('temperature_c', event.target.value)} /></label>
+            <label>Umidità · %<input type="number" step="any" value={value.humidity_pct ?? ''} onChange={event => setNumber('humidity_pct', event.target.value)} /></label>
+            <label>Pressione · hPa<input type="number" step="any" value={value.pressure_hpa ?? ''} onChange={event => setNumber('pressure_hpa', event.target.value)} /></label>
+            <label>Data e ora della misura · ora locale<input type="datetime-local" step="0.001" value={value.measured_at} onChange={event => setValue(current => ({ ...current, measured_at: event.target.value }))} /></label>
+          </fieldset>
+          <p id="data-admin-note" className="data-admin-note">Le misure inserite a mano sono pubblicate solo nella cronologia e identificate come storico manuale. Il contatore è richiesto dal formato attuale; lascia vuoti i valori non disponibili. L’ora di acquisizione sul PC resta vuota.</p>
+          <div className="data-admin-actions"><button className="data-admin-primary" disabled={busy || listStale}>{busy ? 'Salvataggio…' : editing ? 'Salva modifiche' : 'Aggiungi misura'} <span aria-hidden="true">↗</span></button>{editing && <button type="button" className="quiet-button" disabled={busy} onClick={() => { setEditing(null); setValue(blank) }}>Annulla modifica</button>}</div>
+        </form>
+        <section className="data-admin-list" aria-labelledby="data-list-title">
+          <div className="data-admin-section-head"><div><p className="eyebrow section-index">02 / ARCHIVIO</p><h2 id="data-list-title">Misure recenti</h2></div><p className="data-admin-count">Più recenti per ricezione<br />Europe/Rome</p></div>
+          {rows.length === 0 ? <p>Non ci sono misure da mostrare.</p> : <div className="data-admin-table-wrap"><table>
+            <thead><tr><th scope="col">Tipo</th><th scope="col">Ricevuta</th><th scope="col">Misurata</th><th scope="col">°C</th><th scope="col">%</th><th scope="col">hPa</th><th scope="col">Contatore</th><th scope="col">Azioni</th></tr></thead>
+            <tbody>{rows.map(row => <tr key={row.ingestion_id}>
+              <td><span className="data-admin-kind" data-kind={row.acquisition_kind}>{kindLabel(row)}</span></td>
+              <td>{new Date(row.received_at).toLocaleString('it-IT')}</td><td>{row.measured_at ? new Date(row.measured_at).toLocaleString('it-IT') : '—'}</td>
+              <td>{row.temperature_c ?? '—'}</td><td>{row.humidity_pct ?? '—'}</td><td>{row.pressure_hpa ?? '—'}</td><td>{row.arduino_seconds}</td>
+              <td className="data-admin-row-actions"><button type="button" disabled={busy || listStale} onClick={() => edit(row)}>Modifica</button><button type="button" className="danger-button" disabled={busy || listStale} onClick={() => void remove(row)}>Rimuovi</button></td>
+            </tr>)}</tbody>
+          </table></div>}
+        </section>
+      </>}
+      <p className="data-admin-status" role="status" aria-live="polite">{message}</p>
+    </main>
+  </div>
 }

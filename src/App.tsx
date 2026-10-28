@@ -116,7 +116,7 @@ function HistoryTable({ rows }: { rows: Measurement[] }) {
       <caption className="sr-only">Campioni del {visibleDay?.label ?? 'giorno selezionato'} in ordine dal più recente. I campioni senza ora di acquisizione sono ordinati per ricezione. Valori sospetti segnalati per campo.</caption>
       <thead><tr><th scope="col">Acquisizione / ricezione</th>{metrics.map(metric => <th key={metric.key} scope="col">{metric.name}</th>)}<th scope="col">Tempi e qualità</th></tr></thead>
       <tbody>{visible.map(row => <tr key={row.ingestion_id}>
-        <th scope="row">{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
+        <th scope="row">{row.entry_method === 'manual' && <span className="history-origin">Storico · inserimento manuale</span>}{row.captured_at ? <time dateTime={row.captured_at}>{formatTime(row.captured_at)}</time> : <><span>Senza ora di acquisizione</span><br /><time dateTime={row.received_at}>Ricevuto {formatTime(row.received_at)}</time></>}</th>
         {metrics.map(metric => <td key={metric.key} data-label={metric.name}><Value row={row} metric={metric} /></td>)}
         <td className="sample-details" data-label="Tempi e qualità"><details><summary>Dettagli campione</summary>
           <p>{row.measured_at ? `Misura: ${formatTime(row.measured_at)}.` : 'Orario della misura non disponibile.'}</p>
@@ -352,6 +352,7 @@ function App() {
         {completeHistory.error && <div className="warning" role="alert"><p>Cronologia completa temporaneamente non disponibile. Gli eventuali campioni visibili sono dell’ultima lettura riuscita.</p><button onClick={completeHistory.retry}>Ritenta</button></div>}
         {completeHistory.rows.length ? <>
           <p className="history-feedback" role="status">{completeHistory.rows.length} campioni registrati, consultabili giorno per giorno.</p>
+          <p className="small">Le righe “Storico · inserimento manuale” sono pubbliche in questa cronologia; restano escluse da grafici, previsioni e statistiche della stazione.</p>
           <button type="button" className="chronology-toggle" aria-expanded={showChronology} aria-controls="chronology-data" onClick={() => setShowChronology(value => !value)}>{showChronology ? 'Nascondi le misurazioni' : 'Mostra le misurazioni'}</button>
           <div id="chronology-data" hidden={!showChronology}>{showChronology && <HistoryTable key="all-history" rows={completeHistory.rows} />}</div>
         </> : !completeHistory.loading && !completeHistory.error && <p className="empty-state">Non risultano campioni registrati.</p>}

@@ -134,12 +134,19 @@ export function createManageHandler(
       const id = new URL(req.url).searchParams.get('id')
       if (req.method === 'GET') {
         const rows = await db(
-          `/rest/v1/station_measurements?select=source_id,ingestion_id,arduino_seconds,temperature_c,humidity_pct,pressure_hpa,acquisition_kind,captured_at,measured_at,received_at,quality_flags&source_id=eq.${
+          `/rest/v1/station_measurements?select=source_id,ingestion_id,arduino_seconds,temperature_c,humidity_pct,pressure_hpa,acquisition_kind,captured_at,measured_at,received_at,quality_flags,payload&source_id=eq.${
             encodeURIComponent(source)
           }&order=received_at.desc&limit=100`,
           'GET',
-        )
-        return response(req, { items: rows })
+        ) as Record<string, unknown>[]
+        const items = rows.map(({ payload, ...row }) => ({
+          ...row,
+          entry_method: payload && typeof payload === 'object' &&
+              (payload as Record<string, unknown>)._entry_method === 'manual'
+            ? 'manual'
+            : null,
+        }))
+        return response(req, { items })
       }
       if (req.method === 'DELETE') {
         if (!validId(id)) return response(req, { code: 'invalid_request' }, 400)
@@ -224,14 +231,14 @@ export function createManageHandler(
       }
       if (req.method === 'POST') {
         const receipt = await db('/rest/v1/rpc/ingest_station_measurement', 'POST', {
-          p_measurement: parsed.measurement,
+          p_measurement: { ...parsed.measurement, _entry_method: 'manual' },
           p_quality_flags: parsed.quality_flags,
           p_raw_payload: raw,
         })
         return response(req, { item: receipt }, 201)
       }
       const updated = await db('/rest/v1/rpc/admin_update_station_measurement', 'POST', {
-        p_measurement: parsed.measurement,
+        p_measurement: { ...parsed.measurement, _entry_method: 'manual' },
         p_quality_flags: parsed.quality_flags,
       })
       return updated ? response(req, { updated: true }) : response(req, { code: 'not_found' }, 404)

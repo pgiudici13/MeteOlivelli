@@ -2,7 +2,7 @@ import { chartTimeline, prepareChart } from '../src/chart.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { historyAnchor, parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, stationMeasurements, stationStatusText, shouldAutoRefreshHistory, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
+import { historyAnchor, parsePage, readPage, readHistory, readAllHistory, chartSegments, getFreshness, formatTime, formatValue, stationMeasurements, publicHistoryMeasurements, stationStatusText, shouldAutoRefreshHistory, trimHistory, groupHistoryByLocalDay } from '../src/weather.ts'
 import { createWeatherFeed } from '../src/weather-feed.ts'
 import { areAnalyticsEnabled, filterAnalyticsEvent, isGoogleAnalyticsHost, loadGoogleAnalytics, readAnalyticsConsent, revokeAnalyticsConsent, saveAnalyticsConsent, setAnalyticsTrackingEnabled } from '../src/analytics.ts'
 import { formatReportTime, formatReportValue, reportFilename } from '../src/pdf-export.ts'
@@ -30,6 +30,10 @@ test('dashboard e PDF escludono campioni sintetici e provenienza non specificata
   const synthetic = row(3, { acquisition_kind: 'synthetic' })
   const unknown = row(4)
   assert.deepEqual(stationMeasurements([live, historical, synthetic, unknown]), [live, historical])
+  const manual = row(5, { acquisition_kind: 'historical', entry_method: 'manual', captured_at: null })
+  assert.deepEqual(stationMeasurements([live, manual]), [live])
+  assert.deepEqual(publicHistoryMeasurements([live, manual, synthetic]), [live, manual])
+  assert.equal(parsePage(page([manual])).items[0].entry_method, 'manual')
   let state
   const feed = createWeatherFeed('24h', value => { state = value }, async params => page(params.get('view') === 'latest' ? [synthetic] : [live, synthetic, unknown]))
   await feed.refresh()

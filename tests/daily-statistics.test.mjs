@@ -17,6 +17,18 @@ test('riepilogo giornaliero usa soltanto campioni validi senza inventare un gior
   assert.equal(summary.days[0].metrics.temperature_c.observedHours, 2)
 })
 
+test('i record manuali restano fuori dalle statistiche della stazione', () => {
+  const rows = [
+    row('2026-10-27T09:00:00Z', 10),
+    { ...row('2026-10-27T10:00:00Z', 99, [], 'historical'), entry_method: 'manual' },
+  ]
+  const summary = collectDailyStatistics(rows, '2026-10-27T13:00:00Z')
+  assert.equal(summary.days[0].metrics.temperature_c.count, 1)
+  assert.equal(summary.days[0].metrics.temperature_c.average, 10)
+  const range = collectRangeStatistics(rows, { start: Date.parse('2026-10-27T00:00:00Z'), end: Date.parse('2026-10-27T12:00:00Z') }, '2026-10-27T13:00:00Z')
+  assert.equal(range.samples, 1)
+})
+
 test('il giorno civile segue Europe/Rome anche prima della mezzanotte UTC', () => {
   const summary = collectDailyStatistics([row('2026-10-26T23:30:00Z', 12)], '2026-10-27T00:00:00Z')
   assert.equal(summary.days[0].key, '2026-10-27')

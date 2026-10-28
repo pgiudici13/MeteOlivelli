@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createWeatherFeed, initialWeatherState } from './weather-feed.ts'
-import { readAllHistory, shouldAutoRefreshHistory, stationMeasurements } from './weather.ts'
+import { publicHistoryMeasurements, readAllHistory, shouldAutoRefreshHistory } from './weather.ts'
 import type { Measurement, Period } from './weather.ts'
 
 export function useWeather(period: Period, anchorToLatest = false) {
@@ -31,7 +31,7 @@ export function useCompleteHistory(latestSignature: string | null) {
     const controller = new AbortController()
     let active = true
     void readAllHistory(controller.signal).then(
-      rows => { if (active) setState({ rows: stationMeasurements(rows), loading: false, error: false, checkedAt: new Date().toISOString() }) },
+      rows => { if (active) setState({ rows: publicHistoryMeasurements(rows), loading: false, error: false, checkedAt: new Date().toISOString() }) },
       () => { if (active) setState(previous => ({ ...previous, loading: false, error: true })) },
     )
     return () => { active = false; controller.abort() }
@@ -52,6 +52,17 @@ export function useCompleteHistory(latestSignature: string | null) {
       document.removeEventListener('visibilitychange', refresh)
       window.removeEventListener('online', refresh)
     }
+  }, [])
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return
+      const now = Date.now()
+      if (!shouldAutoRefreshHistory(lastAutoRefresh.current, now, 5 * 60_000)) return
+      lastAutoRefresh.current = now
+      setAttempt(value => value + 1)
+    }
+    const timer = window.setInterval(refresh, 5 * 60_000)
+    return () => window.clearInterval(timer)
   }, [])
   return { ...state, retry: () => {
     lastAutoRefresh.current = Date.now()

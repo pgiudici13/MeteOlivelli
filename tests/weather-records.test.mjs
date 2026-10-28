@@ -26,3 +26,11 @@ test('nessun record fittizio se archivio vuoto o orario server non valido', () =
   assert.deepEqual(collectWeatherRecords([], '2026-10-27T12:00:00Z'), {})
   assert.deepEqual(collectWeatherRecords([row('2026-10-25T09:00:00Z', 8)], 'non-valido'), {})
 })
+
+test('i record manuali non diventano estremi della stazione', () => {
+  const manual = { ...row('2026-10-26T10:00:00Z', 99, 'historical'), entry_method: 'manual' }
+  const records = collectWeatherRecords([row('2026-10-25T09:00:00Z', 8), manual], '2026-10-27T12:00:00Z')
+  assert.equal(records.temperature_c.minimum.value, 8)
+  assert.equal(records.temperature_c.maximum.value, 8)
+  assert.equal(records.temperature_c.count, 1)
+})

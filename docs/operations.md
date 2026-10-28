@@ -263,3 +263,9 @@ segreto, provare prima su una riga di test autorizzata. La cancellazione toglie
 la misura dalla tabella, ma l'audit conserva ID, azione e data; non contiene una
 copia del contenuto eliminato. Prima dell'uso definire come ripristinare errori
 umani tramite backup, poiché il comando non è annullabile.
+
+### Aggiornamento del modello dati — 28 ottobre 2026
+
+Su richiesta, il modello è stato ricondotto a una sola tabella dati: `station_measurements`. La migrazione `20261028075721_one_table_manual_history.sql` elimina `station_measurement_admin_audit` (risultava vuota) e rimuove le scritture di audit dalle RPC admin. Le misure aggiunte a mano sono invece marcate nel payload della loro riga, quindi la cronologia pubblica può distinguerle senza una tabella ausiliaria. Poiché non resta audit di update/delete, prima dell'uso reale è necessario un backup ripristinabile.
+
+**Stato successivo — 28 ottobre 2026:** il login e le operazioni admin sono già riusciti con il segreto configurato dall'utente. La migrazione a tabella singola è applicata; verifica remota: 1 tabella base pubblica, 252 righe, 1 manuale, 251 sintetiche e tabella audit rimossa. La risposta RPC include il marcatore manuale. Le Edge Function sono aggiornate (`read-measurements` v9, `manage-measurements` v5). Non è presente un audit per le modifiche o cancellazioni: garantire backup prima dell'uso regolare.

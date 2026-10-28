@@ -687,3 +687,13 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [ ] Il runner separato delle animazioni non ha restituito un esito in questa sessione; il controllo movimento incluso nel runner dashboard è passato. Non sono state rieseguite prove su dispositivi fisici o browser diversi da Chrome.
 
 **Integrazione con `c7a1adb`:** preservate le nuove funzioni su `main` e aggiunta la correzione COR-053 per i frammenti URL malformati. Sul checkout integrato `npm run check` superato: 157 test frontend, 55 Deno, 28 Python, build/lint e budget iniziale. Chrome con API intercettate: 13 scenari cronologia, 3 gestione errori, 7 previsioni e 2 amministrazione superati. Le prove precedenti si riferiscono al checkout antecedente.
+
+## `/data`: storico manuale, grafica e modello a tabella singola — 28 ottobre 2026
+
+- [x] Le righe manuali sono etichettate nello storico pubblico e isolate da grafici, previsioni, statistiche e record; aggiornamento automatico della cronologia completa ogni cinque minuti quando visibile.
+- [x] Area `/data` ridisegnata secondo `design.md`, responsive e coerente con tema, marchio, form e tabella del sito.
+- [x] Migration predisposta per marcare lo storico esistente, rimuovere l'audit vuoto e aggiornare le RPC, senza applicare la migration AUD-11.
+- [x] `npm run check` e `git diff --check` superati: build, lint, budget bundle, frontend, Deno e uploader. La build conserva l'avviso già noto per i chunk PDF >500 kB.
+- [x] Migrazione `20261028075721_one_table_manual_history` applicata a Supabase; verifica SQL: 1 tabella base pubblica, 252 misure, 1 storico manuale marcato e tabella audit assente. RPC read restituisce 1 `entry_method=manual` e 251 `synthetic`.
+- [x] Edge Function aggiornate: `read-measurements` v9 e `manage-measurements` v5, entrambe `ACTIVE`; `verify_jwt=false` conservato, autenticazione admin gestita nel codice.
+- [ ] Resta il rilascio del frontend su Vercel e la verifica pubblica via browser/API. Il database non conserverà audit di update/delete; predisporre backup prima dell'uso operativo.
