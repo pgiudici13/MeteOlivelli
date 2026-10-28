@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const targets = '.hero-instrument, .metric-card, .chart-grid .chart, .forecast-card, .about-section, button:not(:disabled), .hero-link'
+const targets = '.panel:not(.history-section):not(.chronology-section):not(.forecast-section), .metric-card, .chart, .forecast-card, .about-section, .weather-records, .range-statistics, button:not(:disabled), a[href], summary, input:not(:disabled), select:not(:disabled), textarea:not(:disabled)'
 
 export function useBorderLight() {
   useEffect(() => {
@@ -31,6 +31,7 @@ export function useBorderLight() {
     const move = (event: PointerEvent) => {
       if (!pointer.matches || event.pointerType === 'touch') return clear()
       const element = event.target instanceof Element ? event.target.closest<HTMLElement>(targets) : null
+      if (element?.matches('.history-section, .chronology-section, .forecast-section')) return clear()
       if (!element) return clear()
       const box = element.getBoundingClientRect()
       targetX = event.clientX - box.left

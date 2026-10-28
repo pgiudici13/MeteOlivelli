@@ -442,6 +442,8 @@ export default {
   ", minimo": ", minimum",
   "e massimo": "et maximum",
   "Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.": "Axe horizontal : jours Europe/Rome ; points au centre de la journée ou tranche, pas à l’heure d’une mesure individuelle.",
+  "Asse orizzontale: ora della misura fisica (measured_at), Europe/Rome.": "Axe horizontal : heure de la mesure physique (measured_at), Europe/Rome.",
+  "I campioni senza measured_at sono esclusi; valori assenti o sospetti interrompono la linea. Da": "Les échantillons sans measured_at sont exclus ; les valeurs absentes ou suspectes interrompent la courbe. De",
   "Asse orizzontale: acquisizione sul PC, Europe/Rome.": "Axe horizontal : acquisition sur PC, Europe/Rome.",
   "Valori assenti o sospetti interrompono la linea. Da": "Les valeurs absentes ou suspectes interrompent la courbe. De",
   "adattata ai dati": "adaptée aux données",

@@ -12,7 +12,7 @@ Deno.test('Auto normalizza il timestamp PostgreSQL per il validatore API reale',
     humidity_pct: 60,
     pressure_hpa: 1015,
     captured_at: '2026-10-22T19:43:00.123456+00:00',
-    measured_at: null,
+    measured_at: '2026-10-22T19:43:00.123456+00:00',
     received_at: '2026-10-22T20:00:00+00:00',
     quality_flags: [],
   }
@@ -25,7 +25,7 @@ Deno.test('Auto normalizza il timestamp PostgreSQL per il validatore API reale',
     )
     if (!query) throw new Error('Richiesta client rifiutata dal validatore API')
     return Promise.resolve({
-      items: query.basis === 'measured_at' ? [] : [row],
+      items: [row],
       next_cursor: null,
       until: query.until,
       time_basis: query.basis,

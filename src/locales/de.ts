@@ -442,6 +442,8 @@ export default {
   ", minimo": ", Minimum",
   "e massimo": "und Maximum",
   "Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.": "Waagerechte Achse: Tage in Europe/Rome; Punkte liegen in der Tages- oder Abschnittsmitte, nicht zur Zeit einer Einzelmessung.",
+  "Asse orizzontale: ora della misura fisica (measured_at), Europe/Rome.": "Waagerechte Achse: Zeitpunkt der physischen Messung (measured_at), Europe/Rome.",
+  "I campioni senza measured_at sono esclusi; valori assenti o sospetti interrompono la linea. Da": "Messwerte ohne measured_at sind ausgeschlossen; fehlende oder verdächtige Werte unterbrechen die Linie. Von",
   "Asse orizzontale: acquisizione sul PC, Europe/Rome.": "Waagerechte Achse: PC-Erfassung, Europe/Rome.",
   "Valori assenti o sospetti interrompono la linea. Da": "Fehlende oder verdächtige Werte unterbrechen die Linie. Von",
   "adattata ai dati": "an die Daten angepasst",

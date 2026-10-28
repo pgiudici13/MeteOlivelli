@@ -45,6 +45,7 @@ La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e al
 - Hero desktop a due colonne: titolo grande a sinistra, ultima temperatura e grafico a destra. Mobile a colonna singola. Il pannello inizialmente chiaro è stato portato al tema scuro su richiesta.
 - Tre misure, archivio, cronologia, stime indisponibili e progetto conservati. Filtri neutri, selezione chiara con testo scuro leggibile anche in hover.
 - Nessuna postilla provvisoria nella versione finale locale: i campioni di prova e quelli privi di provenienza sono esclusi dalla visualizzazione. [Dati di prova e vincoli](docs/data-preview.md).
+- Tutti i pulsanti e i collegamenti presentati come pulsanti condividono angoli contenuti da 3 px, come le azioni in Cronologia. Le linee divisorie delle sezioni Cronologia, Grafici e Previsioni non ricevono il riflesso al passaggio del puntatore. La Home termina con il progetto e non include più il glossario.
 
 ## Coreografia degli ingressi
 
@@ -66,7 +67,9 @@ Focus tastiera rivela subito il contenitore; movimento ridotto cancella effetti 
 
 Gradiente bianco radiale ritagliato al contorno tramite maschera, centrato sul puntatore. Raggio 220 px sui pannelli, 180 px su pulsanti/CTA; bordo luminoso 1 px sulle schede, 2 px sui pulsanti, dissolvenza 220 ms. Segue il puntatore con interpolazione 0,18 per frame; con movimento ridotto segue immediatamente. Il ciclo si ferma a convergenza e viene cancellato all’uscita/smontaggio.
 
-È attivo solo il bersaglio più vicino: pannello temperatura, scheda misura, grafico archivio, scheda stima, progetto, pulsante abilitato o CTA. I divisori di sezione non reagiscono al passaggio sui filtri. Nessun cambiamento di dimensioni/layout; nessun cursore artificiale. Su touch l’effetto è escluso; focus tastiera bianco indipendente dall’hover. Link e dettagli hanno sottolineatura, righe cronologia un riscontro discreto.
+È attivo solo il bersaglio più vicino: pannelli, schede, grafici, pulsanti abilitati, link, dettagli e controlli. I divisori di sezione non reagiscono al passaggio sui filtri. Nessun cambiamento di dimensioni/layout; nessun cursore artificiale. Su touch l’effetto è escluso; focus tastiera bianco indipendente dall’hover. Link e dettagli hanno sottolineatura, righe cronologia un riscontro discreto.
+
+I grafici di temperatura, umidità e pressione seguono immediatamente la sezione “Le ultime misure”. Il loro ordine è selezionabile e ognuno mantiene colore, scala e unità propri.
 
 ## Verifiche, storia e limiti
 
@@ -93,6 +96,8 @@ Le viste manuali comprendono 24h/7g/14g/30g: 24h mostra i campioni originali; 7g
 ### Grafico ingrandito
 
 “Ingrandisci” apre un dialogo a tutta pagina con fondale attenuato e ingresso breve; il corpo della pagina non scorre e il dialogo contiene il proprio scroll. Auto è preselezionato. I controlli permettono di scegliere temperatura, umidità o pressione e Auto/24h/7g/14g/30g sugli stessi campioni già caricati. Auto mantiene la finestra/aggregazione definita sopra e l’asse verticale si adatta ai valori validi effettivi. La chiusura avviene con pulsante, Esc o click sul fondale; focus intrappolato/restaurato, scroll bloccato e movimento ridotto sono requisiti.
+
+I grafici distinguono le tre grandezze con colori coerenti in entrambi i temi: temperatura arancio, umidità azzurro, pressione lilla. La scelta attiva della grandezza riprende il colore della relativa serie.
 
 
 ## Misure compatte nel pannello iniziale — 23 ottobre 2026

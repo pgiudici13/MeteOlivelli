@@ -6,7 +6,6 @@ import { detectDeviceLanguage, getPreferences, parsePreferences, temperatureValu
 import { translate, loadLanguage } from '../src/i18n.ts'
 import { formatValue, formatCivilDay } from '../src/weather.ts'
 import { quizQuestions } from '../src/quiz.ts'
-import { meteorologyGlossary } from '../src/meteorology-glossary.ts'
 import { metricExplanations } from '../src/metric-explanations.ts'
 import { buildHistoryDocument } from '../src/pdf-history-document.ts'
 import { buildGraphsDocument } from '../src/pdf-graphs-document.ts'
@@ -61,10 +60,10 @@ test('la lingua salvata prevale sul dispositivo; dati assenti o invalidi usano l
   assert.deepEqual(parsePreferences('{"language":"it","temperatureUnit":"F"}', 'en'), { language: 'it', temperatureUnit: 'F' })
 })
 
-test('tutte le lingue coprono quiz, glossario, spiegazioni e testi statici accessibili', async () => {
+test('tutte le lingue coprono quiz, spiegazioni e testi statici accessibili', async () => {
   const allowed = new Set(['MeteOlivelli', '°C', 'hPa', 'Pietro Giudici', 'Nicholas Borin', 'meteolivelli@liceoolivelli.pv.it', 'Pietro.giudici@hotmail.com', 'meteolivelli-analytics-consent'])
   const required = quizQuestions.flatMap(q => [q.question, ...q.answers, q.explanation])
-  required.push(...meteorologyGlossary.flatMap(item => [item.term, item.definition]), ...Object.values(metricExplanations))
+  required.push(...Object.values(metricExplanations))
   for (const file of readdirSync(new URL('../src', import.meta.url), { recursive: true }).filter(name => name.endsWith('.tsx'))) {
     const source = ts.createSourceFile(file, readFileSync(new URL('../src/' + file, import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true)
     const visit = node => {
@@ -130,7 +129,7 @@ test('misura manuale e lettura della stazione restano datate correttamente con v
   // Valori inventati, usati esclusivamente come fixture di integrazione locale.
   const { readObservationHistory } = await import('../src/weather.ts')
   const { prepareChart } = await import('../src/chart.ts')
-  const live = { ...sample, measured_at: null, captured_at: '2026-10-27T09:00:00Z', temperature_c: 0 }
+  const live = { ...sample, measured_at: '2026-10-27T09:00:00Z', captured_at: '2026-10-27T09:01:00Z', temperature_c: 0 }
   const manual = { ...sample, ingestion_id: '00000000-0000-4000-8000-000000000002', acquisition_kind: 'historical', entry_method: 'manual', captured_at: null, measured_at: '2026-10-27T10:00:00Z', temperature_c: 10 }
   const before = JSON.stringify([live, manual])
   const until = '2026-10-27T12:00:00Z'
@@ -138,12 +137,20 @@ test('misura manuale e lettura della stazione restano datate correttamente con v
   const result = await readObservationHistory('24h', new AbortController().signal, async params => {
     const basis = params.get('basis')
     calls.push(basis)
-    return { items: basis === 'measured_at' ? [manual] : [live], next_cursor: null, until, time_basis: basis }
+    return { items: [live, manual], next_cursor: null, until, time_basis: basis }
   })
-  assert.deepEqual(calls, ['captured_at', 'measured_at'])
+  assert.deepEqual(calls, ['measured_at'])
   assert.deepEqual(result.rows.map(row => row.ingestion_id), [live.ingestion_id, manual.ingestion_id])
   assert.equal(result.rows[1].captured_at, null)
   assert.equal(prepareChart(result.rows, 'temperature_c', '24h', until).segments.flat().length, 2)
+  assert.equal(prepareChart([{ ...live, measured_at: null }, manual], 'temperature_c', '24h', until).segments.flat().length, 1)
+  for (const language of ['en', 'es', 'fr', 'de']) {
+    await loadLanguage(language)
+    updatePreferences({ language }, false)
+    for (const text of ['Asse orizzontale: ora della misura fisica (measured_at), Europe/Rome.', 'I campioni senza measured_at sono esclusi; valori assenti o sospetti interrompono la linea. Da']) {
+      assert.notEqual(translate(text), text, `${language}: ${text}`)
+    }
+  }
   await loadLanguage('en')
   updatePreferences({ language: 'en', temperatureUnit: 'F' }, false)
   assert.match(translate(describeWeatherChange(manual, result.rows)[0]), /Temperature rising by 18.0 °F/)

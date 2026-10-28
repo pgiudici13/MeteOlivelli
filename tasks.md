@@ -354,13 +354,15 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### UI-I18N — Cinque lingue e selezione Celsius/Fahrenheit (28 ottobre 2026)
 
+- [x] Integrati i commit remoti fino a `79ea8e8`: rispettati il nuovo ordine e la rimozione dei componenti, descrizioni dei grafici tradotte in quattro lingue per l’uso esclusivo di `measured_at`. Build, lint e budget superati; 169 test frontend, 55 Deno e 28 Python superati. Nessun deploy o migrazione.
+
 - [x] Sincronizzazione con `main` `81c2d0a`: risolte le sovrapposizioni fra misure manuali, nuovo grafico ingrandito, area amministrativa, traduzioni e Fahrenheit; mantenuti separati gli orari fisici e di acquisizione (COR-057). `npm run check`: 167 frontend, 55 Deno, 28 Python, build/lint e budget iniziale superati. Browser con API intercettate: misura manuale, grafico/periodi e Fahrenheit, 18 casi lingua/footer; esito area amministrativa registrato nella guida frontend. Nessuna modifica remota o migrazione applicata.
 - [x] Disposizione finale richiesta: lingue e °C/°F sotto il footer su tutte le pagine; rimosso il rimando in alto. Rilevamento ordinato da `navigator.languages`/`navigator.language`, varianti regionali, priorità alla scelta salvata e ripiego italiano. I dettagli delle verifiche correnti sono in `docs/frontend.md`.
 - [x] Verifica finale della disposizione: build, lint, budget iniziale e 164 test frontend superati; 18 casi Chrome per lingua automatica, preferenze, storage e layout su quattro pagine a 320/1280 px, più 10 casi A/B/C e 3 recuperi pagina. Nessuna pubblicazione o verifica su dispositivi fisici.
 
 - [x] COR-056: lettere A/B/C delle opzioni escluse dalla traduzione; regressione Chrome in cinque lingue prima/dopo la risposta (10 combinazioni), build/lint e 162 test frontend superati. Correzione locale sullo stesso branch, senza pubblicazione.
 - [x] Cinque bandiere nella barra sotto il footer comune: italiano, inglese britannico, spagnolo, francese e tedesco; nomi accessibili, lingua attiva e navigazione da tastiera.
-- [x] Tradotti contenuti, messaggi dinamici, etichette dei grafici, cronologia, glossario, curiosità, quiz completo, privacy, errori, metadati e PDF; il quiz conserva domanda, scelta e punteggio al cambio lingua.
+- [x] Tradotti contenuti, messaggi dinamici, etichette dei grafici, cronologia, curiosità, quiz completo, privacy, errori, metadati e PDF; il quiz conserva domanda, scelta e punteggio al cambio lingua.
 - [x] Scelta indipendente °C/°F su ultima misura, grafici, tooltip, sintesi, riepiloghi, confronti, record e previsioni; PDF coerenti. Differenze ed errori usano il fattore 1,8 senza offset. Dati, soglie e calcoli meteorologici restano in Celsius; l’inserimento amministrativo mantiene l’etichetta esplicita °C del contratto.
 - [x] Preferenze locali `meteolivelli-display`, recupero dei valori non validi, funzionamento nella pagina senza storage e cataloghi aggiuntivi caricati solo alla selezione. Nessuna richiesta di traduzione esterna.
 - [x] Build, lint, budget iniziale e 162 test frontend superati, inclusi 5 test mirati per conversione, copertura dei cataloghi, messaggi e PDF. Chrome locale: 5 scenari dedicati, comprese 80 combinazioni responsive (5 lingue × 4 pagine × 320/390/900/1280 px), senza overflow, sovrapposizioni o errori JavaScript.
@@ -727,3 +729,6 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Modifica locale a RPC, handler, feed, asse temporale dei grafici/PDF, riepilogo e testo `/data`; conservati i file utente già modificati in `docs/backend-schema.md` e `tasks.md`.
 - [ ] Verificare build/lint e l'esito della query SQL/API; applicare la migration, aggiornare l'Edge Function e pubblicare il frontend per rendere il comportamento effettivo sul sito.
 - [ ] Nessuna suite di test eseguita in questa sessione.
+
+- [x] Su richiesta utente, grafici e PDF usano solo `measured_at`; righe senza ora fisica attestata escluse dalle serie e didascalia aggiornata. `npm run build`, `npm run lint`, 67 test mirati e `git diff --check` superati. Suite frontend completa: 160/161; resta fallito il test di ordine sezioni `tests/ux-order.test.mjs`, non relativo alla modifica. Deno/Python non rieseguiti; nessuna modifica remota o pubblicazione.
+- [x] Revisione UI successiva: rimosso il glossario; raggi dei pulsanti uniformati a 3 px; riflesso escluso dai divisori di sezione per evitare il bordo verticale. `npm run build`, `npm run lint`, tutti i 161 test frontend e `git diff --check` superati. Corretta anche la query del test d’ordine, che confrontava la sezione grafici invece della cronologia completa.

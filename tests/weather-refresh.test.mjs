@@ -7,7 +7,7 @@ const row = (index, value) => ({
   acquisition_kind: 'live',
   ingestion_id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
   captured_at: `2026-10-27T${index === 1 ? '10' : '11'}:00:00.000Z`,
-  measured_at: null, received_at: '2026-10-27T12:00:00.000Z',
+  measured_at: `2026-10-27T${index === 1 ? '10' : '11'}:00:00.000Z`, received_at: '2026-10-27T12:00:00.000Z',
   temperature_c: value, humidity_pct: 60, pressure_hpa: 1015, quality_flags: [],
 })
 
@@ -20,10 +20,10 @@ for (const anchorToLatest of [false, true]) {
     let rows = [row(1, 19), latest], histories = 0, state
     const feed = createWeatherFeed(anchorToLatest ? '30g' : '24h', value => { state = value }, async params => {
       const history = params.get('view') === 'history'
-      if (history && params.get('basis') !== 'measured_at') histories++
+      if (history) histories++
       return {
-        items: history ? (params.get('basis') === 'measured_at' ? [] : structuredClone(rows)) : [latest], next_cursor: null,
-        until: params.get('until') ?? new Date(now).toISOString(), time_basis: params.get('basis') ?? 'captured_at',
+        items: history ? structuredClone(rows) : [latest], next_cursor: null,
+        until: params.get('until') ?? new Date(now).toISOString(), time_basis: history ? 'measured_at' : 'captured_at',
       }
     }, { anchorToLatest })
     try {
@@ -58,8 +58,8 @@ test('grafici: errore nella riconciliazione conserva i valori e ritenta al ciclo
   const feed = createWeatherFeed('30g', value => { state = value }, async params => {
     const history = params.get('view') === 'history'
     if (history && fail) throw new Error('Guasto sintetico')
-    return { items: history ? (params.get('basis') === 'measured_at' ? [] : structuredClone(rows)) : [latest], next_cursor: null,
-      until: params.get('until') ?? new Date(now).toISOString(), time_basis: params.get('basis') ?? 'captured_at' }
+    return { items: history ? structuredClone(rows) : [latest], next_cursor: null,
+      until: params.get('until') ?? new Date(now).toISOString(), time_basis: history ? 'measured_at' : 'captured_at' }
   }, { anchorToLatest: true })
   try {
     await feed.refresh()
