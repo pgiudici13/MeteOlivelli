@@ -521,3 +521,11 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Prova:** il nuovo `time_label` della risposta latest dichiarava sempre l’ora fisica, anche quando la misura ne era priva e usava `captured_at`. Inoltre il PDF collocava l’ora `measured_at` di una misura manuale nella colonna “Acquisizione · PC”, benché `captured_at` fosse nullo.
 - **Impatto:** un’ora di acquisizione poteva essere interpretata come misura fisica e viceversa, oscurando la distinzione fra i due tempi.
 - **Correzione e verifica:** l’etichetta API distingue il possibile ripiego sull’acquisizione; nel PDF la colonna acquisizione indica l’assenza dell’ora e l’inserimento manuale, mentre l’ora fisica rimane nella propria colonna. Aggiornati gli equivalenti testi accessibili e la traduzione del PDF; test Deno su entrambe le etichette e test frontend con misura manuale in inglese e Fahrenheit. Modifiche locali: la funzione remota non è stata distribuita.
+
+## COR-058 — I grafici mostravano un solo campione quando mancava `measured_at`
+
+- **Stato:** corretto localmente il 29 ottobre 2026; pubblicazione non eseguita.
+- **Prova:** nella schermata pubblica lo storico mostrava quattro campioni, ma i tre appena acquisiti non avevano `measured_at`; le schede dei grafici mostravano un solo campione valido. Statistiche e cronologia confermavano che i campioni c’erano.
+- **Impatto:** il sito sembrava ignorare letture valide e il grafico non rappresentava lo storico disponibile.
+- **Correzione:** usare `measured_at` se presente, altrimenti `captured_at` come ora di acquisizione PC chiaramente dichiarata; non usare `received_at`. Applicare la stessa regola ai grafici, all’intervallo Auto e ai PDF.
+- **Verifica:** regressioni su feed misto e righe senza `measured_at`; `npm run check` e `git diff --check` superati. Nessuna modifica remota o pubblicazione.

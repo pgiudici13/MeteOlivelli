@@ -139,15 +139,15 @@ test('misura manuale e lettura della stazione restano datate correttamente con v
     calls.push(basis)
     return { items: [live, manual], next_cursor: null, until, time_basis: basis }
   })
-  assert.deepEqual(calls, ['measured_at'])
+  assert.deepEqual(calls, ['captured_at'])
   assert.deepEqual(result.rows.map(row => row.ingestion_id), [live.ingestion_id, manual.ingestion_id])
   assert.equal(result.rows[1].captured_at, null)
   assert.equal(prepareChart(result.rows, 'temperature_c', '24h', until).segments.flat().length, 2)
-  assert.equal(prepareChart([{ ...live, measured_at: null }, manual], 'temperature_c', '24h', until).segments.flat().length, 1)
+  assert.equal(prepareChart([{ ...live, measured_at: null }, manual], 'temperature_c', '24h', until).segments.flat().length, 2)
   for (const language of ['en', 'es', 'fr', 'de']) {
     await loadLanguage(language)
     updatePreferences({ language }, false)
-    for (const text of ['Asse orizzontale: ora della misura fisica (measured_at), Europe/Rome.', 'I campioni senza measured_at sono esclusi; valori assenti o sospetti interrompono la linea. Da']) {
+    for (const text of ['Asse orizzontale: ora della misura fisica se attestata, altrimenti acquisizione sul PC, Europe/Rome.', 'measured_at ha precedenza su captured_at; valori assenti o sospetti interrompono la linea. Da', 'asse: measured_at se attestato, altrimenti captured_at (acquisizione sul PC)']) {
       assert.notEqual(translate(text), text, `${language}: ${text}`)
     }
   }

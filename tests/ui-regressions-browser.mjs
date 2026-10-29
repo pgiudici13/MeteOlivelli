@@ -26,7 +26,7 @@ try {
     }
     if (!url.pathname.includes('read-measurements')) return route.abort()
     const latest = { ...rows.at(-1), temperature_c: latestTemperature }
-    const items = url.searchParams.get('basis') === 'measured_at' ? [] : url.searchParams.get('view') === 'latest'
+    const items = url.searchParams.get('view') === 'latest'
       ? [latest] : url.searchParams.get('period') === 'all' ? [older, ...rows.slice(0, -1), latest] : [...rows.slice(0, -1), latest]
     return route.fulfill({ json: { items, next_cursor: null, until: url.searchParams.get('until') ?? '2026-10-27T12:00:00.000Z', time_basis: url.searchParams.get('basis') ?? 'captured_at' } })
   })

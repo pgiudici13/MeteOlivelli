@@ -15,7 +15,7 @@ La suite `npm run check` è passata: build/lint, budget iniziale, 167 test front
 
 La sezione di confronto combinato è stata rimossa; i tre grafici singoli seguono subito “Le ultime misure”. Il riflesso al bordo segue il puntatore su pannelli, schede, collegamenti, pulsanti e controlli, un solo bersaglio alla volta; touch escluso.
 
-I grafici e i relativi PDF usano esclusivamente `measured_at` per ordinamento, finestre, posizionamento e ancoraggio Auto. Le righe senza orario fisico attestato non vengono tracciate: `captured_at` e `received_at` non sono ripieghi per l’asse dei grafici. I campioni aggregati mantengono la regola corrente delle medie e dichiarano che i punti sono collocati al centro della giornata/fascia.
+I grafici e i relativi PDF preferiscono `measured_at`; quando manca usano `captured_at` (ora di acquisizione sul PC) così che le osservazioni registrate non spariscano dalla serie. L’asse e le etichette dichiarano questa distinzione; `received_at` non viene usato come orario della misura. Le righe prive di entrambi gli orari restano escluse. L’ancoraggio Auto usa l’orario attestato disponibile. I campioni aggregati mantengono la regola corrente delle medie e dichiarano che i punti sono collocati al centro della giornata/fascia.
 
 ## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
 

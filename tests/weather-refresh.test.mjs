@@ -23,7 +23,7 @@ for (const anchorToLatest of [false, true]) {
       if (history) histories++
       return {
         items: history ? structuredClone(rows) : [latest], next_cursor: null,
-        until: params.get('until') ?? new Date(now).toISOString(), time_basis: history ? 'measured_at' : 'captured_at',
+        until: params.get('until') ?? new Date(now).toISOString(), time_basis: 'captured_at',
       }
     }, { anchorToLatest })
     try {
@@ -59,7 +59,7 @@ test('grafici: errore nella riconciliazione conserva i valori e ritenta al ciclo
     const history = params.get('view') === 'history'
     if (history && fail) throw new Error('Guasto sintetico')
     return { items: history ? structuredClone(rows) : [latest], next_cursor: null,
-      until: params.get('until') ?? new Date(now).toISOString(), time_basis: history ? 'measured_at' : 'captured_at' }
+      until: params.get('until') ?? new Date(now).toISOString(), time_basis: 'captured_at' }
   }, { anchorToLatest: true })
   try {
     await feed.refresh()

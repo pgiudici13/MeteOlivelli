@@ -16,7 +16,7 @@ try {
     if (url.origin === base.origin) return route.continue()
     if (!url.pathname.includes('read-measurements')) return route.abort()
     const view = url.searchParams.get('view'), basis = url.searchParams.get('basis') ?? 'captured_at'
-    const items = view === 'latest' ? [manual] : url.searchParams.get('period') === 'all' ? [live, manual] : basis === 'measured_at' ? [manual] : [live]
+    const items = view === 'latest' ? [manual] : url.searchParams.get('period') === 'all' ? [live, manual] : [live, manual]
     return route.fulfill({ json: { items, next_cursor: null, until: url.searchParams.get('until') ?? iso(now), time_basis: basis } })
   })
   const page = await context.newPage()

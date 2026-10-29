@@ -31,7 +31,7 @@ try {
     if (all) historyRequests++
     if (all && fail) return route.fulfill({ status: 503, json: { code: 'temporarily_unavailable' } })
     const latest = url.searchParams.get('view') === 'latest'
-    const items = url.searchParams.get('basis') === 'measured_at' ? [] : latest ? [row(count - 1)] : Array.from({ length: count + (all ? historical : 0) }, (_, index) => row(index))
+    const items = latest ? [row(count - 1)] : Array.from({ length: count + (all ? historical : 0) }, (_, index) => row(index))
     if (all && undated) items.push({ ...row(90), acquisition_kind: 'historical', captured_at: null, received_at: '2026-10-23T11:00:00.000Z' })
     return route.fulfill({ json: { items, next_cursor: null, until: url.searchParams.get('until') ?? '2026-10-23T12:00:00.000Z', time_basis: url.searchParams.get('basis') ?? 'captured_at' } })
   })
