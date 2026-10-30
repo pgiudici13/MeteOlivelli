@@ -1,7 +1,7 @@
 import { isSuspect, metrics } from './weather.ts'
 import type { Measurement, Metric } from './weather.ts'
 
-export const FORECAST_VERSION = 'station-statistical-v3'
+export const FORECAST_VERSION = 'station-statistical-v4'
 export const horizons = [
   { hours: 1, label: '+1 ora' },
   { hours: 6, label: '+6 ore' },
@@ -92,7 +92,7 @@ function unavailable(metric: Metric, reason: string): ForecastEstimate {
   return { metric, value: null, reason, method: null, mae: null, baselineMae: null, cases: 0, selectionCases: 0, origin: null, target: null, validUntil: null, lastObservationId: null }
 }
 
-function estimate(rows: Measurement[], metric: Metric, hours: number, now: number, basis: 'measured_at' | 'captured_at', minimumCases: number): ForecastEstimate {
+function estimate(rows: Measurement[], metric: Metric, hours: number, now: number, basis: 'measured_at' | 'captured_at', minimumCases: number, scenarioTimeline = false): ForecastEstimate {
   // L’ultima osservazione ammessa governa anche assenze e allarmi del singolo campo.
   const lastRow = rows.at(-1)
   if (!lastRow) return unavailable(metric, 'Servono campioni ammessi con un timestamp valido.')
@@ -104,7 +104,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
       const time = Date.parse(row[basis]!)
       // In una simulazione, la ricezione segue il tempo dello scenario: i record
       // sono stati caricati insieme e received_at descrive solo l'importazione.
-      return { time, value: row[metric]!, received: basis === 'captured_at' ? time : Date.parse(row.received_at) }
+      return { time, value: row[metric]!, received: scenarioTimeline ? time : Date.parse(row.received_at) }
     })
   const last = points.at(-1)!
   const gaps = points.slice(-49).slice(1).map((point, index) => point.time - points.slice(-49)[index].time)
@@ -164,13 +164,15 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
 /** Valutazione deterministica; i sintetici restano una simulazione separata dalle stime fisiche. */
 export function buildForecast(input: Measurement[], now: number): ForecastRun {
   if (!Number.isFinite(now)) throw new Error('Orario di valutazione non valido')
-  const physicalInput = input.some(row => ['live', 'historical'].includes(row.acquisition_kind ?? '') && row.measured_at)
+  const physicalInput = input.some(row => ['live', 'historical'].includes(row.acquisition_kind ?? '') && row.captured_at)
   const dataKind: ForecastRun['dataKind'] = physicalInput ? 'physical' : input.some(row => row.acquisition_kind === 'synthetic' && row.captured_at) ? 'synthetic' : 'none'
-  const basis = dataKind === 'synthetic' ? 'captured_at' : 'measured_at'
+  // Per le stime pubbliche si usa l'ora osservata dal PC, anche quando
+  // measured_at manca o contiene un valore diverso. Non si ricostruisce l'ora fisica.
+  const basis = 'captured_at'
   const selectedHorizons = dataKind === 'synthetic' ? simulationHorizons : horizons
   const byTime = new Map<number, Measurement | null>()
   for (const row of input) {
-    if (dataKind === 'synthetic' ? row.acquisition_kind !== 'synthetic' || !row.captured_at : !['live', 'historical'].includes(row.acquisition_kind ?? '') || !row.measured_at) continue
+    if (dataKind === 'synthetic' ? row.acquisition_kind !== 'synthetic' || !row.captured_at : !['live', 'historical'].includes(row.acquisition_kind ?? '') || !row.captured_at) continue
     const time = Date.parse(row[basis]!)
     const received = Date.parse(row.received_at)
     if (!Number.isFinite(time) || !Number.isFinite(received) || time > now || received > now || time > received || time < now - 30 * 24 * hour) continue
@@ -180,5 +182,5 @@ export function buildForecast(input: Measurement[], now: number): ForecastRun {
   }
   const rows = [...byTime.entries()].sort(([a], [b]) => a - b).flatMap(([, row]) => row ? [row] : [])
   return { version: FORECAST_VERSION, dataKind, generatedAt: iso(now), inputCount: rows.length,
-    horizons: selectedHorizons.map(horizon => ({ ...horizon, estimates: metrics.map(({ key }) => estimate(rows, key, horizon.hours, now, basis, dataKind === 'synthetic' ? 4 : 12)) })) }
+    horizons: selectedHorizons.map(horizon => ({ ...horizon, estimates: metrics.map(({ key }) => estimate(rows, key, horizon.hours, now, basis, dataKind === 'synthetic' ? 4 : 12, dataKind === 'synthetic')) })) }
 }

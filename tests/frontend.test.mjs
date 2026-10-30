@@ -129,7 +129,7 @@ test('pagina Informazioni: ogni voce dell’indice porta a una sezione presente'
 
 test('la sezione previsioni presenta soltanto osservazioni fisiche', () => {
   const forecast = readFileSync(new URL('../src/components/ForecastSection.tsx', import.meta.url), 'utf8')
-  assert.match(forecast, /osservazioni fisiche datate/)
+  assert.match(forecast, /orario di acquisizione sul PC/)
   assert.doesNotMatch(forecast, /forecast-simulation|dati fittizi|simulazione tecnica/)
   assert.doesNotMatch(forecast, /Stime sperimentali/)
 })

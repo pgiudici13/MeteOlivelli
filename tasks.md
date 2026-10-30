@@ -302,7 +302,7 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato: motore locale v1 e backtest implementati il 23 ottobre; query aggregata in sola lettura del 26 ottobre: 251 righe sintetiche, zero `measured_at`. La verifica meteorologica reale dipende da DATA-01–DATA-02 e da uno storico datato idoneo.**
+- [ ] **Stato al 30 ottobre: motore locale v3 implementato; per decisione utente la serie usa `captured_at` e non richiede `measured_at`. Testare su storico più ampio; accuratezza meteorologica non dimostrata.**
 - **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
 - **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
 - **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
@@ -312,13 +312,14 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-02 — Implementare le previsioni meteo e lo stato non disponibile
 
-- [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente; correzione v3 del 26 ottobre: la persistenza non viene più mostrata come previsione, con test per baseline e orizzonti variabili. Restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
+- [ ] **Stato al 30 ottobre: worker, feed e UI usano `captured_at` per le osservazioni live/historical, anche se manca `measured_at`; i sintetici restano esclusi. Le soglie di cadenza e backtest restano attive; validazione reale WX-01 e calcolo/cache/archivio condivisi restano aperti.**
 - **Scopo:** calcolare e servire solo previsioni supportate dalla verifica, separandole dalle misure.
 - **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
 - **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
 - **Risultato:** sezione “Previsioni meteo MeteOlivelli”, limiti espliciti e “Previsione non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata. Il modello statistico locale attuale non è ancora validato come previsione meteorologica.
-- **Verifica:** dati insufficienti/vecchi/sospetti, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
+- **Verifica:** dati insufficienti/vecchi/sospetti, timestamp PC, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
 - **Riferimento:** plan.md §6, §18 e RF7.
+- [x] **30 ottobre 2026 — base temporale aggiornata su richiesta:** il feed usa la serie `captured_at`; il modello ammette righe `live`/`historical` senza `measured_at`, esclude sintetici e conserva backtest, limiti di cadenza e timestamp server. Test frontend (171), build, lint e `git diff --check` superati. Nessun deploy. I record attualmente visibili restano insufficienti per dimostrare una previsione; con campionamento ogni tre ore il +1h non è supportato dalla cadenza.
 
 ### UI-00 — Preparare Figma e il primo design con il compagno (22 ottobre 2026)
 
