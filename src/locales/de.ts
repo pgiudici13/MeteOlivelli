@@ -451,6 +451,8 @@ export default {
   "measured_at ha precedenza su captured_at; valori assenti o sospetti interrompono la linea. Da": "measured_at hat Vorrang vor captured_at; fehlende oder verdächtige Werte unterbrechen die Linie. Von",
   "asse: measured_at se attestato, altrimenti captured_at (acquisizione sul PC)": "Achse: measured_at, sofern belegt, sonst captured_at (PC-Erfassungszeit)",
   "Valori assenti o sospetti interrompono la linea. Da": "Fehlende oder verdächtige Werte unterbrechen die Linie. Von",
+  "Asse orizzontale: giorni in Europe/Rome; ogni punto è una media del periodo indicato.": "Horizontale Achse: Tage in Europe/Rome; jeder Punkt ist ein Mittelwert für den angegebenen Zeitraum.",
+  "Valori assenti o sospetti interrompono la linea.": "Fehlende oder verdächtige Werte unterbrechen die Linie.",
   "adattata ai dati": "an die Daten angepasst",
   "Esplora i valori con puntatore, tocco o tasti ← →.": "Werte mit Zeiger, Berührung oder den Tasten ← → erkunden.",
   "Scorri i valori di {0}": "Werte für {0} durchgehen",

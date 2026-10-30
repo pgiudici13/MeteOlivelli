@@ -373,6 +373,11 @@ Verifiche browser aggiuntive superate: 3 scenari di recupero pagina e 7 sulle pr
 
 **Limite della regressione storica (COR-055):** il runner opzionale `tests/frontend-browser.mjs` si arresta alla prima asserzione, che richiede le tre schede vuote della vecchia UI anziché l’attuale stato unico `.station-empty`, già presente prima di questo intervento. Non è incluso fra i collaudi superati e richiede riallineamento separato.
 
+### Fase 7 / UI-01 — Rifinitura dei grafici (30 ottobre 2026)
+
+- [x] Curve monotone SVG attraverso i campioni, area sfumata, selezione del valore più leggibile e rimozione delle descrizioni visibili ripetitive. La scala continua ad adattarsi ai valori presenti; timestamp, aggregazioni e interruzioni dei dati assenti/sospetti restano invariati.
+- [x] Verifica: `npm run build`, `npm run lint`, `npm run frontend:test` (171/171) e `git diff --check` superati. Resta il warning Vite già presente sui chunk PDF oltre 500 kB; nessuna pubblicazione o modifica remota.
+
 ### GAME-01 — Aggiungere il quiz “Gioca con il meteo”
 
 - [x] **Stato: implementato su `main` e pubblicato; animazione ripple e spiegazioni verificate il 23 ottobre 2026.**

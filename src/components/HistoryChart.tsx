@@ -6,10 +6,10 @@ import type { AnimationPlaybackControls } from 'motion'
 import { useLayoutEffect, useEffect, useId, useRef, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { prepareChart } from '../chart.ts'
-import { summarizeChart } from '../chart-summary.ts'
 import { animateOnEntrance } from '../motion.ts'
 import { formatValue, metrics, periods } from '../weather.ts'
 import { createChartLink } from '../chart-links.ts'
+import { smoothPath } from '../chart-geometry.ts'
 import type { Measurement, ChartMode } from '../weather.ts'
 
 export function HistoryChart({ metric, rows, loading, error, period, until, customRange, shareable = true }: {
@@ -66,7 +66,6 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
   const values = points.map(point => point.value)
   const min = values.length ? Math.min(...values) : 0
   const max = values.length ? Math.max(...values) : 1
-  const summary = summarizeChart(points)
   const padding = Math.max((max - min) * 0.15, 0.5)
   const low = min - padding
   const high = max + padding
@@ -76,6 +75,7 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
   const toX = (time: number) => 58 + (time - start) / (end - start) * 278
   const x = (point: typeof points[number]) => toX(point.time)
   const y = (point: typeof points[number]) => 176 - (point.value - low) / (high - low) * 160
+  const svgPoints = (segment: typeof points) => segment.map(point => ({ x: x(point), y: y(point) }))
   const last = points.at(-1)
   // Una nuova serie riparte; polling invariato e render estranei non riavviano il disegno.
   const seriesKey = segments.map(segment => segment.map(row => `${row.id}:${row.time}:${row.value}:${row.count}`).join('|')).join('/')
@@ -164,8 +164,11 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
             const index = active ? points.indexOf(active) : points.length - 1
             selectPoint(event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1 : index + (event.key === 'ArrowLeft' ? -1 : 1))
           }} aria-labelledby={`${id}-title ${id}-desc`}>
-          <desc id={`${id}-desc`}>{translate(points.length)} {translate(prepared?.averaged ? 'medie giornaliere calcolate dai campioni validi' : 'campioni validi')}{translate(", minimo ")}{translate(formatValue(min, shownMetric.key))}{translate(" e massimo ")}{translate(formatValue(max, shownMetric.key))} {translate(displayUnit(shownMetric.key))}. {translate(prepared?.averaged ? 'Asse orizzontale: giorni in Europe/Rome; i punti sono posizionati al centro della giornata o della fascia, non all’ora di una singola misura.' : 'Asse orizzontale: ora della misura fisica se attestata, altrimenti acquisizione sul PC, Europe/Rome.')}{' '}{translate('measured_at ha precedenza su captured_at; valori assenti o sospetti interrompono la linea. Da')}{' '}{translate(new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start))}{translate(" a ")}{translate(new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end))}{translate(". Finestra completa: ")}{translate(shownPeriod === 'auto' ? 'adattata ai dati' : shownPeriod === '24h' ? '24 ore' : shownPeriod === '7g' ? '7 giorni' : shownPeriod === '14g' ? '14 giorni' : '30 giorni')}{translate(". Tutti i campioni sono consultabili sotto.")}</desc>
-          <defs><clipPath id={`${id}-reveal`}><rect className="chart-reveal-mask" x={revealStart} y="12" width={revealWidth} height="168" /></clipPath></defs>
+          <desc id={`${id}-desc`}>{translate(points.length)} {translate(prepared?.averaged ? 'medie giornaliere calcolate dai campioni validi' : 'campioni validi')}{translate(", minimo ")}{translate(formatValue(min, shownMetric.key))}{translate(" e massimo ")}{translate(formatValue(max, shownMetric.key))} {translate(displayUnit(shownMetric.key))}. {translate(prepared?.averaged ? 'Asse orizzontale: giorni in Europe/Rome; ogni punto è una media del periodo indicato.' : 'Asse orizzontale: ora della misura fisica se attestata, altrimenti acquisizione sul PC, Europe/Rome.')}{' '}{translate('Valori assenti o sospetti interrompono la linea.')}{' '}{translate(new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(start))}{translate(" – ")}{translate(new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', dateStyle: 'short', timeStyle: 'short' }).format(end))}</desc>
+      <defs>
+        <clipPath id={`${id}-reveal`}><rect className="chart-reveal-mask" x={revealStart} y="12" width={revealWidth} height="168" /></clipPath>
+        <linearGradient id={`${id}-area`} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="var(--tone)" stopOpacity=".18" /><stop offset="100%" stopColor="var(--tone)" stopOpacity="0" /></linearGradient>
+      </defs>
           {translate(timeline.ticks.map(tick => <g key={tick.time}>
             <line x1={toX(tick.time)} x2={toX(tick.time)} y1="16" y2="176" className={`chart-time-gridline ${tick.major ? 'major' : 'minor'}`} />
             {translate(tick.label && <text x={toX(tick.time)} y="202" textAnchor="middle">{translate(tick.label)}</text>)}
@@ -175,25 +178,27 @@ export function HistoryChart({ metric, rows, loading, error, period, until, cust
             return <g key={index}><line x1="58" x2="336" y1={position} y2={position} className="chart-gridline" /><text x="0" y={position + 4}>{translate(formatValue(high - index * (high - low) / 3, shownMetric.key))}</text></g>
           }))}
           <g clipPath={`url(#${id}-reveal)`} className="chart-series">{translate(segments.map((segment, index) => <g key={index}>
-            {translate(segment.length > 1 && <><polygon points={`${x(segment[0])},176 ${segment.map(row => `${x(row)},${y(row)}`).join(' ')} ${x(segment[segment.length - 1])},176`} className="chart-area" /><polyline points={segment.map(row => `${x(row)},${y(row)}`).join(' ')} className="chart-line" /></>)}
+            {translate(segment.length > 1 && <><path d={`${smoothPath(svgPoints(segment))} L${x(segment.at(-1)!)},176 L${x(segment[0])},176 Z`} className="chart-area" fill={`url(#${id}-area)`} /><path d={smoothPath(svgPoints(segment))} className="chart-line" /></>)}
             {translate(segment.map(row => <circle key={row.id} cx={x(row)} cy={y(row)} r="2.6" className="chart-point"><title>{translate(row.label)} · {translate(formatValue(row.value, shownMetric.key))} {translate(displayUnit(shownMetric.key))}</title></circle>))}
           </g>))}</g>
           {translate(active && <g className="chart-selection" aria-hidden="true">
             <line x1={x(active)} x2={x(active)} y1="16" y2="176" />
             <circle cx={x(active)} cy={y(active)} r="5" />
+            <g className="chart-value-pill" transform={`translate(${Math.max(58, Math.min(248, x(active) - 44))} ${Math.max(18, y(active) - 36)})`}>
+              <rect width="88" height="24" rx="12" />
+              <text x="44" y="16" textAnchor="middle">{translate(formatValue(active.value, shownMetric.key))} {translate(displayUnit(shownMetric.key))}</text>
+            </g>
           </g>)}
           <text x="58" y="202" textAnchor="start">{translate(timeline.startLabel)}</text>
           <text x="336" y="202" textAnchor="end">{translate(timeline.endLabel)}</text>
         </svg>
       ))}
-      {translate(points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection small" aria-live="polite" aria-atomic="true">{translate(active ? `${active.label} · ${formatValue(active.value, shownMetric.key)} ${displayUnit(shownMetric.key)}` : 'Esplora i valori con puntatore, tocco o tasti ← →.')}</p>)}
+      {translate(points.length > 0 && <p id={`${id}-interaction`} className="chart-inspection sr-only" aria-live="polite" aria-atomic="true">{translate(active ? `${active.label} · ${formatValue(active.value, shownMetric.key)} ${displayUnit(shownMetric.key)}` : 'Esplora i valori con puntatore, tocco o tasti ← →.')}</p>)}
       {translate(points.length > 1 && <div className="chart-touch-controls" role="group" aria-label={translate(`Scorri i valori di ${shownMetric.name}`)}>
         <button type="button" disabled={activeIndex <= 0} onClick={() => selectPoint(activeIndex - 1)} aria-label={translate(`${shownMetric.name}: punto precedente`)}>{translate("← Precedente")}</button>
         <span className="small">{translate(activeIndex + 1)}{translate(" di ")}{translate(points.length)}</span>
         <button type="button" disabled={activeIndex >= points.length - 1} onClick={() => selectPoint(activeIndex + 1)} aria-label={translate(`${shownMetric.name}: punto successivo`)}>{translate("Successivo →")}</button>
       </div>)}
-      <p className="chart-statistics small">{translate(summary ? `Minimo ${formatValue(summary.minimum, shownMetric.key)} · massimo ${formatValue(summary.maximum, shownMetric.key)} · media ${formatValue(summary.average, shownMetric.key)} ${displayUnit(shownMetric.key)} (${summary.samples} campioni validi)${summary.change === null ? '' : ` · variazione dall’ultimo punto ${summary.change > 0 ? '+' : ''}${formatValue(summary.change, shownMetric.key, true)} ${displayUnit(shownMetric.key)}`}` : 'I valori mancanti non vengono interpolati.')}</p>
-      <p className="chart-period-note small">{translate(!expanded && customRange ? 'Intervallo personalizzato · tutti i campioni validi' : shownPeriod === 'auto' ? prepared?.note ?? 'Auto · in attesa dei campioni' : shownPeriod === '24h' ? 'Ultime 24 ore · tutti i campioni · riferimenti ogni 6 ore' : `Ultimi ${shownPeriod === '7g' ? '7' : shownPeriod === '14g' ? '14' : '30'} giorni · media giornaliera 09:00–18:00`)}{' · '}{translate('asse: measured_at se attestato, altrimenti captured_at (acquisizione sul PC)')}</p>
     </article>
   )
   return expanded ? createPortal(<div className="chart-lightbox" onMouseDown={event => { if (event.target === event.currentTarget) setExpanded(false) }}>{chart}</div>, document.body) : chart

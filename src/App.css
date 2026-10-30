@@ -91,9 +91,9 @@ button:disabled { cursor: default; opacity: .68; }
 .chart svg { display: block; width: 100%; height: auto; min-height: 160px; overflow: visible; outline: none; }
 .chart svg text { font: 10px ui-monospace, monospace; fill: var(--secondary); }
 .chart-gridline { stroke: var(--gridline); stroke-width: 1; }
-.chart-line { stroke: var(--tone); stroke-width: 2; fill: none; vector-effect: non-scaling-stroke; }
-.chart-point { fill: var(--tone); }
-.chart-area { fill: var(--tone); opacity: .06; }
+.chart-line { stroke: var(--tone); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; fill: none; vector-effect: non-scaling-stroke; filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--tone) 30%, transparent)); }
+.chart-point { fill: var(--tone); stroke: var(--chart-bg); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.chart-area { stroke: none; }
 .chart-empty { min-height: 185px; display: grid; align-content: center; font-size: 13px; color: var(--secondary); }
 .chart > .small { margin-top: auto; }
 .history-table-wrap { min-width: 0; }
@@ -266,13 +266,12 @@ button:disabled { cursor: default; opacity: .68; }
   .chart-touch-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
   .chart-touch-controls button { min-width: 0; min-height: 44px; padding: 8px; font-size: 12px; }
   .chart-touch-controls span { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .chart-inspection { min-height: 36px; overflow-wrap: anywhere; }
 }
 /* Tastiera, lettori di schermo e comodità di tocco. Mantiene il marker nativo dei dettagli. */
 .metric-explanation summary, .time-details summary, .forecast-method summary, .history-table summary, .comparison-modes button { min-height: 44px; padding-block: 12px; }
 .site-shell :where(a, button, input, select, summary, svg[tabindex]):focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
 @media (max-width: 600px) {
-  .instrument-time, .hero-secondary-readings dt, .chart-period-note { font-size: 12px; line-height: 1.5; }
+  .instrument-time, .hero-secondary-readings dt { font-size: 12px; line-height: 1.5; }
 }
 @media (max-width: 370px) {
   .site-shell { padding-inline: 16px; }
@@ -396,7 +395,6 @@ button::before, .hero-link::before { padding: 2px; }
 .chart-time-gridline { stroke: var(--gridline); stroke-width: 1; }
 .chart-time-gridline.minor { opacity: .35; }
 .chart-time-gridline.major { stroke-dasharray: 2 4; opacity: .8; }
-.chart-period-note { font-size: 10px; }
 
 .chart-average-label { display: block; font-size: 10px; letter-spacing: 0; color: var(--secondary); }
 .theme-toggle { width: 44px; min-width: 44px; height: 44px; min-height: 44px; display: grid; place-items: center; padding: 0; border-radius: var(--radius-control); color: var(--text); background: var(--surface-raised); border-color: var(--border); font-size: 19px; line-height: 1; }
@@ -420,7 +418,9 @@ button::before, .hero-link::before { padding: 2px; }
 .chart-selection { pointer-events: none; }
 .chart-selection line { stroke: var(--tone); stroke-width: 1; stroke-dasharray: 3 4; opacity: .5; }
 .chart-selection circle { fill: var(--tone); stroke: var(--surface, #171615); stroke-width: 2; }
-.chart-inspection { min-height: 3em; font-variant-numeric: tabular-nums; }
+.chart-inspection { font-variant-numeric: tabular-nums; }
+.chart-value-pill rect { fill: var(--surface-raised); stroke: var(--border-strong); stroke-width: 1; }
+.chart-value-pill text { fill: var(--text) !important; font: 10px ui-monospace, monospace; }
 
 /* Pagina 404: stesso tema e gerarchia visiva della dashboard. */
 .route-not-found {
@@ -459,7 +459,6 @@ button::before, .hero-link::before { padding: 2px; }
 .custom-period label { display: grid; gap: 0.35rem; min-width: 0; }
 .custom-period input { min-height: 44px; min-width: 0; max-width: 100%; padding: 0.65rem; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface-raised); color: var(--text); font: inherit; }
 .custom-period .small, .custom-period [role="alert"] { flex-basis: 100%; margin: 0; }
-.chart-statistics { line-height: 1.6; }
 @media (max-width: 640px) {
   .custom-period { display: grid; grid-template-columns: minmax(0, 1fr); }
   .custom-period label { width: 100%; }
@@ -491,7 +490,6 @@ button::before, .hero-link::before { padding: 2px; }
   .chart svg { touch-action: pan-y; min-height: 180px; }
   .chart svg text { font-size: 11px; }
   .chart-value { font-size: 26px; }
-  .chart-statistics { margin-top: 0; font-size: 12px; }
   .metric-value { min-width: 0; overflow-wrap: anywhere; }
   .history-table tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history-table td[data-label="Pressione"] { grid-column: 1 / -1; }

@@ -451,6 +451,8 @@ export default {
   "measured_at ha precedenza su captured_at; valori assenti o sospetti interrompono la linea. Da": "measured_at takes precedence over captured_at; missing or suspect values break the line. From",
   "asse: measured_at se attestato, altrimenti captured_at (acquisizione sul PC)": "axis: measured_at when attested, otherwise captured_at (PC capture time)",
   "Valori assenti o sospetti interrompono la linea. Da": "Missing or suspect values break the line. From",
+  "Asse orizzontale: giorni in Europe/Rome; ogni punto è una media del periodo indicato.": "Horizontal axis: days in Europe/Rome; each point is an average for the indicated period.",
+  "Valori assenti o sospetti interrompono la linea.": "Missing or suspect values break the line.",
   "adattata ai dati": "fitted to the data",
   "Esplora i valori con puntatore, tocco o tasti ← →.": "Explore values with a pointer, touch or the ← → keys.",
   "Scorri i valori di {0}": "Browse {0} values",

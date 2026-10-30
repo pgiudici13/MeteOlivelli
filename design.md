@@ -183,7 +183,11 @@ Nessun cambio a forme, pesi o ingombri. La rigenerazione e la licenza sono descr
 in `public/fonts/README.md`; confronto browser eseguito anche su temi e quiz.
 # Aggiornamento UX — selezione e lettura dei grafici (27 ottobre 2026)
 
-I grafici mostrano minimo, massimo, media ponderata sul numero dei campioni e variazione fra gli ultimi due punti. Se i punti sono aggregati la variazione confronta le aggregazioni e la media usa il peso dei campioni che compongono ciascun punto. Un intervallo personalizzato permette di consultare i campioni originali negli ultimi 30 giorni, con scelta locale di data e ora di inizio/fine. Lo stesso intervallo è applicato al PDF; non è prevista esportazione CSV.
+I riepiloghi numerici nei report considerano minimo, massimo, media ponderata sul numero dei campioni e variazione fra gli ultimi due punti. Se i punti sono aggregati, la variazione confronta le aggregazioni e la media usa il peso dei campioni che compongono ciascun punto. Un intervallo personalizzato permette di consultare i campioni originali negli ultimi 30 giorni, con scelta locale di data e ora di inizio/fine. Lo stesso intervallo è applicato al PDF; non è prevista esportazione CSV.
+
+### Rifinitura dei grafici — 30 ottobre 2026
+
+Le linee SVG usano curve monotone che attraversano ciascun campione senza overshoot; tempi e valori dei punti non vengono spostati. La scala verticale resta adattata ai valori validi del grafico e l’area sotto la curva sfuma verso il fondo. Valori nulli o sospetti continuano a interrompere la linea. Rimosse dalla UI le righe ripetitive di istruzioni, statistiche e note sul periodo; il punto selezionato appare in un piccolo indicatore, mentre lettura da tastiera e descrizione accessibile restano disponibili.
 
 # Migliorie mobile (27 ottobre 2026)
 
