@@ -144,6 +144,12 @@ test('forecast orario usa timestamp locali con fuso e valida variabili e limiti'
   } }, now)
   assert.equal(forecast.hours[1].pressure_hpa, 1013)
   assert.equal(forecast.hours[0].time, Date.parse('2026-10-30T13:00+01:00'))
+  const longSeries = Array.from({ length: 384 }, (_, index) => (now - 6 * 3600000 + index * 3600000) / 1000)
+  const trimmed = parseProviderForecast({ hourly: {
+    time: longSeries, temperature_2m: longSeries.map(() => 10), relative_humidity_2m: longSeries.map(() => 60), surface_pressure: longSeries.map(() => 1015),
+  } }, now)
+  assert.equal(trimmed.hours.length, 33)
+  assert.ok(trimmed.hours.some(point => point.time >= now + 24 * 3600000))
   assert.throws(() => parseProviderForecast({ hourly: { time: ['bad'], temperature_2m: [1], relative_humidity_2m: [50], surface_pressure: [1000] } }, now))
   assert.throws(() => parseProviderForecast({ hourly: { time: [now / 1000], temperature_2m: [1], relative_humidity_2m: [101], surface_pressure: [1000] } }, now))
 })

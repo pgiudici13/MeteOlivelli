@@ -19,7 +19,7 @@ Schema, matrice accessi, letture, applicazione e limiti: [backend-schema.md](bac
 
 ## Previsioni orarie e adattamento locale
 
-`src/forecast-provider.ts` legge i valori orari di temperatura a 2 m, umidità relativa e pressione al suolo, chiedendo timestamp Unix per evitare che il browser interpreti il fuso nel luogo del visitatore. La pagina mostra i valori a +1, +6 e +24 ore in `Europe/Rome`. I dati meteorologici restano separati dalle osservazioni della stazione.
+`src/forecast-provider.ts` legge i valori orari di temperatura a 2 m, umidità relativa e pressione al suolo, chiedendo timestamp Unix per evitare che il browser interpreti il fuso nel luogo del visitatore. Alcune risposte API comprendono 384 ore: il parser le accetta (fino a 400) e ritaglia le 33 ore necessarie per +1, +6 e +24 ore e per il confronto locale. La pagina mostra i valori in `Europe/Rome`. I dati meteorologici restano separati dalle osservazioni della stazione.
 
 `src/forecast-hybrid.ts` può applicare alla previsione una correzione limitata derivata dal residuo dell’ultima osservazione `live`/`historical` valida e non sospetta rispetto al dato orario nel suo momento di acquisizione. La correzione ha peso massimo 25%, limiti di ±3 °C, ±12 punti percentuali e ±6 hPa; decade con l’età della misura e con l’orizzonte. Se la misura non è recente o non si allinea a un’ora di previsione, si usa la base senza correzione. Il backtest locale precedente resta fallback solo quando il servizio non risponde.
 

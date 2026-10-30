@@ -34,13 +34,15 @@ export function parseProviderForecast(value: unknown, now: number): ProviderFore
   const humidity = hourly.relative_humidity_2m
   const pressure = hourly.surface_pressure
   if (!Array.isArray(times) || !Array.isArray(temperature) || !Array.isArray(humidity) || !Array.isArray(pressure) ||
-    !times.length || times.length > 80 || [temperature, humidity, pressure].some(values => values.length !== times.length)) {
+    !times.length || times.length > 400 || [temperature, humidity, pressure].some(values => values.length !== times.length)) {
     throw new Error('Serie meteo non valida')
   }
   const hours = times.flatMap((value, index) => {
     // Unix time evita di interpretare le ore Europe/Rome nel fuso del visitatore.
     const time = typeof value === 'number' && Number.isFinite(value) ? value * 1000 : NaN
-    if (!Number.isFinite(time) || time > now + 50 * 60 * 60_000) return []
+    // Alcune risposte includono fino a 16 giorni anche se il client usa solo
+    // +1/+6/+24 ore: accetta la serie completa e conserva la finestra utile.
+    if (!Number.isFinite(time) || time < now - 6 * 60 * 60_000 || time > now + 26 * 60 * 60_000) return []
     const metric = (candidate: unknown, key: 'temperature_c' | 'humidity_pct' | 'pressure_hpa') => {
       if (typeof candidate !== 'number' || !Number.isFinite(candidate)) return null
       if (key === 'humidity_pct' && (candidate < 0 || candidate > 100)) throw new Error('Umidità oraria fuori limite')
