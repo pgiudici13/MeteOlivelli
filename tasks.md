@@ -1,5 +1,7 @@
 # Attività operative — MeteOlivelli
 
+> **Aggiornamento previsioni — 30 ottobre 2026:** su richiesta dell’utente, implementata una base gratuita oraria per Pavia con correzione locale attenuata, richiesta API limitata da cache 30 minuti e fallback locale alla caduta della rete; attribuzione nel footer e informativa Privacy aggiornata. Nessun abbonamento, scrittura remota, deploy, commit o push. Verifiche locali: `npm run build`, `npm run lint`, `npm run frontend:test` (174 test) e `git diff --check` superati; build con avviso già noto sui chunk PDF oltre 500 kB. Non è stata verificata la risposta live dell’API né l’accuratezza meteo; resta da provare nel browser dopo pubblicazione autorizzata.
+
 > **28 ottobre 2026 — Fase 7 / UI-I18N:** funzionalità multilingua e °C/°F implementata localmente nel branch `codex/multilingual-temperature`, su richiesta esplicita. Lingua iniziale del dispositivo, scelta salvata prioritaria e italiano come ripiego; bandiere e °C/°F sotto il footer, senza rimando in alto. Traduzioni locali senza provider esterno. Nessun commit, push o rilascio incluso.
 
 **Revisione Informazioni — 27 ottobre 2026:** aggiornati i testi sul progetto, il percorso dati, la freschezza e le previsioni; rimossi i riferimenti a lavori in corso dalla pagina, senza modificare il filtro delle provenienze. `npm run check` e `git diff --check` superati; verifica visiva browser non eseguita.
@@ -302,21 +304,22 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato al 30 ottobre: motore locale v3 implementato; per decisione utente la serie usa `captured_at` e non richiede `measured_at`. Testare su storico più ampio; accuratezza meteorologica non dimostrata.**
-- **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
+- [ ] **Stato al 30 ottobre:** modello locale v4 con backtest temporale resta disponibile come ripiego; il nuovo adattamento ibrido usa una base oraria e poche osservazioni recenti possono correggerla con limiti. `captured_at` è la base dichiarata quando presente. Accuratezza meteorologica reale ancora da misurare.
+- **Scopo:** verificare come usare le letture della stazione per adattare con cautela la base oraria, senza attribuire accuratezza non dimostrata.
 - **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
 - **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
 - **Risultato:** decisione motivata per +30m/+1h/giornata, anche “non supportato con i dati attuali”. Nessuna conversione arbitraria di pressione/umidità in sole o pioggia; cadenza oraria non fornisce una verità di confronto reale a mezz’ora.
 - **Verifica:** assenza di uso di dati futuri nella valutazione, dati mancanti/sospetti, timestamp acquisizione non idonei, confronto con base semplice e limiti dell’orizzonte giornaliero. Nessuna attendibilità meteorologica dichiarata senza prove.
-- **Riferimento:** plan.md §6, D23 e §18. La vecchia proposta provider è superata.
+- **Riferimento:** plan.md §6, decisione D23 aggiornata e §18.
 
 ### WX-02 — Implementare le previsioni meteo e lo stato non disponibile
 
-- [ ] **Stato al 30 ottobre: worker, feed e UI usano `captured_at` per le osservazioni live/historical, anche se manca `measured_at`; i sintetici restano esclusi. Le soglie di cadenza e backtest restano attive; validazione reale WX-01 e calcolo/cache/archivio condivisi restano aperti.**
+- [x] **30 ottobre 2026 — previsione ibrida locale:** base oraria gratuita per Pavia, interpolazione temporale, unità e valori convalidati, aggiustamento locale limitato e decadente se la lettura `live`/`historical` è recente e non sospetta. La rete viene consultata al massimo ogni 30 minuti per dispositivo; dati in cache riutilizzabili fino a 6 ore e fallback al modello locale verificato. I sintetici sono esclusi. Attribuzione discreta nel footer; Privacy aggiornata per IP/coordinate e cache. Nessuna modifica Supabase/Vercel, abbonamento, commit o push.
+- [ ] Accuratezza per orizzonte/grandezza non dimostrata su misure reali. Confermare risposta API in produzione, corretto orientamento delle coordinate della stazione e funzionamento dopo il deploy richiesto separatamente.
 - **Scopo:** calcolare e servire solo previsioni supportate dalla verifica, separandole dalle misure.
-- **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
-- **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
-- **Risultato:** sezione “Previsioni meteo MeteOlivelli”, limiti espliciti e “Previsione non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata. Il modello statistico locale attuale non è ancora validato come previsione meteorologica.
+- **Input/file:** `src/forecast-provider.ts`, `src/forecast-hybrid.ts`, feed e componenti frontend; contratto aggiornato in `docs/backend.md`.
+- **Come:** richiedere al client una previsione per Pavia, con cache individuale di 30 minuti e riuso della risposta fino a 6 ore; allineare le ore in Europe/Rome, usare osservazioni fisiche recenti e valide per un offset limitato con decadimento; attribuire nel footer e spiegare il trasferimento IP/coordinate nella Privacy.
+- **Risultato:** stime disponibili anche senza archivio della stazione se il servizio risponde; dettagli di metodo e scadenza; fallback al modello locale o indisponibilità esplicita in assenza di entrambi. Nessuna condizione o affidabilità meteorologica inventata.
 - **Verifica:** dati insufficienti/vecchi/sospetti, timestamp PC, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
 - **Riferimento:** plan.md §6, §18 e RF7.
 - [x] **30 ottobre 2026 — base temporale aggiornata su richiesta:** il feed usa la serie `captured_at`; il modello ammette righe `live`/`historical` senza `measured_at`, esclude sintetici e conserva backtest, limiti di cadenza e timestamp server. Test frontend (171), build, lint e `git diff --check` superati. Nessun deploy. I record attualmente visibili restano insufficienti per dimostrare una previsione; con campionamento ogni tre ore il +1h non è supportato dalla cadenza.

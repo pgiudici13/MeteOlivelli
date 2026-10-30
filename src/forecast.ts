@@ -9,8 +9,10 @@ export const horizons = [
 ] as const
 export const methodNames = {
   persistence: 'Ultimo valore', trend: 'Tendenza recente smorzata', daily: 'Ciclo di 24 ore corretto',
+  provider: 'Andamento orario previsto', 'local-adjustment': 'Andamento previsto con correzione locale',
 } as const
 export type Method = keyof typeof methodNames
+type LocalMethod = 'persistence' | 'trend' | 'daily'
 interface Point { time: number; value: number; received: number }
 export interface ForecastEstimate {
   metric: Metric
@@ -39,7 +41,7 @@ const simulationHorizons = [
   { hours: 24, label: 'Giornata · +24 ore · simulazione' },
 ] as const
 const hour = 3600000
-const methods: Method[] = ['persistence', 'trend', 'daily']
+const methods: LocalMethod[] = ['persistence', 'trend', 'daily']
 const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length
 const median = (values: number[]) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 const iso = (time: number) => new Date(time).toISOString()
@@ -60,7 +62,7 @@ function nearest(points: Point[], time: number, tolerance: number, end = points.
 }
 
 /** Ogni previsione usa soltanto le osservazioni già disponibili alla sua origine. */
-function predict(points: Point[], end: number, hours: number, method: Method, cadence: number, tolerance: number): number | null {
+function predict(points: Point[], end: number, hours: number, method: LocalMethod, cadence: number, tolerance: number): number | null {
   const last = points[end - 1]
   if (!last) return null
   if (method === 'persistence') return last.value
@@ -117,7 +119,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   // Al massimo 96 origini distanziate almeno quanto l’orizzonte, senza target sovrapposti.
   const spacing = Math.max(hours * hour, (last.time - points[0].time) / 96)
   const cutoff = points[0].time + (last.time - points[0].time) / 2
-  const scores: { time: number; target: number; errors: Partial<Record<Method, number>> }[] = []
+  const scores: { time: number; target: number; errors: Partial<Record<LocalMethod, number>> }[] = []
   let previousOrigin = -Infinity
   for (let i = 3; i < points.length - 1; i++) {
     const origin = points[i]
@@ -129,7 +131,7 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
     const localTolerance = Math.min(localCadence / 4, tolerance)
     const actual = nearest(points, origin.time + hours * hour, localTolerance)
     if (!actual || actual.time <= origin.received) continue
-    const errors: Partial<Record<Method, number>> = {}
+    const errors: Partial<Record<LocalMethod, number>> = {}
     for (const method of methods) {
       const value = predict(known, known.length, hours, method, localCadence, localTolerance)
       if (value !== null && physical(metric, value)) errors[method] = Math.abs(value - actual.value)
@@ -143,9 +145,9 @@ function estimate(rows: Measurement[], metric: Metric, hours: number, now: numbe
   const eligible = methods.filter(method => selection.length >= minimumCases && holdout.length >= minimumCases &&
     selection.every(score => score.errors[method] !== undefined) && holdout.every(score => score.errors[method] !== undefined))
   if (!eligible.length) return unavailable(metric, 'Storico insufficiente: servono confronti datati per selezionare e poi verificare il modello.')
-  const mae = (method: Method, sample: typeof scores) => mean(sample.map(score => score.errors[method]!))
+  const mae = (method: LocalMethod, sample: typeof scores) => mean(sample.map(score => score.errors[method]!))
   // Si richiede il 5% di miglioramento sulla selezione per lasciare la persistenza.
-  let method: Method = 'persistence'
+  let method: LocalMethod = 'persistence'
   for (const candidate of eligible) {
     if (mae(candidate, selection) < mae(method, selection) * 0.95) method = candidate
   }

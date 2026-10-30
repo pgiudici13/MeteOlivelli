@@ -1,5 +1,11 @@
 # Frontend — stato e verifiche
 
+## Previsioni ibride — 30 ottobre 2026
+
+La Home usa una previsione oraria gratuita per Pavia come base a +1, +6 e +24 ore. Il modello locale può applicare una correzione piccola e limitata quando esiste almeno un’osservazione `live`/`historical` recente, con `captured_at`, valida e non sospetta. Le misure sintetiche non partecipano. Il browser usa timestamp Unix per gestire correttamente `Europe/Rome` indipendentemente dal fuso del visitatore, interroga il servizio al massimo ogni 30 minuti e riutilizza una cache fino a 6 ore. In assenza di rete usa il modello locale già presente se la verifica temporale fornisce un risultato.
+
+La fonte è accreditata discretamente nel footer. La pagina Privacy spiega che la richiesta esterna trasmette IP e coordinate fisse Pavia, ma non le letture della stazione. Nessun token, account o abbonamento è richiesto. I test non dimostrano precisione reale: occorre confrontare previsioni e campioni successivi prima di presentarle come validate.
+
 La barra laterale mostra la posizione di scroll della pagina e si aggiorna anche quando cambiano le dimensioni del contenuto. Il collegamento «Torna su» nel footer porta all’inizio e trasferisce lì il focus; lo scroll manuale rimane nativo. Il cursore personalizzato è riservato a desktop con puntatore preciso; movimento ridotto disattiva le transizioni.
 
 ## Integrazione locale con main — 28 ottobre 2026

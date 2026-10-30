@@ -21,11 +21,13 @@ export function ForecastSection() {
           <dd>{translate(available ? <>
             <span className="forecast-value">{translate(formatValue(estimate.value, metric.key))} <span>{translate(displayUnit(metric.key))}</span></span>
             <p className="small">{translate("Per ")}<time dateTime={estimate.target!}>{translate(formatTime(estimate.target))}</time></p>
-            <details className="forecast-evidence"><summary>{translate("Metodo ed errore osservato")}</summary>
+            <details className="forecast-evidence"><summary>{translate("Come è stimato questo valore")}</summary>
               <p>{translate(estimate.method && methodNames[estimate.method])}.</p>
-              <p>{translate("Errore medio assoluto: ")}{translate(formatValue(estimate.mae, metric.key, true))} {translate(displayUnit(metric.key))}{translate(", su ")}{translate(estimate.cases)}{translate(" confronti successivi alla selezione del metodo. Riferimento “ultimo valore”: ")}{translate(formatValue(estimate.baselineMae, metric.key, true))} {translate(displayUnit(metric.key))}.</p>
-              <p>{translate("È un errore storico, non una garanzia o una probabilità di riuscita.")}</p>
-              <p>{translate("Ultima osservazione usata: ")}{translate(formatTime(estimate.origin))}{translate(". Previsione valida fino alle ")}{translate(formatTime(estimate.validUntil, true))}{translate("; può scadere prima dell’orario previsto se non arrivano nuove misure.")}</p>
+              {estimate.method === 'provider' || estimate.method === 'local-adjustment' ? <p>{translate(estimate.method === 'local-adjustment' ? "La lettura recente della stazione calibra con cautela il valore previsto; l’effetto diminuisce con il tempo e l’orizzonte." : "Il valore segue l’andamento meteorologico orario previsto per Pavia; non richiede uno storico minimo della stazione.")}</p> : <>
+                <p>{translate("Errore medio assoluto: ")}{translate(formatValue(estimate.mae, metric.key, true))} {translate(displayUnit(metric.key))}{translate(", su ")}{translate(estimate.cases)}{translate(" confronti successivi alla selezione del metodo. Riferimento “ultimo valore”: ")}{translate(formatValue(estimate.baselineMae, metric.key, true))} {translate(displayUnit(metric.key))}.</p>
+                <p>{translate("È un errore storico, non una garanzia o una probabilità di riuscita.")}</p>
+              </>}
+              <p>{translate(estimate.lastObservationId ? "Ultima osservazione usata: " : "Dati orari aggiornati: ")}{translate(formatTime(estimate.origin))}{translate(estimate.lastObservationId ? ". Previsione valida fino alle " : ". Valori attesi per ")}{estimate.lastObservationId ? translate(formatTime(estimate.validUntil, true)) : translate(formatTime(estimate.target))}{estimate.lastObservationId && translate("; la correzione locale decade progressivamente.")}</p>
             </details>
           </> : <>
             <span className="forecast-unavailable">{translate(!forecast.loaded ? 'Valutazione in corso…' : 'Previsione non disponibile')}</span>
@@ -40,12 +42,12 @@ export function ForecastSection() {
     <h2 id="forecast-title">{translate("Previsioni meteo MeteOlivelli")}</h2>
     <p className="secondary">{translate("Le previsioni di temperatura, umidità e pressione sono mostrate separatamente dalle osservazioni della stazione.")}</p>
     <p className="small">{translate("La previsione a 24 ore indica il valore atteso tra 24 ore, non le massime e minime del giorno. Questo modello non prevede nuvole, pioggia o altri fenomeni atmosferici.")}</p>
-    <div role="status" className="small">{translate(!forecast.loaded ? 'Valutazione dello storico…' : forecast.error ? 'Lettura o calcolo non riusciti. Nuovo tentativo automatico.' : 'Il modello usa l’orario di acquisizione sul PC per ordinare i campioni. Non certifica l’ora fisica della misura; servono comunque uno storico e confronti sufficienti.')}</div>
+    <div role="status" className="small">{translate(!forecast.loaded ? 'Caricamento delle previsioni…' : forecast.error ? 'Previsione temporaneamente non disponibile; nuovo tentativo automatico.' : 'Le stime orarie sono riferite a Pavia. Le letture recenti della stazione possono applicare una correzione limitata; l’orario di acquisizione sul PC non certifica l’ora fisica della misura.')}</div>
     <div className="forecast-grid">{translate(forecastCards)}</div>
     <details className="forecast-method"><summary>{translate("Come vengono calcolate le previsioni")}</summary>
-      <p>{translate("Il modello confronta ultimo valore, tendenza recente smorzata e ciclo di 24 ore corretto. Selezione e verifica usano periodi separati: nessun dato futuro viene usato per calcolare una previsione passata. Ogni grandezza e orizzonte ha una propria verifica.")}</p>
-      <p>{translate("Campioni mancanti, sospetti o troppo vecchi non producono numeri sostitutivi. L’ultimo valore è usato come riferimento: se nessun metodo lo supera nel periodo di selezione, il modello ritira il risultato invece di ripetere la misura come previsione. Uno storico insufficiente o un modello che peggiora rispetto al riferimento resta non disponibile.")}</p>
-      {translate(forecast.run && <p>{translate("Versione: ")}{translate(forecast.run.version)}{translate(". Valutazione: ")}{translate(formatTime(forecast.run.generatedAt))} · {translate(forecast.run.inputCount)}{translate(" campioni con orario di acquisizione PC considerati. Fonte: stazione MeteOlivelli.")}</p>)}
+      <p>{translate("La previsione oraria per Pavia fornisce la base anche quando lo storico scolastico è breve. Una lettura reale recente e confrontabile può correggere lievemente ogni grandezza; il contributo si attenua con il tempo e non sostituisce i dati meteorologici previsti.")}</p>
+      <p>{translate("Campioni mancanti, sospetti o troppo vecchi non correggono la stima. Senza una previsione oraria disponibile il modello locale verificato resta un ripiego e può indicare che lo storico non basta. Le previsioni sono stime, non garanzie, e descrivono temperatura, umidità e pressione senza prevedere pioggia o altri fenomeni.")}</p>
+      {translate(forecast.run && <p>{translate("Ultimo aggiornamento: ")}{translate(formatTime(forecast.run.generatedAt))}{translate(". Campioni fisici nello storico consultato: ")}{translate(forecast.run.inputCount)}{translate(". Le ore sono interpretate in Europe/Rome e tengono conto del ciclo giornaliero previsto.")}</p>)}
     </details>
   </section>
 }

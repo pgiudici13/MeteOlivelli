@@ -2,6 +2,8 @@
 
 > **Decisione locale 30 ottobre 2026:** su richiesta dell’utente, il feed previsionale usa `captured_at` per ordinare i campioni live/historical, anche quando `measured_at` manca o differisce. L’orario è di acquisizione sul PC e non attesta l’istante fisico della misura. I campioni sintetici restano esclusi; i limiti di cadenza, storico e verifica del modello restano attivi. La modifica è locale: non implica deploy o modifiche a Supabase.
 
+> **Previsioni — aggiornamento 30 ottobre 2026:** per la Home è stata aggiunta una base gratuita di previsioni orarie per le coordinate fisse della scuola a Pavia, con correzione locale prudente delle letture fisiche recenti. La richiesta è fatta dal browser, senza chiavi o abbonamento; cache per 30 minuti e riuso fino a 6 ore. L’attribuzione è in piccolo nel footer; la Privacy dichiara IP e coordinate trasmessi. Nessun dato di misura viene inviato al provider, e nessuna configurazione Supabase viene modificata. L’accuratezza va ancora valutata sul funzionamento reale.
+
 > **Aggiornamento 24 ottobre:** tipo applicativo `synthetic` distinto; batch pubblico corrente di 241 campioni amministrativi ogni tre ore, in sostituzione dei record presenti; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti agli aggiornamenti sintetici.
 
 ## Cosa è pronto
@@ -14,6 +16,16 @@ ora applicati e verificati nel progetto Supabase MeteOlivelli scelto dall’uten
 CSV, clock, writer e PC reali ancora da convalidare.
 
 Schema, matrice accessi, letture, applicazione e limiti: [backend-schema.md](backend-schema.md).
+
+## Previsioni orarie e adattamento locale
+
+`src/forecast-provider.ts` legge i valori orari di temperatura a 2 m, umidità relativa e pressione al suolo, chiedendo timestamp Unix per evitare che il browser interpreti il fuso nel luogo del visitatore. La pagina mostra i valori a +1, +6 e +24 ore in `Europe/Rome`. I dati meteorologici restano separati dalle osservazioni della stazione.
+
+`src/forecast-hybrid.ts` può applicare alla previsione una correzione limitata derivata dal residuo dell’ultima osservazione `live`/`historical` valida e non sospetta rispetto al dato orario nel suo momento di acquisizione. La correzione ha peso massimo 25%, limiti di ±3 °C, ±12 punti percentuali e ±6 hPa; decade con l’età della misura e con l’orizzonte. Se la misura non è recente o non si allinea a un’ora di previsione, si usa la base senza correzione. Il backtest locale precedente resta fallback solo quando il servizio non risponde.
+
+La risposta viene conservata nel `localStorage` del dispositivo per riuso: aggiornamento dopo 30 minuti, ultima risposta riutilizzabile fino a 6 ore. Non viene fatto un fetch a ogni polling dei dati della stazione (15 secondi). In assenza di rete e senza una risposta in cache valida, il client prova il modello locale verificato; le misure del sito continuano indipendentemente. La previsione non è garantita e i test locali dimostrano solo parsing, fusi, interpolazione e limiti dell’adattamento, non accuratezza meteorologica.
+
+Fonte, licenza, condizioni e limiti sono riportati in fondo alla pagina e nella [Privacy](../src/pages/PrivacyPage.tsx). Il servizio gratuito è destinato all’uso non commerciale/educativo, ha limiti di richiesta e richiede attribuzione CC BY 4.0; non è stato attivato alcun piano a pagamento. Verificare le condizioni correnti prima di cambiare uso o traffico.
 
 La Fase 6 ha predisposto l'[uploader Python](../uploader/README.md) sul contratto v1:
 outbox SQLite, lettura incrementale configurabile, retry e quarantena. Test solo

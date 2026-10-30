@@ -13,6 +13,8 @@ import { readFreshChartData } from '../src/pdf-chart-data.ts'
 import { buildHistoryDocument } from '../src/pdf-history-document.ts'
 import { downloadPdfBlob } from '../src/pdf-download.ts'
 import { createFreshHistoryPdf } from '../src/pdf-history-export.ts'
+import { loadProviderForecast, parseProviderForecast } from '../src/forecast-provider.ts'
+import { buildHybridForecast } from '../src/forecast-hybrid.ts'
 
 // Tutti i valori di questa suite sono sintetici; nessuna rete, ambiente o credenziale.
 const row = (number = 1, overrides = {}) => {
@@ -132,6 +134,61 @@ test('la sezione previsioni presenta soltanto osservazioni fisiche', () => {
   assert.match(forecast, /orario di acquisizione sul PC/)
   assert.doesNotMatch(forecast, /forecast-simulation|dati fittizi|simulazione tecnica/)
   assert.doesNotMatch(forecast, /Stime sperimentali/)
+})
+
+test('forecast orario usa timestamp locali con fuso e valida variabili e limiti', () => {
+  const now = Date.parse('2026-10-30T12:30:00.000Z')
+  const forecast = parseProviderForecast({ hourly: {
+    time: [Date.parse('2026-10-30T13:00+01:00') / 1000, Date.parse('2026-10-30T14:00+01:00') / 1000],
+    temperature_2m: [12.5, 13], relative_humidity_2m: [65, 63], surface_pressure: [1014, 1013],
+  } }, now)
+  assert.equal(forecast.hours[1].pressure_hpa, 1013)
+  assert.equal(forecast.hours[0].time, Date.parse('2026-10-30T13:00+01:00'))
+  assert.throws(() => parseProviderForecast({ hourly: { time: ['bad'], temperature_2m: [1], relative_humidity_2m: [50], surface_pressure: [1000] } }, now))
+  assert.throws(() => parseProviderForecast({ hourly: { time: [now / 1000], temperature_2m: [1], relative_humidity_2m: [101], surface_pressure: [1000] } }, now))
+})
+
+test('forecast usa la cache e non richiama l’API a ogni polling', async () => {
+  const now = Date.parse('2026-10-30T12:30:00.000Z')
+  let calls = 0
+  const fakeFetch = async (input, init) => {
+    calls += 1
+    assert.match(String(input), /timezone=Europe%2FRome/)
+    assert.match(String(input), /timeformat=unixtime/)
+    assert.ok(init.signal)
+    return { ok: true, json: async () => ({ hourly: {
+      time: [now / 1000, (now + 3600000) / 1000],
+      temperature_2m: [10, 11], relative_humidity_2m: [60, 58], surface_pressure: [1015, 1014],
+    } }) }
+  }
+  const first = await loadProviderForecast(now, fakeFetch)
+  const second = await loadProviderForecast(now + 10 * 60000, fakeFetch)
+  assert.equal(calls, 1)
+  assert.equal(second, first)
+  let failures = 0
+  const stale = await loadProviderForecast(now + 40 * 60000, async () => { failures += 1; throw new Error('offline') })
+  const reused = await loadProviderForecast(now + 44 * 60000, async () => { failures += 1; throw new Error('offline') })
+  assert.equal(failures, 1)
+  assert.equal(reused, stale)
+})
+
+test('la stima ibrida è disponibile con pochi campioni e limita la correzione locale', () => {
+  const now = Date.parse('2026-10-30T12:30:00.000Z')
+  const provider = { generatedAt: new Date(now).toISOString(), hours: Array.from({ length: 30 }, (_, index) => ({
+    time: now - 6 * 3600000 + index * 3600000,
+    temperature_c: 10 + index * 0.1, humidity_pct: 60 - index * 0.1, pressure_hpa: 1015,
+  })) }
+  const withoutStation = buildHybridForecast([], provider, now)
+  assert.equal(withoutStation.dataKind, 'none')
+  assert.equal(withoutStation.horizons[0].estimates[0].method, 'provider')
+  assert.ok(Number.isFinite(withoutStation.horizons[0].estimates[0].value))
+  const recent = row(90, { acquisition_kind: 'live', captured_at: new Date(now - 15 * 60000).toISOString(), received_at: new Date(now).toISOString(), temperature_c: 40 })
+  const adjusted = buildHybridForecast([recent], provider, now).horizons[0].estimates[0]
+  assert.equal(adjusted.method, 'local-adjustment')
+  assert.ok(adjusted.value < 16)
+  assert.ok(adjusted.value > withoutStation.horizons[0].estimates[0].value)
+  const stale = row(91, { acquisition_kind: 'live', captured_at: new Date(now - 7 * 3600000).toISOString(), received_at: new Date(now).toISOString(), temperature_c: 20 })
+  assert.equal(buildHybridForecast([stale], provider, now).horizons[0].estimates[0].method, 'provider')
 })
 
 test('logo scolastico in testata apre il sito ufficiale in tutte le pagine', () => {

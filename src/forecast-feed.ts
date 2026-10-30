@@ -39,7 +39,9 @@ export function createForecastFeed(publish: (state: ForecastState) => void, comp
           }, basis))
           if (stopped) return
           const nextInputSignature = JSON.stringify(rows)
-          const run = nextInputSignature === inputSignature && state.run ? state.run : await compute(rows, Date.parse(until))
+          const providerRefreshDue = state.run && Date.parse(until) - Date.parse(state.run.generatedAt) >= 30 * 60000
+          const run = nextInputSignature === inputSignature && state.run && !providerRefreshDue
+            ? state.run : await compute(rows, Date.parse(until))
           if (stopped) return
           state = { ...state, run }
           signature = nextSignature

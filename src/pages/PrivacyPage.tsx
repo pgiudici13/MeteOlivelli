@@ -47,7 +47,7 @@ export function PrivacyPage() {
       </section>
 
       <aside className="privacy-draft" role="note">
-        <strong>{translate("Informazioni aggiornate al 27 ottobre 2026")}</strong>
+        <strong>{translate("Informazioni aggiornate al 30 ottobre 2026")}</strong>
         <p>{translate("Le impostazioni degli strumenti possono cambiare. Per i dati tecnici gestiti dai fornitori si applicano anche le loro informative e condizioni; per richieste o chiarimenti puoi contattare direttamente il titolare.")}</p>
       </aside>
 
@@ -66,7 +66,7 @@ export function PrivacyPage() {
             <li><strong>{translate("Preferenze locali:")}</strong>{translate(" il browser salva l’eventuale scelta di disattivare o riattivare le statistiche nella chiave ")}<code>{translate("meteolivelli-analytics-consent")}</code>{translate(" e, se selezionato, il tema grafico. La preferenza resta fino a una modifica da “Preferenze statistiche” o alla cancellazione dei dati del sito.")} {translate("Lingua e unità vengono salvate solo su questo dispositivo.")}</li>
             <li><strong>{translate("Google Analytics:")}</strong>{translate(" il tag si avvia per impostazione predefinita; puoi disattivarlo da “Preferenze statistiche”. Per il quiz inviamo l’avvio e il completamento, con il nome del quiz e il punteggio numerico totale; non inviamo risposte, nome, email o identificatori di account. Google Analytics può associare gli eventi ai propri identificatori pseudonimi per produrre statistiche sul numero di utenti e sui risultati aggregati. I segnali Google Ads e la personalizzazione degli annunci sono disattivati. La proprietà è configurata per conservare i dati degli eventi per 2 mesi e quelli a livello utente per 14 mesi; la reimpostazione del periodo in caso di nuova attività è attiva.")}</li>
             <li><strong>{translate("Vercel Web Analytics e Speed Insights:")}</strong>{translate(" si avviano per impostazione predefinita e puoi disattivarli dalle preferenze. Vercel Web Analytics dichiara di non usare cookie e mostra dati di traffico aggregati. Speed Insights raccoglie misure tecniche di prestazione associate a informazioni come percorso, dispositivo, browser e sistema operativo; Vercel dichiara che i dati sono anonimi. Il progetto è nel piano Hobby: i dati Web Analytics sono consultabili per 1 mese e la finestra di reporting Speed Insights è di 7 giorni.")}</li>
-            <li><strong>{translate("Misure meteorologiche:")}</strong>{translate(" la pagina legge dati pubblici dal backend Supabase. La consultazione non richiede un account e il browser non invia misure alla stazione. Le misure pubblicate descrivono la stazione, non il visitatore.")}</li>
+            <li><strong>{translate("Misure meteorologiche:")}</strong>{translate(" la pagina legge le osservazioni pubbliche da Supabase e richiede una previsione oraria per le coordinate fisse della scuola a un servizio meteorologico esterno. La richiesta può trasmettere al fornitore l’indirizzo IP e le coordinate di Pavia; non invia le letture della stazione. Il risultato viene memorizzato nel browser per ridurre le richieste. La consultazione non richiede un account e le misure pubblicate descrivono la stazione, non il visitatore.")}</li>
           </ul>
         </section>
 
@@ -80,11 +80,12 @@ export function PrivacyPage() {
         <section className="privacy-block" aria-labelledby="recipients-title">
           <p className="eyebrow section-index">{translate("04 / Destinatari")}</p>
           <h2 id="recipients-title">{translate("Fornitori del servizio.")}</h2>
-          <p>{translate("I fornitori coinvolti sono Vercel (hosting e strumenti statistici), Google (Google Analytics) e Supabase (servizio backend per la lettura dei dati meteorologici). Il database Supabase è configurato nella regione AWS eu-west-1; alcuni dati dell’account, telemetria e registri operativi del fornitore possono essere trattati fuori da tale regione. I fornitori possono avvalersi di subfornitori e trasferire dati anche fuori dallo Spazio economico europeo secondo i propri accordi e garanzie, incluse le decisioni di adeguatezza o le clausole contrattuali standard quando applicabili. Consulta le informative e i documenti contrattuali linkati sotto per maggiori dettagli.")}</p>
+          <p>{translate("I fornitori coinvolti sono Vercel (hosting e strumenti statistici), Google (Google Analytics), Supabase (lettura delle osservazioni meteorologiche) e Open-Meteo (previsioni orarie). L’uso previsto delle previsioni è educativo e senza abbonamento; il servizio gratuito applica limiti di utilizzo e può cambiare condizioni o disponibilità. Il database Supabase è configurato nella regione AWS eu-west-1; alcuni dati dell’account, telemetria e registri operativi dei fornitori possono essere trattati fuori da tale regione. I fornitori possono avvalersi di subfornitori e trasferire dati anche fuori dallo Spazio economico europeo secondo i propri accordi e garanzie, incluse le decisioni di adeguatezza o le clausole contrattuali standard quando applicabili. Consulta le informative e i documenti contrattuali linkati sotto per maggiori dettagli.")}</p>
           <ul className="privacy-links">
             <li><a href="https://vercel.com/legal/privacy-policy" rel="noreferrer">{translate("Informativa privacy di Vercel ↗")}</a></li>
             <li><a href="https://policies.google.com/privacy" rel="noreferrer">{translate("Informativa privacy di Google ↗")}</a></li>
             <li><a href="https://supabase.com/privacy" rel="noreferrer">{translate("Informativa privacy di Supabase ↗")}</a></li>
+            <li><a href="https://open-meteo.com/en/terms" rel="noreferrer">{translate("Condizioni e privacy di Open-Meteo ↗")}</a></li>
             <li><a href="https://supabase.com/legal/customer-resources/data-processing-addendum" rel="noreferrer">{translate("Accordo sul trattamento dati di Supabase ↗")}</a></li>
             <li><a href="https://supabase.com/legal/privacy-resources/data-residency-and-transfers-faq" rel="noreferrer">{translate("Residenza e trasferimenti dei dati Supabase ↗")}</a></li>
             <li><a href="https://support.google.com/analytics/answer/7667196?hl=it" rel="noreferrer">{translate("Conservazione dei dati in Google Analytics ↗")}</a></li>
