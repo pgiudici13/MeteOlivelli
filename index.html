@@ -2,7 +2,7 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" data-site-favicon type="image/png" sizes="96x96" href="/favicon-dark-96.png" />
+    <link rel="icon" data-site-favicon type="image/svg+xml" href="/favicon-dark.svg?v=3" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preload" href="/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="description" content="Consulta temperatura, umidità, pressione e storico della stazione meteorologica del Liceo Teresio Olivelli di Pavia, quando disponibili." />
@@ -31,13 +31,13 @@
         document.documentElement.dataset.theme = theme
         document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f7f5f2' : '#101010'
         const favicon = document.querySelector('link[data-site-favicon]')
-        if (favicon) favicon.href = theme === 'light' ? '/favicon-light-96.png' : '/favicon-dark-96.png'
+        if (favicon) favicon.href = theme === 'light' ? '/favicon-light.svg?v=3' : '/favicon-dark.svg?v=3'
       } catch {
         const theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
         document.documentElement.dataset.theme = theme
         document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f7f5f2' : '#101010'
         const favicon = document.querySelector('link[data-site-favicon]')
-        if (favicon) favicon.href = theme === 'light' ? '/favicon-light-96.png' : '/favicon-dark-96.png'
+        if (favicon) favicon.href = theme === 'light' ? '/favicon-light.svg?v=3' : '/favicon-dark.svg?v=3'
       }
     </script>
     <title>MeteOlivelli | Meteo scolastico a Pavia</title>
