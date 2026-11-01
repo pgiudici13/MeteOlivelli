@@ -2,44 +2,42 @@
 
 **Una piattaforma meteorologica scolastica, aperta alla curiosità e all'apprendimento.**
 
-MeteOlivelli è un progetto sviluppato da **Pietro Giudici e Nicholas Borin**, studenti del Liceo Teresio Olivelli di Pavia. L'obiettivo è rendere consultabili dal web le misurazioni di una stazione meteorologica Arduino della scuola e offrire uno strumento educativo per esplorare temperatura, umidità e pressione nel tempo.
+Il sito MeteOlivelli è sviluppato da **Pietro Giudici e Nicholas Borin**, studenti del Liceo Teresio Olivelli di Pavia. L'obiettivo è rendere consultabili dal web le misurazioni di una stazione meteorologica Arduino della scuola e offrire uno strumento educativo per esplorare temperatura, umidità e pressione nel tempo.
 
 **Sito:** [meteolivelli.vercel.app](https://meteolivelli.vercel.app/) · **Roadmap:** [plan.md](plan.md) · **Come contribuire:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-> **Frontend pubblico verificato — 27 ottobre 2026:** la dashboard finale mostra solo campioni con provenienza `live` o `historical`; esclude quelli sintetici o senza provenienza anche dai PDF e dalle previsioni. Verificato il rilascio `e625950`: 14 problemi corretti, font iniziale ridotto del 79,5%, build/lint e suite passati. [Audit e limiti](docs/release-audit-20261027.md).
-
-> **Stato del progetto — 26 ottobre 2026 (storico):** la web app è online, ma l'acquisizione dalla stazione Arduino e dal PC scolastico non è ancora stata collaudata sul campo. Nel database sono presenti dati **sintetici di prova**, non osservazioni meteorologiche reali. La distinzione è essenziale anche quando il sito mostra grafici o simulazioni.
+> **Stato del progetto:** applicazione web, backend, uploader e documentazione sono realizzati; il collaudo della stazione e dell’uploader sul PC Windows della scuola resta da eseguire. Il sito pubblico è online. I dati sintetici e quelli senza provenienza verificata sono esclusi dalla dashboard, dai PDF e dalle stime. [Verifica della versione pubblica](docs/release-audit-20261027.md).
 
 ## Cosa offre
 
 - Dashboard responsive con temperatura, umidità, pressione, tema chiaro/scuro e informazioni sui dati.
 - Grafici e storico navigabile, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
 - Sezione educativa **Gioca con il meteo**, con quiz e spiegazioni.
-- Motore di stime sperimentali: valutazioni su misure fisiche datate e verificabili.
-- Backend Supabase con API di lettura e ingestione; uploader Python resiliente con SQLite, ancora da provare sul PC Windows della scuola.
+- Previsioni sperimentali ibride, con dati Open-Meteo e adattamento alle osservazioni ammesse della stazione.
+- Backend Supabase con API di lettura e ingestione; uploader Python resiliente con coda SQLite e retry.
 
-**Flusso previsto, non ancora validato sul dispositivo reale:** sensori → Arduino → file CSV sul PC Windows → uploader Python → Supabase → dashboard web.
+**Flusso previsto, da verificare sul dispositivo reale:** sensori → Arduino → file CSV sul PC Windows → uploader Python → Supabase → dashboard web.
 
 
 ## Stato del progetto
 
-Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/), pubblicato da `main` tramite GitHub → Vercel. La dashboard è su `/home`; `/info` presenta il progetto, la stazione e la provenienza dei dati. Sono disponibili tema chiaro/scuro, logo scolastico e layout responsive. Il codice conserva lo stack React/TypeScript/Vite.
+Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/). La dashboard è su `/home`; `/info` presenta il progetto, la stazione e la provenienza dei dati. Sono disponibili tema chiaro/scuro, logo scolastico e layout responsive. Il codice usa React, TypeScript e Vite.
 
 La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disponibile su `/gioca`: presenta dieci domande casuali fra venti curiosità, mescola le risposte e spiega il risultato di ogni scelta.
 
-La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Il modello statistico locale è sperimentale: la modalità fisica usa osservazioni reali ammesse e propone +30 minuti, +1 ora e +24 ore solo quando i dati sono sufficienti. La versione pubblicata esclude le simulazioni dalla dashboard.
+La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Le previsioni sperimentali combinano i dati Open-Meteo disponibili con un adattamento basato sulle osservazioni ammesse; la fonte e gli orari sono indicati nella sezione dedicata. Le previsioni sono distinte dalle misure della stazione.
 
-**Dati di prova:** l’ultima verifica documentata il 26 ottobre 2026 riporta 251 campioni `synthetic` nel database finale, inclusi 10 aggiunti ai 241 precedenti. Sono dati fittizi, non osservazioni Arduino; il loro numero attuale non è stato riverificato. La versione pubblicata nasconde questi campioni e rimuove la postilla provvisoria. [Contratto ed evidenze](docs/data-preview.md).
+I dati sintetici restano identificati come tali nel backend e non vengono presentati come osservazioni: la UI pubblica, i PDF e le stime li escludono. Il numero di record sintetici presenti nel database può cambiare; non è un indicatore delle misure disponibili dalla stazione. [Contratto ed evidenze](docs/data-preview.md).
 
-Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è applicato. Il contratto locale di ingestione ammette il tipo sintetico soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura pubblica ne conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e testato, ma campione CSV, writer e installazione Windows/Arduino restano da verificare. Le stime fisiche usano soltanto osservazioni reali ammesse; nessuna fonte meteo esterna è integrata.
+Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è configurato. Il contratto ammette campioni sintetici soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e verificato con fixture sintetiche. Le previsioni usano Open-Meteo e, quando disponibili, osservazioni reali ammesse per l’adattamento locale. Il campione CSV, il writer e l’installazione Windows/Arduino restano da verificare.
 
-I verbali documentano i rilasci e le verifiche eseguite in date diverse; il checkout locale include anche quiz, cronologia completa, PDF e previsioni basate sulle misure fisiche. Il frontend distribuito è stato riconfermato nell’audit del 27 ottobre; le correzioni Edge locali richiedono un deployment separato. L’API amministrativa risponde ancora 503. Restano aperti il collaudo della stazione reale, backup/restore, avvisi e validazione meteorologica: si veda la **Fase 8** in [tasks.md](tasks.md#8-fase-8--backup-gestione-e-rilascio).
+Il repository documenta rilasci e verifiche con date e ambiti distinti. Le procedure operative e di qualità sono raccolte in [docs/operations.md](docs/operations.md) e [docs/qa.md](docs/qa.md).
 
-**Revisione grafici successiva, pubblicazione richiesta il 22 ottobre:** Auto predefinito, scala adattiva e medie per fascia nell’ultima settimana disponibile; disegno lineare più rapido. Le viste manuali rimangono. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
+**Grafici:** modalità Auto predefinita, scala adattiva e medie per fascia nell’ultima settimana disponibile; le viste manuali restano disponibili. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
 
 **Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia e raggruppa le pagine per giorno in Europe/Rome. Sono presenti download PDF dei grafici e della cronologia.
 
-**Audit locale del 23 ottobre, `6e5f197`:** build/lint, 72 test frontend, 44 Deno e 23 Python superati. Riprodotti problemi di cursore sub-millisecondo, provenienza nei PDF dei grafici, aggiornamento cronologia e margini della tabella PDF. [Prove, priorità e limiti](docs/project-review/README.md); [registro correzioni](CORRECTIONS.md#cor-009--il-cursore-della-cronologia-perde-i-microsecondi). Successivamente cursore, aggiornamento cronologia e layout PDF sono stati corretti nel codice locale (COR-009, COR-011, COR-012); la correzione della provenienza sintetica nei PDF dei grafici (COR-010), inizialmente esclusa, è stata successivamente effettuata. Il verbale descrive lo stato della pubblicazione in quella sessione, non prova il deploy corrente.
+Le verifiche e le correzioni sono registrate nei [verbali](docs/project-review/README.md) e nel [registro correzioni](CORRECTIONS.md), con data e ambito di ciascuna prova.
 
 ## Documentazione e collaborazione
 
@@ -53,25 +51,25 @@ I verbali documentano i rilasci e le verifiche eseguite in date diverse; il chec
 | [Frontend](docs/frontend.md) | Pagine, funzioni, polling, provenienza e verifiche |
 | [Design](design.md) | Aspetto, motion, hover e accessibilità |
 | [Campioni di prova](docs/data-preview.md) | Tipo distinto, batch pubblico e prove SQL/API/UI |
-| [Operazioni](docs/operations.md) | Target, diagnosi, rilascio e attività operative aperte |
-| [QA](docs/qa.md) | Verifiche residue e criteri di rilascio MVP |
+| [Operazioni](docs/operations.md) | Target, diagnosi e rilascio |
+| [QA](docs/qa.md) | Criteri e procedure di qualità |
 | [Backend](docs/backend.md) | Contratto e integrazione dati |
 | [Uploader](uploader/README.md) | Acquisizione PC, outbox e limiti Windows |
 
-Il [file Figma Obsidian v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e la [storia delle revisioni](docs/design-review/README.md) documentano il design precedente. Il restyling Factory è stato implementato nel codice; Figma non è stato riallineato. Revisione con il compagno e prove su dispositivi reali restano aperte. Per collaborare preferire branch dedicati e pull request, preservando il lavoro locale.
+Il [file Figma Obsidian v5](https://www.figma.com/design/dMJqTphynvTgGm6yqUsVrP/MeteOlivelli?node-id=7-2) e la [storia delle revisioni](docs/design-review/README.md) documentano il design. Il riferimento visuale corrente del codice è [design.md](design.md). Per contribuire, consultare [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licenza e collaborazione
 
 Il codice originale e la documentazione di MeteOlivelli sono proposti con licenza **MIT** (vedi [LICENSE](LICENSE)), subordinatamente all'approvazione dei titolari dei diritti indicati nel file: Pietro Giudici, Nicholas Borin e Liceo Teresio Olivelli di Pavia. La licenza consente il riutilizzo e la modifica del materiale coperto, conservando la nota di copyright. **Marchi, stemmi e logo scolastico, immagini o altri materiali di terzi non diventano automaticamente disponibili sotto MIT:** verificare separatamente le autorizzazioni e le rispettive licenze.
 
-Siamo due studenti e il progetto è ancora in sviluppo: contributi documentati, segnalazioni riproducibili e correzioni mirate sono benvenuti. Leggere [CONTRIBUTING.md](CONTRIBUTING.md) e aprire una issue prima di modifiche architetturali importanti. Non pubblicare dati personali, credenziali o misurazioni non verificate.
+Le verifiche sul campo, backup e ripristino restano attività aperte. Segnalazioni riproducibili e contributi mirati sono benvenuti: leggere [CONTRIBUTING.md](CONTRIBUTING.md) e aprire una issue prima di modifiche architetturali importanti. Non pubblicare dati personali, credenziali o misurazioni non verificate.
 
 ## Requisiti locali
 
 - Node.js 26 per build e test frontend TypeScript tramite il supporto nativo di Node. Vite da solo supporta `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
 - npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
 - Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
-- Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0. Windows ancora da provare.
+- Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0.
 
 Docker, Supabase CLI e Vercel CLI non servono per compilare il frontend o eseguire i
 controlli backend attuali. Serviranno strumenti ulteriori per prove reali e deploy,
@@ -129,7 +127,7 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
 | `npm run preview` | Anteprima della build frontend già generata |
 
-I test backend usano dati sintetici per configurazione, contratto, adattatore CSV e handler HTTP con store simulati. Ordine e unità dichiarati: secondi dall’accensione, temperatura °C, umidità % e pressione hPa; il campione CSV e il writer reali restano da verificare. Le prove BE-07 hanno verificato RPC, privilegi/RLS e ingestione HTTP sintetica sul progetto autorizzato; le fixture sono state rimosse. Le prove SQL in `supabase/tests/` richiedono un target esplicitamente autorizzato e non sono incluse nei test Deno.
+I test backend usano dati sintetici per configurazione, contratto, adattatore CSV e handler HTTP con store simulati. Ordine e unità dichiarati dall’utente: secondi dall’accensione, temperatura °C, umidità % e pressione hPa; il CSV e il writer reali restano da verificare. Le prove BE-07 hanno verificato RPC, privilegi/RLS e ingestione HTTP sintetica sul progetto autorizzato; le fixture sono state rimosse. Le prove SQL in `supabase/tests/` sono separate dai test Deno.
 La suite frontend nativa non richiede nuove dipendenze. Una QA browser opzionale
 con Playwright esterno è descritta in [docs/frontend.md](docs/frontend.md);
 le fixture positive vengono intercettate soltanto nel browser di prova.
@@ -156,7 +154,7 @@ supabase/functions/           Moduli TypeScript per il backend Deno
   _shared/measurement_test.ts Test sintetici sui controlli dati
   _shared/measurement_csv.ts  Adattatore CSV provvisorio con dialetto esplicito
   _shared/measurement_csv_test.ts Test sintetici del parser CSV
-supabase/migrations/          Migrazioni versionate; stato remoto da verificare
+supabase/migrations/          Migrazioni versionate
 supabase/tests/               Prove SQL con rollback e protocollo concorrenza
 docs/backend-schema.md        Schema, accessi e lettura
 docs/backend-verification.md  Target, prove live, recupero e limiti BE-07
