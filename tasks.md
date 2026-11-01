@@ -1,5 +1,9 @@
 # Attività operative — MeteOlivelli
 
+> **Aggiornamento previsioni — 30 ottobre 2026:** su richiesta dell’utente, implementata una base gratuita oraria per Pavia con correzione locale attenuata, richiesta API limitata da cache 30 minuti e fallback locale alla caduta della rete; attribuzione nel footer e informativa Privacy aggiornata. Nessun abbonamento, scrittura remota, deploy, commit o push. Verifiche locali: `npm run build`, `npm run lint`, `npm run frontend:test` (174 test) e `git diff --check` superati; build con avviso già noto sui chunk PDF oltre 500 kB. Non è stata verificata la risposta live dell’API né l’accuratezza meteo; resta da provare nel browser dopo pubblicazione autorizzata.
+
+> **Correzione parser previsioni — 30 ottobre 2026:** la risposta API reale osservata contiene 384 ore, mentre il parser ne accettava 80 e quindi passava silenziosamente al modello statistico locale. Ora accetta la serie fino a 400 ore e conserva soltanto la finestra utile. Regressione con 384 timestamp aggiunta; build, lint, 174 test frontend e `git diff --check` superati. Da pushare e ricontrollare sul sito.
+
 > **28 ottobre 2026 — Fase 7 / UI-I18N:** funzionalità multilingua e °C/°F implementata localmente nel branch `codex/multilingual-temperature`, su richiesta esplicita. Lingua iniziale del dispositivo, scelta salvata prioritaria e italiano come ripiego; bandiere e °C/°F sotto il footer, senza rimando in alto. Traduzioni locali senza provider esterno. Nessun commit, push o rilascio incluso.
 
 **Revisione Informazioni — 27 ottobre 2026:** aggiornati i testi sul progetto, il percorso dati, la freschezza e le previsioni; rimossi i riferimenti a lavori in corso dalla pagina, senza modificare il filtro delle provenienze. `npm run check` e `git diff --check` superati; verifica visiva browser non eseguita.
@@ -302,23 +306,25 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### WX-01 — Progettare e valutare il modello locale
 
-- [ ] **Stato: motore locale v1 e backtest implementati il 23 ottobre; query aggregata in sola lettura del 26 ottobre: 251 righe sintetiche, zero `measured_at`. La verifica meteorologica reale dipende da DATA-01–DATA-02 e da uno storico datato idoneo.**
-- **Scopo:** verificare quali stime il progetto possa calcolare usando i dati della stazione, senza servizio meteo esterno, come richiesto il 22 ottobre.
+- [ ] **Stato al 30 ottobre:** modello locale v4 con backtest temporale resta disponibile come ripiego; il nuovo adattamento ibrido usa una base oraria e poche osservazioni recenti possono correggerla con limiti. `captured_at` è la base dichiarata quando presente. Accuratezza meteorologica reale ancora da misurare.
+- **Scopo:** verificare come usare le letture della stazione per adattare con cautela la base oraria, senza attribuire accuratezza non dimostrata.
 - **Input/file:** specifica del modello e valutazione riproducibile in `docs/backend.md`, serie con provenienza temporale e qualità ammesse; nessun numero minimo di giorni inventato come prova sufficiente.
 - **Come:** partire dal confronto con la persistenza e valutare modelli semplici sui dati successivi a quelli usati per stimare. Distinguere risultati per grandezza e orizzonte, errore, numero di casi e limiti. Non introdurre un LLM o API AI per deduzione dalla parola “previsioni”.
 - **Risultato:** decisione motivata per +30m/+1h/giornata, anche “non supportato con i dati attuali”. Nessuna conversione arbitraria di pressione/umidità in sole o pioggia; cadenza oraria non fornisce una verità di confronto reale a mezz’ora.
 - **Verifica:** assenza di uso di dati futuri nella valutazione, dati mancanti/sospetti, timestamp acquisizione non idonei, confronto con base semplice e limiti dell’orizzonte giornaliero. Nessuna attendibilità meteorologica dichiarata senza prove.
-- **Riferimento:** plan.md §6, D23 e §18. La vecchia proposta provider è superata.
+- **Riferimento:** plan.md §6, decisione D23 aggiornata e §18.
 
 ### WX-02 — Implementare le previsioni meteo e lo stato non disponibile
 
-- [ ] **Stato: worker, feed fisico indipendente e UI implementati localmente; correzione v3 del 26 ottobre: la persistenza non viene più mostrata come previsione, con test per baseline e orizzonti variabili. Restano validazione reale WX-01 e calcolo/cache/archivio condivisi.**
+- [x] **30 ottobre 2026 — previsione ibrida locale:** base oraria gratuita per Pavia, interpolazione temporale, unità e valori convalidati, aggiustamento locale limitato e decadente se la lettura `live`/`historical` è recente e non sospetta. La rete viene consultata al massimo ogni 30 minuti per dispositivo; dati in cache riutilizzabili fino a 6 ore e fallback al modello locale verificato. I sintetici sono esclusi. Attribuzione discreta nel footer; Privacy aggiornata per IP/coordinate e cache. Nessuna modifica Supabase/Vercel, abbonamento, commit o push.
+- [ ] Accuratezza per orizzonte/grandezza non dimostrata su misure reali. Confermare risposta API in produzione, corretto orientamento delle coordinate della stazione e funzionamento dopo il deploy richiesto separatamente.
 - **Scopo:** calcolare e servire solo previsioni supportate dalla verifica, separandole dalle misure.
-- **Input/file:** futuro modulo del modello nel runtime scelto per il backend, test e contratto in `docs/backend.md`; schema dei risultati deciso dopo WX-01.
-- **Come:** registrare metodo/versione, dati di origine, generazione, validità e unità. Calcolare una volta per nuovi dati e condividere il risultato fra visitatori; conservare i run necessari alla verifica successiva senza presumere retention permanente delle stime.
-- **Risultato:** sezione “Previsioni meteo MeteOlivelli”, limiti espliciti e “Previsione non disponibile” se dati o verifica non bastano. Nessuna condizione atmosferica o percentuale di affidabilità inventata. Il modello statistico locale attuale non è ancora validato come previsione meteorologica.
-- **Verifica:** dati insufficienti/vecchi/sospetti, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
+- **Input/file:** `src/forecast-provider.ts`, `src/forecast-hybrid.ts`, feed e componenti frontend; contratto aggiornato in `docs/backend.md`.
+- **Come:** richiedere al client una previsione per Pavia, con cache individuale di 30 minuti e riuso della risposta fino a 6 ore; allineare le ore in Europe/Rome, usare osservazioni fisiche recenti e valide per un offset limitato con decadimento; attribuire nel footer e spiegare il trasferimento IP/coordinate nella Privacy.
+- **Risultato:** stime disponibili anche senza archivio della stazione se il servizio risponde; dettagli di metodo e scadenza; fallback al modello locale o indisponibilità esplicita in assenza di entrambi. Nessuna condizione o affidabilità meteorologica inventata.
+- **Verifica:** dati insufficienti/vecchi/sospetti, timestamp PC, orizzonti non validati, cambio giorno/DST, separazione osservazioni/previsioni e confronto successivo con le osservazioni reali. Un errore nel modello non blocca le misure.
 - **Riferimento:** plan.md §6, §18 e RF7.
+- [x] **30 ottobre 2026 — base temporale aggiornata su richiesta:** il feed usa la serie `captured_at`; il modello ammette righe `live`/`historical` senza `measured_at`, esclude sintetici e conserva backtest, limiti di cadenza e timestamp server. Test frontend (171), build, lint e `git diff --check` superati. Nessun deploy. I record attualmente visibili restano insufficienti per dimostrare una previsione; con campionamento ogni tre ore il +1h non è supportato dalla cadenza.
 
 ### UI-00 — Preparare Figma e il primo design con il compagno (22 ottobre 2026)
 
@@ -372,6 +378,11 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 Verifiche browser aggiuntive superate: 3 scenari di recupero pagina e 7 sulle previsioni con worker reale; rifinitura finale a 320 px verificata in 10 combinazioni (5 lingue × tema chiaro/scuro), selettori e tema sulla stessa riga senza overflow. Schermate desktop/mobile ispezionate localmente; misure inventate soltanto nelle fixture, marcate nelle schermate.
 
 **Limite della regressione storica (COR-055):** il runner opzionale `tests/frontend-browser.mjs` si arresta alla prima asserzione, che richiede le tre schede vuote della vecchia UI anziché l’attuale stato unico `.station-empty`, già presente prima di questo intervento. Non è incluso fra i collaudi superati e richiede riallineamento separato.
+
+### Fase 7 / UI-01 — Rifinitura dei grafici (30 ottobre 2026)
+
+- [x] Curve monotone SVG attraverso i campioni, area sfumata, selezione del valore più leggibile e rimozione delle descrizioni visibili ripetitive. La scala continua ad adattarsi ai valori presenti; timestamp, aggregazioni e interruzioni dei dati assenti/sospetti restano invariati.
+- [x] Verifica: `npm run build`, `npm run lint`, `npm run frontend:test` (171/171) e `git diff --check` superati. Resta il warning Vite già presente sui chunk PDF oltre 500 kB; nessuna pubblicazione o modifica remota.
 
 ### GAME-01 — Aggiungere il quiz “Gioca con il meteo”
 
@@ -733,6 +744,7 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [ ] Nessuna suite di test eseguita in questa sessione.
 
 - [x] Su richiesta utente, grafici e PDF usano solo `measured_at`; righe senza ora fisica attestata escluse dalle serie e didascalia aggiornata. `npm run build`, `npm run lint`, 67 test mirati e `git diff --check` superati. Suite frontend completa: 160/161; resta fallito il test di ordine sezioni `tests/ux-order.test.mjs`, non relativo alla modifica. Deno/Python non rieseguiti; nessuna modifica remota o pubblicazione.
+- [x] **29 ottobre 2026 — Fase 7 / UI-01, correzione grafici:** screenshot pubblico mostra una sola osservazione con `measured_at`, mentre altre letture in cronologia hanno solo `captured_at`; i grafici mostravano perciò un solo punto. Su richiesta successiva dell’utente, usare `captured_at` come orario di acquisizione dichiarato quando manca `measured_at`, conservando la precedenza dell’orario fisico e senza ripiegare su `received_at`. Aggiornati feed, intervallo Auto, PDF, didascalie, traduzioni e regressioni. `npm run check` e `git diff --check` superati; nessuna modifica remota o pubblicazione.
 - [x] Revisione UI successiva: rimosso il glossario; raggi dei pulsanti uniformati a 3 px; riflesso escluso dai divisori di sezione per evitare il bordo verticale. `npm run build`, `npm run lint`, tutti i 161 test frontend e `git diff --check` superati. Corretta anche la query del test d’ordine, che confrontava la sezione grafici invece della cronologia completa.
 - [x] Revisione di bordi e pulsanti richiesta il 28 ottobre: rimosso il riflesso radiale sovrapposto che lasciava contorni parziali, uniformato il feedback hover sul bordo reale e ridotto l’offset del focus mantenendolo visibile. `npm run check` e `git diff --check` superati: build, lint, budget, 162 test frontend, controlli Deno e 28 test uploader. La build conserva l’avviso già noto sui chunk PDF oltre 500 kB.
 - [x] Revisione UI complessiva richiesta il 28 ottobre: introdotti raggi condivisi, alzate le aree d’interazione compatte a 44 px, uniformati focus e controlli modulo e migliorata la leggibilità degli elementi disabilitati. UI controllata in locale per Home, Informazioni, quiz con feedback, Privacy e accesso dati nei temi chiaro/scuro. `npm run check` e `git diff --check` superati; resta l’avviso già noto sui chunk PDF oltre 500 kB.

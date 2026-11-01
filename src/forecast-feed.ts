@@ -28,7 +28,7 @@ export function createForecastFeed(publish: (state: ForecastState) => void, comp
         const latest = await reader(new URLSearchParams({ view: 'latest' }), controller.signal)
         if (latest.items.length > 1 || latest.next_cursor) throw new Error('Ultima misura incoerente')
         const nextSignature = JSON.stringify(latest.items)
-        const basis = 'measured_at'
+        const basis = 'captured_at'
         state = { ...state, serverOffset: Date.parse(latest.until) - Date.now() }
         if (nextSignature !== signature || state.error || !state.loaded || Date.parse(latest.until) - historyCheckedAt >= 5 * 60000) {
           let until = latest.until
@@ -39,7 +39,9 @@ export function createForecastFeed(publish: (state: ForecastState) => void, comp
           }, basis))
           if (stopped) return
           const nextInputSignature = JSON.stringify(rows)
-          const run = nextInputSignature === inputSignature && state.run ? state.run : await compute(rows, Date.parse(until))
+          const providerRefreshDue = state.run && Date.parse(until) - Date.parse(state.run.generatedAt) >= 30 * 60000
+          const run = nextInputSignature === inputSignature && state.run && !providerRefreshDue
+            ? state.run : await compute(rows, Date.parse(until))
           if (stopped) return
           state = { ...state, run }
           signature = nextSignature

@@ -68,7 +68,7 @@ Siamo due studenti e il progetto è ancora in sviluppo: contributi documentati, 
 
 ## Requisiti locali
 
-- Node.js 24+ per eseguire anche i test frontend TypeScript tramite il supporto nativo di Node. Vite da solo supporta `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
+- Node.js 26 per build e test frontend TypeScript tramite il supporto nativo di Node. Vite da solo supporta `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
 - npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
 - Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
 - Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0. Windows ancora da provare.

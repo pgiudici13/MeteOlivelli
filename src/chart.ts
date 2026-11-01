@@ -1,5 +1,5 @@
 import { getLocale } from './preferences.ts'
-import { chartSegments, formatTime, isSuspect } from './weather.ts'
+import { chartSegments, formatTime, isSuspect, observationTime } from './weather.ts'
 import type { Period, ChartMode, Measurement, Metric } from './weather.ts'
 
 const hour = 3600000
@@ -61,25 +61,25 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   if (customRange) {
     if (!Number.isFinite(customRange.start) || !Number.isFinite(customRange.end) || customRange.start >= customRange.end) throw new Error('Intervallo personalizzato non valido')
     const selected = rows.filter(row => {
-      const time = row.measured_at
+      const time = observationTime(row)
       return time && Date.parse(time) >= customRange.start && Date.parse(time) <= customRange.end
     })
     const segments = chartSegments(selected, metric).map(segment => segment.map(row => ({
-      id: row.ingestion_id, time: Date.parse(row.measured_at!), value: row[metric] as number, count: 1, label: formatTime(row.measured_at), sources: sourceCounts(row),
+      id: row.ingestion_id, time: Date.parse(observationTime(row)!), value: row[metric] as number, count: 1, label: `${formatTime(observationTime(row))}${row.measured_at ? '' : ' · acquisizione PC'}`, sources: sourceCounts(row),
     })))
     const duration = customRange.end - customRange.start
     return { segments, timeline: chartTimeline(duration <= 2 * 24 * hour ? '24h' : '7g', until, customRange, locale), averaged: false, note: 'Intervallo personalizzato · campioni originali' }
   }
-  const candidates = rows.filter(row => row.measured_at !== null)
+  const candidates = rows.filter(row => observationTime(row) !== null)
   const dated = mode === 'auto' && candidates.some(row => row.acquisition_kind === 'live')
     ? candidates.filter(row => row.acquisition_kind === 'live' || row.entry_method === 'manual')
     : candidates
-  const first = dated.length ? Date.parse(dated[0].measured_at!) : Date.parse(until)
-  const last = dated.length ? Date.parse(dated[dated.length - 1].measured_at!) : Date.parse(until)
+  const first = dated.length ? Date.parse(observationTime(dated[0])!) : Date.parse(until)
+  const last = dated.length ? Date.parse(observationTime(dated[dated.length - 1])!) : Date.parse(until)
   const averaged = mode === 'auto' ? last - first > 7 * 24 * hour : mode !== '24h'
   if (!averaged) {
     const segments = chartSegments(dated, metric).map(segment => segment.map(row => ({
-      id: row.ingestion_id, time: Date.parse(row.measured_at!), value: row[metric] as number, count: 1, label: formatTime(row.measured_at), sources: sourceCounts(row),
+      id: row.ingestion_id, time: Date.parse(observationTime(row)!), value: row[metric] as number, count: 1, label: `${formatTime(observationTime(row))}${row.measured_at ? '' : ' · acquisizione PC'}`, sources: sourceCounts(row),
     })))
     const span = Math.max(last - first, hour)
     const range = mode === 'auto' && dated.length ? { start: last - span, end: last } : undefined
@@ -93,12 +93,12 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   const start = zonedTime(shiftDay(firstOffset), 0)
   const end = zonedTime(shiftDay(1), 0)
   const selected = dated.filter(row => {
-    const time = Date.parse(row.measured_at!)
+    const time = Date.parse(observationTime(row)!)
     return time >= start && time < end
   })
   const buckets = new Map<string, { sum: number; count: number; sources: ChartSourceCounts }>()
   for (const row of selected) {
-    const time = Date.parse(row.measured_at!)
+    const time = Date.parse(observationTime(row)!)
     if (row[metric] === null || isSuspect(row, metric)) continue
     const local = localParts(time)
     const localHour = Number(local.hour)

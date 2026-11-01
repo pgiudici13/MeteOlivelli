@@ -9,7 +9,7 @@ export async function readFreshChartData(period: ChartMode, signal: AbortSignal,
     const latest = await reader(new URLSearchParams({ view: 'latest' }), signal)
     if (latest.items.length > 1 || latest.next_cursor) throw new Error('Ultimo campione incoerente')
     const latestMeasurement = stationMeasurements(latest.items)[0]
-    anchor = historyAnchor(latestMeasurement?.measured_at, latest.until)
+    anchor = latestMeasurement ? historyAnchor(latestMeasurement.measured_at ?? latestMeasurement.captured_at, latest.until) : null
   }
   const history = await readObservationHistory(apiPeriod, signal, async (params, requestSignal) => {
     if (anchor) params.set('until', anchor)

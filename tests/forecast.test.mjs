@@ -42,14 +42,18 @@ test('previsioni: la simulazione usa captured_at, resta distinta e propone orizz
   assert.ok(run.horizons.every(h => h.estimates.slice(1).every(e => e.value === null && (/miglioramento/.test(e.reason) || /cadenza/.test(e.reason)))))
   assert.ok(run.horizons.slice(0, 2).every(h => (h.estimates[0].target ?? h.estimates[0].reason) && (h.estimates[0].origin ?? h.estimates[0].reason)))
 })
-test('previsioni fisiche: date PC e provenienza ignota non alimentano il modello', () => {
-  for (const transform of [row => ({ ...row, measured_at: null }), row => ({ ...row, acquisition_kind: undefined })]) {
-    const rows = series(10, 6 * hour).map(transform)
-    const run = buildForecast(rows, nowOf(rows))
-    assert.equal(run.inputCount, 0)
-    assert.equal(run.dataKind, 'none')
-    assert.ok(run.horizons.every(h => h.estimates.every(e => e.value === null)))
-  }
+test('previsioni fisiche: usa captured_at senza richiedere measured_at o usare uptime', () => {
+  const rows = series().map(row => ({ ...row, measured_at: null }))
+  const run = buildForecast(rows, nowOf(rows))
+  assert.equal(run.inputCount, rows.length)
+  assert.equal(run.dataKind, 'physical')
+  assert.equal(get(run).origin, rows.at(-1).captured_at)
+  const withoutCapture = rows.map(row => ({ ...row, captured_at: null }))
+  const unavailable = buildForecast(withoutCapture, nowOf(rows))
+  assert.equal(unavailable.inputCount, 0)
+  assert.equal(unavailable.dataKind, 'none')
+  const unknownSource = buildForecast(rows.map(row => ({ ...row, acquisition_kind: undefined })), nowOf(rows))
+  assert.equal(unknownSource.inputCount, 0)
 })
 test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato separatamente', () => {
   const rows = series()
@@ -59,7 +63,7 @@ test('previsioni: ciclo giornaliero scelto sui dati di selezione e verificato se
   assert.ok(temperature.mae < temperature.baselineMae)
   assert.ok(temperature.cases >= 12 && temperature.selectionCases >= 12)
   assert.equal(temperature.lastObservationId, rows.at(-1).ingestion_id)
-  assert.equal(run.version, 'station-statistical-v3')
+  assert.equal(run.version, 'station-statistical-v4')
   assert.equal(Date.parse(temperature.target) - Date.parse(temperature.origin), hour)
   assert.equal(get(run, 2).value, null)
   assert.match(get(run, 2).reason, /miglioramento rispetto all’ultimo valore/)
@@ -119,12 +123,12 @@ test('previsioni: scadenza, campi sospetti e assenti separati senza recuperare u
 test('previsioni: duplicati temporali ambigui, futuri e caricamenti successivi non diventano training', () => {
   const rows = series()
   const duplicate = { ...rows[100], ingestion_id: '00000000-0000-4000-8000-999999999999' }
-  const future = { ...rows[0], measured_at: new Date(nowOf(rows) + hour).toISOString() }
+  const future = { ...rows[0], captured_at: new Date(nowOf(rows) + hour).toISOString() }
   const late = { ...rows[1], received_at: new Date(nowOf(rows) + hour).toISOString() }
   const run = buildForecast([...rows, duplicate, future, late], nowOf(rows))
   // 100 è ambiguo; il duplicato tardivo non entra nella serie.
   assert.equal(run.inputCount, rows.length - 1)
-  assert.equal(get(run).origin, rows.at(-1).measured_at)
+  assert.equal(get(run).origin, rows.at(-1).captured_at)
   assert.throws(() => buildForecast(rows, NaN), /Orario/)
 })
 test('previsioni: nessun confronto a target mancante e nessuna interpolazione dei gap', () => {
@@ -159,8 +163,8 @@ test('feed previsioni: lettura dedicata, cache a input invariati, recupero e sto
   const reader = async params => {
     if (fail) throw new Error('Errore sintetico')
     const latest = params.get('view') === 'latest'
-    if (!latest) { histories++; assert.equal(params.get('basis'), 'measured_at') }
-    return { items: latest ? [rows.at(-1)] : rows, until: new Date(nowOf(rows)).toISOString(), next_cursor: null, time_basis: latest ? 'captured_at' : 'measured_at' }
+    if (!latest) { histories++; assert.equal(params.get('basis'), 'captured_at') }
+    return { items: latest ? [rows.at(-1)] : rows, until: new Date(nowOf(rows)).toISOString(), next_cursor: null, time_basis: 'captured_at' }
   }
   const feed = createForecastFeed(state => { published = state }, async (input, now) => { computations++; return buildForecast(input, now) }, reader)
   await feed.refresh()
@@ -184,18 +188,20 @@ test('feed previsioni: lettura dedicata, cache a input invariati, recupero e sto
   assert.equal(published, before)
 })
 
-test('feed previsioni: non usa campioni synthetic e richiede measured_at', async () => {
-  const rows = series(241, 3 * hour).map(row => ({ ...row, acquisition_kind: 'synthetic', measured_at: null }))
+test('feed previsioni: legge captured_at e non usa campioni synthetic', async () => {
+  const rows = series(241, 3 * hour).map(row => ({ ...row, measured_at: null }))
+  const synthetic = { ...rows.at(-1), acquisition_kind: 'synthetic', ingestion_id: '00000000-0000-4000-8000-999999999999' }
   const bases = []
   let computed
   const feed = createForecastFeed(() => {}, async (input, now) => { computed = input; return buildForecast(input, now) }, async params => {
     const latest = params.get('view') === 'latest'
     if (!latest) bases.push(params.get('basis'))
-    return { items: latest ? [rows.at(-1)] : [], next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: latest ? 'captured_at' : 'measured_at' }
+    return { items: latest ? [rows.at(-1)] : [synthetic, ...rows], next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: 'captured_at' }
   })
   await feed.refresh()
-  assert.deepEqual(bases, ['measured_at'])
-  assert.deepEqual(computed, [])
+  assert.deepEqual(bases, ['captured_at'])
+  assert.equal(computed.length, rows.length)
+  assert.ok(computed.every(row => row.acquisition_kind === 'live' && row.measured_at === null))
   feed.stop()
 })
 
@@ -220,7 +226,7 @@ test('feed previsioni: richieste sovrapposte evitate e nessuna pubblicazione dop
   const feed = createForecastFeed(() => { published++ }, async (input, now) => { await pending; return buildForecast(input, now) }, async params => {
     calls++
     const latest = params.get('view') === 'latest'
-    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: latest ? 'captured_at' : 'measured_at' }
+    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(nowOf(rows)).toISOString(), time_basis: 'captured_at' }
   })
   const refresh = feed.refresh()
   await new Promise(resolve => setImmediate(resolve))
@@ -237,7 +243,7 @@ test('feed previsioni: recupera modifiche storiche ogni cinque minuti senza rica
   const feed = createForecastFeed(() => {}, async (input, time) => { computations++; return buildForecast(input, time) }, async params => {
     const latest = params.get('view') === 'latest'
     if (!latest) histories++
-    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(now).toISOString(), time_basis: latest ? 'captured_at' : 'measured_at' }
+    return { items: latest ? [rows.at(-1)] : rows, next_cursor: null, until: new Date(now).toISOString(), time_basis: 'captured_at' }
   })
   await feed.refresh()
   now += 5 * 60000

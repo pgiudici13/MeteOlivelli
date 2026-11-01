@@ -1,6 +1,8 @@
 # Backend: setup locale e controllo dati
 
-> **Aggiornamento locale 27 ottobre 2026:** il feed previsionale pubblico richiede `measured_at` ed esclude i campioni sintetici; la modalità di simulazione rimane soltanto nel motore e nei test isolati. La UI e i PDF escludono anche le righe senza provenienza esplicita. Il contratto e l’API remoti non sono stati modificati. Le descrizioni precedenti della simulazione pubblica sono storiche.
+> **Decisione locale 30 ottobre 2026:** su richiesta dell’utente, il feed previsionale usa `captured_at` per ordinare i campioni live/historical, anche quando `measured_at` manca o differisce. L’orario è di acquisizione sul PC e non attesta l’istante fisico della misura. I campioni sintetici restano esclusi; i limiti di cadenza, storico e verifica del modello restano attivi. La modifica è locale: non implica deploy o modifiche a Supabase.
+
+> **Previsioni — aggiornamento 30 ottobre 2026:** per la Home è stata aggiunta una base gratuita di previsioni orarie per le coordinate fisse della scuola a Pavia, con correzione locale prudente delle letture fisiche recenti. La richiesta è fatta dal browser, senza chiavi o abbonamento; cache per 30 minuti e riuso fino a 6 ore. L’attribuzione è in piccolo nel footer; la Privacy dichiara IP e coordinate trasmessi. Nessun dato di misura viene inviato al provider, e nessuna configurazione Supabase viene modificata. L’accuratezza va ancora valutata sul funzionamento reale.
 
 > **Aggiornamento 24 ottobre:** tipo applicativo `synthetic` distinto; batch pubblico corrente di 241 campioni amministrativi ogni tre ore, in sostituzione dei record presenti; [contratto ed evidenze](data-preview.md). Le descrizioni storiche dei soli tipi live/historical sotto sono precedenti agli aggiornamenti sintetici.
 
@@ -14,6 +16,16 @@ ora applicati e verificati nel progetto Supabase MeteOlivelli scelto dall’uten
 CSV, clock, writer e PC reali ancora da convalidare.
 
 Schema, matrice accessi, letture, applicazione e limiti: [backend-schema.md](backend-schema.md).
+
+## Previsioni orarie e adattamento locale
+
+`src/forecast-provider.ts` legge i valori orari di temperatura a 2 m, umidità relativa e pressione al suolo, chiedendo timestamp Unix per evitare che il browser interpreti il fuso nel luogo del visitatore. Alcune risposte API comprendono 384 ore: il parser le accetta (fino a 400) e ritaglia le 33 ore necessarie per +1, +6 e +24 ore e per il confronto locale. La pagina mostra i valori in `Europe/Rome`. I dati meteorologici restano separati dalle osservazioni della stazione.
+
+`src/forecast-hybrid.ts` può applicare alla previsione una correzione limitata derivata dal residuo dell’ultima osservazione `live`/`historical` valida e non sospetta rispetto al dato orario nel suo momento di acquisizione. La correzione ha peso massimo 25%, limiti di ±3 °C, ±12 punti percentuali e ±6 hPa; decade con l’età della misura e con l’orizzonte. Se la misura non è recente o non si allinea a un’ora di previsione, si usa la base senza correzione. Il backtest locale precedente resta fallback solo quando il servizio non risponde.
+
+La risposta viene conservata nel `localStorage` del dispositivo per riuso: aggiornamento dopo 30 minuti, ultima risposta riutilizzabile fino a 6 ore. Non viene fatto un fetch a ogni polling dei dati della stazione (15 secondi). In assenza di rete e senza una risposta in cache valida, il client prova il modello locale verificato; le misure del sito continuano indipendentemente. La previsione non è garantita e i test locali dimostrano solo parsing, fusi, interpolazione e limiti dell’adattamento, non accuratezza meteorologica.
+
+Fonte, licenza, condizioni e limiti sono riportati in fondo alla pagina e nella [Privacy](../src/pages/PrivacyPage.tsx). Il servizio gratuito è destinato all’uso non commerciale/educativo, ha limiti di richiesta e richiede attribuzione CC BY 4.0; non è stato attivato alcun piano a pagamento. Verificare le condizioni correnti prima di cambiare uso o traffico.
 
 La Fase 6 ha predisposto l'[uploader Python](../uploader/README.md) sul contratto v1:
 outbox SQLite, lettura incrementale configurabile, retry e quarantena. Test solo
@@ -332,10 +344,10 @@ Richiesta esplicita di implementazione del modello del progetto, senza provider 
 
 ### Contratto e ammissione
 
-- Versione `station-statistical-v3`, generazione con riferimento server, campioni considerati e risultati distinti per temperatura/umidità/pressione. Gli orizzonti correnti sono +1, +6 e +24 ore. Il motore puro può distinguere input sintetici per test, ma il feed e la UI finali li escludono.
-- Ogni risultato disponibile contiene valore/unità (unità dal contratto della metrica), metodo, origine fisica, UUID dell’ultima osservazione, istante previsto, scadenza, MAE del periodo di verifica, MAE della persistenza sugli stessi casi, numerosità di selezione/verifica. Un indisponibile contiene una ragione esplicita e nessun numero sostitutivo.
-- Le stime fisiche ammettono soltanto `live`/`historical` con `measured_at` finito, non futuro e non successivo a `received_at`; anche la ricezione deve essere già avvenuta. Il campo è assunto conforme al contratto fisico: il codice non certifica l’orologio/sensore. Tempi reali, writer e stazione restano da verificare. `captured_at` e uptime non ricostruiscono date fisiche. I campioni sintetici non alimentano il feed previsionale pubblico.
-- Serie dedicata di 30 giorni in base `measured_at`, paginata sull’API pubblica esistente, massimo 50.000 eventi; superamento/errore non produce una serie parziale. Duplicati temporali con UUID diversi esclusi come ambigui. Un null/sospetto nell’ultima osservazione fisica ritira la sola grandezza interessata; non si recupera un vecchio valore per farla sembrare attuale.
+- Versione `station-statistical-v4`, generazione con riferimento server, campioni considerati e risultati distinti per temperatura/umidità/pressione. Gli orizzonti correnti sono +1, +6 e +24 ore. Il motore puro può distinguere input sintetici per test, ma il feed e la UI finali li escludono.
+- Ogni risultato disponibile contiene valore/unità (unità dal contratto della metrica), metodo, origine temporale dell’osservazione, UUID dell’ultima osservazione, istante previsto, scadenza, MAE del periodo di verifica, MAE della persistenza sugli stessi casi, numerosità di selezione/verifica. Un indisponibile contiene una ragione esplicita e nessun numero sostitutivo.
+- Le stime pubbliche ammettono soltanto `live`/`historical` con `captured_at` finito, non futuro e non successivo a `received_at`; anche la ricezione deve essere già avvenuta. `captured_at` rappresenta l’osservazione sul PC, non certifica l’ora fisica del sensore né corregge buffering o ritardi del writer. `measured_at` resta disponibile per gli altri usi, ma non prevale sul tempo PC in questo modello. I campioni sintetici non alimentano il feed previsionale pubblico.
+- Serie dedicata di 30 giorni in base `captured_at`, paginata sull’API pubblica esistente, massimo 50.000 eventi; superamento/errore non produce una serie parziale. Duplicati temporali con UUID diversi esclusi come ambigui. Un null/sospetto nell’ultima osservazione ammessa ritira la sola grandezza interessata; non si recupera un vecchio valore per farla sembrare attuale.
 - “Giornata” è definita qui come **valore a +24 ore**, non media, massima/minima del giorno o calendario fino a mezzanotte. Durata fisica di 24 ore anche al cambio DST. Una traiettoria dell’intera giornata e gli estremi richiedono ulteriori verifiche; questa prima funzione non li produce.
 
 ### Metodi e valutazione senza anticipare i risultati

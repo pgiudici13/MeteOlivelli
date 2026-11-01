@@ -61,7 +61,6 @@ try {
     if (failure) return route.abort('internetdisconnected')
     const url = new URL(route.request().url())
     const history = url.searchParams.get('view') === 'history'
-    if (url.searchParams.get('basis') === 'measured_at') return route.fulfill({ json: pageData([], 'measured_at') })
     if (history) historyCalls++
     const items = history ? url.searchParams.get('period') === '7g' ? [] : fixtureRows : [latest]
     await route.fulfill({ json: { ...pageData(items), until: url.searchParams.get('until') ?? pageData(items).until } })

@@ -1,5 +1,11 @@
 # Frontend — stato e verifiche
 
+## Previsioni ibride — 30 ottobre 2026
+
+La Home usa una previsione oraria gratuita per Pavia come base a +1, +6 e +24 ore. Il modello locale può applicare una correzione piccola e limitata quando esiste almeno un’osservazione `live`/`historical` recente, con `captured_at`, valida e non sospetta. Le misure sintetiche non partecipano. Il browser usa timestamp Unix per gestire correttamente `Europe/Rome` indipendentemente dal fuso del visitatore, interroga il servizio al massimo ogni 30 minuti e riutilizza una cache fino a 6 ore. In assenza di rete usa il modello locale già presente se la verifica temporale fornisce un risultato.
+
+La fonte è accreditata discretamente nel footer. La pagina Privacy spiega che la richiesta esterna trasmette IP e coordinate fisse Pavia, ma non le letture della stazione. Nessun token, account o abbonamento è richiesto. I test non dimostrano precisione reale: occorre confrontare previsioni e campioni successivi prima di presentarle come validate.
+
 La barra laterale mostra la posizione di scroll della pagina e si aggiorna anche quando cambiano le dimensioni del contenuto. Il collegamento «Torna su» nel footer porta all’inizio e trasferisce lì il focus; lo scroll manuale rimane nativo. Il cursore personalizzato è riservato a desktop con puntatore preciso; movimento ridotto disattiva le transizioni.
 
 ## Integrazione locale con main — 28 ottobre 2026
@@ -15,7 +21,7 @@ La suite `npm run check` è passata: build/lint, budget iniziale, 167 test front
 
 La sezione di confronto combinato è stata rimossa; i tre grafici singoli seguono subito “Le ultime misure”. Il riflesso al bordo segue il puntatore su pannelli, schede, collegamenti, pulsanti e controlli, un solo bersaglio alla volta; touch escluso.
 
-I grafici e i relativi PDF usano esclusivamente `measured_at` per ordinamento, finestre, posizionamento e ancoraggio Auto. Le righe senza orario fisico attestato non vengono tracciate: `captured_at` e `received_at` non sono ripieghi per l’asse dei grafici. I campioni aggregati mantengono la regola corrente delle medie e dichiarano che i punti sono collocati al centro della giornata/fascia.
+I grafici e i relativi PDF preferiscono `measured_at`; quando manca usano `captured_at` (ora di acquisizione sul PC) così che le osservazioni registrate non spariscano dalla serie. L’asse e le etichette dichiarano questa distinzione; `received_at` non viene usato come orario della misura. Le righe prive di entrambi gli orari restano escluse. L’ancoraggio Auto usa l’orario attestato disponibile. I campioni aggregati mantengono la regola corrente delle medie e dichiarano che i punti sono collocati al centro della giornata/fascia.
 
 ## Vista ingrandita dei grafici — revisione locale 28 ottobre 2026
 
@@ -172,7 +178,7 @@ La cronologia completa raggruppa le righe per giorno civile `Europe/Rome`: una p
 
 `npm run check` include ora anche `tests/forecast.test.mjs`; verifica modelli, mancati confronti, selezione/verifica, ricezioni tardive, scadenza, cadenza, DST, cache, recupero e stop. `tests/forecast-browser.mjs` usa fixture locali simulate e il worker reale per valori/metodi, paginazione, reflow, filtri indipendenti, errore rete, null/sospetti, scadenza e sintetici esclusi. Prove in [forecast-verification/results.json](forecast-verification/results.json). Gli screenshot con stime numeriche sono marcati come simulazioni di collaudo.
 
-Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove risultati indisponibili con ragione esplicita, quattro grafici delle osservazioni ancora presenti, nessun errore JavaScript. [Evidenza reale](forecast-verification/live-results.json). È una verifica funzionale dello stato indisponibile, non una previsione meteorologica reale riuscita. Modifiche locali non pubblicate.
+Prova frontend locale → API pubblica reale (storica): lettura `measured_at` vuota, nove risultati indisponibili con ragione esplicita, quattro grafici delle osservazioni ancora presenti, nessun errore JavaScript. [Evidenza reale](forecast-verification/live-results.json). Dal 30 ottobre il feed locale usa `captured_at`; questa evidenza precede la modifica ed è una verifica dello stato indisponibile, non una previsione meteorologica riuscita.
 
 
 **Esito finale del 23 ottobre:** `npm run check` superato: build, lint, 41 test Node (27 frontend + 14 modello/feed), 42 Deno e 21 Python. Sette scenari browser previsionali e 14 scenari di regressione frontend superati. API fisica reale vuota e nove stime indisponibili verificati separatamente. Nessuna validazione meteorologica o pubblicazione attestata.
@@ -184,7 +190,7 @@ Prova frontend locale → API pubblica reale: lettura `measured_at` vuota, nove 
 
 La dashboard è disponibile alla radice e resta compatibile su `/home`; il router mostra la stessa home in entrambi i percorsi. `/info` contiene introduzione al progetto scolastico, descrizione documentata della stazione, semantica/provenienza dei dati e team. Il canonical della home indica la radice.
 
-La build produce documenti statici per home, `/info`, `/privacy` e `/gioca` con title, description e canonical specifici. La homepage contiene `WebSite` JSON-LD con nome preferito `MeteOlivelli`, Open Graph e favicon PNG 96×96. Le varianti coordinate scura/chiara del sole seguono il tema iniziale e quello scelto manualmente; il segno nella testata usa un solo asset da 80 px per tema. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca la radice e le tre pagine informative. I metadati SEO e il logo premium sono stati pubblicati nel checkpoint precedente; questa revisione ottimizza le risorse responsive. Verifica di Google Search Console e ricrawl restano da fare dopo il rilascio corrente. Google decide autonomamente nome, titolo, snippet e favicon mostrati.
+La build produce documenti statici per home, `/info`, `/privacy` e `/gioca` con title, description e canonical specifici. La homepage contiene `WebSite` JSON-LD con nome preferito `MeteOlivelli`, Open Graph e favicon PNG 96×96. Le varianti coordinate scura/chiara del sole seguono il tema iniziale e quello scelto manualmente; il segno nella testata usa un solo asset da 80 px per tema e angoli quadrati. Le favicon hanno tela quadrata senza arrotondamenti CSS e seguono il tema attivo; il parametro di versione evita di riusare l’URL memorizzato. `public/robots.txt` consente la scansione e indica `https://meteolivelli.vercel.app/sitemap.xml`; la sitemap elenca la radice e le tre pagine informative. I metadati SEO e il logo premium sono stati pubblicati nel checkpoint precedente; questa revisione ottimizza le risorse responsive. Verifica di Google Search Console e ricrawl restano da fare dopo il rilascio corrente. Google decide autonomamente nome, titolo, snippet e favicon mostrati.
 
 La pagina Informazioni (`src/pages/InfoPage.tsx`) presenta progetto, stazione e percorso dei dati, guida alla lettura di periodi e medie, provenienza, previsioni e team. L’indice conduce alle cinque sezioni. Il polling a 15 secondi descrive la lettura del sito, non la cadenza della stazione; la pagina distingue i diversi orari e spiega quando la freschezza non è determinabile. Il diagramma diventa una griglia mobile 2×2. Il test frontend verifica che ogni ancora dell’indice abbia una destinazione reale.
 

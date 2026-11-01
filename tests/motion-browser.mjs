@@ -22,7 +22,7 @@ try {
     const url = new URL(route.request().url())
     if (url.origin === new URL(base).origin) return route.continue()
     if (!url.pathname.includes('read-measurements')) return route.abort()
-    const items = url.searchParams.get('basis') === 'measured_at' ? [] : url.searchParams.get('view') === 'latest' ? rows.slice(-1) : rows
+    const items = url.searchParams.get('view') === 'latest' ? rows.slice(-1) : rows
     return route.fulfill({ json: { items, next_cursor: null, until: url.searchParams.get('until') ?? '2026-10-23T12:00:00.000Z', time_basis: url.searchParams.get('basis') ?? 'captured_at' } })
   })
   const page = await context.newPage()
