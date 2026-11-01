@@ -359,3 +359,5 @@ La route `/data` mantiene l'autenticazione server-side e ora segue la gerarchia 
 
 La lista amministrativa identifica inoltre le righe come stazione, storico, inserimento manuale o sintetico. L'area resta non indicizzata e non compare nei menu. La risposta dell'RPC continua a esporre solo `entry_method`, senza il payload privato.
 
+
+La sintesi delle ultime misure confronta valori fisici validi con quelli dello stesso minuto del giorno civile precedente in Europe/Rome, usando lo storico completo indipendentemente dal filtro dei grafici. Se il confronto non è disponibile, lo dichiara. Il footer attribuisce a Pietro Giudici e Nicholas Borin la realizzazione del sito.

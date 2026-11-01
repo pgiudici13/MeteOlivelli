@@ -11,7 +11,7 @@ export function SiteFooter() {
       <section className="footer-about" aria-labelledby="footer-project-title">
         <h2 id="footer-project-title">{translate("MeteOlivelli")}</h2>
         <p>{translate("Il meteo, visto da scuola.")}</p>
-        <p>{translate("Un progetto di Pietro Giudici e Nicholas Borin, studenti del Liceo Teresio Olivelli di Pavia.")}</p>
+        <p>{translate("Sito realizzato da Pietro Giudici e Nicholas Borin, studenti del Liceo Teresio Olivelli di Pavia.")}</p>
       </section>
       <nav className="footer-navigation" aria-label={translate("Navigazione a piè di pagina")}>
         <h2>{translate("Esplora")}</h2>

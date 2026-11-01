@@ -99,7 +99,7 @@ test('traduzione reattiva di messaggi composti, date e durate; numeri non interp
   assert.equal(formatValue(0, 'temperature_c'), '32.0')
   assert.equal(formatCivilDay('2026-10-27'), '27 October 2026')
   assert.match(measurementAge(sample, '2026-10-27T12:04:00Z'), /2 hours and 4 minutes ago/)
-  const earlier = { ...sample, ingestion_id: '00000000-0000-4000-8000-000000000002', temperature_c: -10, captured_at: '2026-10-27T09:00:00Z', measured_at: '2026-10-27T09:00:00Z' }
+  const earlier = { ...sample, ingestion_id: '00000000-0000-4000-8000-000000000002', temperature_c: -10, captured_at: '2026-10-26T10:00:00Z', measured_at: '2026-10-26T10:00:00Z' }
   assert.match(translate(describeWeatherChange(sample, [earlier])[0]), /Temperature rising by 18.0 °F/)
   assert.equal(translate(null), null)
   assert.equal(translate(20), 20)
@@ -153,7 +153,7 @@ test('misura manuale e lettura della stazione restano datate correttamente con v
   }
   await loadLanguage('en')
   updatePreferences({ language: 'en', temperatureUnit: 'F' }, false)
-  assert.match(translate(describeWeatherChange(manual, result.rows)[0]), /Temperature rising by 18.0 °F/)
+  assert.match(translate(describeWeatherChange(manual, [{ ...live, measured_at: '2026-10-26T10:00:00Z', captured_at: '2026-10-26T10:00:00Z' }])[0]), /Temperature rising by 18.0 °F/)
   const document = buildHistoryDocument(result.rows, new Date(until))
   const manualRow = document.content[2].table.body[2]
   assert.match(manualRow[1], /No capture time.*MANUAL ENTRY/)

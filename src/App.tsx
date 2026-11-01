@@ -181,7 +181,7 @@ function App() {
   // Solo importazioni storiche: la dashboard lo dichiara invece di apparire vuota.
   const historicalOnly = Boolean(!latest && completeHistory.rows.some(row => row.acquisition_kind === 'historical'))
   const stationStatus = stationStatusText({ latestLoaded, invalidLatestTime: data.invalidLatestTime, latestError, freshness, historicalOnly })
-  const weatherSummary = useMemo(() => describeWeatherChange(latest, rows, preferences.temperatureUnit, preferences.language), [latest, rows, preferences.temperatureUnit, preferences.language])
+  const weatherSummary = useMemo(() => describeWeatherChange(latest, completeHistory.rows, preferences.temperatureUnit, preferences.language), [latest, completeHistory.rows, preferences.temperatureUnit, preferences.language])
   const ageDescription = measurementAge(latest, data.serverUntil)
   const nextExpectedMeasurement = latest?.entry_method === 'manual' || !latest?.captured_at
     ? null
@@ -300,7 +300,7 @@ function App() {
         </article>))}</div>)}
         {translate(latest && <div className="weather-summary panel" aria-labelledby="weather-summary-title">
           <h3 id="weather-summary-title">{translate("Come stanno cambiando le misure?")}</h3>
-          {translate(weatherSummary ? <><ul>{translate(weatherSummary.map(sentence => <li key={sentence}>{translate(sentence)}</li>))}</ul><p className="small">{translate("Confronto descrittivo fra letture della stazione, non una previsione. Gli intervalli fra misure possono essere diversi.")}</p></> : <p className="small">{translate("La sintesi sarà disponibile quando arriveranno almeno due letture fisiche valide e confrontabili.")}</p>)}
+          {translate(weatherSummary ? <><ul>{translate(weatherSummary.map(sentence => <li key={sentence}>{translate(sentence)}</li>))}</ul><p className="small">{translate("Confronto descrittivo fra letture della stazione allo stesso minuto in Europe/Rome, non una previsione.")}</p></> : <p className="small">{translate("La sintesi richiede letture fisiche valide allo stesso minuto del giorno precedente.")}</p>)}
         </div>)}
         {translate(latest && <details className="time-details"><summary>{translate("Provenienza degli orari")}</summary>
           <p>{translate("Misura fisica: ")}{translate(formatTime(latest.measured_at))}.</p>

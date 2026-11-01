@@ -748,3 +748,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 
 - [x] Uniformato l’hover dei collegamenti rapidi: bordo neutro al posto dell’arancione, riflesso e focus mantenuti. `npm run check` e `git diff --check` superati.
 - [x] Controllo finale degli stati hover, focus e disabilitati: collegamenti rapidi uniformati, selezioni dei grafici distinte dai semplici hover; suite completa `npm run check` superata.
+
+**1 novembre 2026 — Fase 7 / UI-01, footer e confronto giornaliero:** il footer attribuisce la realizzazione del sito; la sintesi confronta letture fisiche valide allo stesso minuto del giorno civile precedente in Europe/Rome, usando lo storico completo e dichiarando l’assenza di confronti. `npm run build`, `npm run lint` e 170 test frontend superati, incluso il cambio d’ora.
