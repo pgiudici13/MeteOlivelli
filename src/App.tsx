@@ -382,7 +382,7 @@ function App() {
       <Reveal><section className="panel about-section" aria-labelledby="about-title">
         <p className="eyebrow section-index">{translate("Il progetto / MeteOlivelli")}</p>
         <h2 id="about-title">{translate("Un progetto per osservare e imparare.")}</h2>
-        <p className="secondary">{translate("MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia, realizzato da Pietro Giudici e Nicholas Borin. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.")}</p>
+        <p className="secondary">{translate("MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.")}</p>
         <p className="reflection">{translate("Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.")}</p>
       </section></Reveal>
     </main>

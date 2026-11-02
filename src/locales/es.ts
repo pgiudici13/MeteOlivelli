@@ -142,7 +142,7 @@ export default {
   "Non risultano campioni registrati.": "No hay muestras registradas.",
   "Il progetto / MeteOlivelli": "El proyecto / MeteOlivelli",
   "Un progetto per osservare e imparare.": "Un proyecto para observar y aprender.",
-  "MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia, realizzato da Pietro Giudici e Nicholas Borin. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.": "MeteOlivelli es el proyecto meteorológico del Liceo Teresio Olivelli de Pavía, creado por Pietro Giudici y Nicholas Borin. Con Arduino GIGA R1 y los sensores, exploramos cómo cambian temperatura, humedad y presión.",
+  "MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Attraverso Arduino GIGA R1 e i sensori della stazione, esploriamo come temperatura, umidità e pressione cambiano nel tempo.": "MeteOlivelli es el proyecto meteorológico del Liceo Teresio Olivelli de Pavía. Con Arduino GIGA R1 y los sensores, exploramos cómo cambian temperatura, humedad y presión.",
   "Imparare non significa soltanto trovare risposte, ma anche scoprire nuove domande e comprendere quanto ci sia ancora da conoscere.": "Aprender significa encontrar respuestas, descubrir nuevas preguntas y comprender cuánto queda por conocer.",
   "Pagina non trovata — MeteOlivelli": "Página no encontrada — MeteOlivelli",
   "Caricamento pagina…": "Cargando página…",
