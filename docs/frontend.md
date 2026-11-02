@@ -433,3 +433,5 @@ Un test con timer controllato verifica l’interruzione della richiesta meteo a 
 L’indicatore del cielo formatta date e orari secondo la lingua scelta, mantenendo `Europe/Rome`. Verificato in browser il passaggio italiano → tedesco: stessa data ISO, resa `02/11` → `02.11.`.
 
 Verifica localizzazione nell’anteprima: le condizioni simulate pioggia e non disponibile e la fonte sono state controllate in italiano, inglese, spagnolo, francese e tedesco dopo il caricamento dei cataloghi. L’etichetta «Simulazione · sviluppo» rimane italiana ed è esclusiva dello sviluppo.
+
+Nel tema chiaro la velatura del cielo e le superfici delle schede sono meno coprenti; il testo secondario è più scuro. Il controllo matematico del contrasto resta limitato ai casi e ai colori descritti sopra. Verificati localmente build, lint, 191 test frontend e anteprima desktop di mezzogiorno sereno; non è una verifica visiva completa di tutte le condizioni o dei dispositivi.

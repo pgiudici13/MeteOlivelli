@@ -1255,3 +1255,5 @@ Richiesta utente: aggiungere alla home un cielo astronomico e condizioni modelli
 **Localizzazione del cielo:** l’indicatore usa la lingua selezionata per date e orari, senza cambiare il fuso `Europe/Rome`; verifica browser italiano/tedesco e suite completa superate.
 
 **Completamento implementativo:** scena meteorologica e verifiche automatiche e locali disponibili completate; il collaudo su dispositivi fisici e con screen reader resta da eseguire quando possibile.
+
+**2 novembre 2026 — Cielo nel tema chiaro:** su richiesta dell’utente, la velatura e le schede della home sono meno coprenti per rendere più visibile la scena; colori dei testi adeguati per la leggibilità. Verifiche e limiti in `tasks.md` e `docs/frontend.md`. Modifica locale non pubblicata.

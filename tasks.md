@@ -786,3 +786,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Indicatore del cielo: date e orari seguono la lingua selezionata mantenendo il fuso di Pavia; verifica browser italiano/tedesco e `npm run check` superati.
 
 - [x] Implementazione della scena meteorologica e verifiche automatiche e locali disponibili completate. Le prove su dispositivi fisici e con screen reader restano separate e non eseguite.
+
+**2 novembre 2026 — Fase 7 / UI-01, cielo nel tema chiaro:** velatura e schede più trasparenti, testo secondario e avvisi più scuri. Build, lint e 191 test frontend superati, incluso il controllo di contrasto sui casi limite; anteprima browser desktop con mezzogiorno sereno verificata. Nessuna pubblicazione.

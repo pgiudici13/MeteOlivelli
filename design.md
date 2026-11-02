@@ -220,3 +220,7 @@ La home sovrappone alla scena astronomica e alle condizioni modellistiche una su
 I pannelli della home variano tono e trasparenza quando il Sole scende sotto la soglia notturna della scena. Il tema esplicitamente scelto resta prioritario; il passaggio è graduale e viene disabilitato con movimento ridotto.
 
 Il disco solare schiarisce in quota e assume toni più ambrati vicino all'orizzonte; la variazione è illustrativa e continua rispetto all'altezza astronomica.
+
+### Tema chiaro e cielo — 2 novembre 2026
+
+La velatura chiara della home lascia più visibili sole e condizioni atmosferiche; le schede restano semitrasparenti e il testo secondario è più scuro per mantenere la leggibilità. La rappresentazione e il comportamento meteo non cambiano.
