@@ -529,3 +529,31 @@ Esito storico del setup: `npm run check` passa su copia senza `.env`: lint/build
 - **Impatto:** il sito sembrava ignorare letture valide e il grafico non rappresentava lo storico disponibile.
 - **Correzione:** usare `measured_at` se presente, altrimenti `captured_at` come ora di acquisizione PC chiaramente dichiarata; non usare `received_at`. Applicare la stessa regola ai grafici, all’intervallo Auto e ai PDF.
 - **Verifica:** regressioni su feed misto e righe senza `measured_at`; `npm run check` e `git diff --check` superati. Nessuna modifica remota o pubblicazione.
+
+## Scena atmosferica — WMO 97 e precipitazioni non disponibili (2 novembre 2026)
+
+La prima implementazione della scena classificava il codice WMO 97 come sconosciuto e, con un temporale privo di quantità di precipitazione, mostrava comunque pioggia. L'impatto era una rappresentazione incoerente dei dati modellistici. La classificazione include ora 97 e l'effetto pioggia non viene applicato al temporale se la quantità non è disponibile; verifiche su fixture locali. La verifica su risposta live resta aperta perché il servizio ha restituito HTTP 503.
+
+## Scena atmosferica — risposta vuota e contrasto (2 novembre 2026)
+
+Una risposta corrente contenente soltanto l'orario poteva sostituire una condizione precedente utilizzabile; la lettura ora rifiuta questo caso e conserva la cache valida. I colori secondari sulla home sono stati adeguati perché il contrasto minimo calcolato sopra il disco solare o il cielo più scuro poteva scendere sotto 4,5:1. I test locali coprono questi casi limite; non costituiscono una verifica WCAG complessiva del sito.
+
+## Scena atmosferica — freschezza del dato modellistico (2 novembre 2026)
+
+La prima versione valutava la freschezza rispetto al solo download: una risposta del provider già datata, se riscaricata, poteva sembrare aggiornata e rimanere visibile oltre sei ore dalla propria validità; erano inoltre accettati orari del provider fino a tre ore nel futuro. La scadenza ora considera anche l'ora del dato, segnala il dato vecchio, rifiuta orari oltre cinque minuti nel futuro e non sostituisce una risposta più recente con una arretrata. Test locali coprono i confini temporali, il fallback e l'ordine delle risposte.
+
+## Scena atmosferica — copertura nuvolosa assente (2 novembre 2026)
+
+Con un codice WMO di cielo coperto e `cloud_cover` mancante, la prima scena azzerava la nuvolosità grafica e lasciava il Sole pienamente visibile. Ora, solo quando il valore è assente, il renderer usa il significato qualitativo del codice; non viene creato un valore numerico meteorologico. Verificati il caso con test e l'anteprima browser dedicata.
+
+## Scena atmosferica — fase delle precipitazioni (2 novembre 2026)
+
+La scena attribuiva il totale della precipitazione alla pioggia durante un temporale anche quando il campo specifico poteva indicare neve. Ora usa le componenti modellistiche disponibili e, se la fase è sconosciuta, non interpreta il totale di un temporale come pioggia. Verificati separazione e caso misto con test locali; scenari di temporale con pioggia e con neve controllati nel browser di sviluppo.
+
+## Scena atmosferica — errore del modulo lazy (2 novembre 2026)
+
+Un errore nel caricamento o nel rendering della scena poteva propagarsi al gestore dell'intera pagina e nascondere la dashboard. Un error boundary dedicato mostra ora un avviso circoscritto al cielo. Verifica locale con caricamento fallito simulato: misure ancora visibili e dialogo del grafico apribile; il flag di prova è assente dalla build di produzione.
+
+## Scena atmosferica — giorno civile degli eventi solari (2 novembre 2026)
+
+Poco dopo mezzanotte civile a Pavia, SunCalc senza un ancoraggio al giorno della stazione poteva restituire alba e tramonto del giorno solare precedente; ad esempio alle 00:10 del 1° luglio l'alba apparteneva al 30 giugno. La posizione di Sole e Luna era comunque calcolata sull'istante corretto. Gli eventi sono ora selezionati sul giorno `Europe/Rome`; test coprono mezzanotte, entrambi i cambi d'ora e gli istanti serali del 2026.

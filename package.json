@@ -25,7 +25,8 @@
     "motion": "^14.6.0",
     "pdfmake": "^0.3.11",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "suncalc": "^2.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

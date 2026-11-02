@@ -64,6 +64,8 @@ test('tutte le lingue coprono quiz, spiegazioni e testi statici accessibili', as
   const allowed = new Set(['MeteOlivelli', '°C', 'hPa', 'Pietro Giudici', 'Nicholas Borin', 'meteolivelli@liceoolivelli.pv.it', 'meteolivelli-analytics-consent'])
   const required = quizQuestions.flatMap(q => [q.question, ...q.answers, q.explanation])
   required.push(...Object.values(metricExplanations))
+  // Le condizioni sono scelte dinamicamente e non emergono dalla ricerca delle chiamate letterali.
+  required.push('Sereno', 'Poco nuvoloso', 'Coperto', 'Nebbia', 'Pioviggine', 'Pioggia', 'Pioggia intensa', 'Neve', 'Temporale', 'Condizioni non disponibili')
   for (const file of readdirSync(new URL('../src', import.meta.url), { recursive: true }).filter(name => name.endsWith('.tsx'))) {
     const source = ts.createSourceFile(file, readFileSync(new URL('../src/' + file, import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true)
     const visit = node => {

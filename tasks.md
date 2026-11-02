@@ -762,3 +762,27 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Controllo finale degli stati hover, focus e disabilitati: collegamenti rapidi uniformati, selezioni dei grafici distinte dai semplici hover; suite completa `npm run check` superata.
 
 **1 novembre 2026 — Fase 7 / UI-01, footer e confronto giornaliero:** il footer attribuisce la realizzazione del sito; la sintesi confronta letture fisiche valide allo stesso minuto del giorno civile precedente in Europe/Rome, usando lo storico completo e dichiarando l’assenza di confronti. `npm run build`, `npm run lint` e 170 test frontend superati, incluso il cambio d’ora.
+
+### Scena atmosferica — 2 novembre 2026
+
+- Implementazione locale nella copia di lavoro: astronomia, condizioni modellistiche separate dalle misure, fallback e anteprima sviluppo.
+- Verifica browser locale a viewport stretta: dashboard con misure e scenario simulato tramonto/pioggia; condizioni Open-Meteo correnti non disponibili durante la prova. Restano da verificare dispositivi fisici, contrasto completo e prestazioni sul campo.
+- Aggiunti probabilità oraria futura e orari solari del provider, classificazione WMO 97 e dissolvenza delle precipitazioni. Da confermare la risposta live del provider, che durante la verifica ha restituito HTTP 503.
+- Rafforzata la validazione dei dati correnti e il fallback; verificati con test i limiti matematici del contrasto del testo secondario sulla velatura e la visibilità della Luna. Resta aperta la verifica completa di contrasto e dispositivi fisici.
+- Verifica browser locale alle larghezze 320/390/768/1280/2560 px senza overflow orizzontale e controllo dello scorrimento; `npm run check` superato (181 frontend, 55 backend, 28 uploader). Prove su dispositivo fisico e prestazioni restano aperte.
+- Risposta completa Open-Meteo verificata il 2 novembre nel parser e nella home; effettuato confronto per un giorno fra alba/tramonto del provider e SunCalc. Pannelli giorno/notte controllati in entrambi i temi nel browser. Fluidità su hardware scolastico e audit WCAG completo restano da misurare.
+- Corretta la freschezza della scena: scadenza ancorata anche all'istante modellistico, indicazione del dato datato, rifiuto di orari futuri incoerenti e conservazione della risposta più recente; copertura con test temporali e prova locale della risposta live.
+- Corretto il cielo coperto con `cloud_cover` assente: il codice WMO guida una rappresentazione qualitativa e il campo resta nullo. Verificati test e anteprima browser `overcast-no-cloud`.
+- Distinti i campi modellistici `rain`, `showers` e `snowfall`; testati pioggia, neve e precipitazione mista e controllati nel browser gli scenari di temporale con pioggia e con sola neve.
+- Verificata la variazione cromatica del disco solare in funzione dell'altezza, con test e confronto browser fra mezzogiorno e tramonto.
+- Isolato il caricamento della scena dal resto della home; in browser, errore simulato `?sky-fail=1` con misure visibili e grafico ingrandito funzionante. La simulazione è esclusa dalla build di produzione.
+- Corretta la selezione degli eventi solari dopo mezzanotte a Pavia: testati cambi d'ora e 730 istanti serali del 2026, mantenendo distinte le posizioni calcolate sugli istanti reali.
+- Verificato in Chrome DevTools `prefers-reduced-motion: reduce`: nello scenario di pioggia simulata nuvole e gocce sono statiche, la transizione del Sole è disattivata e l'indicatore resta disponibile. Prova fisica separata.
+
+- [x] Stato successivo: modifiche della scena trasferite nel progetto originale; build locale di produzione, isolamento dei controlli di sviluppo e percorsi mirati da tastiera verificati. `npm run check` superato con 191 test frontend, 55 Deno e 28 uploader. Le prove e i loro limiti sono in `docs/frontend.md`.
+- [ ] Collaudo di fluidità e movimento ridotto su smartphone e PC scolastico: dispositivi fisici non disponibili al momento, come comunicato dall’utente. Le simulazioni locali non sostituiscono questo collaudo.
+- [ ] Verifica complessiva di contrasto e screen reader; i controlli mirati già eseguiti non costituiscono una certificazione WCAG.
+
+- [x] Indicatore del cielo: date e orari seguono la lingua selezionata mantenendo il fuso di Pavia; verifica browser italiano/tedesco e `npm run check` superati.
+
+- [x] Implementazione della scena meteorologica e verifiche automatiche e locali disponibili completate. Le prove su dispositivi fisici e con screen reader restano separate e non eseguite.

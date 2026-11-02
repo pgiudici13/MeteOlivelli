@@ -367,3 +367,69 @@ La lista amministrativa identifica inoltre le righe come stazione, storico, inse
 
 
 La sintesi delle ultime misure confronta valori fisici validi con quelli dello stesso minuto del giorno civile precedente in Europe/Rome, usando lo storico completo indipendentemente dal filtro dei grafici. Se il confronto non è disponibile, lo dichiara. Il footer attribuisce a Pietro Giudici e Nicholas Borin la realizzazione del sito.
+
+## Scena atmosferica della home — 2 novembre 2026
+
+`src/sky/` separa posizione, calcoli SunCalc, lettura/caching e classificazione WMO dal rendering. La scena è caricata in un chunk separato e usa un ciclo al minuto mentre la pagina è visibile; al ritorno in primo piano riallinea subito l’ora. Il refresh delle condizioni è indipendente dai feed della stazione; una risposta arrivata a pagina nascosta viene recuperata dalla cache al ritorno. Un test controlla il timer, la ripresa e la pulizia degli eventi di visibilità. Sole e Luna si muovono tramite trasformazioni CSS; una prova browser delle anteprime alba, mezzogiorno, tramonto e notte ha confermato le coordinate dei centri. Sono proiettati su una scena stilizzata; la Luna è nascosta sotto l'orizzonte e le stelle sono attenuate dalle nubi. Il fallback non afferma che il cielo sia sereno. Una prova browser locale ha mostrato la home su viewport stretta e lo scenario simulato tramonto/pioggia, con misure della stazione disponibili; la risposta corrente Open-Meteo non era disponibile in quella prova. Non è un collaudo su dispositivo fisico né una verifica completa del contrasto o delle prestazioni.
+
+### Completamento dati orari della scena
+
+La richiesta del cielo acquisisce anche codice WMO e probabilità di precipitazione orari, oltre ad alba/tramonto giornalieri per eventuale confronto diagnostico con SunCalc. L'indicatore usa soltanto la prima ora interamente futura disponibile entro due ore, specificandone l'ora finale e l'origine modellistica: la probabilità non modifica né sostituisce la condizione corrente. I dati orari non disponibili o non validi non producono una probabilità inventata. Il codice WMO 97 è classificato come temporale. In assenza della quantità di precipitazione un temporale non aggiunge pioggia solo per effetto dell'etichetta. I livelli pioggia/neve sono predisposti per entrare e uscire gradualmente: ciascuno mantiene fino a 28 particelle, con animazioni inattive in pausa. In anteprima sono stati verificati i passaggi pioggia → neve → sereno e il numero di particelle in esecuzione. In una copia locale con le transizioni temporaneamente abilitate per l’anteprima, al passaggio pioggia → sereno il browser ha mostrato opacità intermedia e poi zero, con le 28 particelle conservate e in pausa; la normale anteprima disattiva le transizioni.
+
+La validazione della risposta corrente rifiuta un timestamp senza codice riconosciuto né nuvolosità e conserva, entro il limite previsto, l'ultimo stato valido. Il contrasto del testo secondario e degli avvisi di qualità sulla velatura del cielo è controllato con un calcolo WCAG sui casi limite bianco/nero, in entrambi i temi. I colori degli avvisi sono stati adeguati a quei casi; la prova riguarda tali colori e quella composizione, non certifica l'intero sito. Un test separato copre visibilità lunare sotto l'orizzonte e attenuazione con luce e nubi.
+
+Verifica aggiuntiva locale: a 320, 390, 768, 1280 e 2560 px la larghezza del documento coincide con quella del viewport, senza overflow orizzontale; scena fissa presente anche durante lo scorrimento. Controllata visivamente la home al tramonto in tema scuro. `npm run check` supera build, lint, budget (107,6 KiB JS e 9,8 KiB CSS gzip), 181 test frontend, 55 Deno e 28 Python. Non sono misure di fluidità su dispositivi reali.
+
+### Riscontro Open-Meteo e pannelli giorno/notte
+
+Il 2 novembre 2026 alle 14:29 circa Europe/Rome la richiesta completa Open-Meteo ha restituito HTTP 200; il parser ha letto condizioni correnti e 27 punti orari utili. Nel browser la home mostrava l'indicatore modellistico «Sereno» con dato delle 14:15 e la probabilità per l'ora fino alle 16:00, separati dai dati della stazione. Per quel giorno il provider indicava alba 07:03:20 e tramonto 17:09:57; SunCalc calcolava rispettivamente 07:03:24 e 17:09:54 (Europe/Rome). Questo confronto riguarda un solo giorno e non certifica le previsioni o la precisione del modello.
+
+I pannelli cambiano tonalità e opacità durante la notte astronomica rappresentata, senza modificare la scelta chiara/scura del visitatore. La variazione è graduale e viene disattivata con movimento ridotto. In browser sono state verificate entrambe le scelte del tema nell'anteprima notturna; il tema chiaro resta intenzionalmente chiaro per rispettare la preferenza esplicita.
+
+La freschezza del cielo considera sia l'orario del dato modellistico sia il recupero nel browser: oltre 45 minuti di età del dato, o dopo 15 minuti dal recupero, viene mostrata la dicitura «ultimo dato disponibile». Il fallback scade al più tardi sei ore dopo l'orario del dato e sei ore dopo il recupero; una risposta con un orario precedente non sostituisce quella più recente. Un orario del provider oltre cinque minuti nel futuro viene rifiutato. Le soglie sono scelte del frontend, non indicazioni di accuratezza meteorologica.
+
+La quantità e l'opacità delle gocce o dei fiocchi variano con la precipitazione disponibile, entro un massimo di 28 particelle per livello. Quando manca la quantità ma il codice WMO indica esplicitamente pioggia o neve, viene usata una rappresentazione qualitativa, senza esporre un'intensità numerica; un temporale con quantità assente non implica pioggia.
+
+Quando manca `cloud_cover`, la scena ricava soltanto una densità grafica qualitativa dal codice WMO, ad esempio nuvole per «coperto» o «temporale»; la copertura resta assente nei dati e non viene esposta come percentuale. Se la copertura è disponibile, il renderer usa quel valore. L'anteprima `overcast-no-cloud` permette di provare il caso senza connessione ai dati reali.
+
+La scena conserva separatamente `rain`, `showers` e `snowfall` dal modello. Quando disponibili, questi campi controllano i livelli di pioggia e neve anche contemporaneamente; la neve in centimetri è normalizzata graficamente con l'equivalenza approssimativa indicata dal provider (7 cm di neve ≈ 10 mm d'acqua). Se durante un temporale è noto soltanto il totale, non lo si attribuisce arbitrariamente a pioggia o neve. I vecchi dati in cache senza i nuovi campi restano utilizzabili con questo fallback prudente. L'anteprima `thunder-snow` simula un temporale con sola neve; in browser sono stati confrontati questo scenario e il temporale con pioggia.
+
+Il disco solare usa una palette continua in `src/sky/palette.ts`: i toni del centro e del bordo diventano più caldi avvicinandosi all'orizzonte, in funzione dell'altezza calcolata, senza stimare grandezze meteorologiche. Le proprietà cromatiche sono interpolate in CSS e seguono la preferenza di movimento ridotto. Nell'anteprima browser locale sono stati confrontati mezzogiorno e tramonto; test unitari verificano estremi e valori intermedi.
+
+La scena lazy è isolata da un error boundary dedicato: se il suo modulo o il rendering fallisce, la home conserva misure e grafici e mostra un messaggio sul solo cielo. In sviluppo `?sky-fail=1` simula il fallimento del caricamento; nel browser locale sono rimasti visibili le misure e il grafico ingrandito si è aperto. Il parametro di simulazione è escluso dalla build di produzione. Questo caso è distinto dal normale errore della rete meteo, gestito dal fallback astronomico.
+
+Gli eventi solari vengono selezionati usando il giorno civile `Europe/Rome`: il calcolo ricava il giorno della stazione e usa un mezzogiorno UTC di quel giorno come ancoraggio al transito di Pavia. Le posizioni di Sole e Luna restano calcolate sull'istante reale. I test controllano mezzanotte locale, entrambi i cambi d'ora e 730 istanti serali del 2026; la prova non è una certificazione astronomica generale per altre località.
+
+### Verifica della preferenza di movimento ridotto
+
+Il 2 novembre 2026 nella copia di sviluppo è stato emulato `prefers-reduced-motion: reduce` tramite Chrome DevTools. Nello scenario di pioggia simulata il browser ha restituito `animation-name: none` per nuvole e gocce e durata della transizione del Sole pari a `0s`; i 22 elementi grafici della pioggia rimanevano presenti ma statici. L'indicatore testuale era disponibile e il livello decorativo manteneva `aria-hidden="true"`. La prova riguarda l'emulazione sul browser locale, non un collaudo su dispositivo fisico.
+
+Prova locale indicativa: in browser integrato, con build di sviluppo e pioggia selezionata dopo il caricamento, un contatore temporaneo `requestAnimationFrame` ha registrato 717 intervalli in circa 12 secondi, uno oltre 34 ms (massimo 50 ms). Include il caricamento iniziale, non misura direttamente i fotogrammi effettivamente presentati e non sostituisce prove con interazioni o su dispositivi scolastici e smartphone. La strumentazione è stata rimossa.
+
+Seconda prova locale indicativa, con pioggia simulata già selezionata e apertura del grafico di temperatura durante il campionamento: 684 intervalli `requestAnimationFrame` in circa 12,02 s, quattro superiori a 34 ms, massimo circa 467 ms. La prova include interazione e automazione, non distingue la causa della pausa e non misura i fotogrammi effettivamente presentati; richiede approfondimento e non sostituisce il collaudo su dispositivi meno potenti. La strumentazione temporanea è stata rimossa.
+
+Diagnosi successiva locale: in una singola ripetizione con pioggia simulata e apertura del grafico, `PerformanceObserver` supportava `longtask` e non ha segnalato attività lunga nei 10 secondi di osservazione. Non spiega né esclude la pausa rilevata nella prova precedente; la strumentazione è stata rimossa.
+
+Prova locale Chrome con CPU limitata 4×, pioggia simulata e apertura del grafico: 691 intervalli `requestAnimationFrame` in circa 12,02 s, tre superiori a 34 ms, massimo circa 283 ms. Sono callback, non fotogrammi presentati; l’automazione e il browser influenzano la prova, che non sostituisce un test su smartphone o PC scolastico. Il rallentamento è stato rimosso e la strumentazione temporanea eliminata.
+
+Verifica della build locale di produzione: con `?sky-fail=1` la scena e l’indicatore si caricano, il pannello di anteprima non è presente e i pulsanti dei grafici restano disponibili. La prova non attesta un deployment pubblico.
+
+Verifica locale da tastiera sulla build di produzione: il primo Tab porta al collegamento visibile «Vai al contenuto»; il pulsante di ingrandimento del grafico temperatura è raggiungibile con Tab, Invio apre il dialogo e sposta il focus su «Chiudi», Esc chiude e restituisce il focus al pulsante di apertura. Non è un audit completo di tastiera o screen reader.
+
+Con scena attiva nella build locale, il grafico temperatura è stato raggiunto con Tab; la freccia sinistra ha cambiato il campione riportato nella descrizione associata, mantenendo il focus sul grafico. La prova verifica quel percorso e non sostituisce un test con screen reader.
+
+Il controllo matematico del contrasto è stato esteso ai colori primari e secondari sulle superfici traslucide giorno/notte, nei temi chiaro e scuro, componendole sui casi limite della velatura. Tutte le coppie controllate superano 4,5:1; la verifica non copre ogni componente o stato del sito.
+
+Riscontro della geometria lunare: nell’anteprima notturna del 2 novembre 2026, la frazione SunCalc era circa 0,398 e il raggio del terminatore generato era 4,079 su 20, coerente con la formula della fase calante. La Luna era sotto l’orizzonte e nascosta; la prova riguarda un solo istante e non verifica visivamente tutte le fasi.
+
+Verifica lunare aggiuntiva in copia di sviluppo temporanea: quattro istanti notturni del 2026 con Luna sopra l’orizzonte e frazioni illuminate circa 0,136 e 0,865, crescenti e calanti, hanno generato percorsi SVG differenti con verso corrispondente alla fase. In alcune posizioni testo o card coprono il disco, quindi il controllo visivo non copre tutte le forme. La modifica temporanea all’anteprima è stata rimossa.
+
+Verifica visiva aggiuntiva delle fasi: una copia temporanea ingrandita dello stesso percorso SVG ha mostrato una falce crescente, una gibbosa crescente, una gibbosa calante e una falce calante per quattro istanti scelti. La copia temporanea è stata rimossa; la prova copre quei quattro casi, non l’intero ciclo.
+
+Negli scenari locali simulati pioggia e neve, l’albero di accessibilità del browser espone rispettivamente l’indicatore testuale «Pioggia» o «Neve» con la fonte; la scena decorativa è `aria-hidden` e non contiene elementi focalizzabili. Il controllo dell’albero non sostituisce una prova con screen reader.
+
+Un test con timer controllato verifica l’interruzione della richiesta meteo a otto secondi e un successivo tentativo riuscito; simula un client che rispetta il segnale AbortController, senza richiedere la rete.
+
+L’indicatore del cielo formatta date e orari secondo la lingua scelta, mantenendo `Europe/Rome`. Verificato in browser il passaggio italiano → tedesco: stessa data ISO, resa `02/11` → `02.11.`.
+
+Verifica localizzazione nell’anteprima: le condizioni simulate pioggia e non disponibile e la fonte sono state controllate in italiano, inglese, spagnolo, francese e tedesco dopo il caricamento dei cataloghi. L’etichetta «Simulazione · sviluppo» rimane italiana ed è esclusiva dello sviluppo.

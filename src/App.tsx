@@ -4,7 +4,7 @@ import { translate } from './i18n.ts'
 import { usePreferences } from './use-preferences.ts'
 import { animate } from 'motion/mini'
 import { AnimatedHeading } from './components/AnimatedHeading.tsx'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Component, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
@@ -25,11 +25,23 @@ import { SchoolLogo } from './components/SchoolLogo.tsx'
 import { SchoolSiteLink } from './components/SchoolSiteLink.tsx'
 import { SiteFooter } from './components/SiteFooter.tsx'
 import { readFreshChartData } from './pdf-chart-data.ts'
-import { buildGraphsDocument } from './pdf-graphs-document.ts'
 import { createPdfBlob } from './pdf-runtime.ts'
 import { downloadPdfBlob } from './pdf-download.ts'
-import { createFreshHistoryPdf } from './pdf-history-export.ts'
 import './App.css'
+
+const WeatherScene = lazy(() => import.meta.env.DEV && new URLSearchParams(window.location.search).has('sky-fail')
+  ? Promise.reject(new Error('Simulazione errore scena')) : import('./sky/WeatherScene.tsx'))
+
+/** Un problema nello sfondo non deve impedire l'uso delle misure. */
+class SkyErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() { return { failed: true } }
+  render() {
+    return this.state.failed
+      ? <p className="small" role="status">{translate('Cielo non disponibile; le misure restano consultabili.')}</p>
+      : this.props.children
+  }
+}
 
 function Value({ row, metric }: { row: Measurement; metric: typeof metrics[number] }) {
   usePreferences()
@@ -206,6 +218,7 @@ function App() {
     setPdfBusy(true)
     setPdfMessage('Aggiornamento dei dati e preparazione del PDF…')
     try {
+      const { buildGraphsDocument } = await import('./pdf-graphs-document.ts')
       const { rows: freshRows, until } = await readFreshChartData(customRange ? '30g' : period, new AbortController().signal)
       const generatedAt = new Date()
       const blob = await createPdfBlob(buildGraphsDocument(freshRows, customRange ? '30g' : period, until, generatedAt, customRange ?? undefined))
@@ -223,6 +236,7 @@ function App() {
     setHistoryPdfBusy(true)
     setHistoryPdfMessage('Rilettura di tutte le pagine e preparazione del PDF…')
     try {
+      const { createFreshHistoryPdf } = await import('./pdf-history-export.ts')
       const { blob, rows, generatedAt } = await createFreshHistoryPdf(new AbortController().signal)
       downloadPdfBlob(blob, 'cronologia', generatedAt)
       setHistoryPdfMessage(`PDF scaricato con ${rows.length} campioni.`)
@@ -269,6 +283,7 @@ function App() {
           <div className="instrument-footer"><span><span className="signal-mark" aria-hidden="true" />{translate(" Osservazioni · ")}{translate(periods.find(item => item.value === period)?.label)}</span><a href="#history-title">{translate("Cambia periodo ↗")}</a></div>
         </section></Reveal>
       </div>
+      <SkyErrorBoundary><Suspense fallback={null}><WeatherScene /></Suspense></SkyErrorBoundary>
       <nav className="section-jump-nav" aria-label={translate("Vai a una sezione della homepage")}>
         <span>{translate("Vai a")}</span>
         <a href="#latest-title">{translate("Misure")}</a>

@@ -212,3 +212,11 @@ La selezione attiva è indicata dal bordo e da `aria-pressed`; ogni bandiera ha 
 Al primo accesso la lingua segue l’ordine degli idiomi preferiti del dispositivo fra i cinque disponibili; una scelta salvata prevale e l’italiano è il ripiego quando non ci sono corrispondenze. Celsius rimane indipendente dalla lingua. Il cambio lingua aggiorna i testi e `html[lang]` senza rimontare la pagina o azzerare il quiz.
 
 Il cambio unità converte soltanto la presentazione; valori nulli restano assenti e valori sospetti conservano le segnalazioni. I grafici mantengono dati e geometria canonici, con assi, tooltip e riepiloghi coerenti con l’unità scelta. I PDF adottano lingua e unità della generazione. L’area amministrativa conserva esplicitamente Celsius per la scrittura del contratto dati.
+
+### Cielo astronomico sulla home — 2 novembre 2026
+
+La home sovrappone alla scena astronomica e alle condizioni modellistiche una superficie scura o chiara coerente con il tema scelto; strumenti e grafici conservano superfici leggibili, bordi e riflessi sottili. La scena usa elementi CSS/SVG decorativi, particelle limitate e movimento ridotto rispettato. Sole e Luna sono proiezioni illustrative: il cielo non rappresenta una vista geografica orientata. L'indicatore distingue il modello Open-Meteo dalle misure della stazione. L'anteprima è disponibile solo in sviluppo; i dettagli e i limiti sono nel README.
+
+I pannelli della home variano tono e trasparenza quando il Sole scende sotto la soglia notturna della scena. Il tema esplicitamente scelto resta prioritario; il passaggio è graduale e viene disabilitato con movimento ridotto.
+
+Il disco solare schiarisce in quota e assume toni più ambrati vicino all'orizzonte; la variazione è illustrativa e continua rispetto all'altezza astronomica.

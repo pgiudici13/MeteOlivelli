@@ -1,3 +1,4 @@
+import { STATION } from './sky/location.ts'
 /** Previsioni orarie per la posizione fissa della stazione scolastica di Pavia. */
 export interface ProviderHour {
   time: number
@@ -16,9 +17,9 @@ const maximumAge = 6 * 60 * 60_000
 const retryAfterFailure = 5 * 60_000
 const api = new URL('https://api.open-meteo.com/v1/forecast')
 api.search = new URLSearchParams({
-  latitude: '45.185', longitude: '9.156',
+  latitude: String(STATION.latitude), longitude: String(STATION.longitude),
   hourly: 'temperature_2m,relative_humidity_2m,surface_pressure',
-  timezone: 'Europe/Rome', timeformat: 'unixtime', forecast_days: '2', past_hours: '6',
+  timezone: STATION.timezone, timeformat: 'unixtime', forecast_days: '2', past_hours: '6',
 }).toString()
 
 function isRecord(value: unknown): value is Record<string, unknown> {

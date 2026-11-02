@@ -1225,3 +1225,33 @@ L'utente chiarisce che i valori inseriti a mano rappresentano misure reali. Il m
 **28 ottobre 2026 — asse dei grafici:** su richiesta dell’utente, grafici e PDF sono basati esclusivamente su `measured_at` per selezione, ordine, finestre e ancoraggio Auto. I record senza ora fisica attestata restano in cronologia ma non sono tracciati; `captured_at` e `received_at` non sostituiscono `measured_at` nei grafici.
 
 **29 ottobre 2026 — correzione grafici:** dopo aver visto la homepage pubblica, l’utente ha chiesto di non lasciare un solo punto nei grafici quando le altre osservazioni sono registrate senza `measured_at`. Questa richiesta supera la regola del 28 ottobre: `measured_at` resta prioritario, ma `captured_at` può collocare il campione come ora di acquisizione PC, con diciture esplicite nell’asse e nel punto; `received_at` non è mai un ripiego. PDF e UI condividono la stessa selezione. Record senza entrambi gli orari restano esclusi.
+
+## Aggiornamento 2 novembre 2026 — scena atmosferica
+
+Richiesta utente: aggiungere alla home un cielo astronomico e condizioni modellistiche Open-Meteo, mantenendo indipendenti le misure della stazione. Implementazione locale nella copia di lavoro: posizione fissa condivisa, SunCalc, condizioni correnti e cache, scena CSS/SVG e anteprima solo sviluppo. La rappresentazione è illustrativa e non orientata geograficamente. I limiti e le prove effettive sono descritti in `docs/frontend.md`; la verifica su dispositivi fisici e la disponibilità in produzione restano aperte.
+
+**Completamento locale della scena:** la stessa richiesta include la probabilità oraria di precipitazione e gli eventi solari del provider; la probabilità viene presentata come previsione per un'ora interamente futura, senza trasformarla in condizione osservata. La verifica diretta del provider ha nuovamente restituito HTTP 503; la gestione del dato disponibile è verificata su risposte simulate, non su una risposta live.
+
+**Affidabilità e contrasto della scena:** una risposta priva di condizioni utilizzabili non sostituisce la cache; per i colori secondari sul cielo è stato aggiunto un controllo matematico del contrasto nei casi limite. Il controllo non sostituisce una verifica WCAG dell'intero sito.
+
+**Riscontro successivo:** il 2 novembre la richiesta completa Open-Meteo ha risposto e la home ha mostrato separatamente dati modellistici correnti, probabilità futura e misure della stazione. Confronto indicativo degli eventi solari e limiti della prova in `docs/frontend.md`. I pannelli cambiano tonalità e trasparenza di notte, mantenendo il tema selezionato.
+
+**Freschezza del modello:** il fallback è limitato anche dall'età del dato modellistico, non solo dalla data del download; il frontend evidenzia una risposta datata e non rimpiazza un dato più recente con uno arretrato. Un orario eccessivamente futuro è rifiutato.
+
+**Nuvolosità mancante:** in assenza di `cloud_cover`, la densità del livello grafico segue il significato qualitativo del codice WMO; nessuna percentuale viene inventata o presentata come dato del provider.
+
+**Fasi di precipitazione:** il cielo distingue i campi modellistici di pioggia, rovesci e neve; un totale senza fase non è attribuito automaticamente alla pioggia durante un temporale. La conversione della neve serve solo alla scala grafica e non rappresenta una nuova misura.
+
+**Palette solare:** il disco varia progressivamente dal tono chiaro in quota a uno più caldo vicino all'orizzonte, con calcolo e prove separati dal rendering.
+
+**Isolamento della scena:** un errore di caricamento o rendering del cielo non deve bloccare la dashboard. Il fallback dedicato mantiene consultabili misure e grafici; verifica browser con errore simulato in `docs/frontend.md`.
+
+**Giorno civile della scena:** gli eventi solari usano il giorno di Pavia in `Europe/Rome`, anche tra mezzanotte civile e mezzanotte solare; posizioni e fase lunare continuano a usare l'istante effettivo. Le prove includono i cambi d'ora.
+
+**Movimento ridotto:** verificata in Chrome l'emulazione della preferenza `reduce` nello scenario di pioggia: particelle e nuvole statiche, transizione del Sole disattivata e informazioni testuali mantenute. La prova su dispositivi fisici resta distinta.
+
+**Stato aggiornato della scena:** le modifiche verificate sono presenti nel progetto originale, senza commit né pubblicazione. La build locale di produzione e percorsi mirati da tastiera sono stati controllati; `npm run check` è passato con 191 test frontend, 55 Deno e 28 uploader. Le misure locali, compresa la simulazione CPU 4×, non sostituiscono il collaudo su smartphone e PC scolastico, attualmente non disponibili secondo l’utente. Rimangono aperte anche la verifica complessiva del contrasto e l’esperienza con screen reader. Dettagli e limiti in `docs/frontend.md`.
+
+**Localizzazione del cielo:** l’indicatore usa la lingua selezionata per date e orari, senza cambiare il fuso `Europe/Rome`; verifica browser italiano/tedesco e suite completa superate.
+
+**Completamento implementativo:** scena meteorologica e verifiche automatiche e locali disponibili completate; il collaudo su dispositivi fisici e con screen reader resta da eseguire quando possibile.
