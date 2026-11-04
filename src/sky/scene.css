@@ -34,12 +34,12 @@
 :root[data-theme="light"] .site-shell:has(.sky-is-night) { --sky-glass: rgb(235 242 250 / .88); }
 .site-shell::before { content: ''; position: absolute; z-index: -1; inset: 0; background: rgb(12 18 25 / .65); pointer-events: none; }
 :root[data-theme='light'] .site-shell::before { background: rgb(246 249 249 / .68); }
-.site-shell .panel, .site-shell .hero-instrument, .site-shell .chart { background: var(--sky-glass); transition: background-color 12s ease, border-color 150ms ease-out; box-shadow: 0 12px 32px rgb(0 0 0 / .12); }
-:root[data-theme='light'] .site-shell .panel, :root[data-theme='light'] .site-shell .hero-instrument, :root[data-theme='light'] .site-shell .chart { background: var(--sky-glass); box-shadow: 0 12px 32px rgb(27 55 75 / .09); }
-@supports (backdrop-filter: blur(10px)) { .site-shell .panel, .site-shell .hero-instrument, .sky-caption { backdrop-filter: blur(10px); } }
+.site-shell .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell .hero-instrument, .site-shell .chart { background: var(--sky-glass); transition: background-color 12s ease, border-color 150ms ease-out; border-color: var(--border-strong); }
+.site-shell .history-section, .site-shell .chronology-section, .site-shell .forecast-section { background: transparent; box-shadow: none; }
+@supports (backdrop-filter: blur(10px)) { .site-shell .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell .hero-instrument, .site-shell .chart, .sky-caption { backdrop-filter: blur(10px); } }
 @media (max-width: 760px) { .sky-caption { margin: -30px 0 24px; } .sky-clouds { filter: blur(16px); } }
 @media (prefers-reduced-motion: reduce) { .weather-scene *, .weather-scene, .site-shell .panel, .site-shell .hero-instrument, .site-shell .chart { animation: none !important; transition: none !important; } }
 
 .weather-scene.is-preview, .weather-scene.is-preview * { transition: none !important; }
 
-.site-shell:has(.weather-scene.is-preview) :is(.panel, .hero-instrument, .chart) { transition: none; }
+.site-shell:has(.weather-scene.is-preview) :is(.panel:not(.history-section):not(.chronology-section):not(.forecast-section), .hero-instrument, .chart) { transition: none; }
