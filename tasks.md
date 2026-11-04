@@ -360,6 +360,8 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 
 ### Fase 7 / UI-01 — Bordi (4 novembre 2026)
 
+**Presentazione nella pagina Informazioni (4 novembre 2026):** aggiunti un paragrafo e il collegamento Google Slides nella sezione progetto, con traduzioni nelle cinque lingue. Verifiche locali: `npm run build`, `npm run lint` e 191 test frontend superati. La build segnala chunk PDF superiori a 500 kB. Nessuna pubblicazione.
+
 - [x] Uniformati bordi, raggi, riflessi e focus nelle pagine; corretti contorni doppi, pulsanti testuali e clipping del quiz (COR-059).
 - [x] `npm run check`: build, lint, budget, 191 test frontend, 55 backend e 28 uploader superati. Chrome locale: 48 combinazioni responsive tra sei pagine e due temi, controlli hover/focus e verifica pixel del bordo quiz. Richieste esterne intercettate; nessuna prova su dispositivi fisici.
 - Commit, push e deployment autorizzati dall’utente dopo i test; stato del rilascio da verificare sul servizio.

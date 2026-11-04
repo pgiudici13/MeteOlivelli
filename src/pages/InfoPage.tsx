@@ -64,6 +64,7 @@ export function InfoPage() {
           <h2 id="project-title">{translate("Un piccolo osservatorio, costruito a scuola.")}</h2>
           <p>{translate("MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Mette insieme una stazione scolastica e un sito pubblico per seguire tre grandezze: temperatura, umidità e pressione.")}</p>
           <p>{translate("L’obiettivo è rendere i dati facili da esplorare e, allo stesso tempo, spiegare con chiarezza come vengono raccolti. Un grafico è utile quando sappiamo che cosa rappresenta ogni punto e quali limiti ha la serie.")}</p>
+          <p>{translate("Per conoscere più da vicino MeteOlivelli, ti invitiamo a consultare la nostra presentazione: un modo per scoprire il progetto oltre i dati mostrati sul sito.")} <a href="https://docs.google.com/presentation/d/1TXA6DSeQ71MS3sXNFUUVh5apkh_8HF90EZ6Kqbn9-og/edit?usp=sharing">{translate("Apri la presentazione su Google Slides")}</a>.</p>
         </section>
 
         <section className="info-block info-station" id="station" aria-labelledby="station-title">

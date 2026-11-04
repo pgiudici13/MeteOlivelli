@@ -585,6 +585,8 @@ export default {
   "Trasparenza": "Transparenz",
   "Il team": "Das Team",
   "01 / Il progetto": "01 / Das Projekt",
+  "Per conoscere più da vicino MeteOlivelli, ti invitiamo a consultare la nostra presentazione: un modo per scoprire il progetto oltre i dati mostrati sul sito.": "Um MeteOlivelli besser kennenzulernen, laden wir dich ein, unsere Präsentation anzusehen und das Projekt über die Daten auf der Website hinaus zu entdecken.",
+  "Apri la presentazione su Google Slides": "Präsentation in Google Slides öffnen",
   "Un piccolo osservatorio, costruito a scuola.": "Ein kleines Observatorium, in der Schule gebaut.",
   "MeteOlivelli è il progetto meteo del Liceo Teresio Olivelli di Pavia. Mette insieme una stazione scolastica e un sito pubblico per seguire tre grandezze: temperatura, umidità e pressione.": "MeteOlivelli ist das Wetterprojekt des Liceo Teresio Olivelli in Pavia. Es verbindet eine Schulstation und eine öffentliche Website für Temperatur, Luftfeuchtigkeit und Luftdruck.",
   "L’obiettivo è rendere i dati facili da esplorare e, allo stesso tempo, spiegare con chiarezza come vengono raccolti. Un grafico è utile quando sappiamo che cosa rappresenta ogni punto e quali limiti ha la serie.": "Wir möchten Daten leicht erkundbar machen und ihre Erfassung erklären. Ein Diagramm ist nützlich, wenn jeder Punkt und die Grenzen der Reihe verständlich sind.",

@@ -135,6 +135,8 @@ Al cambio pagina le righe correnti escono in sequenza con dissolvenza e breve sp
 
 ## Pagina Informazioni — revisione del 23 ottobre 2026
 
+La sezione progetto comprende un breve invito alla presentazione Google Slides, con link testuale sottolineato coerente con i temi del sito.
+
 La route `/info` accompagna il lettore in cinque tappe: progetto, stazione e percorso previsto dei dati, guida ai grafici, trasparenza e team. Un indice interno usa link semantici con destinazioni esplicite. L’apertura ha titolo editoriale, introduzione e tre fatti essenziali; la chiusura propone il ritorno alla Home.
 
 La sezione team include l’invito a scrivere e un indirizzo sottolineato che apre la composizione in Gmail; il link va a capo sugli schermi stretti e segnala la nuova scheda.

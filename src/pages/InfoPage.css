@@ -16,6 +16,7 @@
 .info-block p:not(.eyebrow) { max-width: 570px; color: var(--secondary); line-height: 1.75; }
 .info-block p + p { margin-top: 14px; }
 .info-block strong { color: var(--text); font-weight: 500; }
+.info-block p a { color: var(--text); text-underline-offset: 4px; }
 .info-flow { display: flex; align-items: center; gap: 9px; margin: 28px 0 20px; padding: 17px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius-inset); }
 .info-flow > div { display: grid; gap: 5px; min-width: 0; }
 .info-flow > div > span { color: var(--accent-text); font: 10px/1 ui-monospace, monospace; }
