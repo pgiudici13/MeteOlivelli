@@ -234,3 +234,7 @@ La velatura chiara della home lascia più visibili sole e condizioni atmosferich
 La velatura della Home copre tutta la finestra, evitando la fascia centrale distinta dai margini. Superfici più schermate e bordi neutri semitrasparenti seguono il tema; il grafico nel pannello iniziale resta trasparente. La scena atmosferica rimane visibile e distinta dai dati osservati.
 
 Il cambio tema aggiorna immediatamente le superfici delle schede, evitando testo e sfondo temporaneamente incompatibili.
+
+### Uniformità fra le pagine — 4 novembre 2026
+
+La palette condivisa usa neutri freddi coordinati al cielo della Home per fondo, superfici, griglie e bordi nei due temi. Le schede previsionali hanno una superficie come le altre schede; le superfici generiche usano il livello rialzato. La velatura e le varianti atmosferiche sono limitate alla Home anche dopo la navigazione interna. I colori semantici del quiz e delle serie restano distinti.

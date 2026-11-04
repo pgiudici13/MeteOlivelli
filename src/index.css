@@ -1,22 +1,22 @@
 @import './inter-font.css';
 :root {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --page-bg: #101010; --surface: #101010; --surface-raised: #171615; --surface-soft: #1d1a18; --chart-bg: #141312;
-  --text: #eeeeee; --secondary: #b8b3b0; --mint: #a0ca92;
+  --page-bg: #111820; --surface: #141c23; --surface-raised: #19232b; --surface-soft: #202c35; --chart-bg: #151e26;
+  --text: #eeeeee; --secondary: #c5cdd1; --muted: #c5cdd1; --mint: #a0ca92;
   --metric-temperature: #ee6018; --metric-humidity: #61a9e8; --metric-pressure: #c29bff;
   --contrast-text: #101010; --contrast-bg: #eeeeee; --contrast-hover: #fafafa;
-  --border: #3d3a39; --border-strong: #4d4947; --gridline: #34312e;
+  --border: #43505a; --border-strong: #697780; --gridline: #394650;
   --highlight: #ffffff; --glow-rgb: 255 255 255; --accent: #ee6018; --accent-text: #ee6018; --accent-soft: #ee9166;
   --radius-control: 3px; --radius-inset: 8px; --radius-card: 10px; --radius-dialog: 12px;
   color: var(--text); background: var(--page-bg); color-scheme: dark; font-size: 14px; line-height: 1.5;
   font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }
 :root[data-theme="light"] {
-  --page-bg: #f7f5f2; --surface: #ffffff; --surface-raised: #efede9; --surface-soft: #ebe8e3; --chart-bg: #faf9f7;
-  --text: #211f1d; --secondary: #68625d; --mint: #54734a;
+  --page-bg: #eff3f3; --surface: #ffffff; --surface-raised: #f8fafa; --surface-soft: #e5ecec; --chart-bg: #f8fafa;
+  --text: #211f1d; --secondary: #565e60; --muted: #565e60; --mint: #54734a;
   --metric-temperature: #a54017; --metric-humidity: #176ba5; --metric-pressure: #7650a5;
   --contrast-text: #f7f5f2; --contrast-bg: #252320; --contrast-hover: #090908;
-  --border: #d5d0ca; --border-strong: #bdb6ae; --gridline: #dedad5;
+  --border: #c2cdcf; --border-strong: #929fa2; --gridline: #d3dddd;
   --highlight: #282522; --glow-rgb: 40 37 34; --accent-text: #a54017; --accent-soft: #a54017;
   color-scheme: light;
 }

@@ -1,3 +1,5 @@
+> **Fase 7 / UI-01 — uniformità visiva, 4 novembre 2026 (U/D):** estendere la palette della Home a superfici e bordi condivisi, mantenendo la scena atmosferica nella sola Home e gli stati semantici distinti. Esiti in `tasks.md`.
+
 > **Fase 7 / UI-01 — rifinitura visiva, 4 novembre 2026 (U/D):** su richiesta dell’utente, uniformare sfondo atmosferico, superfici e bordi della Home mantenendo cielo e temi. Verifiche e limiti in `tasks.md`.
 
 # Piano di progetto — MeteOlivelli

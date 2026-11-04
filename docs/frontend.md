@@ -449,3 +449,7 @@ Nel tema chiaro la velatura del cielo e le superfici delle schede sono meno copr
 La velatura atmosferica copre l’intera finestra; superfici e bordi si adattano al tema e il grafico nel pannello iniziale rimane trasparente. Build, lint e 191 test frontend superati; anteprima locale osservata a larghezza ridotta. Il controllo visivo desktop completo e su dispositivi fisici resta aperto.
 
 Il cambio tema aggiorna subito le superfici per evitare contrasto insufficiente durante la transizione. `npm run check` completo superato; dopo la correzione, build, lint e 191 test frontend ripetuti. Controllo visivo locale a 1440 e 390 px; dispositivi fisici non verificati.
+
+### Palette condivisa — 4 novembre 2026
+
+Fondi, superfici e bordi delle pagine condividono neutri freddi coordinati al cielo; gli effetti atmosferici restano limitati alla Home anche dopo navigazione interna. Le schede previsionali hanno una superficie dedicata. Build, lint e 191 test frontend superati; controllo locale Home e Informazioni, dispositivi fisici non verificati.

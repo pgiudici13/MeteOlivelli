@@ -187,10 +187,10 @@ test('contrasto del testo sul cielo e sulle card nei casi limite', async () => {
   const css = await readFile(new URL('../src/sky/scene.css', import.meta.url), 'utf8')
   const baseCss = await readFile(new URL('../src/index.css', import.meta.url), 'utf8')
   const hex = value => value.match(/[0-9a-f]{2}/gi).map(part => parseInt(part, 16))
-  const dark = hex(css.match(/\.site-shell \{[^}]*--secondary: #(\w{6})/)[1])
-  const light = hex(css.match(/:root\[data-theme="light"\] \.site-shell \{[^}]*--secondary: #(\w{6})/)[1])
-  const darkWarning = hex(css.match(/\.site-shell \{[^}]*--accent-text: #(\w{6})/)[1])
-  const lightWarning = hex(css.match(/:root\[data-theme="light"\] \.site-shell \{[^}]*--accent-text: #(\w{6})/)[1])
+  const dark = hex(css.match(/\.site-shell:has\(\.weather-scene\) \{[^}]*--secondary: #(\w{6})/)[1])
+  const light = hex(css.match(/:root\[data-theme="light"\] \.site-shell:has\(\.weather-scene\) \{[^}]*--secondary: #(\w{6})/)[1])
+  const darkWarning = hex(css.match(/\.site-shell:has\(\.weather-scene\) \{[^}]*--accent-text: #(\w{6})/)[1])
+  const lightWarning = hex(css.match(/:root\[data-theme="light"\] \.site-shell:has\(\.weather-scene\) \{[^}]*--accent-text: #(\w{6})/)[1])
   const darkPrimary = hex(baseCss.match(/:root \{[^}]*--text: #(\w{6})/)[1])
   const lightPrimary = hex(baseCss.match(/:root\[data-theme="light"\] \{[^}]*--text: #(\w{6})/)[1])
   const srgb = channel => { const c = channel / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4 }
@@ -201,8 +201,8 @@ test('contrasto del testo sul cielo e sulle card nei casi limite', async () => {
     assert.ok(match, 'velatura del cielo non trovata')
     return { rgb: match.slice(1, 4).map(Number), opacity: Number(match[4]) }
   }
-  const darkVeil = veil(/\.site-shell::before \{[^}]*background: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)
-  const lightVeil = veil(/:root\[data-theme='light'\] \.site-shell::before \{[^}]*background: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)
+  const darkVeil = veil(/\.site-shell:has\(\.weather-scene\)::before \{[^}]*background: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)
+  const lightVeil = veil(/:root\[data-theme='light'\] \.site-shell:has\(\.weather-scene\)::before \{[^}]*background: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)
   // Bianco e nero puri delimitano le scene possibili dietro il velo, anche sotto il disco solare.
   const darkWorst = darkVeil.rgb.map(value => value * darkVeil.opacity + 255 * (1 - darkVeil.opacity))
   const lightWorst = lightVeil.rgb.map(value => value * lightVeil.opacity)
@@ -218,10 +218,10 @@ test('contrasto del testo sul cielo e sulle card nei casi limite', async () => {
     return { rgb: match.slice(1, 4).map(Number), opacity: Number(match[4]) }
   }
   const layers = [
-    [darkWorst, darkPrimary, dark, glass(/\.site-shell \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
-    [darkWorst, darkPrimary, dark, glass(/\.site-shell:has\(\.sky-is-night\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
-    [lightWorst, lightPrimary, light, glass(/:root\[data-theme="light"\] \.site-shell \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
-    [lightWorst, lightPrimary, light, glass(/:root\[data-theme="light"\] \.site-shell:has\(\.sky-is-night\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
+    [darkWorst, darkPrimary, dark, glass(/\.site-shell:has\(\.weather-scene\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
+    [darkWorst, darkPrimary, dark, glass(/\.site-shell:has\(\.weather-scene\):has\(\.sky-is-night\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
+    [lightWorst, lightPrimary, light, glass(/:root\[data-theme="light"\] \.site-shell:has\(\.weather-scene\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
+    [lightWorst, lightPrimary, light, glass(/:root\[data-theme="light"\] \.site-shell:has\(\.weather-scene\):has\(\.sky-is-night\) \{[^}]*--sky-glass: rgb\((\d+) (\d+) (\d+) \/ ([.\d]+)\)/)],
   ]
   for (const [background, primary, secondary, surface] of layers) {
     const composite = surface.rgb.map((value, i) => value * surface.opacity + background[i] * (1 - surface.opacity))

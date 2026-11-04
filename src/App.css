@@ -1,5 +1,5 @@
 .site-shell { width: min(1328px, 100%); margin-inline: auto; padding: 0 48px; }
-.panel { border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+.panel { border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface-raised); }
 .site-header { min-height: 96px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 500; letter-spacing: -.7px; text-decoration: none; }
 .brand { justify-self: start; }
@@ -113,7 +113,7 @@ button:disabled { cursor: default; opacity: .68; }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; }
 .pagination p { text-align: center; color: var(--secondary); }
 .pagination-range { color: var(--secondary); }
-.forecast-card { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 22px; display: grid; gap: 14px; align-content: start; }
+.forecast-card { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 22px; display: grid; gap: 14px; align-content: start; }
 .forecast-card h3 { font: 11px/1.5 ui-monospace, monospace; text-transform: uppercase; color: var(--secondary); }
 .forecast-card > p:not(.small) { font-size: 20px; letter-spacing: -.03em; }
 .forecast-estimates { margin: 0; }

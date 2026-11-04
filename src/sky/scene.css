@@ -28,19 +28,19 @@
 .sky-preview { position: fixed; right: 12px; bottom: 12px; z-index: 100; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); color: var(--text); font-size: 12px; }
 .sky-preview label { display: block; margin-top: 8px; }
 .sky-preview select { margin-left: 8px; }
-.site-shell { position: relative; isolation: isolate; --secondary: #d4d9dc; --accent-text: #ffe2cf; --border: rgb(220 230 235 / .22); --border-strong: rgb(220 230 235 / .36); --gridline: rgb(220 230 235 / .16); --sky-glass: rgb(17 23 29 / .91); }
-:root[data-theme="light"] .site-shell { --secondary: #393631; --accent-text: #602009; --border: rgb(57 65 68 / .25); --border-strong: rgb(57 65 68 / .4); --gridline: rgb(57 65 68 / .2); --sky-glass: rgb(255 255 255 / .9); }
-.site-shell:has(.sky-is-night) { --sky-glass: rgb(9 18 31 / .94); }
-:root[data-theme="light"] .site-shell:has(.sky-is-night) { --sky-glass: rgb(245 248 250 / .93); }
-.site-shell::before { content: ''; position: fixed; z-index: -1; inset: 0; background: rgb(12 18 25 / .76); pointer-events: none; }
-:root[data-theme='light'] .site-shell::before { background: rgb(246 249 249 / .78); }
-.site-shell .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell .hero-instrument, .site-shell .chart { background: var(--sky-glass); transition: border-color 150ms ease-out; border-color: var(--border); }
-.site-shell .hero-instrument .chart { background: transparent; backdrop-filter: none; }
-.site-shell .sky-caption { background: var(--sky-glass); border-color: var(--border); }
-.site-shell .history-section, .site-shell .chronology-section, .site-shell .forecast-section { background: transparent; box-shadow: none; }
-@supports (backdrop-filter: blur(10px)) { .site-shell .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell .hero-instrument, .site-shell .chart, .sky-caption { backdrop-filter: blur(10px); } }
+.site-shell:has(.weather-scene) { position: relative; isolation: isolate; --secondary: #d4d9dc; --accent-text: #ffe2cf; --border: rgb(220 230 235 / .22); --border-strong: rgb(220 230 235 / .36); --gridline: rgb(220 230 235 / .16); --sky-glass: rgb(17 23 29 / .91); }
+:root[data-theme="light"] .site-shell:has(.weather-scene) { --secondary: #393631; --accent-text: #602009; --border: rgb(57 65 68 / .25); --border-strong: rgb(57 65 68 / .4); --gridline: rgb(57 65 68 / .2); --sky-glass: rgb(255 255 255 / .9); }
+.site-shell:has(.weather-scene):has(.sky-is-night) { --sky-glass: rgb(9 18 31 / .94); }
+:root[data-theme="light"] .site-shell:has(.weather-scene):has(.sky-is-night) { --sky-glass: rgb(245 248 250 / .93); }
+.site-shell:has(.weather-scene)::before { content: ''; position: fixed; z-index: -1; inset: 0; background: rgb(12 18 25 / .76); pointer-events: none; }
+:root[data-theme='light'] .site-shell:has(.weather-scene)::before { background: rgb(246 249 249 / .78); }
+.site-shell:has(.weather-scene) .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell:has(.weather-scene) .hero-instrument, .site-shell:has(.weather-scene) .chart { background: var(--sky-glass); transition: border-color 150ms ease-out; border-color: var(--border); }
+.site-shell:has(.weather-scene) .hero-instrument .chart { background: transparent; backdrop-filter: none; }
+.site-shell:has(.weather-scene) .forecast-card, .site-shell:has(.weather-scene) .sky-caption { background: var(--sky-glass); border-color: var(--border); }
+.site-shell:has(.weather-scene) .history-section, .site-shell:has(.weather-scene) .chronology-section, .site-shell:has(.weather-scene) .forecast-section { background: transparent; box-shadow: none; }
+@supports (backdrop-filter: blur(10px)) { .site-shell:has(.weather-scene) .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .site-shell:has(.weather-scene) .hero-instrument, .site-shell:has(.weather-scene) .chart, .sky-caption { backdrop-filter: blur(10px); } }
 @media (max-width: 760px) { .sky-caption { margin: -30px 0 24px; } .sky-clouds { filter: blur(16px); } }
-@media (prefers-reduced-motion: reduce) { .weather-scene *, .weather-scene, .site-shell .panel, .site-shell .hero-instrument, .site-shell .chart { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .weather-scene *, .weather-scene, .site-shell:has(.weather-scene) .panel, .site-shell:has(.weather-scene) .hero-instrument, .site-shell:has(.weather-scene) .chart { animation: none !important; transition: none !important; } }
 
 .weather-scene.is-preview, .weather-scene.is-preview * { transition: none !important; }
 
