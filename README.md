@@ -6,13 +6,15 @@ Il sito MeteOlivelli è sviluppato da **Pietro Giudici e Nicholas Borin**, stude
 
 **Sito:** [meteolivelli.vercel.app](https://meteolivelli.vercel.app/) · **Roadmap:** [plan.md](plan.md) · **Come contribuire:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-> **Stato del progetto:** applicazione web, backend, uploader e documentazione sono realizzati; il collaudo della stazione e dell’uploader sul PC Windows della scuola resta da eseguire. Il sito pubblico è online. I dati sintetici e quelli senza provenienza verificata sono esclusi dalla dashboard, dai PDF e dalle stime. [Verifica della versione pubblica](docs/release-audit-20261027.md).
+> **Stato del progetto:** il sito è online; frontend, backend e uploader sono implementati. Il collaudo della catena Arduino/CSV/uploader sul PC Windows della scuola resta da eseguire. I dati sintetici e quelli senza provenienza verificata sono esclusi dalla dashboard, dai PDF e dalle stime. La scena del cielo e le modifiche al tema chiaro sono state pubblicate il 2 novembre 2026. [Audit del 27 ottobre](docs/release-audit-20261027.md) · [Operazioni e verifiche](docs/operations.md).
 
 ## Cosa offre
 
-- Dashboard responsive con temperatura, umidità, pressione, tema chiaro/scuro e informazioni sui dati.
-- Grafici e storico navigabile, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
+- Dashboard responsive con temperatura, umidità e pressione, tema chiaro/scuro, cinque lingue e selezione °C/°F.
+- Cielo illustrativo che segue l’ora di Pavia e le condizioni modellistiche Open-Meteo, distinto dalle osservazioni della stazione.
+- Grafici esplorabili e ingrandibili, cronologia, statistiche e record, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
 - Sezione educativa **Gioca con il meteo**, con quiz e spiegazioni.
+- Pagina Informazioni con la [presentazione del progetto su Google Slides](https://docs.google.com/presentation/d/1TXA6DSeQ71MS3sXNFUUVh5apkh_8HF90EZ6Kqbn9-og/edit?usp=sharing).
 - Previsioni sperimentali ibride, con dati Open-Meteo e adattamento alle osservazioni ammesse della stazione.
 - Backend Supabase con API di lettura e ingestione; uploader Python resiliente con coda SQLite e retry.
 
@@ -21,13 +23,15 @@ Il sito MeteOlivelli è sviluppato da **Pietro Giudici e Nicholas Borin**, stude
 
 ## Stato del progetto
 
-Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/). La dashboard è su `/home`; `/info` presenta il progetto, la stazione e la provenienza dei dati. Sono disponibili tema chiaro/scuro, logo scolastico e layout responsive. Il codice usa React, TypeScript e Vite.
+Il sito è online su [meteolivelli.vercel.app](https://meteolivelli.vercel.app/). La dashboard è su `/` e `/home`; `/info` presenta il progetto, la stazione e la provenienza dei dati. Sono disponibili tema chiaro/scuro, logo scolastico e layout responsive. Il codice usa React, TypeScript e Vite.
 
 La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disponibile su `/gioca`: presenta dieci domande casuali fra venti curiosità, mescola le risposte e spiega il risultato di ogni scelta.
 
 La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Le previsioni sperimentali combinano i dati Open-Meteo disponibili con un adattamento basato sulle osservazioni ammesse; la fonte e gli orari sono indicati nella sezione dedicata. Le previsioni sono distinte dalle misure della stazione.
 
 I dati sintetici restano identificati come tali nel backend e non vengono presentati come osservazioni: la UI pubblica, i PDF e le stime li escludono. Il numero di record sintetici presenti nel database può cambiare; non è un indicatore delle misure disponibili dalla stazione. [Contratto ed evidenze](docs/data-preview.md).
+
+Le misure inserite manualmente sono identificate come tali e, se ammesse, possono comparire nella dashboard, nei grafici e nelle previsioni. Le statistiche e i record della stazione escludono gli inserimenti manuali.
 
 Il backend Supabase (database, RPC e funzioni di ingestione/lettura) è configurato. Il contratto ammette campioni sintetici soltanto con provenienza esplicita `_provenance.kind=synthetic`; la lettura conserva la provenienza. L’uploader Python con outbox SQLite e retry è implementato e verificato con fixture sintetiche. Le previsioni usano Open-Meteo e, quando disponibili, osservazioni reali ammesse per l’adattamento locale. Il campione CSV, il writer e l’installazione Windows/Arduino restano da verificare.
 
@@ -67,7 +71,7 @@ Le verifiche sul campo, backup e ripristino restano attività aperte. Segnalazio
 ## Requisiti locali
 
 - Node.js 26 per build e test frontend TypeScript tramite il supporto nativo di Node. Vite da solo supporta `^20.19.0 || >=22.12.0`, secondo il pacchetto installato.
-- npm e il lockfile del repository. Questo setup è verificato con Node 26.12.0 e npm 11.20.0.
+- npm e il lockfile del repository. Il setup locale è stato verificato con Node 26 e npm 11.
 - Deno 2.9.6 è una dipendenza di sviluppo locale installata da npm: non serve installarlo globalmente.
 - Python 3.11+ per uploader e relativi test, senza dipendenze pip; verificato localmente con Python 3.15.0.
 
@@ -124,7 +128,8 @@ stampare questi file o i relativi valori per diagnosticare la configurazione.
 | `npm run backend:test` | Test backend senza accesso ad ambiente, rete o file dell'applicazione |
 | `npm run uploader:test` | Test sintetici Python con SQLite temporaneo, senza rete; richiede `python3` |
 | `node scripts/check-station-health.mjs` | Controllo salute pipeline in sola lettura (endpoint, provenienza, età campioni, orologio); esito 0/1/2 |
-| `npm run check` | Tutte le verifiche precedenti, fermandosi al primo errore |
+| `npm run perf:check` | Controllo del budget degli asset sulla build esistente |
+| `npm run check` | Lint, build, budget, test frontend, controlli backend e test uploader; si ferma al primo errore. Il controllo salute della stazione è separato |
 | `npm run preview` | Anteprima della build frontend già generata |
 
 I test backend usano dati sintetici per configurazione, contratto, adattatore CSV e handler HTTP con store simulati. Ordine e unità dichiarati dall’utente: secondi dall’accensione, temperatura °C, umidità % e pressione hPa; il CSV e il writer reali restano da verificare. Le prove BE-07 hanno verificato RPC, privilegi/RLS e ingestione HTTP sintetica sul progetto autorizzato; le fixture sono state rimosse. Le prove SQL in `supabase/tests/` sono separate dai test Deno.
@@ -167,7 +172,7 @@ tasks.md                      Checklist operativa ed esiti
 CORRECTIONS.md                Bug confermati e correzioni verificate
 ```
 
-La separazione fra frontend e Deno segue il runtime delle future Edge Functions:
+La separazione fra frontend e Deno segue il runtime delle Edge Functions:
 [ambiente di sviluppo Supabase](https://supabase.com/docs/guides/functions/development-environment).
 Installare i controlli non pubblica funzioni né applica migrazioni.
 
@@ -177,4 +182,4 @@ La home usa una scena illustrativa per le coordinate fisse di Pavia già adottat
 
 Il modulo `src/sky/weather.ts` chiede le condizioni correnti modellistiche a Open-Meteo, distinte dalle osservazioni della stazione e dal modello previsionale della dashboard. Richiede anche la probabilità oraria di precipitazione e gli orari di alba e tramonto del provider: l'indicatore presenta la probabilità per un'ora interamente futura senza usarla come condizione attuale; gli orari solari sono disponibili per confronto diagnostico con SunCalc. Interpreta i codici WMO e usa nuvolosità, pioggia, rovesci, neve e vento quando disponibili; non attribuisce il totale di un temporale alla pioggia se la fase non è nota. Il browser conserva la risposta per 15 minuti e, in caso di errore, al massimo sei ore dall'ora del dato e dal recupero; un dato del modello più vecchio di 45 minuti è segnalato come ultimo disponibile anche se appena scaricato. Le richieste contemporanee sono condivise, con timeout di otto secondi. Se non ci sono dati validi, la condizione è dichiarata non disponibile e resta il cielo astronomico. L'orario indicato è quello del dato modellistico. La richiesta diretta al fornitore può trasmettere l'indirizzo IP del visitatore, come descritto nella pagina privacy.
 
-In sviluppo `npm run dev` mostra in basso a destra «Anteprima cielo · sviluppo»: scegliere ora e condizione per simulare alba, mattina, mezzogiorno, tramonto, notte, fenomeni o offline. I valori simulati sono etichettati e i controlli sono esclusi dalla build di produzione. In sviluppo `?sky-fail=1` simula un errore di caricamento della scena per verificare che la dashboard resti consultabile. La scena è decorativa per gli screen reader; `prefers-reduced-motion` arresta il movimento. I dettagli grafici sono una rappresentazione stilizzata: non misurano visibilità o intensità luminosa e non sostituiscono un'osservazione del cielo.
+In sviluppo `npm run dev` mostra in basso a destra «Anteprima cielo · sviluppo»: scegliere ora e condizione per simulare alba, mattina, mezzogiorno, tramonto, notte, fenomeni o offline. I valori simulati sono etichettati e i controlli sono esclusi dalla build di produzione. In sviluppo `?sky-fail=1` simula un errore di caricamento della scena per verificare che la dashboard resti consultabile. La scena è decorativa per gli screen reader; `prefers-reduced-motion` arresta il movimento. Nel tema chiaro velatura e schede semitrasparenti lasciano visibile il cielo mantenendo leggibili i contenuti. I dettagli grafici sono una rappresentazione stilizzata: non misurano visibilità o intensità luminosa e non sostituiscono un'osservazione del cielo.
