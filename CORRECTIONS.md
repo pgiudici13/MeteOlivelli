@@ -565,3 +565,9 @@ Poco dopo mezzanotte civile a Pavia, SunCalc senza un ancoraggio al giorno della
 - **Impatto:** contorni di spessore o comportamento diverso fra componenti; comparsa di cornici non previste e focus 404 diverso dal riferimento.
 - **Correzione:** maschera da 1 px allineata al bordo reale, bersagli limitati alle superfici bordate, hover nativo per i campi, cleanup all’uscita/scroll/resize, colori e raggi condivisi, focus menta ripristinato sulla 404.
 - **Verifica richiesta:** temi chiaro/scuro, desktop/mobile, uscita dal bersaglio, selezioni e disabilitati, campi e pulsanti testuali; build, lint e test frontend. Esiti in `docs/frontend.md` e `tasks.md`.
+
+### Cambio tema e contrasto temporaneo — 4 novembre 2026
+
+- **Prova:** nel controllo browser locale il testo passava subito al tema chiaro mentre le schede restavano scure durante la transizione di 12 secondi.
+- **Impatto:** lettura compromessa durante il cambio tema.
+- **Correzione e verifica:** rimosso il ritardo delle superfici; build, lint e test frontend superati, schede chiare verificate localmente. Resta da verificare su dispositivi fisici.

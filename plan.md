@@ -1,3 +1,5 @@
+> **Fase 7 / UI-01 — rifinitura visiva, 4 novembre 2026 (U/D):** su richiesta dell’utente, uniformare sfondo atmosferico, superfici e bordi della Home mantenendo cielo e temi. Verifiche e limiti in `tasks.md`.
+
 # Piano di progetto — MeteOlivelli
 
 > **Fase 7 / UI-01 — bordi, 4 novembre 2026 (U/D):** su richiesta dell’utente, uniformare localmente i contorni dell’interfaccia, correggendo riflessi doppi o applicati a elementi senza bordo e rendendo coerenti raggi e focus. Conservare temi, superfici atmosferiche e stati semantici. Specifiche in `design.md`, esiti in `tasks.md`; commit, push e rilascio autorizzati dopo le verifiche.

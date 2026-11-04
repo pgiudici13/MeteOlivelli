@@ -798,3 +798,7 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 **2 novembre 2026 — Fase 7 / UI-01, cielo nel tema chiaro:** velatura e schede più trasparenti, testo secondario e avvisi più scuri. Build, lint e 191 test frontend superati, incluso il controllo di contrasto sui casi limite; anteprima browser desktop con mezzogiorno sereno verificata. Nessuna pubblicazione.
 
 **2 novembre 2026 — Fase 7 / UI-01, testo del progetto:** rimossa dalla descrizione in Home l’attribuzione personale del progetto, anche nelle traduzioni. Build, lint e 191 test frontend superati. Modifica locale.
+
+**4 novembre 2026 — Fase 7 / UI-01, rifinitura della Home:** velatura estesa alla finestra, superfici più schermate e bordi coordinati ai temi; grafico interno trasparente. Build e lint superati; 191 test frontend superati. Anteprima locale osservata a larghezza ridotta; verifica desktop completa e su dispositivi fisici ancora da effettuare. Nessuna pubblicazione.
+
+**Verifica successiva:** `npm run check` completo superato; dopo la correzione del contrasto durante il cambio tema, build, lint e 191 test frontend ripetuti con successo. Home osservata localmente a 1440 e 390 px, inclusi entrambi i temi; dispositivi fisici non verificati.

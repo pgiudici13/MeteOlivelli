@@ -228,3 +228,9 @@ Il disco solare schiarisce in quota e assume toni più ambrati vicino all'orizzo
 ### Tema chiaro e cielo — 2 novembre 2026
 
 La velatura chiara della home lascia più visibili sole e condizioni atmosferiche; le schede restano semitrasparenti e il testo secondario è più scuro per mantenere la leggibilità. La rappresentazione e il comportamento meteo non cambiano.
+
+### Rifinitura del cielo e delle superfici — 4 novembre 2026
+
+La velatura della Home copre tutta la finestra, evitando la fascia centrale distinta dai margini. Superfici più schermate e bordi neutri semitrasparenti seguono il tema; il grafico nel pannello iniziale resta trasparente. La scena atmosferica rimane visibile e distinta dai dati osservati.
+
+Il cambio tema aggiorna immediatamente le superfici delle schede, evitando testo e sfondo temporaneamente incompatibili.

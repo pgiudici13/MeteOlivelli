@@ -443,3 +443,9 @@ L’indicatore del cielo formatta date e orari secondo la lingua scelta, mantene
 Verifica localizzazione nell’anteprima: le condizioni simulate pioggia e non disponibile e la fonte sono state controllate in italiano, inglese, spagnolo, francese e tedesco dopo il caricamento dei cataloghi. L’etichetta «Simulazione · sviluppo» rimane italiana ed è esclusiva dello sviluppo.
 
 Nel tema chiaro la velatura del cielo e le superfici delle schede sono meno coprenti; il testo secondario è più scuro. Il controllo matematico del contrasto resta limitato ai casi e ai colori descritti sopra. Verificati localmente build, lint, 191 test frontend e anteprima desktop di mezzogiorno sereno; non è una verifica visiva completa di tutte le condizioni o dei dispositivi.
+
+### Rifinitura visiva della Home — 4 novembre 2026
+
+La velatura atmosferica copre l’intera finestra; superfici e bordi si adattano al tema e il grafico nel pannello iniziale rimane trasparente. Build, lint e 191 test frontend superati; anteprima locale osservata a larghezza ridotta. Il controllo visivo desktop completo e su dispositivi fisici resta aperto.
+
+Il cambio tema aggiorna subito le superfici per evitare contrasto insufficiente durante la transizione. `npm run check` completo superato; dopo la correzione, build, lint e 191 test frontend ripetuti. Controllo visivo locale a 1440 e 390 px; dispositivi fisici non verificati.
