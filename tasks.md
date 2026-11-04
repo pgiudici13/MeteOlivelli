@@ -806,3 +806,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 **4 novembre 2026 — Fase 7 / UI-01, uniformità visiva:** palette condivisa coordinata al cielo, schede previsionali con superficie e scena limitata alla Home nella navigazione interna. Build, lint e 191 test frontend superati; controllo browser locale Home e Informazioni. Dispositivi fisici non verificati; modifica locale.
 
 **4 novembre 2026 — Fase 7 / UI-01, controlli archivio:** intervallo personalizzato richiudibile e inizialmente chiuso, pulsanti di periodo e grafico più ordinati. Build, lint e 191 test frontend superati; apertura verificata in browser locale. Dispositivi fisici non verificati; modifica locale.
+
+**4 novembre 2026 — Fase 7 / UI-01, lampeggio segnalato:** eliminata la sfocatura dietro le schede della Home come possibile mitigazione. Build, lint e 191 test frontend superati; l’utente conferma che l’anteprima locale è stabile sul proprio Chrome; causa tecnica non dimostrata e produzione non verificata. Modifica locale.

@@ -457,3 +457,7 @@ Fondi, superfici e bordi delle pagine condividono neutri freddi coordinati al ci
 ### Controlli dello storico — 4 novembre 2026
 
 L’intervallo personalizzato è inizialmente chiuso e si apre tramite un controllo nativo; la chiusura non cancella la selezione. Periodi e azioni dei grafici sono stati riordinati visivamente.
+
+### Lampeggio segnalato — 4 novembre 2026
+
+Per ridurre le ricomposizioni grafiche è stata rimossa la sfocatura dietro le superfici della Home. Build, lint e 191 test frontend superati; l’utente riferisce che l’anteprima locale è stabile sul proprio Chrome. La causa tecnica non è dimostrata e la versione pubblica non è ancora verificata.

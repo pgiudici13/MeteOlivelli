@@ -571,3 +571,9 @@ Poco dopo mezzanotte civile a Pavia, SunCalc senza un ancoraggio al giorno della
 - **Prova:** nel controllo browser locale il testo passava subito al tema chiaro mentre le schede restavano scure durante la transizione di 12 secondi.
 - **Impatto:** lettura compromessa durante il cambio tema.
 - **Correzione e verifica:** rimosso il ritardo delle superfici; build, lint e test frontend superati, schede chiare verificate localmente. Resta da verificare su dispositivi fisici.
+
+### Lampeggio periodico della pagina — 4 novembre 2026
+
+- **Segnalazione:** l’utente riferisce un lampeggio dell’intera pagina circa ogni due secondi, anche senza interazione.
+- **Impatto:** la consultazione della Home risulta disturbata.
+- **Intervento e verifica:** rimossa la sfocatura dello sfondo dietro le schede, possibile causa di ricomposizioni grafiche. L’utente riferisce che l’anteprima locale è stabile sul proprio Chrome; la causa tecnica non è stata dimostrata. Build, lint e 191 test frontend superati; la versione pubblica non è ancora verificata con la modifica.

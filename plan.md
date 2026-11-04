@@ -1,3 +1,5 @@
+> **Fase 7 / UI-01 — lampeggio segnalato, 4 novembre 2026:** rimuovere la sfocatura dietro le schede come possibile mitigazione; l’utente conferma la stabilità dell’anteprima locale sul proprio Chrome; la causa tecnica resta non dimostrata. Dettagli in `CORRECTIONS.md`.
+
 > **Fase 7 / UI-01 — controlli dello storico, 4 novembre 2026 (U/D):** rifinire i pulsanti e raccogliere l’intervallo personalizzato in un controllo inizialmente chiuso. Esiti in `tasks.md`.
 
 > **Fase 7 / UI-01 — uniformità visiva, 4 novembre 2026 (U/D):** estendere la palette della Home a superfici e bordi condivisi, mantenendo la scena atmosferica nella sola Home e gli stati semantici distinti. Esiti in `tasks.md`.

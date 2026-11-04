@@ -242,3 +242,7 @@ La palette condivisa usa neutri freddi coordinati al cielo della Home per fondo,
 ### Controlli dell’archivio — 4 novembre 2026
 
 L’intervallo personalizzato è inizialmente chiuso in un controllo espandibile nativo; aprirlo mostra campi, applicazione e spiegazione. Il periodo applicato resta indicato nel riepilogo anche dopo la chiusura. I pulsanti dei grafici sono più compatti e allineati all’inizio; i controlli mantengono altezza minima di 44 px.
+
+### Superfici e stabilità grafica — 4 novembre 2026
+
+Le superfici della Home mantengono la schermatura semitrasparente senza sfocare lo sfondo. La scena atmosferica e i controlli restano disponibili; l’utente riferisce che l’anteprima locale è stabile sul dispositivo interessato.
