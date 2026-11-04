@@ -329,15 +329,17 @@ function App() {
         <h2 id="history-title">{translate("Andamento delle misure")}</h2>
         <p className="secondary">{translate(rows.length ? `${rows.length} misurazioni nel periodo scelto.` : 'Esplora come sono cambiate le misure nel tempo.')}{translate(" Orari locali italiani.")}</p>
         <div className="period-picker" role="group" aria-label={translate("Periodo dello storico")}>{translate(periods.map(item => <button key={item.value} aria-pressed={!customRange && period === item.value} onClick={() => { setPeriod(item.value); setCustomRange(null); setCustomError('') }}>{translate(item.label)}</button>))}</div>
+        <details className="custom-period-disclosure">
+          <summary>{translate("Intervallo personalizzato")} <span aria-hidden="true" className="disclosure-chevron">⌄</span></summary>
         <form className="custom-period" onSubmit={applyCustomRange}>
-          <strong>{translate("Intervallo personalizzato")}</strong>
           <label>{translate("Da ")}<input type="datetime-local" value={customStart} onChange={event => setCustomStart(event.target.value)} required /></label>
           <label>{translate("A ")}<input type="datetime-local" value={customEnd} onChange={event => setCustomEnd(event.target.value)} required /></label>
-          <button type="submit" aria-pressed={customRange !== null}>{translate("Applica intervallo")}</button>
+          <button type="submit">{translate("Applica intervallo")}</button>
           {translate(customRange && <button type="button" onClick={() => { setCustomRange(null); setPeriod('auto') }}>{translate("Torna ad Auto")}</button>)}
           {translate(customError && <p role="alert">{translate(customError)}</p>)}
           <p className="small">{translate("Fino a 30 giorni recenti; i grafici personalizzati mostrano i campioni originali.")}</p>
         </form>
+        </details>
         <div className="pdf-export-controls">
           <button type="button" onClick={() => void downloadGraphsPdf()} disabled={pdfBusy} aria-busy={pdfBusy}>{translate(pdfBusy ? 'Preparazione PDF…' : `Scarica PDF dei grafici · ${customRange ? 'Personalizzato' : periods.find(item => item.value === period)?.label}`)}</button>
           <p role="status" aria-live="polite">{translate(pdfMessage)}</p>

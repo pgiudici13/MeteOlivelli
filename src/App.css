@@ -78,7 +78,7 @@ details p { margin-top: 8px; }
 .period-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 button { min-height: 44px; padding: 10px 16px; border-radius: var(--radius-control); border: 1px solid var(--border); background: var(--surface-soft); color: var(--secondary); font: inherit; font-size: 13px; line-height: 1.35; cursor: pointer; transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out; }
 button:hover:not(:disabled) { color: var(--text); }
-.period-picker button { min-width: 100px; }
+.period-picker button { min-width: 86px; color: var(--text); }
 .period-picker button[aria-pressed="true"] { color: var(--contrast-text); background: var(--contrast-bg); border-color: var(--contrast-bg); }
 .pdf-export-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
 .pdf-export-controls p { min-height: 1em; margin: 0; color: var(--secondary); font-size: 12px; }
@@ -222,8 +222,8 @@ button:disabled { cursor: default; opacity: .68; }
   .about-section { margin-top: 40px; padding: 22px; }
 }
 .chart-touch-controls { display: none; }
-.chart-expand-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-.chart-expand-actions button { min-height: 44px; }
+.chart-expand-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+.chart-expand-actions button { min-height: 44px; padding: 9px 12px; font-size: 12px; color: var(--text); }
 .chart-share-message { overflow-wrap: anywhere; }
 .range-statistics { border-top: 1px solid var(--border); padding-top: 18px; display: grid; gap: 12px; }
 .range-statistics h3 { font-size: 18px; }
@@ -451,14 +451,19 @@ button, .hero-link, .back-to-top, .section-jump-nav a, .route-not-found-link { -
   .route-not-found-content h1 { font-size: clamp(3.1rem, 13vw, 4.5rem); }
   .route-not-found-content { padding: 5rem 0; }
 }
+.custom-period-disclosure { justify-self: start; width: min(100%, 760px); }
+.custom-period-disclosure summary { display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface-soft); color: var(--text); font-size: 13px; list-style: none; }
+.custom-period-disclosure summary::-webkit-details-marker { display: none; }
+.custom-period-disclosure summary:hover { border-color: var(--border-strong); }
+.custom-period-disclosure[open] .disclosure-chevron { transform: rotate(180deg); }
+.disclosure-chevron { display: inline-block; font-size: 18px; line-height: 1; }
 .custom-period {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   gap: 0.75rem;
-  padding: 1rem 0;
+  padding: 1rem 0 0;
 }
-.custom-period strong { flex-basis: 100%; }
 .custom-period label { display: grid; gap: 0.35rem; min-width: 0; }
 .custom-period input { min-height: 44px; min-width: 0; max-width: 100%; padding: 0.65rem; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface-raised); color: var(--text); font: inherit; }
 .custom-period .small, .custom-period [role="alert"] { flex-basis: 100%; margin: 0; }

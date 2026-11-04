@@ -453,3 +453,7 @@ Il cambio tema aggiorna subito le superfici per evitare contrasto insufficiente 
 ### Palette condivisa — 4 novembre 2026
 
 Fondi, superfici e bordi delle pagine condividono neutri freddi coordinati al cielo; gli effetti atmosferici restano limitati alla Home anche dopo navigazione interna. Le schede previsionali hanno una superficie dedicata. Build, lint e 191 test frontend superati; controllo locale Home e Informazioni, dispositivi fisici non verificati.
+
+### Controlli dello storico — 4 novembre 2026
+
+L’intervallo personalizzato è inizialmente chiuso e si apre tramite un controllo nativo; la chiusura non cancella la selezione. Periodi e azioni dei grafici sono stati riordinati visivamente.

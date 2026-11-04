@@ -804,3 +804,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 **Verifica successiva:** `npm run check` completo superato; dopo la correzione del contrasto durante il cambio tema, build, lint e 191 test frontend ripetuti con successo. Home osservata localmente a 1440 e 390 px, inclusi entrambi i temi; dispositivi fisici non verificati.
 
 **4 novembre 2026 — Fase 7 / UI-01, uniformità visiva:** palette condivisa coordinata al cielo, schede previsionali con superficie e scena limitata alla Home nella navigazione interna. Build, lint e 191 test frontend superati; controllo browser locale Home e Informazioni. Dispositivi fisici non verificati; modifica locale.
+
+**4 novembre 2026 — Fase 7 / UI-01, controlli archivio:** intervallo personalizzato richiudibile e inizialmente chiuso, pulsanti di periodo e grafico più ordinati. Build, lint e 191 test frontend superati; apertura verificata in browser locale. Dispositivi fisici non verificati; modifica locale.

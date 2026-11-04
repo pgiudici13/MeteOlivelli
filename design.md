@@ -238,3 +238,7 @@ Il cambio tema aggiorna immediatamente le superfici delle schede, evitando testo
 ### Uniformità fra le pagine — 4 novembre 2026
 
 La palette condivisa usa neutri freddi coordinati al cielo della Home per fondo, superfici, griglie e bordi nei due temi. Le schede previsionali hanno una superficie come le altre schede; le superfici generiche usano il livello rialzato. La velatura e le varianti atmosferiche sono limitate alla Home anche dopo la navigazione interna. I colori semantici del quiz e delle serie restano distinti.
+
+### Controlli dell’archivio — 4 novembre 2026
+
+L’intervallo personalizzato è inizialmente chiuso in un controllo espandibile nativo; aprirlo mostra campi, applicazione e spiegazione. Il periodo applicato resta indicato nel riepilogo anche dopo la chiusura. I pulsanti dei grafici sono più compatti e allineati all’inizio; i controlli mantengono altezza minima di 44 px.
