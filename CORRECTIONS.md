@@ -557,3 +557,11 @@ Un errore nel caricamento o nel rendering della scena poteva propagarsi al gesto
 ## Scena atmosferica — giorno civile degli eventi solari (2 novembre 2026)
 
 Poco dopo mezzanotte civile a Pavia, SunCalc senza un ancoraggio al giorno della stazione poteva restituire alba e tramonto del giorno solare precedente; ad esempio alle 00:10 del 1° luglio l'alba apparteneva al 30 giugno. La posizione di Sole e Luna era comunque calcolata sull'istante corretto. Gli eventi sono ora selezionati sul giorno `Europe/Rome`; test coprono mezzanotte, entrambi i cambi d'ora e gli istanti serali del 2026.
+
+## COR-059 — Bordi doppi e riflessi su elementi senza cornice
+
+- **Data e ambito:** 4 novembre 2026, Fase 7 / UI-01, correzione locale richiesta dall’utente.
+- **Problema/prova:** nel browser locale il riflesso dell’hero aveva `inset: 0` rispetto al padding box, formando una linea interna al bordo; sui controlli era largo 2 px. Il comando testuale Privacy, pur avendo `border: 0`, riceveva `data-border-light` e uno pseudo-elemento visibile. La scena sovrascriveva i colori dei bordi e aggiungeva un’ombra inset. Il CSS applicava inoltre il riflesso al divisore `.range-statistics` e ai campi nativi, mentre escludeva varie schede interne.
+- **Impatto:** contorni di spessore o comportamento diverso fra componenti; comparsa di cornici non previste e focus 404 diverso dal riferimento.
+- **Correzione:** maschera da 1 px allineata al bordo reale, bersagli limitati alle superfici bordate, hover nativo per i campi, cleanup all’uscita/scroll/resize, colori e raggi condivisi, focus menta ripristinato sulla 404.
+- **Verifica richiesta:** temi chiaro/scuro, desktop/mobile, uscita dal bersaglio, selezioni e disabilitati, campi e pulsanti testuali; build, lint e test frontend. Esiti in `docs/frontend.md` e `tasks.md`.

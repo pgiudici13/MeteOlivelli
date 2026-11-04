@@ -1,5 +1,11 @@
 # Frontend — stato e verifiche
 
+## Bordi — 4 novembre 2026
+
+Riflesso da 1 px sul bordo reale delle superfici, senza contorni sui pulsanti testuali; campi nativi con hover e focus ordinari, focus menta anche nella 404. La scena usa i colori condivisi senza ombra interna. Nel quiz il ripple resta ritagliato dopo la risposta e il riflesso è visibile prima della scelta. Specifiche in [design.md](../design.md), problema in [COR-059](../CORRECTIONS.md).
+
+`npm run check` superato: 191 test frontend, 55 backend, 28 uploader, build, lint e budget. Chrome locale: sei route a 320/390/768/1280 px, in entrambi i temi, controlli hover e focus; confermato il riflesso sul pixel del bordo del quiz. Rete esterna intercettata; dispositivi fisici non verificati. La build mantiene l’avviso noto sui chunk PDF.
+
 ## Previsioni ibride — 30 ottobre 2026
 
 La Home usa una previsione oraria gratuita per Pavia come base a +1, +6 e +24 ore. Il modello locale può applicare una correzione piccola e limitata quando esiste almeno un’osservazione `live`/`historical` recente, con `captured_at`, valida e non sospetta. Le misure sintetiche non partecipano. Il browser usa timestamp Unix per gestire correttamente `Europe/Rome` indipendentemente dal fuso del visitatore, interroga il servizio al massimo ogni 30 minuti e riutilizza una cache fino a 6 ore. In assenza di rete usa il modello locale già presente se la verifica temporale fornisce un risultato.

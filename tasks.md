@@ -358,6 +358,12 @@ La mancanza del CSV non blocca setup, disegno concettuale, struttura e verifiche
 - **Limiti:** revisione con il compagno e dispositivi reali ancora aperti; Figma Obsidian v5 non è stato riallineato al restyling Factory. Freschezza reale e UI-02/WX non sono chiusi dalla pubblicazione.
 - **Riferimento:** [plan.md Fase 7](plan.md#fase-7--previsioni-e-collegamento-al-frontend), [Fase 8](#8-fase-8--backup-gestione-e-rilascio).
 
+### Fase 7 / UI-01 — Bordi (4 novembre 2026)
+
+- [x] Uniformati bordi, raggi, riflessi e focus nelle pagine; corretti contorni doppi, pulsanti testuali e clipping del quiz (COR-059).
+- [x] `npm run check`: build, lint, budget, 191 test frontend, 55 backend e 28 uploader superati. Chrome locale: 48 combinazioni responsive tra sei pagine e due temi, controlli hover/focus e verifica pixel del bordo quiz. Richieste esterne intercettate; nessuna prova su dispositivi fisici.
+- Commit, push e deployment autorizzati dall’utente dopo i test; stato del rilascio da verificare sul servizio.
+
 ### UI-I18N — Cinque lingue e selezione Celsius/Fahrenheit (28 ottobre 2026)
 
 - [x] Integrati i commit remoti fino a `79ea8e8`: rispettati il nuovo ordine e la rimozione dei componenti, descrizioni dei grafici tradotte in quattro lingue per l’uso esclusivo di `measured_at`. Build, lint e budget superati; 169 test frontend, 55 Deno e 28 Python superati. Nessun deploy o migrazione.

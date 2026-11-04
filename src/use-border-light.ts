@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const targets = '.hero-instrument, .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .metric-card, .chart, .forecast-card, .about-section, .weather-records, .range-statistics, button:not(:disabled), .hero-link, .back-to-top, .section-jump-nav a, input:not(:disabled), select:not(:disabled), textarea:not(:disabled)'
+const targets = '.hero-instrument, .panel:not(.history-section):not(.chronology-section):not(.forecast-section), .chart, .forecast-card, .daily-stat-card, .comparison-card, .info-flow, .info-periods article, .info-trust-grid article, .info-people article, .data-admin-login, .data-admin-form, .sky-caption, button:not(:disabled):not(.privacy-settings):not(.privacy-inline-settings), .hero-link, .back-to-top, .section-jump-nav a, .route-not-found-link'
 
 export function useBorderLight() {
   useEffect(() => {
@@ -35,6 +35,8 @@ export function useBorderLight() {
 
     const move = (event: PointerEvent) => {
       if (!pointer.matches || event.pointerType === 'touch') return clear()
+      // I campi nativi e le azioni testuali mantengono il proprio hover/focus.
+      if (event.target instanceof Element && event.target.closest('input, select, textarea, button:disabled, .privacy-settings, .privacy-inline-settings')) return clear()
       let element = event.target instanceof Element ? event.target.closest<HTMLElement>(targets) : null
       if (element?.matches('.hero-instrument .chart')) element = element.closest<HTMLElement>('.hero-instrument')
       if (!element) return clear()
@@ -54,19 +56,23 @@ export function useBorderLight() {
       if (!frame && (reduced.matches || Math.abs(targetX - x) + Math.abs(targetY - y) > 0.25)) frame = requestAnimationFrame(draw)
     }
 
-    const leaveDocument = (event: PointerEvent) => {
-      if (event.relatedTarget === null) clear()
+    const leaveTarget = (event: PointerEvent) => {
+      if (!(event.relatedTarget instanceof Node) || !active?.contains(event.relatedTarget)) clear()
     }
 
     document.addEventListener('pointermove', move, { passive: true })
-    document.addEventListener('pointerout', leaveDocument)
+    document.addEventListener('pointerout', leaveTarget)
+    document.addEventListener('scroll', clear, { capture: true, passive: true })
     window.addEventListener('blur', clear)
+    window.addEventListener('resize', clear)
     pointer.addEventListener('change', clear)
     return () => {
       clear()
       document.removeEventListener('pointermove', move)
-      document.removeEventListener('pointerout', leaveDocument)
+      document.removeEventListener('pointerout', leaveTarget)
+      document.removeEventListener('scroll', clear, true)
       window.removeEventListener('blur', clear)
+      window.removeEventListener('resize', clear)
       pointer.removeEventListener('change', clear)
     }
   }, [])

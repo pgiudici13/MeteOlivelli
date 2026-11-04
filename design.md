@@ -4,7 +4,7 @@ Sotto l’orario dell’ultima lettura della stazione, la Home mostra in corpo p
 
 La pagina quiz `/gioca` usa gli stessi token, testata, footer e temi del sito. Le risposte corrette e sbagliate hanno superfici verdi e rosse semantiche ad alto contrasto, accompagnate da ✓/×. Il ripple circolare nasce nel punto di contatto e si espande sul pulsante scelto tramite trasformazione, per una resa affidabile anche su touch. Con `prefers-reduced-motion` resta il colore di esito senza movimento. Il quiz è responsive.
 
-Aggiornato il 22 ottobre 2026. Per ogni modifica visiva consultare questo file insieme ad `AGENTS.md`. Requisiti e priorità restano in `plan.md`; l’esecuzione è in `tasks.md`. Questo documento specifica il design e non autorizza modifiche o pubblicazioni ulteriori.
+Aggiornato il 4 novembre 2026. Per ogni modifica visiva consultare questo file insieme ad `AGENTS.md`. Requisiti e priorità restano in `plan.md`; l’esecuzione è in `tasks.md`. Questo documento specifica il design e non autorizza modifiche o pubblicazioni ulteriori.
 
 La proposta allegata `DESIGN (1).md` è stata adattata al sito MeteOlivelli e alle successive richieste dell’utente. Gli esempi commerciali Factory non hanno introdotto login, partner o funzionalità commerciali. Il riferimento Figma Obsidian v5 e le sue schermate sono storici; non descrivono la grafica corrente né attestano modifiche al file Figma.
 
@@ -67,7 +67,9 @@ Focus tastiera rivela subito il contenitore; movimento ridotto cancella effetti 
 
 ## Bordi, controlli e focus
 
-Il riflesso radiale segue il puntatore soltanto sul bordo dei pannelli, grafici, schede, controlli e azioni. È ritagliato al contorno interno con maschera, non sporge dalla superficie e non cambia il layout; scompare appena il puntatore esce dal bersaglio. I divisori e i grafici senza bordo interno restano esclusi; nel grafico del hero il bersaglio del riflesso è il pannello esterno. Nei controlli il riflesso è contenuto entro 2 px, nelle schede entro 1 px. Hover cambia il bordo con una transizione breve; il focus da tastiera resta visibile con contorno verde menta di 2 px e offset di 2 px. I raggi condivisi sono 3 px per controlli e CTA, 8 px per schede interne e 10 px per pannelli; il dialogo grafico usa 12 px. Campi e pulsanti hanno un’altezza utile di almeno 44 px.
+Il contorno ordinario di pannelli, schede e controlli è di 1 px. Il riflesso radiale coincide con quel bordo, senza una seconda linea interna: la maschera conserva il raggio esterno del componente e non cambia il layout. Si attiva soltanto sul bersaglio più vicino al puntatore, comprese le schede interne, Informazioni e i moduli amministrativi; si cancella all’uscita, allo scroll e al ridimensionamento. Divisori, pulsanti testuali senza bordo e controlli disabilitati restano esclusi; nel grafico del hero il bersaglio è il pannello esterno. Input, select e textarea usano il bordo nativo con hover uniforme, senza pseudo-elementi. Il focus da tastiera resta verde menta, largo 2 px con offset di 2 px, anche sulla pagina 404. I raggi condivisi sono 3 px per controlli, CTA e badge, 8 px per schede interne e indicatore del cielo, 10 px per pannelli e 12 px per il dialogo grafico; a schermo intero su mobile il dialogo non ha cornice. Campi e pulsanti hanno un’altezza utile di almeno 44 px. I contorni semantici di selezione, errore e successo restano riconoscibili.
+
+La scena atmosferica conserva superfici e ombre esterne, ma usa gli stessi colori di bordo del resto del sito, senza linea aggiuntiva da ombra interna. La scheda degli orari in Informazioni ritaglia i propri contenuti agli angoli condivisi.
 
 I collegamenti rapidi alle sezioni usano un bordo neutro anche in hover, lasciando visibile il riflesso localizzato e il focus da tastiera.
 

@@ -23,7 +23,7 @@
 .info-flow small { color: var(--secondary); font-size: 10px; line-height: 1.4; }
 .info-flow-arrow { color: var(--secondary); font-size: 13px; }
 .info-note { padding-left: 12px; border-left: 2px solid var(--accent); font-size: 12px; }
-.info-time-definitions { display: grid; gap: 1px; margin: 24px 0; background: var(--border); border: 1px solid var(--border); }
+.info-time-definitions { display: grid; gap: 1px; margin: 24px 0; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-inset); overflow: hidden; }
 .info-time-definitions > div { padding: 13px 15px; background: var(--surface); }
 .info-time-definitions dt { color: var(--text); font-size: 12px; font-weight: 500; }
 .info-time-definitions dd { margin: 5px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.6; }
