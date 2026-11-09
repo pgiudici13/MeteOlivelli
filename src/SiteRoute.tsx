@@ -3,12 +3,13 @@ import { translate } from './i18n.ts'
 import { usePreferences } from './use-preferences.ts'
 import { usePageMotion } from './use-page-motion.ts'
 import { lazy, Suspense, useEffect, type ReactNode } from 'react'
-import App from './App.tsx'
+import './App.css'
 import { BrandMark } from './components/BrandMark.tsx'
 import { ScrollProgress } from './components/ScrollProgress.tsx'
 import { CursorRing } from './components/CursorRing.tsx'
 
 const InfoPage = lazy(() => import('./pages/InfoPage.tsx').then(({ InfoPage }) => ({ default: InfoPage })))
+const App = lazy(() => import('./App.tsx'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage.tsx').then(({ PrivacyPage }) => ({ default: PrivacyPage })))
 const QuizPage = lazy(() => import('./pages/QuizPage.tsx').then(({ QuizPage }) => ({ default: QuizPage })))
 const DataAdminPage = lazy(() => import('./pages/DataAdminPage.tsx').then(({ DataAdminPage }) => ({ default: DataAdminPage })))
@@ -27,7 +28,7 @@ export function SiteRoute() {
     if (pathname !== '/' && pathname !== '/home' && pathname !== '/info' && pathname !== '/privacy' && pathname !== '/gioca' && pathname !== '/data') document.title = translate('Pagina non trovata — MeteOlivelli')
   }, [pathname, preferences])
 
-  if (pathname === '/' || pathname === '/home') return <PageMotion><App /></PageMotion>
+  if (pathname === '/' || pathname === '/home') return <Suspense fallback={<p role="status">{translate("Caricamento pagina…")}</p>}><PageMotion><App /></PageMotion></Suspense>
   if (pathname === '/info') return <Suspense fallback={<p role="status">{translate("Caricamento pagina…")}</p>}><PageMotion><InfoPage /></PageMotion></Suspense>
   if (pathname === '/privacy') return <Suspense fallback={<p role="status">{translate("Caricamento pagina…")}</p>}><PageMotion><PrivacyPage /></PageMotion></Suspense>
   if (pathname === '/gioca') return <Suspense fallback={<p role="status">{translate("Caricamento pagina…")}</p>}><PageMotion><QuizPage /></PageMotion></Suspense>

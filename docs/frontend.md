@@ -376,6 +376,10 @@ La lista amministrativa identifica inoltre le righe come stazione, storico, inse
 
 La sintesi delle ultime misure confronta valori fisici validi con quelli dello stesso minuto del giorno civile precedente in Europe/Rome, usando lo storico completo indipendentemente dal filtro dei grafici. Se il confronto non è disponibile, lo dichiara. Il footer attribuisce a Pietro Giudici e Nicholas Borin la realizzazione del sito.
 
+## Caricamento delle pagine — 9 novembre 2026
+
+Il router carica la Home su richiesta, come già avveniva per le altre pagine; gli stili comuni restano disponibili nell’ingresso condiviso. Le route informative non richiedono il modulo della dashboard. Il controllo budget misura gli asset referenziati direttamente nell’HTML: non include i moduli caricati in seguito, incluso quello necessario per visualizzare la Home. Le prestazioni effettive dipendono anche da rete, cache e dispositivo.
+
 ## Scena atmosferica della home — 2 novembre 2026
 
 `src/sky/` separa posizione, calcoli SunCalc, lettura/caching e classificazione WMO dal rendering. La scena è caricata in un chunk separato e usa un ciclo al minuto mentre la pagina è visibile; al ritorno in primo piano riallinea subito l’ora. Il refresh delle condizioni è indipendente dai feed della stazione; una risposta arrivata a pagina nascosta viene recuperata dalla cache al ritorno. Un test controlla il timer, la ripresa e la pulizia degli eventi di visibilità. Sole e Luna si muovono tramite trasformazioni CSS; una prova browser delle anteprime alba, mezzogiorno, tramonto e notte ha confermato le coordinate dei centri. Sono proiettati su una scena stilizzata; la Luna è nascosta sotto l'orizzonte e le stelle sono attenuate dalle nubi. Il fallback non afferma che il cielo sia sereno. Una prova browser locale ha mostrato la home su viewport stretta e lo scenario simulato tramonto/pioggia, con misure della stazione disponibili; la risposta corrente Open-Meteo non era disponibile in quella prova. Non è un collaudo su dispositivo fisico né una verifica completa del contrasto o delle prestazioni.

@@ -8,6 +8,8 @@
 
 # Piano di progetto — MeteOlivelli
 
+> **Ottimizzazione caricamento — 9 novembre 2026:** su richiesta dell’utente, caricare il codice della Home solo sulle sue route, preservando gli stili condivisi sulle altre pagine. Dimensioni e limiti della misura sono registrati in `tasks.md`; le prestazioni su dispositivi reali restano da misurare.
+
 > **CI / budget bundle — 9 novembre 2026:** il workflow `main` falliva nel controllo CSS già sul commit del 4 novembre: Node 24 misurava 10,1 KiB gzip con un tetto di 10 KiB, mentre Node 26 locale riportava 10,0 KiB. Portato il tetto CSS a 10,5 KiB per assorbire la differenza minima fra versioni Node; mantenuto JavaScript a 110 KiB. Guida QA aggiornata. `npm run check` locale e controllo budget superati; il nuovo run GitHub è la verifica remota successiva al push.
 
 > **UI previsioni e scena solare — 9 novembre 2026:** su richiesta dell’utente, mostrare nella sezione previsioni gli orari Open-Meteo di alba e tramonto a Pavia e usare gli stessi istanti come estremi del percorso orizzontale del Sole sullo sfondo. Se gli eventi sono assenti o appartengono a un altro giorno civile Europe/Rome, la UI non mostra orari sostitutivi e la scena usa SunCalc. Implementazione locale; nessuna modifica remota o pubblicazione.
