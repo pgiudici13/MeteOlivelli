@@ -125,6 +125,8 @@ button:disabled { cursor: default; opacity: .68; }
 .forecast-estimate .small { margin-top: 8px; }
 .forecast-unavailable { font-size: 14px; }
 .forecast-evidence, .forecast-method { margin-top: 12px; color: var(--secondary); font-size: 12px; line-height: 1.6; }
+.solar-times { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.solar-times time { color: var(--text); font-variant-numeric: tabular-nums; }
 .forecast-evidence p { overflow-wrap: anywhere; }
 .about-section { margin-top: 56px; padding: 36px; background: var(--surface-soft); }
 .about-section h2 { max-width: 600px; font-size: 40px; }

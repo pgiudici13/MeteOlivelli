@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { astronomy, moonVisibility } from './astronomy.ts'
 import { startSkyClock } from './clock.ts'
 import { skyPalette, sunPalette } from './palette.ts'
-import { cloudAppearance, isWeatherStale, isWeatherUsable, loadWeather, nextPrecipitationForecast, precipitationAppearance, precipitationLayers, visualWeather, type Condition, type Weather } from './weather.ts'
+import { cloudAppearance, isWeatherStale, isWeatherUsable, loadWeather, nextPrecipitationForecast, precipitationAppearance, precipitationLayers, solarEventsForDay, visualWeather, type Condition, type Weather } from './weather.ts'
 import { translate } from '../i18n.ts'
 import { getLocale } from '../preferences.ts'
 import { usePreferences } from '../use-preferences.ts'
@@ -33,11 +33,11 @@ export function WeatherScene() {
     return () => { active = false; clearInterval(timer); window.removeEventListener('online', refresh); document.removeEventListener('visibilitychange', refresh) }
   }, [])
   const date = import.meta.env.DEV ? previewDate(previewTime, now) : now
-  const scene = astronomy(date)
   const preview = import.meta.env.DEV && (previewWeather !== 'reale' || previewTime !== 'reale')
   const previewCondition = previewWeather === 'overcast-no-cloud' ? 'overcast' : previewWeather === 'thunder-snow' ? 'thunderstorm' : previewWeather as Condition
   const candidate = import.meta.env.DEV && previewWeather !== 'reale' ? previewWeather === 'offline' ? null : { condition: previewCondition, cloud: previewWeather === 'overcast-no-cloud' ? null : previewWeather === 'clear' ? 5 : 85, precipitation: ['rain','snow','thunderstorm','thunder-snow'].includes(previewWeather) ? 3 : 0, rain: ['rain','thunderstorm'].includes(previewWeather) ? 3 : 0, showers: 0, snowfall: ['snow','thunder-snow'].includes(previewWeather) ? 2.1 : 0, wind: 15, observedAt: now.getTime(), fetchedAt: now.getTime() } : weather
   const shown = isWeatherUsable(candidate, now.getTime()) ? candidate : null
+  const scene = astronomy(date, preview ? null : solarEventsForDay(shown?.solarEvents, date.getTime()))
   const visual = visualWeather(shown)
   const nextRain = preview ? null : nextPrecipitationForecast(shown, now.getTime())
   const phases = precipitationLayers(shown)

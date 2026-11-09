@@ -221,6 +221,8 @@ Il cambio unità converte soltanto la presentazione; valori nulli restano assent
 
 La home sovrappone alla scena astronomica e alle condizioni modellistiche una superficie scura o chiara coerente con il tema scelto; strumenti e grafici conservano superfici leggibili, bordi e riflessi sottili. La scena usa elementi CSS/SVG decorativi, particelle limitate e movimento ridotto rispettato. Sole e Luna sono proiezioni illustrative: il cielo non rappresenta una vista geografica orientata. L'indicatore distingue il modello Open-Meteo dalle misure della stazione. L'anteprima è disponibile solo in sviluppo; i dettagli e i limiti sono nel README.
 
+La sezione previsioni mostra alba e tramonto di oggi a Pavia forniti da Open-Meteo. Gli stessi istanti ancorano il percorso orizzontale del Sole nella scena, così gli orari esposti e lo sfondo restano coerenti.
+
 I pannelli della home variano tono e trasparenza quando il Sole scende sotto la soglia notturna della scena. Il tema esplicitamente scelto resta prioritario; il passaggio è graduale e viene disabilitato con movimento ridotto.
 
 Il disco solare schiarisce in quota e assume toni più ambrati vicino all'orizzonte; la variazione è illustrativa e continua rispetto all'altezza astronomica.

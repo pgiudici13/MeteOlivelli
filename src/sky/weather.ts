@@ -2,6 +2,7 @@ import { STATION } from './location.ts'
 export type Condition = 'clear' | 'partly-cloudy' | 'overcast' | 'fog' | 'drizzle' | 'rain' | 'heavy-rain' | 'snow' | 'thunderstorm' | 'unknown'
 export interface ForecastHour { time: number; precipitationProbability: number | null; condition: Condition }
 export interface SolarEvents { sunrise: number | null; sunset: number | null }
+export interface DatedSolarEvents { sunrise: number; sunset: number }
 export interface Weather { condition: Condition; cloud: number | null; precipitation: number | null; rain?: number | null; showers?: number | null; snowfall?: number | null; wind: number | null; observedAt: number; fetchedAt: number; forecast?: ForecastHour[]; solarEvents?: SolarEvents }
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
 export function classify(code: number | null): Condition {
@@ -19,6 +20,13 @@ export function classify(code: number | null): Condition {
 }
 const record = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 const number = (v: unknown, min: number, max: number): number | null => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max ? v : null
+const civilDate = new Intl.DateTimeFormat('en-CA', { timeZone: STATION.timezone, year: 'numeric', month: '2-digit', day: '2-digit' })
+export function solarEventsForDay(events: SolarEvents | null | undefined, timestamp: number): DatedSolarEvents | null {
+  const sunrise = events?.sunrise, sunset = events?.sunset
+  if (typeof sunrise !== 'number' || typeof sunset !== 'number' || !Number.isFinite(sunrise) || !Number.isFinite(sunset) || sunrise >= sunset) return null
+  const today = civilDate.format(timestamp)
+  return civilDate.format(sunrise) === today && civilDate.format(sunset) === today ? { sunrise, sunset } : null
+}
 export function parseWeather(value: unknown, now: number): Weather {
   if (!record(value) || !record(value.current)) throw Error('Risposta meteo non valida')
   const c = value.current
@@ -41,12 +49,20 @@ export function parseWeather(value: unknown, now: number): Weather {
     }
     forecast.sort((a, b) => a.time - b.time)
   }
-  // Dati giornalieri facoltativi: usati per confronto diagnostico, non per sostituire SunCalc.
+  // Conserva alba e tramonto del giorno civile di Pavia in Europe/Rome.
   const daily = record(value.daily) ? value.daily : null
+  const eventIndex = (() => {
+    const dates = daily?.time
+    if (!Array.isArray(dates)) return 0
+    const localDate = (stamp: number) => civilDate.format(stamp)
+    const today = localDate(now)
+    const index = dates.findIndex(stamp => typeof stamp === 'number' && Number.isFinite(stamp) && localDate(stamp * 1000) === today)
+    return index >= 0 ? index : 0
+  })()
   const event = (key: string) => {
     const values = daily?.[key]
     if (!Array.isArray(values)) return null
-    const stamp = number(values[0], 0, 1e11)
+    const stamp = number(values[eventIndex], 0, 1e11)
     return stamp === null ? null : stamp * 1000
   }
   return { condition, cloud, precipitation: number(c.precipitation, 0, 500), rain: number(c.rain, 0, 500), showers: number(c.showers, 0, 500), snowfall: number(c.snowfall, 0, 500), wind: number(c.wind_speed_10m, 0, 500), observedAt: time * 1000, fetchedAt: now, forecast, solarEvents: { sunrise: event('sunrise'), sunset: event('sunset') } }
@@ -82,7 +98,7 @@ export async function loadWeather(now = Date.now(), fetcher: typeof fetch = fetc
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 8000)
     try {
       const url = new URL('https://api.open-meteo.com/v1/forecast')
-      url.search = new URLSearchParams({ latitude: String(STATION.latitude), longitude: String(STATION.longitude), current: 'weather_code,cloud_cover,is_day,precipitation,rain,showers,snowfall,wind_speed_10m,temperature_2m', hourly: 'weather_code,precipitation_probability', daily: 'sunrise,sunset', forecast_days: '2', timeformat: 'unixtime', timezone: 'GMT' }).toString()
+      url.search = new URLSearchParams({ latitude: String(STATION.latitude), longitude: String(STATION.longitude), current: 'weather_code,cloud_cover,is_day,precipitation,rain,showers,snowfall,wind_speed_10m,temperature_2m', hourly: 'weather_code,precipitation_probability', daily: 'sunrise,sunset', forecast_days: '2', timeformat: 'unixtime', timezone: STATION.timezone }).toString()
       const response = await fetcher(url, { signal: controller.signal })
       if (!response.ok) throw Error('Servizio meteo non disponibile')
       const result = parseWeather(await response.json(), now)

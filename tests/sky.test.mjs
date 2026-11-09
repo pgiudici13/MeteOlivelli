@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { astronomy, moonVisibility } from '../src/sky/astronomy.ts'
 import { startSkyClock } from '../src/sky/clock.ts'
 import { skyPalette, sunPalette } from '../src/sky/palette.ts'
-import { classify, parseWeather, visualWeather, loadWeather, nextPrecipitationForecast, isWeatherUsable, isWeatherStale, precipitationAppearance, precipitationLayers, cloudAppearance } from '../src/sky/weather.ts'
+import { classify, parseWeather, visualWeather, loadWeather, nextPrecipitationForecast, isWeatherUsable, isWeatherStale, precipitationAppearance, precipitationLayers, cloudAppearance, solarEventsForDay } from '../src/sky/weather.ts'
 
 test('orologio del cielo: sospensione in background, ripresa immediata e pulizia', () => {
   const page = new EventTarget()
@@ -42,6 +42,14 @@ test('astronomia: percorso diurno, stagioni e cambio ora legale', () => {
   assert.equal(typeof summer.moon.altitude, 'number')
 })
 
+test('percorso del Sole usa gli orari Open-Meteo condivisi quando disponibili', () => {
+  const sunrise = Date.parse('2026-06-30T03:30:00Z')
+  const sunset = Date.parse('2026-06-30T19:45:00Z')
+  assert.equal(astronomy(new Date(sunrise), { sunrise, sunset }).sunX, 8)
+  assert.equal(astronomy(new Date(sunset), { sunrise, sunset }).sunX, 92)
+  assert.equal(typeof astronomy(new Date(sunrise), { sunrise: null, sunset: null }).sunX, 'number')
+})
+
 
 test('eventi solari appartengono al giorno civile di Pavia anche intorno a mezzanotte e ai cambi d’ora', () => {
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' })
@@ -68,6 +76,21 @@ test('eventi solari appartengono al giorno civile di Pavia anche intorno a mezza
   const second = astronomy(new Date('2026-10-25T01:30:00Z'))
   assert.equal(first.times.sunrise.getTime(), second.times.sunrise.getTime())
   assert.notEqual(first.moon.azimuth, second.moon.azimuth)
+})
+
+test('parseWeather sceglie alba e tramonto del giorno civile Europe/Rome', () => {
+  const now = Date.parse('2026-06-30T10:00:00Z')
+  const weather = parseWeather({
+    current: { time: now / 1000, weather_code: 0 },
+    daily: {
+      time: [Date.parse('2026-06-29T22:00:00Z') / 1000, Date.parse('2026-06-30T22:00:00Z') / 1000],
+      sunrise: [Date.parse('2026-06-30T03:31:00Z') / 1000, Date.parse('2026-07-01T03:32:00Z') / 1000],
+      sunset: [Date.parse('2026-06-30T19:44:00Z') / 1000, Date.parse('2026-07-01T19:43:00Z') / 1000],
+    },
+  }, now)
+  assert.deepEqual(weather.solarEvents, { sunrise: Date.parse('2026-06-30T03:31:00Z'), sunset: Date.parse('2026-06-30T19:44:00Z') })
+  assert.deepEqual(solarEventsForDay(weather.solarEvents, now), weather.solarEvents)
+  assert.equal(solarEventsForDay(weather.solarEvents, Date.parse('2026-07-01T00:05:00+02:00')), null)
 })
 
 test('la Luna non compare sotto l’orizzonte e si attenua con luce e nuvole', () => {

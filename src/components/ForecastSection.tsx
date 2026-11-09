@@ -1,13 +1,32 @@
 import { displayUnit } from '../preferences.ts'
 import { translate } from '../i18n.ts'
+import { useEffect, useState } from 'react'
 import { usePreferences } from '../use-preferences.ts'
 import { horizons, methodNames } from '../forecast.ts'
 import { useForecast } from '../use-forecast.ts'
 import { formatTime, formatValue, metrics } from '../weather.ts'
+import { loadWeather, solarEventsForDay, type SolarEvents } from '../sky/weather.ts'
+import { getLocale } from '../preferences.ts'
+
+function formatSolarTime(timestamp: number) {
+  return new Intl.DateTimeFormat(getLocale(), { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' }).format(timestamp)
+}
 
 export function ForecastSection() {
   usePreferences()
   const forecast = useForecast()
+  const [solarEvents, setSolarEvents] = useState<SolarEvents | null>(null)
+  const [now, setNow] = useState(() => Date.now())
+  const dailySolar = solarEventsForDay(solarEvents, now)
+  useEffect(() => {
+    let active = true
+    const refresh = () => { if (document.visibilityState === 'visible') void loadWeather().then(weather => { if (active) { setSolarEvents(weather.solarEvents ?? null); setNow(Date.now()) } }).catch(() => { if (active) { setSolarEvents(null); setNow(Date.now()) } }) }
+    refresh()
+    const timer = window.setInterval(refresh, 15 * 60000)
+    window.addEventListener('online', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    return () => { active = false; clearInterval(timer); window.removeEventListener('online', refresh); document.removeEventListener('visibilitychange', refresh) }
+  }, [])
   const forecastCards = (forecast.run?.horizons ?? horizons).map((horizon, index) => {
     const result = forecast.run?.horizons[index]
     return <article className="forecast-card" key={horizon.hours}>
@@ -41,6 +60,7 @@ export function ForecastSection() {
     <p className="eyebrow section-index">{translate("04 / Previsioni meteo")}</p>
     <h2 id="forecast-title">{translate("Previsioni meteo MeteOlivelli")}</h2>
     <p className="secondary">{translate("Le previsioni di temperatura, umidità e pressione sono mostrate separatamente dalle osservazioni della stazione.")}</p>
+    {dailySolar && <p className="small solar-times">{translate('Orari previsti oggi a Pavia da Open-Meteo.')} <span>{translate('Alba')} <time dateTime={new Date(dailySolar.sunrise).toISOString()}>{formatSolarTime(dailySolar.sunrise)}</time></span><span>{translate('Tramonto')} <time dateTime={new Date(dailySolar.sunset).toISOString()}>{formatSolarTime(dailySolar.sunset)}</time></span></p>}
     <p className="small">{translate("La previsione a 24 ore indica il valore atteso tra 24 ore, non le massime e minime del giorno. Questo modello non prevede nuvole, pioggia o altri fenomeni atmosferici.")}</p>
     <div role="status" className="small">{translate(!forecast.loaded ? 'Caricamento delle previsioni…' : forecast.error ? 'Previsione temporaneamente non disponibile; nuovo tentativo automatico.' : 'Le stime orarie sono riferite a Pavia. Le letture recenti della stazione possono applicare una correzione limitata; l’orario di acquisizione sul PC non certifica l’ora fisica della misura.')}</div>
     <div className="forecast-grid">{translate(forecastCards)}</div>
