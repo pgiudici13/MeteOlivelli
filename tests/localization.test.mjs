@@ -141,7 +141,7 @@ test('misura manuale e lettura della stazione restano datate correttamente con v
     calls.push(basis)
     return { items: [live, manual], next_cursor: null, until, time_basis: basis }
   })
-  assert.deepEqual(calls, ['captured_at'])
+  assert.deepEqual(calls, ['captured_at', 'measured_at'])
   assert.deepEqual(result.rows.map(row => row.ingestion_id), [live.ingestion_id, manual.ingestion_id])
   assert.equal(result.rows[1].captured_at, null)
   assert.equal(prepareChart(result.rows, 'temperature_c', '24h', until).segments.flat().length, 2)

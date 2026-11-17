@@ -1,5 +1,7 @@
 # Frontend — stato e verifiche
 
+> **17 novembre 2026:** i grafici uniscono le finestre per ora di acquisizione e di misura, deduplicando gli eventi; Auto include le misure storiche datate. La cronologia è aperta inizialmente. Su richiesta dell'utente 141 orari nel database sono approssimati e non etichettati automaticamente: 113 derivano dall'acquisizione PC, 27 dal contatore e uno dalla ricezione dopo reset. Build, lint, 193 test frontend e browser locale con API reale verificati prima della richiesta di non eseguire ulteriori verifiche; rilascio da completare.
+
 ## Bordi — 4 novembre 2026
 
 Riflesso da 1 px sul bordo reale delle superfici, senza contorni sui pulsanti testuali; campi nativi con hover e focus ordinari, focus menta anche nella 404. La scena usa i colori condivisi senza ombra interna. Nel quiz il ripple resta ritagliato dopo la risposta e il riflesso è visibile prima della scelta. Specifiche in [design.md](../design.md), problema in [COR-059](../CORRECTIONS.md).

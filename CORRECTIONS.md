@@ -5,6 +5,12 @@ Ultima verifica: 27 ottobre 2026. Audit finale: COR-033–COR-046 riprodotti e c
 Stati ammessi: `aperto`, `in analisi`, `risolto`, `non riproducibile`.
 Priorità: alta (perdita dati/accesso indebito/blocco), media (funzione compromessa), bassa (problema circoscritto con alternativa praticabile).
 
+## COR-059 — Grafici escludono misure storiche datate
+
+- **Stato:** corretto localmente il 17 novembre 2026.
+- **Prova e impatto:** la pagina pubblica caricava 113 campioni nel grafico Auto benché l'API restituisse 141 misure datate; le righe storiche prive di acquisizione erano escluse dalle richieste e dal filtro Auto.
+- **Correzione e verifica:** unite e deduplicate le serie per acquisizione e misura, incluse le righe storiche e aperta inizialmente la cronologia. Build, lint, 193 test frontend e browser locale con 141 campioni superati. Collaudo pubblico non eseguito per richiesta dell'utente.
+
 ## COR-001 — Eccezione per `.env.example` inefficace
 
 - **Stato:** risolto (21 ottobre 2026, SET-01).

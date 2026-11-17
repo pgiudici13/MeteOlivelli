@@ -8,6 +8,8 @@
 
 # Piano di progetto — MeteOlivelli
 
+> **17 novembre 2026, Fase 7:** per richiesta dell'utente i grafici includono le misure storiche datate e la cronologia si apre subito. I 141 orari inseriti nel database sono approssimati e non segnalati automaticamente, secondo la decisione dell'utente; le nuove righe non sono datate automaticamente. Esiti in `tasks.md`.
+
 > **Ottimizzazione caricamento — 9 novembre 2026:** su richiesta dell’utente, caricare il codice della Home solo sulle sue route, preservando gli stili condivisi sulle altre pagine. Dimensioni e limiti della misura sono registrati in `tasks.md`; le prestazioni su dispositivi reali restano da misurare.
 
 > **CI / budget bundle — 9 novembre 2026:** il workflow `main` falliva nel controllo CSS già sul commit del 4 novembre: Node 24 misurava 10,1 KiB gzip con un tetto di 10 KiB, mentre Node 26 locale riportava 10,0 KiB. Portato il tetto CSS a 10,5 KiB per assorbire la differenza minima fra versioni Node; mantenuto JavaScript a 110 KiB. Guida QA aggiornata. `npm run check` locale e controllo budget superati; il nuovo run GitHub è la verifica remota successiva al push.

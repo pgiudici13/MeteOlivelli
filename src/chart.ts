@@ -72,7 +72,7 @@ export function prepareChart(rows: Measurement[], metric: Metric, mode: ChartMod
   }
   const candidates = rows.filter(row => observationTime(row) !== null)
   const dated = mode === 'auto' && candidates.some(row => row.acquisition_kind === 'live')
-    ? candidates.filter(row => row.acquisition_kind === 'live' || row.entry_method === 'manual')
+    ? candidates.filter(row => row.acquisition_kind === 'live' || row.acquisition_kind === 'historical')
     : candidates
   const first = dated.length ? Date.parse(observationTime(dated[0])!) : Date.parse(until)
   const last = dated.length ? Date.parse(observationTime(dated[dated.length - 1])!) : Date.parse(until)

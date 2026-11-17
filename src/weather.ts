@@ -234,9 +234,17 @@ export async function readObservationHistory(
     return page
   }, 'captured_at')
   if (!until) throw new Error('Finestra delle misure non disponibile')
+  // La base di acquisizione non comprende gli storici senza captured_at.
+  // Recuperare anche le misure datate, con la stessa fine finestra e senza duplicati.
+  const measuredRows = await readHistory(period, signal, async (params, requestSignal) => {
+    params.set('until', until!)
+    const page = await reader(params, requestSignal)
+    if (page.until !== until) throw new Error('Finestra delle misure incoerente')
+    return page
+  }, 'measured_at')
   const duration = (period === '24h' ? 24 : period === '7g' ? 168 : period === '14g' ? 336 : 720) * 3600000
   const start = Date.parse(until) - duration
-  const rows = datedRows.filter(row => {
+  const rows = [...new Map([...datedRows, ...measuredRows].map(row => [row.ingestion_id, row])).values()].filter(row => {
     const time = observationTime(row)
     return time !== null && Date.parse(time) >= start && Date.parse(time) <= Date.parse(until!)
   })

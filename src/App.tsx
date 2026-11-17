@@ -176,7 +176,7 @@ function App() {
   const [pdfMessage, setPdfMessage] = useState('')
   const [historyPdfBusy, setHistoryPdfBusy] = useState(false)
   const [historyPdfMessage, setHistoryPdfMessage] = useState('')
-  const [showChronology, setShowChronology] = useState(false)
+  const [showChronology, setShowChronology] = useState(true)
   const [firstChart, setFirstChart] = useState(browserChartPreference)
   const queryPeriod = period === 'auto' ? '30g' : period
   const data = useWeather(queryPeriod, period === 'auto')
