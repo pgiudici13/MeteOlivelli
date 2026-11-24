@@ -250,3 +250,7 @@ L’intervallo personalizzato è inizialmente chiuso in un controllo espandibile
 ### Superfici e stabilità grafica — 4 novembre 2026
 
 Le superfici della Home mantengono la schermatura semitrasparente senza sfocare lo sfondo. La scena atmosferica e i controlli restano disponibili; l’utente riferisce che l’anteprima locale è stabile sul dispositivo interessato.
+
+### Condizioni manuali in `/data`
+
+La sezione riservata riprende modulo, controlli e tabella amministrativi, con suggerimenti Open-Meteo affiancati ai campi e azioni esplicite per applicarli. La tabella scorre orizzontalmente sui dispositivi stretti.

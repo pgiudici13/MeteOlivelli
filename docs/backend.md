@@ -409,3 +409,9 @@ PostgreSQL e, quando equivalente fino al microsecondo, la forma del payload
 originale. Il confronto avviene dopo la validazione v1 e non estende i timestamp
 accettati dall’ingestione pubblica. È coperto anche il passaggio helper frontend →
 handler durante il ritorno all’ora solare. Correzione Edge locale da pubblicare.
+
+### Osservazioni meteorologiche manuali in `/data`
+
+Le osservazioni su cielo, pioggia e vento sono compilate manualmente, con data e ora scelte dall'operatore. La tabella `manual_weather_conditions` è distinta dalle misure dei sensori; RLS è attiva e soltanto il ruolo server può leggere e scrivere. L'endpoint amministrativo esistente espone `resource=conditions` per lettura, inserimento e modifica autenticati. Non sono previsioni né misure della stazione. La vista riporta fino alle 100 osservazioni più recenti.
+
+I suggerimenti Open-Meteo si riferiscono all'orario indicato dal servizio, possono provenire dalla cache e richiedono sempre una scelta esplicita. Cielo: copertura sotto 20%, 50%, 85% o maggiore; pioggia liquida (pioggia più rovesci, mm/ora): zero, meno di 2,5, meno di 7,6 o superiore; vento a 10 m (km/h): sotto 1, 20, 40 o superiore. Sono soglie descrittive dell'interfaccia, non misurazioni locali o criteri meteorologici certificati. La neve non viene convertita in pioggia. Nessun suggerimento se il dato necessario manca; l'inserimento rimane manuale anche senza servizio.

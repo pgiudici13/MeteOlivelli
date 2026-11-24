@@ -231,3 +231,44 @@ Deno.test('Admin conserva la forma originale del payload solo se coincide fino a
     assert(saved.measured_at === (matches ? payload.measured_at : measured))
   }
 })
+
+Deno.test('Condizioni manuali: lettura, scrittura, modifica e validazione protette', async () => {
+  const calls: { method: string; url: string; body: unknown }[] = []
+  const handler = createManageHandler((name) => environment[name], (url, init) => {
+    calls.push({
+      method: String(init?.method),
+      url: String(url),
+      body: init?.body ? JSON.parse(String(init.body)) : null,
+    })
+    return Promise.resolve(Response.json([{ id }]))
+  })
+  const body = {
+    observed_at: '2026-10-27T10:00:00.000Z',
+    cloud: 'nuvoloso',
+    rain: 'debole',
+    wind: 'calmo',
+  }
+  const req = (method: string, payload?: unknown, secret = password) =>
+    new Request(`https://example.invalid/manage-measurements?resource=conditions&id=${id}`, {
+      method,
+      headers: { origin, 'x-admin-password': secret },
+      ...(payload ? { body: JSON.stringify(payload) } : {}),
+    })
+  assert((await handler(req('GET', undefined, 'wrong'))).status === 401)
+  assert(calls.length === 0)
+  assert((await handler(req('GET'))).status === 200)
+  assert((await handler(req('POST', body))).status === 201)
+  assert((await handler(req('PATCH', body))).status === 200)
+  assert(
+    calls.length === 3 && calls.every((call) => call.url.includes('manual_weather_conditions')),
+  )
+  for (
+    const bad of [{ ...body, rain: 'inventata' }, {
+      ...body,
+      observed_at: '2026-02-30T10:00:00.000Z',
+    }, { ...body, extra: 1 }]
+  ) {
+    assert((await handler(req('POST', bad))).status === 400)
+  }
+  assert(calls.length === 3)
+})

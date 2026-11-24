@@ -7,6 +7,7 @@ import { BrandMark } from '../components/BrandMark.tsx'
 import { ThemeToggle } from '../components/ThemeToggle.tsx'
 import { dateInput, measurementTime } from '../admin-time.ts'
 import './DataAdminPage.css'
+import { ManualConditions } from './ManualConditions.tsx'
 
 type Row = {
   ingestion_id: string
@@ -178,6 +179,7 @@ export function DataAdminPage() {
             </tr>))}</tbody>
           </table></div>)}
         </section>
+        <ManualConditions password={password} endpoint={endpoint} />
       </>)}
       <p className="data-admin-status" role="status" aria-live="polite">{translate(message)}</p>
     </main>

@@ -814,3 +814,18 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 **4 novembre 2026 — Fase 7 / UI-01, lampeggio segnalato:** eliminata la sfocatura dietro le schede della Home come possibile mitigazione. Build, lint e 191 test frontend superati; l’utente conferma che l’anteprima locale è stabile sul proprio Chrome; causa tecnica non dimostrata e produzione non verificata. Modifica locale.
 
 **17 novembre 2026 — Fase 7 / UI-01, cronologia:** sulla versione online `e6194c1`, l'API restituiva 141 misure datate ma il grafico Auto ne caricava 113 perché lo storico senza acquisizione era escluso. Unificate le due basi temporali senza duplicati, incluse le misure storiche in Auto e aperta inizialmente la cronologia. Prima della richiesta di non effettuare ulteriori verifiche: build, lint, 193 test frontend e browser locale con API reale superati; 141 campioni caricati. I 141 orari sono approssimati, non etichettati automaticamente per decisione dell'utente; le misure future non ricevono automaticamente la data.
+
+## Condizioni meteo manuali `/data` — 24 novembre 2026
+
+- [x] Checkout sincronizzato con `origin/main` con fast-forward a `dbd5cf7`; nessuna modifica locale preesistente.
+- [x] Implementati modulo e storico locale (ultime 100 osservazioni), categorie e suggerimenti Open-Meteo applicabili solo esplicitamente; osservazioni separate dalle misure.
+- [x] Migrazione `20261124095229_manual_weather_conditions` applicata al progetto MeteOlivelli: tabella vuota, RLS attiva, accesso anon/auth negato e grant server verificati. Advisor sicurezza: avviso informativo assenza policy, coerente con l'accesso esclusivo server.
+- [x] Con autorizzazione esplicita pubblicata `manage-measurements` v7 nel progetto MeteOlivelli; funzione ACTIVE e verifica senza password HTTP 401.
+- [x] Collaudo autenticato API reale: lettura 200, inserimento 201, modifica 200, rilettura coerente e valore invalido 400; fixture di prova rimossa per ID e zero residui verificati nel database.
+- [x] Collaudo completo della UI locale con API reale: accesso, suggerimenti Open-Meteo, inserimento, lettura e modifica riusciti; rimossa la sola riga di prova per ID e assenza residui verificata.
+- [ ] Pubblicazione frontend autorizzata; verifica del deploy di produzione ancora da completare.
+- **Verifiche locali:** `npm run lint`, `npm run build`, 193 test frontend, controllo/lint backend e 56 test Deno superati. Chrome locale a 1280 e 375 px con API simulate: inserimento, modifica, suggerimenti applicati solo su scelta e servizio meteo indisponibile verificati; collaudo autenticato remoto successivamente superato. La prima richiesta di deploy è stata respinta dalla revisione automatica; la pubblicazione è riuscita dopo autorizzazione esplicita dell’utente.
+
+**Collaudo aggiuntivo 24 novembre:** `npm run check` superato (lint, build, budget bundle, 193 test frontend, controlli e 56 test Deno, 28 test Python); accesso amministrativo reale e suggerimenti Open-Meteo visibili nella UI locale. Credenziali non registrate. La tabella delle osservazioni è nuovamente vuota dopo la rimozione mirata della fixture. Nessun deploy frontend, commit o push.
+
+**Riprova browser 24 novembre:** completati inserimento e modifica dalla pagina locale attraverso la funzione amministrativa e il database reali; rilettura nello storico confermata dopo entrambe le operazioni. La riga di prova è stata rimossa con selezione per ID e valori, confermando zero residui. Il campo data ha richiesto un evento da tastiera nell’automazione del browser integrato; Chrome non era controllabile nella sessione. Nessun frontend pubblicato.

@@ -112,12 +112,13 @@ export function createManageHandler(
     if (base.protocol !== 'https:' || base.username || base.password || base.search || base.hash) {
       return response(req, { code: 'temporarily_unavailable' }, 503)
     }
-    const db = async (path: string, method: string, body?: unknown) => {
+    const db = async (path: string, method: string, body?: unknown, returnRows = false) => {
       const result = await request(new URL(path, base), {
         method,
         headers: {
           apikey: serviceKey,
           Authorization: `Bearer ${serviceKey}`,
+          ...(returnRows ? { Prefer: 'return=representation' } : {}),
           ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -132,6 +133,52 @@ export function createManageHandler(
 
     try {
       const id = new URL(req.url).searchParams.get('id')
+      if (new URL(req.url).searchParams.get('resource') === 'conditions') {
+        if (req.method === 'GET') {
+          const items = await db(
+            '/rest/v1/manual_weather_conditions?select=id,observed_at,cloud,rain,wind&order=observed_at.desc&limit=100',
+            'GET',
+          )
+          return response(req, { items })
+        }
+        if (req.method !== 'POST' && req.method !== 'PATCH') {
+          return response(req, { code: 'method_not_allowed' }, 405)
+        }
+        if (req.method === 'PATCH' && !validId(id)) {
+          return response(req, { code: 'invalid_request' }, 400)
+        }
+        let input: unknown
+        try {
+          input = JSON.parse(await readBody(req))
+        } catch (error) {
+          return response(
+            req,
+            { code: 'invalid_request' },
+            error instanceof BodyError && error.code === 'payload_too_large' ? 413 : 400,
+          )
+        }
+        if (!input || typeof input !== 'object' || Array.isArray(input)) {
+          return response(req, { code: 'invalid_request' }, 400)
+        }
+        const row = input as Record<string, unknown>
+        if (
+          Object.keys(row).sort().join(',') !== 'cloud,observed_at,rain,wind' ||
+          typeof row.observed_at !== 'string' ||
+          !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(row.observed_at) ||
+          !Number.isFinite(Date.parse(row.observed_at)) ||
+          new Date(row.observed_at).toISOString() !== row.observed_at ||
+          !['sereno', 'poco_nuvoloso', 'nuvoloso', 'coperto'].includes(String(row.cloud)) ||
+          !['assente', 'debole', 'moderata', 'forte'].includes(String(row.rain)) ||
+          !['calmo', 'debole', 'moderato', 'forte'].includes(String(row.wind))
+        ) return response(req, { code: 'invalid_request' }, 400)
+        const path = '/rest/v1/manual_weather_conditions' +
+          (req.method === 'PATCH' ? `?id=eq.${id}` : '')
+        const result = await db(path, req.method, row, true) as unknown[]
+        if (req.method === 'PATCH' && result.length === 0) {
+          return response(req, { code: 'not_found' }, 404)
+        }
+        return response(req, { item: result }, req.method === 'POST' ? 201 : 200)
+      }
       if (req.method === 'GET') {
         const rows = await db(
           `/rest/v1/station_measurements?select=source_id,ingestion_id,arduino_seconds,temperature_c,humidity_pct,pressure_hpa,acquisition_kind,captured_at,measured_at,received_at,quality_flags,payload&source_id=eq.${

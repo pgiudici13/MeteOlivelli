@@ -1275,3 +1275,7 @@ Richiesta utente: aggiungere alla home un cielo astronomico e condizioni modelli
 **Completamento implementativo:** scena meteorologica e verifiche automatiche e locali disponibili completate; il collaudo su dispositivi fisici e con screen reader resta da eseguire quando possibile.
 
 **2 novembre 2026 — Cielo nel tema chiaro:** su richiesta dell’utente, la velatura e le schede della home sono meno coprenti per rendere più visibile la scena; colori dei testi adeguati per la leggibilità. Verifiche e limiti in `tasks.md` e `docs/frontend.md`. Modifica locale non pubblicata.
+
+### Condizioni meteo manuali in `/data` — 24 novembre 2026
+
+Su richiesta: archivio riservato distinto dalle misure, categorie per cielo/pioggia/vento e suggerimenti Open-Meteo correnti applicabili solo su scelta. La migrazione `20261124095229_manual_weather_conditions` è stata applicata al progetto MeteOlivelli; la tabella nasce vuota, con RLS attiva e accesso riservato al ruolo server. La funzione amministrativa aggiornata è attiva v7 e rifiuta richieste senza password (HTTP 401). L’API autenticata è stata collaudata in lettura, inserimento e modifica, rimuovendo la fixture; la UI locale ha effettuato l’accesso e mostrato suggerimenti reali. Il modulo locale è stato collaudato anche con l’API reale, includendo inserimento, rilettura, modifica e rimozione mirata della sola fixture. Il rilascio frontend resta aperto; dettagli in `tasks.md` e `docs/backend.md`.

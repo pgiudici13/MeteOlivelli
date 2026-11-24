@@ -469,3 +469,7 @@ L’intervallo personalizzato è inizialmente chiuso e si apre tramite un contro
 ### Lampeggio segnalato — 4 novembre 2026
 
 Per ridurre le ricomposizioni grafiche è stata rimossa la sfocatura dietro le superfici della Home. Build, lint e 191 test frontend superati; l’utente riferisce che l’anteprima locale è stabile sul proprio Chrome. La causa tecnica non è dimostrata e la versione pubblica non è ancora verificata.
+
+### Condizioni manuali riservate
+
+In `/data` la sezione condizioni consente inserimento e modifica di osservazioni manuali, con storico delle 100 più recenti. I suggerimenti Open-Meteo riportano la data del dato esterno e sono applicati solo premendo il pulsante del singolo campo; restano facoltativi e non vengono salvati da soli. Le categorie e i limiti sono descritti in `docs/backend.md`. Le osservazioni non sono pubblicate nella home né confuse con le misure della stazione.
