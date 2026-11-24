@@ -1282,4 +1282,4 @@ Su richiesta: archivio riservato distinto dalle misure, categorie per cielo/piog
 
 ### Condizioni manuali pubbliche e confronto sensori — 24 novembre 2026
 
-Su richiesta, la home locale mostra l’ultima osservazione e lo storico con un confronto descrittivo delle misure fisiche più vicine entro 30 minuti, più riepilogo per categoria. I dettagli di qualità, provenienza e limiti sono in `docs/frontend.md`; la funzione pubblica di lettura è attiva; il frontend è in corso di rilascio.
+Su richiesta, la home locale mostra l’ultima osservazione e lo storico con un confronto descrittivo delle misure fisiche più vicine entro 30 minuti, più riepilogo per categoria. I dettagli di qualità, provenienza e limiti sono in `docs/frontend.md`; la funzione pubblica di lettura è attiva e il frontend è pubblicato e verificato sulla home.

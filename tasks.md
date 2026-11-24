@@ -837,6 +837,6 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Predisposti localmente lettura pubblica limitata e home con ultima osservazione, tabella storica e riepilogo per categorie. Associazione alle sole misure fisiche disponibili entro 30 minuti; esclusione dei sintetici e dei singoli valori sospetti.
 - [x] Verifica Chrome locale con API simulate a 1280 e 375 px: osservazione, confronto, misura non abbinabile e riepilogo; test mirati su validazione e associazione.
 - [x] Funzione Supabase `read-manual-conditions` v1 attiva, GET pubblico 200, campi proiettati, query arbitrarie rifiutate e scritture POST negate. UI locale verificata con l’osservazione reale già presente, senza modificarla: cronologia e riepilogo mostrano assenza di misure associate entro la finestra.
-- [ ] Pubblicazione frontend e verifica pubblica end-to-end.
+- [x] Frontend pubblicato con commit `cb94b76`, deploy Vercel riuscito; home pubblica verificata con osservazione reale, cronologia e riepilogo. Nessuna misura fisica entro 30 minuti per l’osservazione verificata, quindi i valori associati sono correttamente assenti.
 
 **Verifiche:** `npm run check` superato (196 test frontend, 58 Deno e 28 Python), lint e build rieseguiti, prove browser locali con dati simulati desktop/mobile e con osservazione reale senza scritture.
