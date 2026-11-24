@@ -823,9 +823,11 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Con autorizzazione esplicita pubblicata `manage-measurements` v7 nel progetto MeteOlivelli; funzione ACTIVE e verifica senza password HTTP 401.
 - [x] Collaudo autenticato API reale: lettura 200, inserimento 201, modifica 200, rilettura coerente e valore invalido 400; fixture di prova rimossa per ID e zero residui verificati nel database.
 - [x] Collaudo completo della UI locale con API reale: accesso, suggerimenti Open-Meteo, inserimento, lettura e modifica riusciti; rimossa la sola riga di prova per ID e assenza residui verificata.
-- [ ] Pubblicazione frontend autorizzata; verifica del deploy di produzione ancora da completare.
+- [x] Frontend pubblicato su `main` (commit `41adb8f`): deploy Vercel riuscito; `/` e `/data` HTTP 200, `/data` con `noindex` e modulo amministrativo pubblicato identico alla build locale.
 - **Verifiche locali:** `npm run lint`, `npm run build`, 193 test frontend, controllo/lint backend e 56 test Deno superati. Chrome locale a 1280 e 375 px con API simulate: inserimento, modifica, suggerimenti applicati solo su scelta e servizio meteo indisponibile verificati; collaudo autenticato remoto successivamente superato. La prima richiesta di deploy è stata respinta dalla revisione automatica; la pubblicazione è riuscita dopo autorizzazione esplicita dell’utente.
 
 **Collaudo aggiuntivo 24 novembre:** `npm run check` superato (lint, build, budget bundle, 193 test frontend, controlli e 56 test Deno, 28 test Python); accesso amministrativo reale e suggerimenti Open-Meteo visibili nella UI locale. Credenziali non registrate. La tabella delle osservazioni è nuovamente vuota dopo la rimozione mirata della fixture. Nessun deploy frontend, commit o push.
 
 **Riprova browser 24 novembre:** completati inserimento e modifica dalla pagina locale attraverso la funzione amministrativa e il database reali; rilettura nello storico confermata dopo entrambe le operazioni. La riga di prova è stata rimossa con selezione per ID e valori, confermando zero residui. Il campo data ha richiesto un evento da tastiera nell’automazione del browser integrato; Chrome non era controllabile nella sessione. Nessun frontend pubblicato.
+
+**Rilascio 24 novembre:** push autorizzato e deploy Vercel automatico riuscito per `41adb8f`; pagina pubblica `/data` collega il modulo compilato verificato, identico alla build locale. Il flusso autenticato inserimento/modifica era stato collaudato prima del rilascio nella UI locale con backend reale.
