@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Distanza temporale": "Zeitlicher Abstand",
   "Osservazioni manuali": "Manuelle Beobachtungen",
   "Cielo, pioggia e vento": "Himmel, Regen und Wind",
   "Condizioni compilate manualmente dalla scuola, separate dalle misure dei sensori e dalle previsioni.": "Von der Schule manuell erfasste Bedingungen, getrennt von Sensorwerten und Vorhersagen.",
@@ -8,7 +9,7 @@ export default {
   "Nessuna osservazione manuale disponibile.": "Keine manuellen Beobachtungen verfügbar.",
   "Ultima osservazione manuale:": "Letzte manuelle Beobachtung:",
   "Cronologia e confronto con i sensori": "Verlauf und Vergleich mit Sensoren",
-  "Per ogni osservazione è indicata la misura con ora fisica più vicina entro 30 minuti. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Für jede Beobachtung wird die nächstliegende Messung mit physischem Messzeitpunkt innerhalb von 30 Minuten angezeigt. Synthetische Proben und verdächtige Werte sind ausgeschlossen; ein Strich bedeutet fehlende Daten. Der Vergleich ist beschreibend und beweist keinen ursächlichen Zusammenhang.",
+  "Per ogni osservazione è indicata la misura con ora fisica più vicina disponibile e la distanza temporale: se è lontana, potrebbe non rappresentare le stesse condizioni. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Für jede Beobachtung werden die verfügbare Messung mit dem nächstliegenden physischen Messzeitpunkt und der zeitliche Abstand angezeigt: Bei großem Abstand muss sie nicht dieselben Bedingungen darstellen. Synthetische Proben und verdächtige Werte sind ausgeschlossen; ein Strich bedeutet fehlende Daten. Der Vergleich ist beschreibend und beweist keinen ursächlichen Zusammenhang.",
   "Caricamento delle misure per il confronto…": "Messungen für den Vergleich werden geladen…",
   "Confronto temporaneamente non disponibile.": "Vergleich vorübergehend nicht verfügbar.",
   "Osservata": "Beobachtet",

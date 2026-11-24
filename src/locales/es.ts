@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Distanza temporale": "Diferencia de tiempo",
   "Osservazioni manuali": "Observaciones manuales",
   "Cielo, pioggia e vento": "Cielo, lluvia y viento",
   "Condizioni compilate manualmente dalla scuola, separate dalle misure dei sensori e dalle previsioni.": "Condiciones introducidas manualmente por la escuela, separadas de los sensores y pronósticos.",
@@ -8,7 +9,7 @@ export default {
   "Nessuna osservazione manuale disponibile.": "No hay observaciones manuales disponibles.",
   "Ultima osservazione manuale:": "Última observación manual:",
   "Cronologia e confronto con i sensori": "Historial y comparación con sensores",
-  "Per ogni osservazione è indicata la misura con ora fisica più vicina entro 30 minuti. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Para cada observación se muestra la medida con hora física más cercana dentro de 30 minutos. Se excluyen muestras sintéticas y valores sospechosos; un guion indica datos no disponibles. La comparación es descriptiva y no demuestra causalidad.",
+  "Per ogni osservazione è indicata la misura con ora fisica più vicina disponibile e la distanza temporale: se è lontana, potrebbe non rappresentare le stesse condizioni. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Para cada observación se muestra la medida disponible con hora física más cercana y la diferencia de tiempo: si está lejos, puede no representar las mismas condiciones. Se excluyen muestras sintéticas y valores sospechosos; un guion indica datos no disponibles. La comparación es descriptiva y no demuestra causalidad.",
   "Caricamento delle misure per il confronto…": "Cargando medidas para la comparación…",
   "Confronto temporaneamente non disponibile.": "Comparación temporalmente no disponible.",
   "Osservata": "Observada",

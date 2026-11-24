@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Distanza temporale": "Time difference",
   "Osservazioni manuali": "Manual observations",
   "Cielo, pioggia e vento": "Sky, rain and wind",
   "Condizioni compilate manualmente dalla scuola, separate dalle misure dei sensori e dalle previsioni.": "Conditions entered manually by the school, separate from sensor readings and forecasts.",
@@ -8,7 +9,7 @@ export default {
   "Nessuna osservazione manuale disponibile.": "No manual observations available.",
   "Ultima osservazione manuale:": "Latest manual observation:",
   "Cronologia e confronto con i sensori": "History and sensor comparison",
-  "Per ogni osservazione è indicata la misura con ora fisica più vicina entro 30 minuti. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "For each observation, the closest measurement with a physical timestamp within 30 minutes is shown. Synthetic samples and suspicious values are excluded; a dash means data is unavailable. This comparison is descriptive and does not prove causation.",
+  "Per ogni osservazione è indicata la misura con ora fisica più vicina disponibile e la distanza temporale: se è lontana, potrebbe non rappresentare le stesse condizioni. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "For each observation, the closest available measurement with a physical timestamp is shown, along with the time difference: a distant measurement may not represent the same conditions. Synthetic samples and suspicious values are excluded; a dash means data is unavailable. This comparison is descriptive and does not prove causation.",
   "Caricamento delle misure per il confronto…": "Loading measurements for comparison…",
   "Confronto temporaneamente non disponibile.": "Comparison temporarily unavailable.",
   "Osservata": "Observed at",

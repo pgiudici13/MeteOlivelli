@@ -257,4 +257,4 @@ La sezione riservata riprende modulo, controlli e tabella amministrativi, con su
 
 ### Condizioni manuali nella home
 
-Sezione dedicata sotto le misure: ultimo cielo, pioggia e vento in tre colonne; cronologia e riepilogo si aprono a richiesta, con tabelle scorrevoli sui dispositivi stretti. Provenienza e orari sono espliciti.
+Sezione dedicata sotto le misure: ultimo cielo, pioggia e vento in tre colonne; cronologia e riepilogo si aprono a richiesta, con tabelle scorrevoli sui dispositivi stretti. Provenienza, orari e distanza temporale fra osservazione e misura sono espliciti.

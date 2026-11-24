@@ -25,9 +25,16 @@ export function ManualConditionsSection({ measurements, loading, error }: Props)
     document.addEventListener('visibilitychange', refresh); window.addEventListener('online', refresh)
     return () => { active = false; controller?.abort(); window.clearInterval(timer); document.removeEventListener('visibilitychange', refresh); window.removeEventListener('online', refresh) }
   }, [])
-  const paired = useMemo(() => state.rows.map(row => ({ row, measurement: nearestMeasurement(row.observed_at, measurements, 30 * 60000) })), [state.rows, measurements])
+  const paired = useMemo(() => state.rows.map(row => ({ row, measurement: nearestMeasurement(row.observed_at, measurements) })), [state.rows, measurements])
   const latest = state.rows[0]
   const format = (n: number) => new Intl.NumberFormat(getLocale(), { maximumFractionDigits: 1 }).format(n)
+  const distance = (observedAt: string, measuredAt: string) => {
+    let minutes = Math.round(Math.abs(Date.parse(measuredAt) - Date.parse(observedAt)) / 60000)
+    const days = Math.floor(minutes / 1440); minutes %= 1440
+    const hours = Math.floor(minutes / 60); minutes %= 60
+    const unit = (amount: number, name: 'day' | 'hour' | 'minute') => new Intl.NumberFormat(getLocale(), { style: 'unit', unit: name, unitDisplay: 'short' }).format(amount)
+    return [days ? unit(days, 'day') : '', hours ? unit(hours, 'hour') : '', minutes || (!days && !hours) ? unit(minutes, 'minute') : ''].filter(Boolean).join(' ')
+  }
   const value = (row: Measurement | null, key: 'humidity_pct' | 'pressure_hpa') => row && row[key] !== null && !isSuspect(row, key) ? `${format(row[key])} ${key === 'humidity_pct' ? '%' : 'hPa'}` : '—'
   return <section className="panel manual-conditions-section" aria-labelledby="manual-conditions-title" aria-busy={state.loading}>
     <p className="eyebrow section-index">{translate('Osservazioni manuali')}</p>
@@ -37,9 +44,9 @@ export function ManualConditionsSection({ measurements, loading, error }: Props)
       <p className="small">{translate('Ultima osservazione manuale:')} <time dateTime={latest.observed_at}>{formatTime(latest.observed_at)}</time> · Europe/Rome</p>
       <dl className="manual-conditions-current">{keys.map(key => <div key={key}><dt>{translate(labels[key])}</dt><dd>{translate(conditionLabels[latest[key]])}</dd></div>)}</dl>
       <details className="manual-conditions-history"><summary>{translate('Cronologia e confronto con i sensori')}</summary>
-        <p className="small">{translate('Per ogni osservazione è indicata la misura con ora fisica più vicina entro 30 minuti. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.')}</p>
+        <p className="small">{translate('Per ogni osservazione è indicata la misura con ora fisica più vicina disponibile e la distanza temporale: se è lontana, potrebbe non rappresentare le stesse condizioni. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.')}</p>
         {loading ? <p role="status">{translate('Caricamento delle misure per il confronto…')}</p> : error ? <p role="status">{translate('Confronto temporaneamente non disponibile.')}</p> : <>
-          <div className="manual-conditions-table"><table><thead><tr><th>{translate('Osservata')}</th>{keys.map(key => <th key={key}>{translate(labels[key])}</th>)}<th>{translate('Ora della misura')}</th><th>{translate('Umidità')}</th><th>{translate('Pressione')}</th></tr></thead><tbody>{paired.map(({ row, measurement }, index) => <tr key={`${row.observed_at}-${index}`}><td>{formatTime(row.observed_at)}</td>{keys.map(key => <td key={key}>{translate(conditionLabels[row[key]])}</td>)}<td>{measurement?.measured_at ? formatTime(measurement.measured_at) : '—'}</td><td>{value(measurement, 'humidity_pct')}</td><td>{value(measurement, 'pressure_hpa')}</td></tr>)}</tbody></table></div>
+          <div className="manual-conditions-table"><table><thead><tr><th>{translate('Osservata')}</th>{keys.map(key => <th key={key}>{translate(labels[key])}</th>)}<th>{translate('Ora della misura')}</th><th>{translate('Distanza temporale')}</th><th>{translate('Umidità')}</th><th>{translate('Pressione')}</th></tr></thead><tbody>{paired.map(({ row, measurement }, index) => <tr key={`${row.observed_at}-${index}`}><td>{formatTime(row.observed_at)}</td>{keys.map(key => <td key={key}>{translate(conditionLabels[row[key]])}</td>)}<td>{measurement?.measured_at ? formatTime(measurement.measured_at) : '—'}</td><td>{measurement?.measured_at ? distance(row.observed_at, measurement.measured_at) : '—'}</td><td>{value(measurement, 'humidity_pct')}</td><td>{value(measurement, 'pressure_hpa')}</td></tr>)}</tbody></table></div>
           <h3>{translate('Riepilogo per condizioni')}</h3><p className="small">{translate('Medie calcolate sulle osservazioni abbinate; il numero indica quanti valori contribuiscono a ciascuna media. La stessa misura può comparire più volte.')}</p>
           <div className="manual-conditions-table"><table><thead><tr><th>{translate('Condizione')}</th><th>{translate('Osservazioni')}</th><th>{translate('Umidità media')}</th><th>{translate('Pressione media')}</th></tr></thead><tbody>{keys.flatMap(key => [...new Set(state.rows.map(row => row[key]))].map(category => {
             const entries = paired.filter(item => item.row[key] === category)

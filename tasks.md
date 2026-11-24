@@ -840,3 +840,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Frontend pubblicato con commit `cb94b76`, deploy Vercel riuscito; home pubblica verificata con osservazione reale, cronologia e riepilogo. Nessuna misura fisica entro 30 minuti per l’osservazione verificata, quindi i valori associati sono correttamente assenti.
 
 **Verifiche:** `npm run check` superato (196 test frontend, 58 Deno e 28 Python), lint e build rieseguiti, prove browser locali con dati simulati desktop/mobile e con osservazione reale senza scritture.
+
+**24 novembre — confronto con la misura più vicina:** su successiva richiesta eliminato il limite di 30 minuti. La tabella mostra lo scarto temporale per non presentare come contemporanea una misura lontana; sono mantenute le esclusioni per dati sintetici e valori sospetti. Test mirati, lint e build superati. Browser locale con API reale: l’osservazione esistente del 12 novembre si abbina alla misura delle 11:08, distante 1 h 8 min; nessun dato modificato. Modifica frontend locale da pubblicare.

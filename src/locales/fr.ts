@@ -1,5 +1,6 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Distanza temporale": "Écart de temps",
   "Osservazioni manuali": "Observations manuelles",
   "Cielo, pioggia e vento": "Ciel, pluie et vent",
   "Condizioni compilate manualmente dalla scuola, separate dalle misure dei sensori e dalle previsioni.": "Conditions saisies manuellement par l’école, distinctes des mesures des capteurs et des prévisions.",
@@ -8,7 +9,7 @@ export default {
   "Nessuna osservazione manuale disponibile.": "Aucune observation manuelle disponible.",
   "Ultima osservazione manuale:": "Dernière observation manuelle :",
   "Cronologia e confronto con i sensori": "Historique et comparaison avec les capteurs",
-  "Per ogni osservazione è indicata la misura con ora fisica più vicina entro 30 minuti. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Pour chaque observation, la mesure dont l’heure physique est la plus proche à 30 minutes près est indiquée. Les échantillons synthétiques et les valeurs suspectes sont exclus ; un tiret indique une donnée indisponible. La comparaison est descriptive et ne démontre pas de causalité.",
+  "Per ogni osservazione è indicata la misura con ora fisica più vicina disponibile e la distanza temporale: se è lontana, potrebbe non rappresentare le stesse condizioni. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra una relazione causale.": "Pour chaque observation, la mesure disponible avec l’heure physique la plus proche et l’écart de temps sont indiqués : une mesure éloignée peut ne pas représenter les mêmes conditions. Les données synthétiques et les valeurs suspectes sont exclues ; un tiret indique une donnée indisponible. La comparaison est descriptive et ne démontre pas de causalité.",
   "Caricamento delle misure per il confronto…": "Chargement des mesures pour la comparaison…",
   "Confronto temporaneamente non disponibile.": "Comparaison temporairement indisponible.",
   "Osservata": "Observée",

@@ -22,9 +22,9 @@ export async function readManualConditions(signal: AbortSignal, fetcher: typeof 
   throw new Error('Limite storico superato')
 }
 /** Associa soltanto misure con orario fisico attestato; non sostituire con orario di ricezione. */
-export function nearestMeasurement(observedAt: string, rows: Measurement[], toleranceMs: number): Measurement | null {
+export function nearestMeasurement(observedAt: string, rows: Measurement[]): Measurement | null {
   const time = Date.parse(observedAt)
   if (!Number.isFinite(time)) return null
-  return rows.filter(row => (row.acquisition_kind === 'live' || row.acquisition_kind === 'historical') && row.measured_at && Number.isFinite(Date.parse(row.measured_at)) && Math.abs(Date.parse(row.measured_at) - time) <= toleranceMs && ((row.humidity_pct !== null && !isSuspect(row, 'humidity_pct')) || (row.pressure_hpa !== null && !isSuspect(row, 'pressure_hpa'))))
+  return rows.filter(row => (row.acquisition_kind === 'live' || row.acquisition_kind === 'historical') && row.measured_at && Number.isFinite(Date.parse(row.measured_at)) && ((row.humidity_pct !== null && !isSuspect(row, 'humidity_pct')) || (row.pressure_hpa !== null && !isSuspect(row, 'pressure_hpa'))))
     .sort((a, b) => Math.abs(Date.parse(a.measured_at!) - time) - Math.abs(Date.parse(b.measured_at!) - time) || Date.parse(a.measured_at!) - Date.parse(b.measured_at!) || a.ingestion_id.localeCompare(b.ingestion_id))[0] ?? null
 }
