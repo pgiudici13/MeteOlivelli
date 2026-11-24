@@ -1279,3 +1279,7 @@ Richiesta utente: aggiungere alla home un cielo astronomico e condizioni modelli
 ### Condizioni meteo manuali in `/data` — 24 novembre 2026
 
 Su richiesta: archivio riservato distinto dalle misure, categorie per cielo/pioggia/vento e suggerimenti Open-Meteo correnti applicabili solo su scelta. La migrazione `20261124095229_manual_weather_conditions` è stata applicata al progetto MeteOlivelli; la tabella nasce vuota, con RLS attiva e accesso riservato al ruolo server. La funzione amministrativa aggiornata è attiva v7 e rifiuta richieste senza password (HTTP 401). L’API autenticata è stata collaudata in lettura, inserimento e modifica, rimuovendo la fixture; la UI locale ha effettuato l’accesso e mostrato suggerimenti reali. Il modulo locale è stato collaudato anche con l’API reale, includendo inserimento, rilettura, modifica e rimozione mirata della sola fixture. Il frontend è stato pubblicato con il commit `41adb8f`, deploy Vercel riuscito e modulo pubblico identico alla build locale; dettagli in `tasks.md` e `docs/backend.md`.
+
+### Condizioni manuali pubbliche e confronto sensori — 24 novembre 2026
+
+Su richiesta, la home locale mostra l’ultima osservazione e lo storico con un confronto descrittivo delle misure fisiche più vicine entro 30 minuti, più riepilogo per categoria. I dettagli di qualità, provenienza e limiti sono in `docs/frontend.md`; la funzione pubblica di lettura è attiva; il frontend è in corso di rilascio.

@@ -7,6 +7,7 @@ import { AnimatedHeading } from './components/AnimatedHeading.tsx'
 import { Component, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { HistoryChart } from './components/HistoryChart.tsx'
 import { Reveal } from './components/Reveal.tsx'
+import { ManualConditionsSection } from './components/ManualConditionsSection.tsx'
 import { ForecastSection } from './components/ForecastSection.tsx'
 import { DailyCuriosity } from './components/DailyCuriosity.tsx'
 import { DailyStatistics } from './components/DailyStatistics.tsx'
@@ -324,6 +325,7 @@ function App() {
           <p>{translate("La ricezione di un campione non dimostra che la misura sia recente. Il contatore Arduino non è una data.")}</p>
         </details>)}
       </section></Reveal>
+      <Reveal><ManualConditionsSection measurements={completeHistory.rows} loading={completeHistory.loading} error={completeHistory.error} /></Reveal>
       <Reveal><section className="panel history-section" aria-labelledby="history-title">
         <p className="eyebrow section-index">{translate("02 / Archivio della stazione")}</p>
         <h2 id="history-title">{translate("Andamento delle misure")}</h2>

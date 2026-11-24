@@ -254,3 +254,7 @@ Le superfici della Home mantengono la schermatura semitrasparente senza sfocare 
 ### Condizioni manuali in `/data`
 
 La sezione riservata riprende modulo, controlli e tabella amministrativi, con suggerimenti Open-Meteo affiancati ai campi e azioni esplicite per applicarli. La tabella scorre orizzontalmente sui dispositivi stretti.
+
+### Condizioni manuali nella home
+
+Sezione dedicata sotto le misure: ultimo cielo, pioggia e vento in tre colonne; cronologia e riepilogo si aprono a richiesta, con tabelle scorrevoli sui dispositivi stretti. Provenienza e orari sono espliciti.

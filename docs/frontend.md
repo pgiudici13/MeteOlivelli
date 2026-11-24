@@ -472,4 +472,8 @@ Per ridurre le ricomposizioni grafiche è stata rimossa la sfocatura dietro le s
 
 ### Condizioni manuali riservate
 
-In `/data` la sezione condizioni consente inserimento e modifica di osservazioni manuali, con storico delle 100 più recenti. I suggerimenti Open-Meteo riportano la data del dato esterno e sono applicati solo premendo il pulsante del singolo campo; restano facoltativi e non vengono salvati da soli. Le categorie e i limiti sono descritti in `docs/backend.md`. Le osservazioni non sono pubblicate nella home né confuse con le misure della stazione.
+In `/data` la sezione condizioni consente inserimento e modifica di osservazioni manuali, con storico delle 100 più recenti. I suggerimenti Open-Meteo riportano la data del dato esterno e sono applicati solo premendo il pulsante del singolo campo; restano facoltativi e non vengono salvati da soli. Le categorie e i limiti sono descritti in `docs/backend.md`. La nuova sezione pubblica mostra le osservazioni manuali separatamente dalle misure della stazione. La funzione di lettura dedicata è attiva; il frontend è in corso di rilascio.
+
+### Analisi pubblica delle condizioni manuali
+
+La sezione locale mostra l’ultima osservazione e una cronologia espandibile con umidità e pressione associate alla misura fisica più vicina entro 30 minuti. Esclude misure sintetiche, orari senza `measured_at` e valori sospetti. Le medie per categoria riportano il numero di valori disponibili; una misura può contribuire a più osservazioni. I confronti sono descrittivi, non dimostrano causalità. In caso di mancanza dei dati il trattino non rappresenta uno zero. Le osservazioni future non sono pubblicate prima dell’istante dichiarato.
