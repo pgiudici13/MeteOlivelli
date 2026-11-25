@@ -1,5 +1,8 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Temperatura media": "Mittlere Temperatur",
+  "Per ogni osservazione sono indicate le medie delle misure valide della stessa giornata in Europe/Rome. La media di oggi si aggiorna con le nuove misure disponibili; le ore senza campioni non sono stimate. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra causalità.": "Jede Beobachtung wird mit den Mittelwerten gültiger Messungen desselben Tages in Europe/Rome verglichen. Der heutige Mittelwert wird mit neuen Messungen aktualisiert; Stunden ohne Messwerte werden nicht geschätzt. Synthetische und verdächtige Werte sind ausgeschlossen; ein Strich bedeutet fehlende Daten. Der Vergleich ist beschreibend und belegt keine Kausalität.",
+  "Medie delle giornate associate alle osservazioni; il numero indica quante medie giornaliere contribuiscono. Una giornata può comparire più volte.": "Mittelwerte der den Beobachtungen zugeordneten Tage; die Anzahl zeigt, wie viele Tagesmittel einfließen. Ein Tag kann mehrfach vorkommen.",
   "Fenomeno osservato:": "Beobachtetes Phänomen:",
   "Fenomeno osservato": "Beobachtetes Phänomen",
   "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Von der Schule zur angegebenen Uhrzeit beobachtetes und manuell eingetragenes Phänomen; keine Vorhersage.",

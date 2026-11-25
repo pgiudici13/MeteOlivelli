@@ -850,3 +850,11 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Migrazione `20261125143913` applicata, osservazione precedente preservata e permessi diretti negati. Funzioni `manage-measurements` v8 e `read-manual-conditions` v2 attive; lettura pubblica 200 e amministrativa senza password 401.
 - [x] Frontend pubblicato con commit `e8d261e`, deploy Vercel riuscito. Home pubblica: osservazione precedente “non indicato” e storico con temperatura, umidità e pressione. `/data`: opzioni “nessuna” e “altro” verificate senza salvare dati.
 - **Verifiche locali:** Chrome con API simulate desktop e mobile: nessuna senza intensità, altro con descrizione, visualizzazione in home e record precedente senza fenomeno. `npm run check` superato: build/lint, 196 test frontend, 58 Deno e 28 Python. La revisione automatica ha respinto una scrittura sintetica persistente nel database reale per il rischio di contaminare lo storico pubblico; inserimento e modifica sono stati verificati con API simulate.
+
+
+## Confronto con medie giornaliere — 25 novembre 2026
+
+- [x] Sostituita localmente la misura più vicina con le medie valide della stessa giornata Europe/Rome; rimosse le colonne ora della misura e distanza temporale.
+- [x] Il giorno corrente si aggiorna alla rilettura dello storico quando cambia l’ultima misura; il riepilogo usa medie giornaliere per osservazione.
+- [x] Verificati build, lint, 195 test frontend e `git diff --check`; test mirato sulla separazione fra giornate e aggiornamento della media.
+- Nessun collaudo browser o deploy eseguito; la versione pubblica resta quella precedente.

@@ -13,7 +13,7 @@ export interface DayStatistics {
   last: number
 }
 
-function dayKey(time: number) {
+export function dayKey(time: number) {
   const parts = Object.fromEntries(calendar.formatToParts(time).map(part => [part.type, part.value]))
   return `${parts.year}-${parts.month}-${parts.day}`
 }

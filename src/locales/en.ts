@@ -1,5 +1,8 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Temperatura media": "Average temperature",
+  "Per ogni osservazione sono indicate le medie delle misure valide della stessa giornata in Europe/Rome. La media di oggi si aggiorna con le nuove misure disponibili; le ore senza campioni non sono stimate. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra causalità.": "Each observation is compared with the averages of valid measurements on the same day in Europe/Rome. Today's average updates as new measurements become available; hours without samples are not estimated. Synthetic samples and suspicious values are excluded; a dash means data is unavailable. This descriptive comparison does not prove causation.",
+  "Medie delle giornate associate alle osservazioni; il numero indica quante medie giornaliere contribuiscono. Una giornata può comparire più volte.": "Averages of days associated with observations; the count shows how many daily averages contribute. A day may appear more than once.",
   "Fenomeno osservato:": "Observed phenomenon:",
   "Fenomeno osservato": "Observed phenomenon",
   "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Phenomenon observed and entered manually by the school at the indicated time; this is not a forecast.",

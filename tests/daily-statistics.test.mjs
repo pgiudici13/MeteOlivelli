@@ -93,3 +93,15 @@ test('intervallo personalizzato seleziona orari esatti, esclude sintetici e valo
   assert.equal(stats.metrics.temperature_c.maximum, 11)
   assert.equal(stats.metrics.temperature_c.average, 10.5)
 })
+
+
+test('una nuova misura modifica solo la media della propria giornata romana', () => {
+  const before = [row('2026-11-23T23:30:00Z', 10), row('2026-11-24T10:00:00Z', 14), row('2026-11-25T10:00:00Z', 8)]
+  const first = collectDailyStatistics(before, '2026-11-25T12:00:00Z')
+  const next = collectDailyStatistics([...before, row('2026-11-25T11:00:00Z', 12)], '2026-11-25T12:00:00Z')
+  assert.equal(first.days.find(day => day.key === '2026-11-24').metrics.temperature_c.average, 12)
+  assert.equal(next.days.find(day => day.key === '2026-11-24').metrics.temperature_c.average, 12)
+  assert.equal(first.days.find(day => day.key === '2026-11-25').metrics.temperature_c.average, 8)
+  assert.equal(next.days.find(day => day.key === '2026-11-25').metrics.temperature_c.average, 10)
+  assert.equal(next.days.find(day => day.key === '2026-11-23'), undefined)
+})

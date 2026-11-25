@@ -1,6 +1,3 @@
-import type { Measurement } from './weather.ts'
-import { isSuspect } from './weather.ts'
-
 export type ManualConditions = { observed_at: string; cloud: string; rain: string; wind: string; phenomenon?: string | null; phenomenon_detail?: string | null }
 export const conditionLabels: Record<string, string> = { nessuna: 'Nessuna', altro: 'Altro', grandine: 'Grandine', pioviggine: 'Pioviggine', pioggia: 'Pioggia', neve: 'Neve', sereno: 'Sereno', poco_nuvoloso: 'Poco nuvoloso', nuvoloso: 'Nuvoloso', coperto: 'Coperto', assente: 'Assente', debole: 'Debole', moderata: 'Moderata', forte: 'Forte', calmo: 'Calmo', moderato: 'Moderato' }
 const endpoint = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-manual-conditions'
@@ -20,11 +17,4 @@ export async function readManualConditions(signal: AbortSignal, fetcher: typeof 
     if (data.next_offset !== offset + 100 || data.items.length !== 100) throw new Error('Paginazione non valida')
   }
   throw new Error('Limite storico superato')
-}
-/** Associa soltanto misure con orario fisico attestato; non sostituire con orario di ricezione. */
-export function nearestMeasurement(observedAt: string, rows: Measurement[]): Measurement | null {
-  const time = Date.parse(observedAt)
-  if (!Number.isFinite(time)) return null
-  return rows.filter(row => (row.acquisition_kind === 'live' || row.acquisition_kind === 'historical') && row.measured_at && Number.isFinite(Date.parse(row.measured_at)) && ((row.humidity_pct !== null && !isSuspect(row, 'humidity_pct')) || (row.pressure_hpa !== null && !isSuspect(row, 'pressure_hpa'))))
-    .sort((a, b) => Math.abs(Date.parse(a.measured_at!) - time) - Math.abs(Date.parse(b.measured_at!) - time) || Date.parse(a.measured_at!) - Date.parse(b.measured_at!) || a.ingestion_id.localeCompare(b.ingestion_id))[0] ?? null
 }

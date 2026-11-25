@@ -1,5 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
+La cronologia delle osservazioni manuali presenta le medie giornaliere dei sensori, senza colonne per ora della singola misura o distanza temporale.
+
 La cronologia è aperta inizialmente e rimane richiudibile con il pulsante dedicato; i grafici includono le misure storiche datate.
 
 Sotto l’orario dell’ultima lettura della stazione, la Home mostra in corpo piccolo la prossima misurazione attesa, calcolata tre ore dopo l’ultima acquisizione PC e formattata in Europe/Rome. È un’indicazione basata sulla cadenza dichiarata dall’utente; non compare per dati manuali o senza orario di acquisizione.

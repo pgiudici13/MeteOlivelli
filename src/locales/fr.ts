@@ -1,5 +1,8 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Temperatura media": "Température moyenne",
+  "Per ogni osservazione sono indicate le medie delle misure valide della stessa giornata in Europe/Rome. La media di oggi si aggiorna con le nuove misure disponibili; le ore senza campioni non sono stimate. Campioni sintetici e valori sospetti sono esclusi; il trattino indica un dato non disponibile. Il confronto è descrittivo e non dimostra causalità.": "Chaque observation est comparée aux moyennes des mesures valides du même jour en Europe/Rome. La moyenne du jour est actualisée avec les nouvelles mesures ; les heures sans échantillons ne sont pas estimées. Les données synthétiques et valeurs suspectes sont exclues ; un tiret indique une donnée indisponible. Cette comparaison descriptive ne démontre pas de causalité.",
+  "Medie delle giornate associate alle osservazioni; il numero indica quante medie giornaliere contribuiscono. Una giornata può comparire più volte.": "Moyennes des jours associés aux observations ; le nombre indique combien de moyennes journalières contribuent. Un jour peut apparaître plusieurs fois.",
   "Fenomeno osservato:": "Phénomène observé :",
   "Fenomeno osservato": "Phénomène observé",
   "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Phénomène observé et saisi manuellement par l’école à l’heure indiquée ; ce n’est pas une prévision.",
