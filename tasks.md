@@ -858,3 +858,9 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Il giorno corrente si aggiorna alla rilettura dello storico quando cambia l’ultima misura; il riepilogo usa medie giornaliere per osservazione.
 - [x] Verificati build, lint, 195 test frontend e `git diff --check`; test mirato sulla separazione fra giornate e aggiornamento della media.
 - Nessun collaudo browser o deploy eseguito; la versione pubblica resta quella precedente.
+
+## Evidenza del fenomeno osservato — 25 novembre 2026
+
+- [x] Fenomeno nella stessa griglia e con la stessa gerarchia visiva degli altri valori dell’ultima osservazione; griglia adattiva.
+- [x] Build, lint e 195 test frontend superati. Nessun collaudo browser eseguito.
+- Modifica locale, non ancora pubblicata.

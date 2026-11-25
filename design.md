@@ -1,5 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
+Il fenomeno osservato è mostrato nella stessa griglia e con la stessa gerarchia visiva di cielo, intensità e vento; la griglia si adatta allo spazio disponibile.
+
 La cronologia delle osservazioni manuali presenta le medie giornaliere dei sensori, senza colonne per ora della singola misura o distanza temporale.
 
 La cronologia è aperta inizialmente e rimane richiudibile con il pulsante dedicato; i grafici includono le misure storiche datate.

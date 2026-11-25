@@ -620,7 +620,7 @@ button, .hero-link, .back-to-top, .section-jump-nav a, .route-not-found-link { -
 .route-not-found-header { justify-content: space-between; }
 
 .manual-conditions-section { padding: clamp(1.25rem, 3vw, 2.5rem); margin-top: 32px; }
-.manual-conditions-current { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 24px 0; }
+.manual-conditions-current { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 24px 0; }
 .manual-conditions-current div { border-top: 1px solid var(--border); padding-top: 12px; }
 .manual-conditions-current dt { color: var(--secondary); font-size: 12px; }
 .manual-conditions-current dd { margin: 8px 0 0; font-size: clamp(1.1rem, 2.4vw, 1.65rem); }
