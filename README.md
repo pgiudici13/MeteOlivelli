@@ -6,13 +6,14 @@ Il sito MeteOlivelli è sviluppato da **Pietro Giudici e Nicholas Borin**, stude
 
 **Sito:** [meteolivelli.vercel.app](https://meteolivelli.vercel.app/) · **Roadmap:** [plan.md](plan.md) · **Come contribuire:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-> **Stato del progetto:** il sito è online; frontend, backend e uploader sono implementati. Il collaudo della catena Arduino/CSV/uploader sul PC Windows della scuola resta da eseguire. I dati sintetici e quelli senza provenienza verificata sono esclusi dalla dashboard, dai PDF e dalle stime. La scena del cielo e le modifiche al tema chiaro sono state pubblicate il 2 novembre 2026. [Audit del 27 ottobre](docs/release-audit-20261027.md) · [Operazioni e verifiche](docs/operations.md).
+> **Stato del progetto:** il sito è online; frontend, backend e uploader sono implementati. Il collaudo della catena Arduino/CSV/uploader sul PC Windows della scuola resta da eseguire. I dati sintetici e quelli senza provenienza verificata sono esclusi dalla dashboard, dai PDF e dalle stime. Le condizioni meteorologiche osservate manualmente e il fenomeno rilevato sono stati pubblicati il 25 novembre 2026. Il repository include il confronto con le medie giornaliere; la sua pubblicazione va verificata nel deploy. [Audit del 27 ottobre](docs/release-audit-20261027.md) · [Operazioni e verifiche](docs/operations.md).
 
 ## Cosa offre
 
 - Dashboard responsive con temperatura, umidità e pressione, tema chiaro/scuro, cinque lingue e selezione °C/°F.
 - Cielo illustrativo che segue l’ora di Pavia e le condizioni modellistiche Open-Meteo, distinto dalle osservazioni della stazione.
 - Grafici esplorabili e ingrandibili, cronologia, statistiche e record, con indicazioni su qualità, provenienza e orari; esportazioni PDF.
+- Osservazioni manuali di cielo, pioggia, vento e fenomeni, con cronologia e confronto con le misure; inserimento e modifica nell’area amministrativa `/data`.
 - Sezione educativa **Gioca con il meteo**, con quiz e spiegazioni.
 - Pagina Informazioni con la [presentazione del progetto su Google Slides](https://docs.google.com/presentation/d/1TXA6DSeQ71MS3sXNFUUVh5apkh_8HF90EZ6Kqbn9-og/edit?usp=sharing).
 - Previsioni sperimentali ibride, con dati Open-Meteo e adattamento alle osservazioni ammesse della stazione.
@@ -29,6 +30,8 @@ La schermata [Gioca con il meteo](https://meteolivelli.vercel.app/gioca) è disp
 
 La dashboard mostra temperatura, umidità e pressione, grafici e cronologia con qualità e orari. Legge l’endpoint pubblico senza chiavi client; ultimi valori e feed dei grafici si aggiornano ogni 15 secondi mentre la pagina è visibile. I 15 secondi indicano la frequenza di lettura del sito, non quella della stazione. La cronologia completa si rilegge quando cambia l’ultima lettura e al ritorno alla pagina o online, al più una volta al minuto; “Aggiorna cronologia” recupera anche importazioni storiche. Non viene riletta integralmente a ogni polling. I tempi fisici, PC e server restano distinti. Le previsioni sperimentali combinano i dati Open-Meteo disponibili con un adattamento basato sulle osservazioni ammesse; la fonte e gli orari sono indicati nella sezione dedicata. Le previsioni sono distinte dalle misure della stazione.
 
+Le condizioni meteorologiche osservate manualmente sono distinte dalle misure dei sensori e dalle condizioni modellistiche. La home mostra l’ultima osservazione, il fenomeno indicato e uno storico con riepilogo; `/data` consente la gestione autenticata e propone suggerimenti Open-Meteo applicabili solo su scelta. Il codice del repository confronta le medie valide della stessa giornata civile in Europe/Rome. Nell’ultimo rilascio verificato il 25 novembre il confronto usava invece la misura fisica più vicina e mostrava la distanza temporale; verificare il deploy per confermare la pubblicazione del nuovo confronto. I record precedenti senza fenomeno indicato restano tali. [Dettagli e limiti](docs/frontend.md).
+
 I dati sintetici restano identificati come tali nel backend e non vengono presentati come osservazioni: la UI pubblica, i PDF e le stime li escludono. Il numero di record sintetici presenti nel database può cambiare; non è un indicatore delle misure disponibili dalla stazione. [Contratto ed evidenze](docs/data-preview.md).
 
 Le misure inserite manualmente sono identificate come tali e, se ammesse, possono comparire nella dashboard, nei grafici e nelle previsioni. Le statistiche e i record della stazione escludono gli inserimenti manuali.
@@ -39,7 +42,7 @@ Il repository documenta rilasci e verifiche con date e ambiti distinti. Le proce
 
 **Grafici:** modalità Auto predefinita, scala adattiva e medie per fascia nell’ultima settimana disponibile; le viste manuali restano disponibili. [Specifiche](design.md#auto-predefinito-e-medie-per-fascia).
 
-**Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia e raggruppa le pagine per giorno in Europe/Rome. Sono presenti download PDF dei grafici e della cronologia.
+**Grafici e cronologia:** 24 ore mostra i campioni originali; 7/14/30 giorni mostrano medie giornaliere 09:00–18:00 Europe/Rome. La tabella legge separatamente tutta la cronologia e raggruppa le pagine per giorno in Europe/Rome. I grafici includono anche le misure storiche datate; 141 orari inseriti nel database sono approssimati e non sono etichettati automaticamente. Le nuove righe non ricevono automaticamente una data di misura. Sono presenti download PDF dei grafici e della cronologia.
 
 Le verifiche e le correzioni sono registrate nei [verbali](docs/project-review/README.md) e nel [registro correzioni](CORRECTIONS.md), con data e ambito di ciascuna prova.
 
