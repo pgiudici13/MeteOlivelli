@@ -1286,4 +1286,4 @@ Su richiesta, la home locale mostra l’ultima osservazione e lo storico con un 
 
 ### Fenomeno osservato giornalmente — 25 novembre 2026
 
-Su richiesta, fenomeno osservato e orario sono parte dell’osservazione manuale giornaliera, non un avviso previsionale separato. La home mostra l’ultima osservazione e lo storico mantiene i record precedenti. Le categorie e il testo libero “altro” sono descritti in `docs/frontend.md`. Migrazione e funzioni applicate al progetto MeteOlivelli; il frontend è in corso di rilascio.
+Su richiesta, fenomeno osservato e orario sono parte dell’osservazione manuale giornaliera, non un avviso previsionale separato. La home mostra l’ultima osservazione e lo storico mantiene i record precedenti. Le categorie e il testo libero “altro” sono descritti in `docs/frontend.md`. Migrazione e funzioni applicate al progetto MeteOlivelli; frontend pubblicato e verificato.

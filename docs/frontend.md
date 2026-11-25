@@ -480,4 +480,4 @@ La sezione mostra l’ultima osservazione e una cronologia espandibile con tempe
 
 ### Fenomeno osservato nella compilazione giornaliera
 
-L’intervento aggiunge il fenomeno osservato all’orario inserito in `/data`: nessuna, pioviggine, pioggia, neve, grandine o altro con descrizione. Con “nessuna” l’intensità non compare; l’osservazione conserva l’orario scelto e rimane nello storico. La home mostra l’ultima registrazione e il fenomeno storico accanto alla misura fisica più vicina; non è una previsione. Le osservazioni precedenti restano “non indicato”. La migrazione e le funzioni sono attive; il frontend è in corso di rilascio.
+L’intervento aggiunge il fenomeno osservato all’orario inserito in `/data`: nessuna, pioviggine, pioggia, neve, grandine o altro con descrizione. Con “nessuna” l’intensità non compare; l’osservazione conserva l’orario scelto e rimane nello storico. La home mostra l’ultima registrazione e il fenomeno storico accanto alla misura fisica più vicina; non è una previsione. Le osservazioni precedenti restano “non indicato”. La migrazione e le funzioni sono attive; frontend pubblicato e verificato sulla home e su `/data`.
