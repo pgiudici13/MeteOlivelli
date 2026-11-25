@@ -874,3 +874,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Funzione amministrativa v9 pubblicata; DELETE senza password rifiutato con 401, RLS attiva e privilegi pubblici negati.
 - [ ] Pubblicazione frontend e verifica visiva.
 - [x] Verifiche: build, lint, 195 test frontend, controlli e lint backend, 59 test Deno superati; nessun test SQL remoto o browser eseguito.
+
+**Rimozione e scheda obsoleta:** rilevato 404 su una riga già rimossa e confermata la sua assenza nel database. Predisposta localmente la rilettura dopo errore; pubblicazione e collaudo browser ancora da eseguire.

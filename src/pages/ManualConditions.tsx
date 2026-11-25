@@ -6,6 +6,10 @@ import { translate } from '../i18n.ts'
 type Fields = { observed_at: string; cloud: string; rain: string; wind: string; phenomenon: string | null; phenomenon_detail: string | null }
 type Row = Fields & { id: string }
 type Props = { password: string; endpoint: string }
+class AdminApiError extends Error {
+  readonly status: number
+  constructor(status: number) { super('Operazione non riuscita. Riprova.'); this.status = status }
+}
 const blank: Fields = { observed_at: '', cloud: '', rain: '', wind: '', phenomenon: null, phenomenon_detail: null }
 const choices = {
   cloud: [['sereno', 'Sereno'], ['poco_nuvoloso', 'Poco nuvoloso'], ['nuvoloso', 'Nuvoloso'], ['coperto', 'Coperto']],
@@ -31,7 +35,7 @@ export function ManualConditions({ password, endpoint }: Props) {
   const api = useCallback(async (method: string, body?: Fields, id?: string) => {
     const url = new URL(endpoint); url.searchParams.set('resource', 'conditions'); if (id) url.searchParams.set('id', id)
     const response = await fetch(url, { method, headers: { 'x-admin-password': password, ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}), cache: 'no-store' })
-    if (!response.ok) throw new Error('Operazione non riuscita. Riprova.')
+    if (!response.ok) throw new AdminApiError(response.status)
     return response.json()
   }, [endpoint, password])
   const refresh = useCallback(async () => { const result = await api('GET') as { items: Row[] }; setRows(result.items) }, [api])
@@ -55,7 +59,18 @@ export function ManualConditions({ password, endpoint }: Props) {
       if (editing?.id === row.id) { setEditing(null); setForm(blank) }
       setMessage('Osservazione eliminata.')
       try { await refresh() } catch { setRows(null); setMessage('Osservazione eliminata, ma storico non aggiornato. Ricarica la pagina.') }
-    } catch { setMessage('Eliminazione non riuscita. Riprova.') }
+    } catch (error) {
+      try {
+        await refresh()
+        if (error instanceof AdminApiError && error.status === 404) {
+          if (editing?.id === row.id) { setEditing(null); setForm(blank) }
+          setMessage('Osservazione non più presente. Elenco aggiornato.')
+        } else setMessage('Eliminazione non confermata. Controlla l’elenco aggiornato.')
+      } catch {
+        setRows(null)
+        setMessage('Eliminazione non confermata e storico non disponibile. Ricarica la pagina.')
+      }
+    }
     finally { setBusy(false) }
   }
   const proposed = weather ? suggestions(weather) : null

@@ -583,3 +583,10 @@ Poco dopo mezzanotte civile a Pavia, SunCalc senza un ancoraggio al giorno della
 - **Segnalazione:** l’utente riferisce un lampeggio dell’intera pagina circa ogni due secondi, anche senza interazione.
 - **Impatto:** la consultazione della Home risulta disturbata.
 - **Intervento e verifica:** rimossa la sfocatura dello sfondo dietro le schede, possibile causa di ricomposizioni grafiche. L’utente riferisce che l’anteprima locale è stabile sul proprio Chrome; la causa tecnica non è stata dimostrata. Build, lint e 191 test frontend superati; la versione pubblica non è ancora verificata con la modifica.
+
+## Osservazione rimossa da un'altra sessione — 25 novembre 2026
+
+- **Prova:** la scheda amministrativa mostrava ancora la prova del 26 novembre; la cancellazione ha ricevuto 404 e la lettura SQL ha confermato che la riga non esisteva più. L'elenco era rimasto obsoleto.
+- **Impatto:** la pagina segnalava genericamente un errore e continuava a mostrare la riga non più presente.
+- **Correzione locale:** dopo un errore di rimozione la pagina rilegge l'elenco; distingue il 404 dagli esiti non confermati e nasconde l'elenco se la rilettura fallisce.
+- **Verifica richiesta:** controllare 404 e risposta persa con backend simulato; build, lint e test frontend. La correzione non è ancora pubblicata.

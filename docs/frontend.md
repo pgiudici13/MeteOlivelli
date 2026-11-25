@@ -486,3 +486,5 @@ L’intervento aggiunge il fenomeno osservato all’orario inserito in `/data`: 
 
 
 **Predisposizione locale:** lo storico amministrativo delle osservazioni manuali include un comando di rimozione per la singola riga, preceduto da conferma. Richiede backend e migrazione aggiornati; non è ancora pubblicato.
+
+**Correzione locale:** dopo una rimozione amministrativa non riuscita viene riletto l'elenco delle osservazioni; se la riga non esiste più è mostrato un avviso, mentre se la rilettura fallisce l'elenco è nascosto. Non ancora pubblicata.
