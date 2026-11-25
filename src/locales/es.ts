@@ -1,5 +1,13 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Fenomeno osservato:": "Fenómeno observado:",
+  "Fenomeno osservato": "Fenómeno observado",
+  "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Fenómeno observado e introducido manualmente por la escuela a la hora indicada; no es un pronóstico.",
+  "Intensità precipitazione": "Intensidad de precipitación",
+  "Non indicato": "No indicado",
+  "Nessuna": "Ninguna",
+  "Altro": "Otro",
+  "Grandine": "Granizo",
   "Distanza temporale": "Diferencia de tiempo",
   "Osservazioni manuali": "Observaciones manuales",
   "Cielo, pioggia e vento": "Cielo, lluvia y viento",

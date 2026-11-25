@@ -1,5 +1,13 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Fenomeno osservato:": "Phénomène observé :",
+  "Fenomeno osservato": "Phénomène observé",
+  "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Phénomène observé et saisi manuellement par l’école à l’heure indiquée ; ce n’est pas une prévision.",
+  "Intensità precipitazione": "Intensité des précipitations",
+  "Non indicato": "Non indiqué",
+  "Nessuna": "Aucune",
+  "Altro": "Autre",
+  "Grandine": "Grêle",
   "Distanza temporale": "Écart de temps",
   "Osservazioni manuali": "Observations manuelles",
   "Cielo, pioggia e vento": "Ciel, pluie et vent",

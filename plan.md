@@ -1283,3 +1283,7 @@ Su richiesta: archivio riservato distinto dalle misure, categorie per cielo/piog
 ### Condizioni manuali pubbliche e confronto sensori — 24 novembre 2026
 
 Su richiesta, la home locale mostra l’ultima osservazione e lo storico con un confronto descrittivo con le misure fisiche valide più vicine disponibili e la loro distanza temporale, più riepilogo per categoria. La scelta supera il limite iniziale di 30 minuti su successiva richiesta dell’utente. I dettagli di qualità, provenienza e limiti sono in `docs/frontend.md`; la funzione pubblica di lettura è attiva e il frontend è pubblicato e verificato sulla home.
+
+### Fenomeno osservato giornalmente — 25 novembre 2026
+
+Su richiesta, fenomeno osservato e orario sono parte dell’osservazione manuale giornaliera, non un avviso previsionale separato. La home mostra l’ultima osservazione e lo storico mantiene i record precedenti. Le categorie e il testo libero “altro” sono descritti in `docs/frontend.md`. Migrazione e funzioni applicate al progetto MeteOlivelli; il frontend è in corso di rilascio.

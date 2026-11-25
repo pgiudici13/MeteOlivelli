@@ -258,3 +258,7 @@ La sezione riservata riprende modulo, controlli e tabella amministrativi, con su
 ### Condizioni manuali nella home
 
 Sezione dedicata sotto le misure: ultimo cielo, pioggia e vento in tre colonne; cronologia e riepilogo si aprono a richiesta, con tabelle scorrevoli sui dispositivi stretti. Provenienza, orari e distanza temporale fra osservazione e misura sono espliciti.
+
+### Fenomeno osservato giornalmente
+
+In `/data` il fenomeno è scelto nel modulo delle osservazioni: “altro” apre una descrizione e “nessuna” nasconde l’intensità. Nella home l’ultimo fenomeno appare con la data dell’osservazione e nella cronologia, distinto dalle previsioni.

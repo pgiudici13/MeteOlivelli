@@ -136,7 +136,7 @@ export function createManageHandler(
       if (new URL(req.url).searchParams.get('resource') === 'conditions') {
         if (req.method === 'GET') {
           const items = await db(
-            '/rest/v1/manual_weather_conditions?select=id,observed_at,cloud,rain,wind&order=observed_at.desc&limit=100',
+            '/rest/v1/manual_weather_conditions?select=id,observed_at,cloud,rain,wind,phenomenon,phenomenon_detail&order=observed_at.desc&limit=100',
             'GET',
           )
           return response(req, { items })
@@ -162,7 +162,25 @@ export function createManageHandler(
         }
         const row = input as Record<string, unknown>
         if (
-          Object.keys(row).sort().join(',') !== 'cloud,observed_at,rain,wind' ||
+          ![
+            'cloud,observed_at,rain,wind',
+            'cloud,observed_at,phenomenon,phenomenon_detail,rain,wind',
+          ].includes(
+            Object.keys(row).sort().join(','),
+          ) ||
+          ('phenomenon' in row && row.phenomenon !== null &&
+            !['nessuna', 'pioviggine', 'pioggia', 'neve', 'grandine', 'altro'].includes(
+              String(row.phenomenon),
+            )) ||
+          ('phenomenon_detail' in row && row.phenomenon === 'altro' &&
+            (typeof row.phenomenon_detail !== 'string' ||
+              row.phenomenon_detail.trim().length === 0 || row.phenomenon_detail.length > 100 ||
+              Array.from(row.phenomenon_detail).some((character) =>
+                character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127
+              ))) ||
+          ('phenomenon_detail' in row && row.phenomenon !== 'altro' &&
+            row.phenomenon_detail !== null) ||
+          (row.phenomenon === 'nessuna' && row.rain !== 'assente') ||
           typeof row.observed_at !== 'string' ||
           !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(row.observed_at) ||
           !Number.isFinite(Date.parse(row.observed_at)) ||

@@ -10,7 +10,10 @@ Deno.test('lettura pubblica: proiezione limitata, paginazione, metodi e parametr
   let called = 0
   const handler = createHandler((name) => env[name], (url, options) => {
     called++
-    assert(new URL(String(url)).searchParams.get('select') === 'observed_at,cloud,rain,wind')
+    assert(
+      new URL(String(url)).searchParams.get('select') ===
+        'observed_at,cloud,rain,wind,phenomenon,phenomenon_detail',
+    )
     assert(options?.method === undefined)
     return Promise.resolve(
       Response.json([{

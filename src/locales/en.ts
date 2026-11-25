@@ -1,5 +1,13 @@
 /** Testi di presentazione; chiavi italiane, segnaposto numerati. */
 export default {
+  "Fenomeno osservato:": "Observed phenomenon:",
+  "Fenomeno osservato": "Observed phenomenon",
+  "Fenomeno osservato e inserito manualmente dalla scuola all’orario indicato; non è una previsione.": "Phenomenon observed and entered manually by the school at the indicated time; this is not a forecast.",
+  "Intensità precipitazione": "Precipitation intensity",
+  "Non indicato": "Not specified",
+  "Nessuna": "None",
+  "Altro": "Other",
+  "Grandine": "Hail",
   "Distanza temporale": "Time difference",
   "Osservazioni manuali": "Manual observations",
   "Cielo, pioggia e vento": "Sky, rain and wind",

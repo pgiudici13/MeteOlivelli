@@ -842,3 +842,11 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 **Verifiche:** `npm run check` superato (196 test frontend, 58 Deno e 28 Python), lint e build rieseguiti, prove browser locali con dati simulati desktop/mobile e con osservazione reale senza scritture.
 
 **24 novembre — confronto con la misura più vicina:** su successiva richiesta eliminato il limite di 30 minuti. La tabella mostra lo scarto temporale per non presentare come contemporanea una misura lontana; sono mantenute le esclusioni per dati sintetici e valori sospetti. Test mirati, lint e build superati. Browser locale con API reale: l’osservazione esistente del 12 novembre si abbina alla misura delle 11:08, distante 1 h 8 min; nessun dato modificato. Modifica pubblicata con `b215404`: deploy Vercel riuscito e confronto verificato anche sulla home pubblica.
+
+## Fenomeno osservato nelle condizioni giornaliere — 25 novembre 2026
+
+- [x] Predisposti campo fenomeno e descrizione “altro” nella registrazione manuale e nella home con storico; nessuna intensità mostrata per “nessuna”, nessun valore inventato per i record precedenti.
+- [x] Predisposti localmente migrazione, validazione e lettura pubblica dei campi; compatibilità con richieste precedenti conservata.
+- [x] Migrazione `20261125143913` applicata, osservazione precedente preservata e permessi diretti negati. Funzioni `manage-measurements` v8 e `read-manual-conditions` v2 attive; lettura pubblica 200 e amministrativa senza password 401.
+- [ ] Pubblicazione frontend e verifica della home pubblica.
+- **Verifiche locali:** Chrome con API simulate desktop e mobile: nessuna senza intensità, altro con descrizione, visualizzazione in home e record precedente senza fenomeno. `npm run check` superato: build/lint, 196 test frontend, 58 Deno e 28 Python. La revisione automatica ha respinto una scrittura sintetica persistente nel database reale per il rischio di contaminare lo storico pubblico; inserimento e modifica sono stati verificati con API simulate.

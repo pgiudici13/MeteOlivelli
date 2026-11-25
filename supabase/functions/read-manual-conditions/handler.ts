@@ -34,7 +34,7 @@ export function createHandler(
       ) throw new Error('Configurazione non valida')
       const url = new URL('/rest/v1/manual_weather_conditions', base)
       url.search = new URLSearchParams({
-        select: 'observed_at,cloud,rain,wind',
+        select: 'observed_at,cloud,rain,wind,phenomenon,phenomenon_detail',
         observed_at: `lte.${new Date().toISOString()}`,
         order: 'observed_at.desc,id.desc',
         limit: '101',
@@ -52,6 +52,8 @@ export function createHandler(
         cloud: row.cloud,
         rain: row.rain,
         wind: row.wind,
+        phenomenon: row.phenomenon,
+        phenomenon_detail: row.phenomenon_detail,
       }))
       return json({ items, next_offset: rows.length > 100 ? Number(offset) + 100 : null }, 200, {
         ...cors,

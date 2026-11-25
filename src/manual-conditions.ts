@@ -1,8 +1,8 @@
 import type { Measurement } from './weather.ts'
 import { isSuspect } from './weather.ts'
 
-export type ManualConditions = { observed_at: string; cloud: string; rain: string; wind: string }
-export const conditionLabels: Record<string, string> = { sereno: 'Sereno', poco_nuvoloso: 'Poco nuvoloso', nuvoloso: 'Nuvoloso', coperto: 'Coperto', assente: 'Assente', debole: 'Debole', moderata: 'Moderata', forte: 'Forte', calmo: 'Calmo', moderato: 'Moderato' }
+export type ManualConditions = { observed_at: string; cloud: string; rain: string; wind: string; phenomenon?: string | null; phenomenon_detail?: string | null }
+export const conditionLabels: Record<string, string> = { nessuna: 'Nessuna', altro: 'Altro', grandine: 'Grandine', pioviggine: 'Pioviggine', pioggia: 'Pioggia', neve: 'Neve', sereno: 'Sereno', poco_nuvoloso: 'Poco nuvoloso', nuvoloso: 'Nuvoloso', coperto: 'Coperto', assente: 'Assente', debole: 'Debole', moderata: 'Moderata', forte: 'Forte', calmo: 'Calmo', moderato: 'Moderato' }
 const endpoint = 'https://pvtzncseisbxaaseqfvo.supabase.co/functions/v1/read-manual-conditions'
 export async function readManualConditions(signal: AbortSignal, fetcher: typeof fetch = fetch): Promise<ManualConditions[]> {
   const all: ManualConditions[] = []
@@ -13,7 +13,7 @@ export async function readManualConditions(signal: AbortSignal, fetcher: typeof 
     const data = await response.json() as { items?: unknown; next_offset?: unknown }
     if (!Array.isArray(data.items) || data.items.length > 100) throw new Error('Risposta non valida')
     for (const item of data.items) {
-      if (!item || typeof item !== 'object' || typeof item.observed_at !== 'string' || !Number.isFinite(Date.parse(item.observed_at)) || !['sereno','poco_nuvoloso','nuvoloso','coperto'].includes(item.cloud) || !['assente','debole','moderata','forte'].includes(item.rain) || !['calmo','debole','moderato','forte'].includes(item.wind)) throw new Error('Osservazione non valida')
+      if (!item || typeof item !== 'object' || typeof item.observed_at !== 'string' || !Number.isFinite(Date.parse(item.observed_at)) || !['sereno','poco_nuvoloso','nuvoloso','coperto'].includes(item.cloud) || !['assente','debole','moderata','forte'].includes(item.rain) || !['calmo','debole','moderato','forte'].includes(item.wind) || !(item.phenomenon == null || ['nessuna','pioviggine','pioggia','neve','grandine','altro'].includes(item.phenomenon)) || !(item.phenomenon === 'altro' ? typeof item.phenomenon_detail === 'string' && item.phenomenon_detail.trim().length > 0 && item.phenomenon_detail.length <= 100 : item.phenomenon_detail == null)) throw new Error('Osservazione non valida')
       all.push(item as ManualConditions)
     }
     if (data.next_offset === null) return all

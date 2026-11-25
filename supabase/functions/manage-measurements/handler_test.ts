@@ -260,15 +260,31 @@ Deno.test('Condizioni manuali: lettura, scrittura, modifica e validazione protet
   assert((await handler(req('POST', body))).status === 201)
   assert((await handler(req('PATCH', body))).status === 200)
   assert(
-    calls.length === 3 && calls.every((call) => call.url.includes('manual_weather_conditions')),
+    (await handler(
+      req('POST', { ...body, phenomenon: 'nessuna', phenomenon_detail: null, rain: 'assente' }),
+    )).status === 201,
+  )
+  assert(
+    (await handler(req('PATCH', { ...body, phenomenon: 'altro', phenomenon_detail: 'Nevischio' })))
+      .status === 200,
+  )
+  assert(
+    calls.length === 5 && calls.every((call) => call.url.includes('manual_weather_conditions')),
   )
   for (
-    const bad of [{ ...body, rain: 'inventata' }, {
-      ...body,
-      observed_at: '2026-02-30T10:00:00.000Z',
-    }, { ...body, extra: 1 }]
+    const bad of [
+      { ...body, rain: 'inventata' },
+      {
+        ...body,
+        observed_at: '2026-02-30T10:00:00.000Z',
+      },
+      { ...body, extra: 1 },
+      { ...body, phenomenon: 'nessuna', phenomenon_detail: null },
+      { ...body, phenomenon: 'altro', phenomenon_detail: ' ' },
+      { ...body, phenomenon: 'neve', phenomenon_detail: 'superfluo' },
+    ]
   ) {
     assert((await handler(req('POST', bad))).status === 400)
   }
-  assert(calls.length === 3)
+  assert(calls.length === 5)
 })
