@@ -421,3 +421,6 @@ La funzione locale `read-manual-conditions` espone in sola lettura le osservazio
 ### Fenomeno osservato manualmente
 
 La migrazione `20261125143913_manual_conditions_phenomenon` aggiunge alle osservazioni i campi facoltativi `phenomenon` e `phenomenon_detail`, lasciando null i record esistenti. L’endpoint amministrativo valida le categorie e la descrizione di “altro”; con “nessuna” l’intensità non viene mostrata e il campo di compatibilità `rain` conserva `assente`. La lettura pubblica espone i nuovi campi insieme all’orario dell’osservazione, senza concedere accesso diretto alla tabella. La migrazione è applicata al progetto MeteOlivelli; sono attive `manage-measurements` v8 e `read-manual-conditions` v2. Il frontend è pubblicato e verificato.
+
+
+**Predisposizione locale — rimozione osservazioni:** `DELETE resource=conditions&id=<UUID>` valida password, origine e identificativo e rimuove soltanto la riga indicata; restituisce 404 se assente. Il ruolo server dispone già del privilegio DELETE, negato ai ruoli pubblici. La funzione `manage-measurements` v9 è attiva; DELETE senza password è stato rifiutato con HTTP 401.

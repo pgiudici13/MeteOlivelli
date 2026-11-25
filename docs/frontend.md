@@ -483,3 +483,6 @@ La sezione mostra l’ultima osservazione e una cronologia espandibile con le me
 Nell'ultima osservazione il fenomeno usa la stessa presentazione dei valori di cielo, intensità e vento.
 
 L’intervento aggiunge il fenomeno osservato all’orario inserito in `/data`: nessuna, pioviggine, pioggia, neve, grandine o altro con descrizione. Con “nessuna” l’intensità non compare; l’osservazione conserva l’orario scelto e rimane nello storico. La home mostra l’ultima registrazione e il fenomeno storico accanto alla misura fisica più vicina; non è una previsione. Le osservazioni precedenti restano “non indicato”. La migrazione e le funzioni sono attive; frontend pubblicato e verificato sulla home e su `/data`.
+
+
+**Predisposizione locale:** lo storico amministrativo delle osservazioni manuali include un comando di rimozione per la singola riga, preceduto da conferma. Richiede backend e migrazione aggiornati; non è ancora pubblicato.

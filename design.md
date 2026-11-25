@@ -1,5 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
+In `/data`, la riga di ogni osservazione manuale include il comando Rimuovi accanto a Modifica, con conferma prima della cancellazione.
+
 Il fenomeno osservato è mostrato nella stessa griglia e con la stessa gerarchia visiva di cielo, intensità e vento; la griglia si adatta allo spazio disponibile.
 Nella tabella della cronologia le colonne seguono l'ordine cielo, fenomeno osservato, intensità della precipitazione e vento.
 

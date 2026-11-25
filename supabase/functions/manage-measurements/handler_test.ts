@@ -288,3 +288,26 @@ Deno.test('Condizioni manuali: lettura, scrittura, modifica e validazione protet
   }
   assert(calls.length === 5)
 })
+
+Deno.test('Condizioni manuali: rimozione autenticata e limitata a un ID valido', async () => {
+  const calls: { url: string; method: string }[] = []
+  let found = true
+  const handler = createManageHandler((name) => environment[name], (url, init) => {
+    calls.push({ url: String(url), method: String(init?.method) })
+    return Promise.resolve(Response.json(found ? [{ id }] : []))
+  })
+  const req = (query: string, secret = password) =>
+    new Request(
+      `https://example.invalid/manage-measurements?resource=conditions${query}`,
+      { method: 'DELETE', headers: { origin, 'x-admin-password': secret } },
+    )
+  assert((await handler(req(`&id=${id}`, 'wrong'))).status === 401)
+  assert((await handler(req(''))).status === 400)
+  assert((await handler(req('&id=not-an-id'))).status === 400)
+  assert(calls.length === 0)
+  assert((await handler(req(`&id=${id}`))).status === 200)
+  assert(calls.length === 1 && calls[0].method === 'DELETE')
+  assert(calls[0].url.endsWith(`/manual_weather_conditions?id=eq.${id}&select=id`))
+  found = false
+  assert((await handler(req(`&id=${id}`))).status === 404)
+})

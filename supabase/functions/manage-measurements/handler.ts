@@ -141,6 +141,19 @@ export function createManageHandler(
           )
           return response(req, { items })
         }
+        if (req.method === 'DELETE') {
+          if (!validId(id)) return response(req, { code: 'invalid_request' }, 400)
+          const deleted = await db(
+            `/rest/v1/manual_weather_conditions?id=eq.${id}&select=id`,
+            'DELETE',
+            undefined,
+            true,
+          ) as unknown[]
+          if (!Array.isArray(deleted) || deleted.length !== 1) {
+            return response(req, { code: 'not_found' }, 404)
+          }
+          return response(req, { deleted: true })
+        }
         if (req.method !== 'POST' && req.method !== 'PATCH') {
           return response(req, { code: 'method_not_allowed' }, 405)
         }

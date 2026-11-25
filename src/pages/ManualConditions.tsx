@@ -47,6 +47,17 @@ export function ManualConditions({ password, endpoint }: Props) {
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Salvataggio non riuscito.') }
     finally { setBusy(false) }
   }
+  async function remove(row: Row) {
+    if (busy || !window.confirm('Eliminare questa osservazione? L’operazione non si può annullare.')) return
+    setBusy(true); setMessage('')
+    try {
+      await api('DELETE', undefined, row.id)
+      if (editing?.id === row.id) { setEditing(null); setForm(blank) }
+      setMessage('Osservazione eliminata.')
+      try { await refresh() } catch { setRows(null); setMessage('Osservazione eliminata, ma storico non aggiornato. Ricarica la pagina.') }
+    } catch { setMessage('Eliminazione non riuscita. Riprova.') }
+    finally { setBusy(false) }
+  }
   const proposed = weather ? suggestions(weather) : null
   return <section className="data-admin-list" aria-labelledby="conditions-title">
     <div className="data-admin-section-head"><div><p className="eyebrow section-index">03 / OSSERVAZIONI MANUALI</p><h2 id="conditions-title">Condizioni meteo</h2></div></div>
@@ -68,6 +79,6 @@ export function ManualConditions({ password, endpoint }: Props) {
     </form>
     <p role="status" aria-live="polite">{translate(message)}</p>
     <h3>Osservazioni recenti</h3>
-    {rows === null ? <p>Storico non disponibile o in caricamento.</p> : rows.length === 0 ? <p>Nessuna osservazione da mostrare.</p> : <div className="data-admin-table-wrap"><table><thead><tr><th>Osservata</th><th>Cielo</th><th>Pioggia</th><th>Vento</th><th>Fenomeno osservato</th><th>Azioni</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td>{new Date(row.observed_at).toLocaleString('it-IT')}</td>{(['cloud', 'rain', 'wind'] as const).map(key => <td key={key}>{choices[key].find(([value]) => value === row[key])?.[1] ?? '—'}</td>)}<td>{row.phenomenon === "altro" ? row.phenomenon_detail : phenomena.find(([value]) => value === row.phenomenon)?.[1] ?? "Non indicato"}</td><td><button type="button" disabled={busy} onClick={() => { setEditing(row); setForm({ observed_at: dateInput(row.observed_at), cloud: row.cloud, rain: row.rain, wind: row.wind, phenomenon: row.phenomenon ?? null, phenomenon_detail: row.phenomenon_detail ?? null }) }}>Modifica</button></td></tr>)}</tbody></table></div>}
+    {rows === null ? <p>Storico non disponibile o in caricamento.</p> : rows.length === 0 ? <p>Nessuna osservazione da mostrare.</p> : <div className="data-admin-table-wrap"><table><thead><tr><th>Osservata</th><th>Cielo</th><th>Pioggia</th><th>Vento</th><th>Fenomeno osservato</th><th>Azioni</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td>{new Date(row.observed_at).toLocaleString('it-IT')}</td>{(['cloud', 'rain', 'wind'] as const).map(key => <td key={key}>{choices[key].find(([value]) => value === row[key])?.[1] ?? '—'}</td>)}<td>{row.phenomenon === "altro" ? row.phenomenon_detail : phenomena.find(([value]) => value === row.phenomenon)?.[1] ?? "Non indicato"}</td><td><button type="button" disabled={busy} onClick={() => { setEditing(row); setForm({ observed_at: dateInput(row.observed_at), cloud: row.cloud, rain: row.rain, wind: row.wind, phenomenon: row.phenomenon ?? null, phenomenon_detail: row.phenomenon_detail ?? null }) }}>Modifica</button><button type="button" className="danger-button" disabled={busy} onClick={() => void remove(row)}>Rimuovi</button></td></tr>)}</tbody></table></div>}
   </section>
 }

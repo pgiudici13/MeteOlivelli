@@ -1290,3 +1290,6 @@ Su richiesta, fenomeno osservato e orario sono parte dell’osservazione manuale
 
 
 **25 novembre 2026 — confronto giornaliero:** su richiesta, la cronologia locale delle osservazioni confronta le medie delle misure valide della stessa giornata civile di Roma, in sostituzione della misura più vicina e della distanza temporale. La giornata in corso si aggiorna con le nuove misure; dettagli e limiti in `docs/frontend.md`. Nessuna pubblicazione autorizzata.
+
+
+**25 novembre 2026 — rimozione osservazioni manuali:** su richiesta predisposti localmente comando amministrativo, endpoint protetto con privilegio DELETE già disponibile al ruolo server e negato ai ruoli pubblici. Funzione amministrativa v9 pubblicata; la cancellazione richiede conferma nell’interfaccia.

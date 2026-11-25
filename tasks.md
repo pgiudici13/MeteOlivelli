@@ -866,3 +866,11 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - Modifica locale, non ancora pubblicata.
 
 **Ordine colonne:** predisposto localmente cielo, fenomeno, intensità e vento nella cronologia; build, lint e 9 test mirati superati. Nessun deploy eseguito per questa modifica.
+
+
+## Rimozione osservazioni manuali — 25 novembre 2026
+
+- [x] Predisposti localmente comando di rimozione con conferma, DELETE autenticato per UUID e verificato il privilegio DELETE già presente sul ruolo server e negato ai ruoli pubblici.
+- [x] Funzione amministrativa v9 pubblicata; DELETE senza password rifiutato con 401, RLS attiva e privilegi pubblici negati.
+- [ ] Pubblicazione frontend e verifica visiva.
+- [x] Verifiche: build, lint, 195 test frontend, controlli e lint backend, 59 test Deno superati; nessun test SQL remoto o browser eseguito.
