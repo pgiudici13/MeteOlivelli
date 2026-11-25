@@ -864,3 +864,5 @@ Attività di verifica e correzione nelle Fasi 5–8, senza rinumerarle. Commit/p
 - [x] Fenomeno nella stessa griglia e con la stessa gerarchia visiva degli altri valori dell’ultima osservazione; griglia adattiva.
 - [x] Build, lint e 195 test frontend superati. Nessun collaudo browser eseguito.
 - Modifica locale, non ancora pubblicata.
+
+**Ordine colonne:** predisposto localmente cielo, fenomeno, intensità e vento nella cronologia; build, lint e 9 test mirati superati. Nessun deploy eseguito per questa modifica.

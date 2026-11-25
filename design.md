@@ -1,6 +1,7 @@
 # Design MeteOlivelli — riferimento corrente
 
 Il fenomeno osservato è mostrato nella stessa griglia e con la stessa gerarchia visiva di cielo, intensità e vento; la griglia si adatta allo spazio disponibile.
+Nella tabella della cronologia le colonne seguono l'ordine cielo, fenomeno osservato, intensità della precipitazione e vento.
 
 La cronologia delle osservazioni manuali presenta le medie giornaliere dei sensori, senza colonne per ora della singola misura o distanza temporale.
 
